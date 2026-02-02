@@ -107,36 +107,8 @@ function saveSettings() {
 
 function getCompactFabHTML() {
     return `
-        <div class="mg-compact-fab" id="mg-compact-fab" data-mg-theme="${extensionSettings.shellTheme}">
-            <!-- Outer ring with gems -->
-            <div class="mg-compact-ring">
-                <span class="mg-compact-gem mg-compact-gem--n"></span>
-                <span class="mg-compact-gem mg-compact-gem--e"></span>
-                <span class="mg-compact-gem mg-compact-gem--s"></span>
-                <span class="mg-compact-gem mg-compact-gem--w"></span>
-            </div>
-            
-            <!-- Inner face -->
-            <div class="mg-compact-face">
-                <!-- Central symbol -->
-                <div class="mg-compact-symbol">
-                    <span class="mg-compact-star">★</span>
-                    <span class="mg-compact-moon">☽</span>
-                </div>
-                
-                <!-- Mirror/crystal overlay -->
-                <div class="mg-compact-mirror"></div>
-            </div>
-            
-            <!-- Sparkle effects (hidden until hover/click) -->
-            <div class="mg-compact-sparkles">
-                <span class="mg-sparkle mg-sparkle--1">✦</span>
-                <span class="mg-sparkle mg-sparkle--2">✧</span>
-                <span class="mg-sparkle mg-sparkle--3">✦</span>
-                <span class="mg-sparkle mg-sparkle--4">✧</span>
-                <span class="mg-sparkle mg-sparkle--5">⋆</span>
-                <span class="mg-sparkle mg-sparkle--6">✦</span>
-            </div>
+        <div class="mg-compact-fab" id="mg-compact-fab" data-mg-theme="${extensionSettings.shellTheme}" style="position:fixed; bottom:100px; left:20px; width:56px; height:56px; z-index:99999; background:gold; border-radius:50%; border:3px solid #ff69b4; display:flex; align-items:center; justify-content:center; cursor:pointer; box-shadow: 0 0 20px gold;">
+            <span style="font-size:24px;">★</span>
         </div>
     `;
 }
@@ -454,16 +426,38 @@ function createCompactFab() {
     // Remove existing if any
     $('#mg-compact-fab').remove();
     
+    console.log(`[${extensionName}] === CREATING COMPACT FAB ===`);
+    if (typeof toastr !== 'undefined') {
+        toastr.warning('Attempting to create Compact...', 'Debug');
+    }
+    
     // Add to DOM
-    $('body').append(getCompactFabHTML());
+    const html = getCompactFabHTML();
+    console.log(`[${extensionName}] Compact HTML:`, html.substring(0, 100));
+    $('body').append(html);
+    
+    // Verify it was added
+    const $compact = $('#mg-compact-fab');
+    console.log(`[${extensionName}] Compact element found:`, $compact.length);
+    
+    if ($compact.length === 0) {
+        console.error(`[${extensionName}] Failed to create Compact FAB!`);
+        if (typeof toastr !== 'undefined') {
+            toastr.error('Failed to create Compact!', 'Petit Grimoire');
+        }
+        return;
+    }
     
     // Apply theme
-    $('#mg-compact-fab').attr('data-mg-theme', extensionSettings.shellTheme);
+    $compact.attr('data-mg-theme', extensionSettings.shellTheme);
     
     // Wire up events
     setupCompactEvents();
     
-    console.log(`[${extensionName}] Compact FAB created`);
+    if (typeof toastr !== 'undefined') {
+        toastr.success('Compact FAB created! Look bottom-left!', 'Petit Grimoire');
+    }
+    console.log(`[${extensionName}] Compact FAB created successfully`);
 }
 
 function setupCompactEvents() {
