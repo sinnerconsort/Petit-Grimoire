@@ -68,6 +68,7 @@ const defaultSettings = {
 let extensionSettings = {};
 let isDragging = false;
 let dragOffset = { x: 0, y: 0 };
+let dragMoved = false;
 
 // ============================================
 // SETTINGS MANAGEMENT
@@ -102,86 +103,61 @@ function saveSettings() {
 }
 
 // ============================================
-// COMPACT FAB HTML
+// MAIN WIDGET HTML
 // ============================================
 
-function getCompactFabHTML() {
+function getWidgetHTML() {
     return `
-        <div class="mg-compact-fab" id="mg-compact-fab" data-mg-theme="${extensionSettings.shellTheme}" style="position:fixed; bottom:100px; left:20px; width:56px; height:56px; z-index:99999; background:gold; border-radius:50%; border:3px solid #ff69b4; display:flex; align-items:center; justify-content:center; cursor:pointer; box-shadow: 0 0 20px gold;">
-            <span style="font-size:24px;">★</span>
-        </div>
-    `;
-}
-
-// ============================================
-// NYX-GOTCHI HTML
-// ============================================
-
-function getNyxgotchiHTML() {
-    return `
-        <div class="nyxgotchi" id="nyxgotchi" data-mg-theme="${extensionSettings.shellTheme}" data-mg-scale="${extensionSettings.shellScale || 'medium'}">
+        <div class="mg-widget" id="mg-widget" data-mg-theme="${extensionSettings.shellTheme}" data-mg-scale="${extensionSettings.shellScale || 'medium'}">
+            
             <!-- Thought bubble (hidden by default) -->
             <div class="nyxgotchi-thought" id="nyxgotchi-speech">
                 Hello, mortal.
             </div>
             
-            <!-- The shell -->
-            <div class="nyxgotchi-shell">
-                <!-- Decorative chain -->
-                <div class="nyxgotchi-chain">
-                    <div class="nyxgotchi-chain-link"></div>
-                    <div class="nyxgotchi-chain-link"></div>
-                    <div class="nyxgotchi-chain-link"></div>
-                    <div class="nyxgotchi-chain-link"></div>
-                    <div class="nyxgotchi-chain-link"></div>
-                </div>
-                
-                <!-- Decorations -->
-                <div class="nyxgotchi-decorations">
-                    <span class="nyxgotchi-deco nyxgotchi-deco--1">✦</span>
-                    <span class="nyxgotchi-deco nyxgotchi-deco--2">☽</span>
-                    <span class="nyxgotchi-deco nyxgotchi-deco--3">♡</span>
-                    <span class="nyxgotchi-deco nyxgotchi-deco--4">★</span>
-                    <span class="nyxgotchi-deco nyxgotchi-deco--5">✧</span>
-                    <span class="nyxgotchi-deco nyxgotchi-deco--6">◇</span>
-                </div>
-                
-                <!-- Screen -->
-                <div class="nyxgotchi-screen">
+            <!-- Tamagotchi Widget (above compact) -->
+            <div class="mg-tamagotchi" id="mg-tamagotchi">
+                <div class="mg-tama-screen">
                     <!-- Status bar -->
-                    <div class="nyxgotchi-status">
-                        <span class="nyxgotchi-status-item">
-                            🎴<span class="nyxgotchi-queue-badge" id="nyxgotchi-queue">0</span>
-                        </span>
-                        <span class="nyxgotchi-status-item nyxgotchi-heart" id="nyxgotchi-heart">💜</span>
-                        <span class="nyxgotchi-status-item">
-                            ⭐<span id="nyxgotchi-disposition">${extensionSettings.nyx.disposition}</span>
-                        </span>
+                    <div class="mg-tama-status">
+                        <span>🎴<span id="nyxgotchi-queue">0</span></span>
+                        <span class="nyxgotchi-heart" id="nyxgotchi-heart">💜</span>
+                        <span>⭐<span id="nyxgotchi-disposition">${extensionSettings.nyx.disposition}</span></span>
                     </div>
                     
-                    <!-- Sprite area -->
-                    <div class="nyxgotchi-sprite-area">
-                        <div class="nyxgotchi-sprite" id="nyxgotchi-sprite">
-                            <!-- Filled by sprite animation system -->
-                        </div>
-                        
-                        <!-- Card flash overlay -->
-                        <div class="nyxgotchi-card-flash" id="nyxgotchi-card-flash">
-                            <span class="card-icon">🎴</span>
-                        </div>
+                    <!-- Sprite -->
+                    <div class="mg-tama-sprite" id="nyxgotchi-sprite"></div>
+                    
+                    <!-- Card flash overlay -->
+                    <div class="nyxgotchi-card-flash" id="nyxgotchi-card-flash">
+                        <span class="card-icon">🎴</span>
                     </div>
                     
-                    <!-- Mood display -->
-                    <div class="nyxgotchi-mood" id="nyxgotchi-mood">
-                        ${getMoodText(extensionSettings.nyx.disposition)}
-                    </div>
+                    <!-- Mood -->
+                    <div class="mg-tama-mood" id="nyxgotchi-mood">${getMoodText(extensionSettings.nyx.disposition)}</div>
                 </div>
                 
-                <!-- Buttons -->
-                <div class="nyxgotchi-buttons">
-                    <button class="nyxgotchi-button" data-action="draw" id="nyxgotchi-btn-draw" title="Draw Card"></button>
-                    <button class="nyxgotchi-button" data-action="queue" id="nyxgotchi-btn-queue" title="View Queue"></button>
-                    <button class="nyxgotchi-button" data-action="poke" id="nyxgotchi-btn-poke" title="Poke Nyx"></button>
+                <!-- Tama buttons -->
+                <div class="mg-tama-buttons">
+                    <button class="mg-tama-btn" id="nyxgotchi-btn-draw" title="Draw Card">🎴</button>
+                    <button class="mg-tama-btn" id="nyxgotchi-btn-queue" title="Queue">📋</button>
+                    <button class="mg-tama-btn" id="nyxgotchi-btn-poke" title="Poke">👆</button>
+                </div>
+            </div>
+            
+            <!-- Compact Brooch (main FAB) -->
+            <div class="mg-compact" id="mg-compact">
+                <div class="mg-compact-ring">
+                    <div class="mg-compact-face">
+                        <span class="mg-compact-star">★</span>
+                    </div>
+                    <span class="mg-compact-gem mg-compact-gem--1"></span>
+                    <span class="mg-compact-gem mg-compact-gem--2"></span>
+                    <span class="mg-compact-gem mg-compact-gem--3"></span>
+                    <span class="mg-compact-gem mg-compact-gem--4"></span>
+                </div>
+                <div class="mg-compact-sparkles">
+                    <span>✦</span><span>✧</span><span>✦</span><span>✧</span>
                 </div>
             </div>
         </div>
@@ -422,203 +398,90 @@ function getMoodText(disposition) {
 // COMPACT FAB CREATION
 // ============================================
 
-function createCompactFab() {
-    // Remove existing if any
-    $('#mg-compact-fab').remove();
-    
-    console.log(`[${extensionName}] === CREATING COMPACT FAB ===`);
-    if (typeof toastr !== 'undefined') {
-        toastr.warning('Attempting to create Compact...', 'Debug');
-    }
-    
-    // Add to DOM
-    const html = getCompactFabHTML();
-    console.log(`[${extensionName}] Compact HTML:`, html.substring(0, 100));
-    $('body').append(html);
-    
-    // Verify it was added
-    const $compact = $('#mg-compact-fab');
-    console.log(`[${extensionName}] Compact element found:`, $compact.length);
-    
-    if ($compact.length === 0) {
-        console.error(`[${extensionName}] Failed to create Compact FAB!`);
-        if (typeof toastr !== 'undefined') {
-            toastr.error('Failed to create Compact!', 'Petit Grimoire');
-        }
-        return;
-    }
-    
-    // Apply theme
-    $compact.attr('data-mg-theme', extensionSettings.shellTheme);
-    
-    // Wire up events
-    setupCompactEvents();
-    
-    if (typeof toastr !== 'undefined') {
-        toastr.success('Compact FAB created! Look bottom-left!', 'Petit Grimoire');
-    }
-    console.log(`[${extensionName}] Compact FAB created successfully`);
-}
-
-function setupCompactEvents() {
-    const $compact = $('#mg-compact-fab');
-    
-    // Click to transform and open grimoire
-    $compact.on('click', (e) => {
-        e.stopPropagation();
-        triggerTransformation();
-    });
-}
-
-function triggerTransformation() {
-    const $compact = $('#mg-compact-fab');
-    
-    // Already transforming? Ignore
-    if ($compact.hasClass('transforming')) return;
-    
-    // If grimoire is open, close it
-    if ($compact.hasClass('active')) {
-        closeGrimoire();
-        return;
-    }
-    
-    // Start transformation sequence
-    $compact.addClass('transforming');
-    
-    // Nyx reacts
-    showNyxSpeech("✨ Let's see what the cards reveal... ✨", 3000);
-    
-    // After animation, open grimoire
-    setTimeout(() => {
-        $compact.removeClass('transforming').addClass('active');
-        openGrimoire();
-    }, 800);
-}
-
-function openGrimoire() {
-    // TODO: Create and show the Grimoire panel
-    console.log(`[${extensionName}] Opening Grimoire...`);
-    
-    // Placeholder - will build the actual grimoire next
-    if (typeof toastr !== 'undefined') {
-        toastr.info('✨ Grimoire opened! (Panel coming soon)', 'Petit Grimoire');
-    }
-}
-
-function closeGrimoire() {
-    const $compact = $('#mg-compact-fab');
-    $compact.removeClass('active');
-    
-    // TODO: Hide the Grimoire panel
-    console.log(`[${extensionName}] Closing Grimoire...`);
-}
-
 // ============================================
-// NYX-GOTCHI CREATION
+// WIDGET CREATION
 // ============================================
 
-function createNyxgotchi() {
-    // Remove existing if any
-    $('#nyxgotchi').remove();
+function createWidget() {
+    // Remove existing
+    $('#mg-widget').remove();
     
-    // Debug: Show we're trying to create
-    if (typeof toastr !== 'undefined') {
-        toastr.info('Creating Nyx-gotchi...', 'Petit Grimoire');
-    }
-    console.log(`[${extensionName}] Creating Nyx-gotchi...`);
+    console.log(`[${extensionName}] Creating widget...`);
     
     // Add to DOM
-    const html = getNyxgotchiHTML();
-    $('body').append(html);
+    $('body').append(getWidgetHTML());
     
-    // Verify it was added
-    const $nyx = $('#nyxgotchi');
-    if ($nyx.length === 0) {
+    const $widget = $('#mg-widget');
+    if ($widget.length === 0) {
+        console.error(`[${extensionName}] Failed to create widget!`);
         if (typeof toastr !== 'undefined') {
-            toastr.error('Failed to create Nyx-gotchi element!', 'Petit Grimoire');
+            toastr.error('Failed to create widget!', 'Petit Grimoire');
         }
-        console.error(`[${extensionName}] Failed to append Nyx-gotchi to DOM`);
         return;
     }
     
     // Apply saved position
-    applyNyxPosition();
+    applyWidgetPosition();
     
-    // Wire up event handlers
-    setupNyxgotchiEvents();
+    // Wire up all events
+    setupWidgetEvents();
     
     // Start sprite animation
     startSpriteAnimation();
     
-    // Debug: Confirm success
-    if (typeof toastr !== 'undefined') {
-        toastr.success('Nyx-gotchi created!', 'Petit Grimoire');
-    }
-    console.log(`[${extensionName}] Nyx-gotchi created, element:`, $nyx[0]);
+    console.log(`[${extensionName}] Widget created successfully`);
 }
 
-function applyNyxPosition() {
-    const $nyx = $('#nyxgotchi');
-    if ($nyx.length === 0) return;
+function applyWidgetPosition() {
+    const $widget = $('#mg-widget');
+    if ($widget.length === 0) return;
     
     const pos = extensionSettings.nyxPosition;
     
-    // Apply position - handle both old and new format
     if (pos.top !== undefined && pos.top !== 'auto') {
-        $nyx.css('top', pos.top + 'px');
-        $nyx.css('bottom', 'auto');
+        $widget.css({ top: pos.top + 'px', bottom: 'auto' });
     } else if (pos.bottom !== undefined && pos.bottom !== 'auto') {
-        $nyx.css('bottom', pos.bottom + 'px');
-        $nyx.css('top', 'auto');
+        $widget.css({ bottom: pos.bottom + 'px', top: 'auto' });
     } else {
-        // Default to top
-        $nyx.css('top', '70px');
-        $nyx.css('bottom', 'auto');
+        $widget.css({ bottom: '100px', top: 'auto' });
     }
     
     if (pos.right !== undefined && pos.right !== 'auto') {
-        $nyx.css('right', pos.right + 'px');
-        $nyx.css('left', 'auto');
+        $widget.css({ right: pos.right + 'px', left: 'auto' });
     } else if (pos.left !== undefined && pos.left !== 'auto') {
-        $nyx.css('left', pos.left + 'px');
-        $nyx.css('right', 'auto');
+        $widget.css({ left: pos.left + 'px', right: 'auto' });
     } else {
-        // Default to right
-        $nyx.css('right', '20px');
-        $nyx.css('left', 'auto');
+        $widget.css({ right: '20px', left: 'auto' });
     }
-    
-    console.log(`[${extensionName}] Applied position:`, pos);
 }
 
 // ============================================
-// DRAGGING
+// DRAGGING (drag by compact, moves whole widget)
 // ============================================
 
 function setupDragging() {
-    const nyxgotchi = document.getElementById('nyxgotchi');
-    if (!nyxgotchi) return;
+    const compact = document.getElementById('mg-compact');
+    if (!compact) return;
     
-    // Mouse events
-    nyxgotchi.addEventListener('mousedown', startDrag);
+    // Drag by the compact brooch
+    compact.addEventListener('mousedown', startDrag);
     document.addEventListener('mousemove', drag);
     document.addEventListener('mouseup', endDrag);
     
-    // Touch events
-    nyxgotchi.addEventListener('touchstart', startDrag, { passive: false });
+    compact.addEventListener('touchstart', startDrag, { passive: false });
     document.addEventListener('touchmove', drag, { passive: false });
     document.addEventListener('touchend', endDrag);
 }
 
 function startDrag(e) {
-    // Don't drag if clicking a button
-    if (e.target.closest('.nyxgotchi-button')) return;
+    const widget = document.getElementById('mg-widget');
+    if (!widget) return;
     
     isDragging = true;
-    const nyxgotchi = document.getElementById('nyxgotchi');
-    nyxgotchi.classList.add('dragging');
+    dragMoved = false;
+    widget.classList.add('dragging');
     
-    const rect = nyxgotchi.getBoundingClientRect();
+    const rect = widget.getBoundingClientRect();
     const clientX = e.touches ? e.touches[0].clientX : e.clientX;
     const clientY = e.touches ? e.touches[0].clientY : e.clientY;
     
@@ -631,30 +494,25 @@ function startDrag(e) {
 function drag(e) {
     if (!isDragging) return;
     
+    dragMoved = true;
+    
     const clientX = e.touches ? e.touches[0].clientX : e.clientX;
     const clientY = e.touches ? e.touches[0].clientY : e.clientY;
     
-    const nyxgotchi = document.getElementById('nyxgotchi');
-    const rect = nyxgotchi.getBoundingClientRect();
+    const widget = document.getElementById('mg-widget');
+    const rect = widget.getBoundingClientRect();
     
-    // Calculate new position based on drag
     let newLeft = clientX - dragOffset.x;
     let newTop = clientY - dragOffset.y;
     
     // Constrain to viewport
-    const minX = 10;
-    const maxX = window.innerWidth - rect.width - 10;
-    const minY = 10;
-    const maxY = window.innerHeight - rect.height - 10;
+    newLeft = Math.max(10, Math.min(window.innerWidth - rect.width - 10, newLeft));
+    newTop = Math.max(10, Math.min(window.innerHeight - rect.height - 10, newTop));
     
-    newLeft = Math.max(minX, Math.min(maxX, newLeft));
-    newTop = Math.max(minY, Math.min(maxY, newTop));
-    
-    // Apply position using left/top
-    nyxgotchi.style.left = newLeft + 'px';
-    nyxgotchi.style.top = newTop + 'px';
-    nyxgotchi.style.right = 'auto';
-    nyxgotchi.style.bottom = 'auto';
+    widget.style.left = newLeft + 'px';
+    widget.style.top = newTop + 'px';
+    widget.style.right = 'auto';
+    widget.style.bottom = 'auto';
     
     e.preventDefault();
 }
@@ -663,13 +521,10 @@ function endDrag() {
     if (!isDragging) return;
     
     isDragging = false;
-    const nyxgotchi = document.getElementById('nyxgotchi');
-    nyxgotchi.classList.remove('dragging');
+    const widget = document.getElementById('mg-widget');
+    widget.classList.remove('dragging');
     
-    // Get computed position
-    const rect = nyxgotchi.getBoundingClientRect();
-    
-    // Save as top/right (easier to work with)
+    const rect = widget.getBoundingClientRect();
     extensionSettings.nyxPosition = {
         top: rect.top,
         right: window.innerWidth - rect.right,
@@ -677,34 +532,75 @@ function endDrag() {
         bottom: 'auto'
     };
     saveSettings();
-    
-    console.log(`[${extensionName}] Saved position:`, extensionSettings.nyxPosition);
 }
 
 // ============================================
-// BUTTON HANDLERS
+// EVENT SETUP
 // ============================================
 
-function setupNyxgotchiEvents() {
+function setupWidgetEvents() {
     setupDragging();
     
-    // Draw button
+    // Tama buttons
     $('#nyxgotchi-btn-draw').on('click', (e) => {
         e.stopPropagation();
         onDrawCard();
     });
     
-    // Queue button
     $('#nyxgotchi-btn-queue').on('click', (e) => {
         e.stopPropagation();
         onViewQueue();
     });
     
-    // Poke button
     $('#nyxgotchi-btn-poke').on('click', (e) => {
         e.stopPropagation();
         onPokeNyx();
     });
+    
+    // Compact click - open grimoire (but not if just dragged)
+    $('#mg-compact').on('click', (e) => {
+        e.stopPropagation();
+        if (dragMoved) {
+            dragMoved = false;
+            return;
+        }
+        triggerTransformation();
+    });
+}
+
+// ============================================
+// GRIMOIRE TRANSFORMATION
+// ============================================
+
+function triggerTransformation() {
+    const $compact = $('#mg-compact');
+    
+    if ($compact.hasClass('transforming')) return;
+    
+    if ($compact.hasClass('active')) {
+        closeGrimoire();
+        return;
+    }
+    
+    $compact.addClass('transforming');
+    showNyxSpeech("✨ Let's see what the cards reveal... ✨", 3000);
+    
+    setTimeout(() => {
+        $compact.removeClass('transforming').addClass('active');
+        openGrimoire();
+    }, 800);
+}
+
+function openGrimoire() {
+    console.log(`[${extensionName}] Opening Grimoire...`);
+    if (typeof toastr !== 'undefined') {
+        toastr.info('✨ Grimoire opened! (Panel coming soon)', 'Petit Grimoire');
+    }
+}
+
+function closeGrimoire() {
+    $('#mg-compact').removeClass('active');
+    console.log(`[${extensionName}] Closing Grimoire...`);
 }
 
 function onDrawCard() {
@@ -834,8 +730,7 @@ function updateNyxMood() {
 
 function setTheme(themeName) {
     extensionSettings.shellTheme = themeName;
-    $('#nyxgotchi').attr('data-mg-theme', themeName);
-    $('#mg-compact-fab').attr('data-mg-theme', themeName);
+    $('#mg-widget').attr('data-mg-theme', themeName);
     saveSettings();
 }
 
@@ -848,7 +743,7 @@ function setFamiliarForm(formName) {
 
 function setScale(scaleName) {
     extensionSettings.shellScale = scaleName;
-    $('#nyxgotchi').attr('data-mg-scale', scaleName);
+    $('#mg-widget').attr('data-mg-scale', scaleName);
     saveSettings();
 }
 
@@ -920,11 +815,9 @@ async function addExtensionSettings() {
         saveSettings();
         
         if (extensionSettings.enabled) {
-            createNyxgotchi();
-            createCompactFab();
+            createWidget();
         } else {
-            $('#nyxgotchi').remove();
-            $('#mg-compact-fab').remove();
+            $('#mg-widget').remove();
             stopSpriteAnimation();
         }
     });
@@ -948,7 +841,7 @@ async function addExtensionSettings() {
             left: 'auto',
             bottom: 'auto'
         };
-        applyNyxPosition();
+        applyWidgetPosition();
         saveSettings();
         if (typeof toastr !== 'undefined') {
             toastr.info('Position reset!');
@@ -972,13 +865,12 @@ jQuery(async () => {
         await addExtensionSettings();
         console.log(`[${extensionName}] Settings panel added`);
         
-        // Create Nyx-gotchi if enabled
+        // Create widget if enabled
         if (extensionSettings.enabled) {
-            console.log(`[${extensionName}] Extension is enabled, creating Nyx-gotchi...`);
-            createNyxgotchi();
-            createCompactFab();
+            console.log(`[${extensionName}] Extension is enabled, creating widget...`);
+            createWidget();
         } else {
-            console.log(`[${extensionName}] Extension is disabled, skipping Nyx-gotchi creation`);
+            console.log(`[${extensionName}] Extension is disabled`);
         }
         
         console.log(`[${extensionName}] ✅ Loaded successfully`);
