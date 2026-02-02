@@ -33,10 +33,12 @@ const defaultSettings = {
     shellTheme: 'sailor-moon',  // sailor-moon, madoka, witch-core, pastel-goth, y2k, classic
     familiarForm: 'cat',        // cat, crow, fox, moth, rabbit, serpent
     
-    // Nyx-gotchi position (saved for persistence)
+    // Nyx-gotchi position (saved for persistence) - using top/left like Tribunal
     nyxPosition: {
+        top: 70,
+        left: 'auto',
         right: 20,
-        bottom: 80
+        bottom: 'auto'
     },
     
     // Nyx state
@@ -231,8 +233,25 @@ function createNyxgotchi() {
     // Remove existing if any
     $('#nyxgotchi').remove();
     
+    // Debug: Show we're trying to create
+    if (typeof toastr !== 'undefined') {
+        toastr.info('Creating Nyx-gotchi...', 'Petit Grimoire');
+    }
+    console.log(`[${extensionName}] Creating Nyx-gotchi...`);
+    
     // Add to DOM
-    $('body').append(getNyxgotchiHTML());
+    const html = getNyxgotchiHTML();
+    $('body').append(html);
+    
+    // Verify it was added
+    const $nyx = $('#nyxgotchi');
+    if ($nyx.length === 0) {
+        if (typeof toastr !== 'undefined') {
+            toastr.error('Failed to create Nyx-gotchi element!', 'Petit Grimoire');
+        }
+        console.error(`[${extensionName}] Failed to append Nyx-gotchi to DOM`);
+        return;
+    }
     
     // Apply saved position
     applyNyxPosition();
@@ -240,17 +259,45 @@ function createNyxgotchi() {
     // Wire up event handlers
     setupNyxgotchiEvents();
     
-    console.log(`[${extensionName}] Nyx-gotchi created`);
+    // Debug: Confirm success
+    if (typeof toastr !== 'undefined') {
+        toastr.success('Nyx-gotchi created!', 'Petit Grimoire');
+    }
+    console.log(`[${extensionName}] Nyx-gotchi created, element:`, $nyx[0]);
 }
 
 function applyNyxPosition() {
+    const $nyx = $('#nyxgotchi');
+    if ($nyx.length === 0) return;
+    
     const pos = extensionSettings.nyxPosition;
-    $('#nyxgotchi').css({
-        right: pos.right + 'px',
-        bottom: pos.bottom + 'px',
-        left: 'auto',
-        top: 'auto'
-    });
+    
+    // Apply position - handle both old and new format
+    if (pos.top !== undefined && pos.top !== 'auto') {
+        $nyx.css('top', pos.top + 'px');
+        $nyx.css('bottom', 'auto');
+    } else if (pos.bottom !== undefined && pos.bottom !== 'auto') {
+        $nyx.css('bottom', pos.bottom + 'px');
+        $nyx.css('top', 'auto');
+    } else {
+        // Default to top
+        $nyx.css('top', '70px');
+        $nyx.css('bottom', 'auto');
+    }
+    
+    if (pos.right !== undefined && pos.right !== 'auto') {
+        $nyx.css('right', pos.right + 'px');
+        $nyx.css('left', 'auto');
+    } else if (pos.left !== undefined && pos.left !== 'auto') {
+        $nyx.css('left', pos.left + 'px');
+        $nyx.css('right', 'auto');
+    } else {
+        // Default to right
+        $nyx.css('right', '20px');
+        $nyx.css('left', 'auto');
+    }
+    
+    console.log(`[${extensionName}] Applied position:`, pos);
 }
 
 // ============================================
@@ -320,12 +367,19 @@ function endDrag() {
     const nyxgotchi = document.getElementById('nyxgotchi');
     nyxgotchi.classList.remove('dragging');
     
-    // Save position
+    // Get computed position
+    const rect = nyxgotchi.getBoundingClientRect();
+    
+    // Save as top/right (easier to work with)
     extensionSettings.nyxPosition = {
-        right: parseInt(nyxgotchi.style.right) || 20,
-        bottom: parseInt(nyxgotchi.style.bottom) || 80
+        top: rect.top,
+        right: window.innerWidth - rect.right,
+        left: 'auto',
+        bottom: 'auto'
     };
     saveSettings();
+    
+    console.log(`[${extensionName}] Saved position:`, extensionSettings.nyxPosition);
 }
 
 // ============================================
@@ -565,10 +619,17 @@ async function addExtensionSettings() {
     });
     
     $('#mg-reset-position').on('click', function() {
-        extensionSettings.nyxPosition = { ...defaultSettings.nyxPosition };
+        extensionSettings.nyxPosition = { 
+            top: 70,
+            right: 20,
+            left: 'auto',
+            bottom: 'auto'
+        };
         applyNyxPosition();
         saveSettings();
-        toastr.info('Position reset!');
+        if (typeof toastr !== 'undefined') {
+            toastr.info('Position reset!');
+        }
     });
 }
 
@@ -582,24 +643,31 @@ jQuery(async () => {
         
         // Load settings
         loadSettings();
+        console.log(`[${extensionName}] Settings loaded, enabled:`, extensionSettings.enabled);
         
         // Add settings panel
         await addExtensionSettings();
+        console.log(`[${extensionName}] Settings panel added`);
         
         // Create Nyx-gotchi if enabled
         if (extensionSettings.enabled) {
+            console.log(`[${extensionName}] Extension is enabled, creating Nyx-gotchi...`);
             createNyxgotchi();
+        } else {
+            console.log(`[${extensionName}] Extension is disabled, skipping Nyx-gotchi creation`);
         }
         
         console.log(`[${extensionName}] ✅ Loaded successfully`);
         
     } catch (error) {
         console.error(`[${extensionName}] ❌ Critical failure:`, error);
-        toastr.error(
-            'Petit Grimoire failed to initialize.',
-            'Error',
-            { timeOut: 10000 }
-        );
+        if (typeof toastr !== 'undefined') {
+            toastr.error(
+                'Petit Grimoire failed to initialize.',
+                'Error',
+                { timeOut: 10000 }
+            );
+        }
     }
 });
 
