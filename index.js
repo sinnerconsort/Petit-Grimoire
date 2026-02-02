@@ -32,6 +32,7 @@ const defaultSettings = {
     // Theme settings
     shellTheme: 'sailor-moon',  // sailor-moon, madoka, witch-core, pastel-goth, y2k, classic
     familiarForm: 'cat',        // cat, crow, fox, moth, rabbit, serpent
+    shellScale: 'medium',       // small, medium, large
     
     // Nyx-gotchi position (saved for persistence) - using top/left like Tribunal
     nyxPosition: {
@@ -106,9 +107,9 @@ function saveSettings() {
 
 function getNyxgotchiHTML() {
     return `
-        <div class="nyxgotchi" id="nyxgotchi" data-mg-theme="${extensionSettings.shellTheme}">
-            <!-- Speech bubble (hidden by default) -->
-            <div class="nyxgotchi-speech" id="nyxgotchi-speech">
+        <div class="nyxgotchi" id="nyxgotchi" data-mg-theme="${extensionSettings.shellTheme}" data-mg-scale="${extensionSettings.shellScale || 'medium'}">
+            <!-- Thought bubble (hidden by default) -->
+            <div class="nyxgotchi-thought" id="nyxgotchi-speech">
                 Hello, mortal.
             </div>
             
@@ -149,7 +150,7 @@ function getNyxgotchiHTML() {
                     <!-- Sprite area -->
                     <div class="nyxgotchi-sprite-area">
                         <div class="nyxgotchi-sprite" id="nyxgotchi-sprite">
-                            ${getPlaceholderSprite()}
+                            <!-- Filled by sprite animation system -->
                         </div>
                         
                         <!-- Card flash overlay -->
@@ -175,45 +176,225 @@ function getNyxgotchiHTML() {
     `;
 }
 
-// Placeholder ASCII sprite until we have real pixel art
-function getPlaceholderSprite() {
+// ============================================
+// SPRITE SYSTEM
+// ============================================
+
+// Sprites organized by: animal -> mood -> frames[]
+const SPRITES = {
+    cat: {
+        neutral: [
+`  ╱|、
+(˚ˎ 。7
+ |、˜〵
+じしˍ,)ノ`,
+`  ╱|、
+(˚ˎ 。7
+ |、 〵
+じしˍ,)ノ`
+        ],
+        annoyed: [
+`  ╱|、
+(￣ ಠ 7
+ |、˜〵
+じしˍ,)ノ`,
+`  ╱|、
+(￣ ಠ 7
+ |، 〵
+じしˍ,)ノ`
+        ],
+        bored: [
+`  ╱|、
+(˘ˎ ˘7
+ |、 〵
+じしˍ,)_`
+        ],
+        amused: [
+`  ╱|、
+(๑˃̵ᴗ˂̵)7
+ |、˜〵
+じしˍ,)ノ`,
+`  ╱|、
+(๑˃̵ᴗ˂̵)7
+ |、 〵
+じしˍ,)ノ`
+        ],
+        delighted: [
+`  ╱|、 ✧
+(≧◡≦)7
+ |、˜〵
+じしˍ,)ノ`,
+`  ╱|、✧
+(≧◡≦)7
+ |、 〵 ✧
+じしˍ,)ノ`
+        ]
+    },
+    owl: {
+        neutral: [
+` ,___,
+[O . o]
+/)___)
+-"--"-`,
+` ,___,
+[o . O]
+/)___)
+-"--"-`
+        ],
+        annoyed: [
+` ,___,
+[◣_◢]
+/)___)
+-"--"-`
+        ],
+        bored: [
+` ,_____,
+[◡ , ◡] ☾
+(____)(\\
+-"---"--`
+        ],
+        amused: [
+` ,___,
+[◉◡◉]
+/)___)
+-"--"-`,
+` ,___,
+[◉◡◉]
+/)__) ~
+-"--"-`
+        ],
+        delighted: [
+` ,___,  ✦
+[★‿★]
+/)___)
+-"--"-`,
+` ,___, ✦
+[★‿★]  
+/)__) ♪
+-"--"-`
+        ]
+    },
+    fox: {
+        neutral: [
+`  ∧ ∧
+(• x •)
+ /づ づ`,
+`  ∧ ∧
+(• x •)
+ /づづ`
+        ],
+        annoyed: [
+`  ∧ ∧
+(≖ x ≖)
+ /づ づ`
+        ],
+        bored: [
+`  ∧ ∧
+(︶ x ︶)
+  /づ_`
+        ],
+        amused: [
+`  ∧ ∧
+(◕ ᴥ ◕)
+ /づ づ`,
+`  ∧ ∧  ~
+(◕ ᴥ ◕)
+ /づづ`
+        ],
+        delighted: [
+`  ∧ ∧ ✧
+(≧ω≦)
+ /づ づ`,
+`  ∧ ∧✧
+(≧ω≦) ♡
+ /づづ`
+        ]
+    },
+    bunny: {
+        neutral: [
+` () ()
+(• . •)
+c(")(")`
+        ],
+        annoyed: [
+` () ()
+(￫ . ￩)
+c(")(")`
+        ],
+        bored: [
+` (\\__/)
+(︶.︶)
+(")_(")`
+        ],
+        amused: [
+` () ()
+(◕‿◕)
+c(")(")`,
+` ()⌒()
+(◕‿◕)
+c(")(")`
+        ],
+        delighted: [
+` () () ♡
+(≧◡≦)
+c(")(")`,
+`♡() ()
+(≧◡≦)✧
+c(")(")`
+        ]
+    }
+};
+
+// Animation state
+let spriteAnimationInterval = null;
+let currentSpriteFrame = 0;
+
+function getCurrentSprite() {
     const form = extensionSettings.familiarForm || 'cat';
+    const disposition = extensionSettings.nyx?.disposition || 50;
+    const mood = getMoodText(disposition);
     
-    const sprites = {
-        cat: `<pre style="font-size:6px;line-height:1;margin:0;color:var(--mg-screen-pixel);">
- /\\_/\\
-( o.o )
- > ^ <
-</pre>`,
-        crow: `<pre style="font-size:6px;line-height:1;margin:0;color:var(--mg-screen-pixel);">
-  ▲
- (●>●)
-  ╱|╲
-</pre>`,
-        fox: `<pre style="font-size:6px;line-height:1;margin:0;color:var(--mg-screen-pixel);">
- /\\___/\\
-(  ◕ω◕ )
-  ╱   ╲
-</pre>`,
-        moth: `<pre style="font-size:6px;line-height:1;margin:0;color:var(--mg-screen-pixel);">
- ╱ ● ● ╲
- ╲ ═══ ╱
-  ╲ ╱ ╱
-</pre>`,
-        rabbit: `<pre style="font-size:6px;line-height:1;margin:0;color:var(--mg-screen-pixel);">
- (\\__/)
- (• ᴗ •)
- / 　 づ
-</pre>`,
-        serpent: `<pre style="font-size:6px;line-height:1;margin:0;color:var(--mg-screen-pixel);">
-   ___
- 〈 ◉ 〉
-  〉═〈
-  ~~~
-</pre>`
-    };
+    const animalSprites = SPRITES[form] || SPRITES.cat;
+    const moodFrames = animalSprites[mood] || animalSprites.neutral;
     
-    return sprites[form] || sprites.cat;
+    return moodFrames;
+}
+
+function renderSprite() {
+    const frames = getCurrentSprite();
+    currentSpriteFrame = currentSpriteFrame % frames.length;
+    const frame = frames[currentSpriteFrame];
+    
+    $('#nyxgotchi-sprite').html(`<pre>${frame}</pre>`);
+}
+
+function startSpriteAnimation() {
+    // Clear any existing animation
+    if (spriteAnimationInterval) {
+        clearInterval(spriteAnimationInterval);
+    }
+    
+    // Initial render
+    currentSpriteFrame = 0;
+    renderSprite();
+    
+    // Cycle frames every 800ms
+    spriteAnimationInterval = setInterval(() => {
+        currentSpriteFrame++;
+        renderSprite();
+    }, 800);
+}
+
+function stopSpriteAnimation() {
+    if (spriteAnimationInterval) {
+        clearInterval(spriteAnimationInterval);
+        spriteAnimationInterval = null;
+    }
+}
+
+// Alias for external use
+function updateSpriteDisplay() {
+    renderSprite();
 }
 
 // Get mood text based on disposition
@@ -258,6 +439,9 @@ function createNyxgotchi() {
     
     // Wire up event handlers
     setupNyxgotchiEvents();
+    
+    // Start sprite animation
+    startSpriteAnimation();
     
     // Debug: Confirm success
     if (typeof toastr !== 'undefined') {
@@ -346,16 +530,24 @@ function drag(e) {
     const nyxgotchi = document.getElementById('nyxgotchi');
     const rect = nyxgotchi.getBoundingClientRect();
     
-    // Calculate new position (from bottom-right)
-    const newRight = window.innerWidth - clientX - (rect.width - dragOffset.x);
-    const newBottom = window.innerHeight - clientY - (rect.height - dragOffset.y);
+    // Calculate new position based on drag
+    let newLeft = clientX - dragOffset.x;
+    let newTop = clientY - dragOffset.y;
     
-    // Clamp to viewport
-    const clampedRight = Math.max(0, Math.min(window.innerWidth - rect.width, newRight));
-    const clampedBottom = Math.max(0, Math.min(window.innerHeight - rect.height, newBottom));
+    // Constrain to viewport
+    const minX = 10;
+    const maxX = window.innerWidth - rect.width - 10;
+    const minY = 10;
+    const maxY = window.innerHeight - rect.height - 10;
     
-    nyxgotchi.style.right = clampedRight + 'px';
-    nyxgotchi.style.bottom = clampedBottom + 'px';
+    newLeft = Math.max(minX, Math.min(maxX, newLeft));
+    newTop = Math.max(minY, Math.min(maxY, newTop));
+    
+    // Apply position using left/top
+    nyxgotchi.style.left = newLeft + 'px';
+    nyxgotchi.style.top = newTop + 'px';
+    nyxgotchi.style.right = 'auto';
+    nyxgotchi.style.bottom = 'auto';
     
     e.preventDefault();
 }
@@ -485,12 +677,12 @@ function getPokeResponses(disposition) {
 // ============================================
 
 function showNyxSpeech(text, duration = 4000) {
-    const speech = $('#nyxgotchi-speech');
-    speech.text(text).addClass('visible');
+    const thought = $('#nyxgotchi-speech');
+    thought.text(text).addClass('visible');
     
     // Auto-hide
     setTimeout(() => {
-        speech.removeClass('visible');
+        thought.removeClass('visible');
     }, duration);
 }
 
@@ -516,6 +708,10 @@ function updateNyxMood() {
     sprite.removeClass('mood-annoyed mood-bored mood-neutral mood-amused mood-delighted');
     sprite.addClass(`mood-${mood}`);
     
+    // Refresh sprite for new mood
+    currentSpriteFrame = 0;
+    updateSpriteDisplay();
+    
     // Update heart animation
     const heart = $('#nyxgotchi-heart');
     if (disposition >= 60) {
@@ -537,7 +733,14 @@ function setTheme(themeName) {
 
 function setFamiliarForm(formName) {
     extensionSettings.familiarForm = formName;
-    $('#nyxgotchi-sprite').html(getPlaceholderSprite());
+    currentSpriteFrame = 0; // Reset animation frame
+    updateSpriteDisplay();  // Refresh sprite
+    saveSettings();
+}
+
+function setScale(scaleName) {
+    extensionSettings.shellScale = scaleName;
+    $('#nyxgotchi').attr('data-mg-scale', scaleName);
     saveSettings();
 }
 
@@ -573,11 +776,16 @@ async function addExtensionSettings() {
                 <label for="mg-familiar">Familiar Form:</label>
                 <select id="mg-familiar" class="text_pole">
                     <option value="cat" ${extensionSettings.familiarForm === 'cat' ? 'selected' : ''}>Cat</option>
-                    <option value="crow" ${extensionSettings.familiarForm === 'crow' ? 'selected' : ''}>Crow</option>
+                    <option value="owl" ${extensionSettings.familiarForm === 'owl' ? 'selected' : ''}>Owl</option>
                     <option value="fox" ${extensionSettings.familiarForm === 'fox' ? 'selected' : ''}>Fox</option>
-                    <option value="moth" ${extensionSettings.familiarForm === 'moth' ? 'selected' : ''}>Moth</option>
-                    <option value="rabbit" ${extensionSettings.familiarForm === 'rabbit' ? 'selected' : ''}>Rabbit</option>
-                    <option value="serpent" ${extensionSettings.familiarForm === 'serpent' ? 'selected' : ''}>Serpent</option>
+                    <option value="bunny" ${extensionSettings.familiarForm === 'bunny' ? 'selected' : ''}>Bunny</option>
+                </select>
+                
+                <label for="mg-scale">Size:</label>
+                <select id="mg-scale" class="text_pole">
+                    <option value="small" ${extensionSettings.shellScale === 'small' ? 'selected' : ''}>Small</option>
+                    <option value="medium" ${extensionSettings.shellScale === 'medium' ? 'selected' : ''}>Medium</option>
+                    <option value="large" ${extensionSettings.shellScale === 'large' ? 'selected' : ''}>Large</option>
                 </select>
                 
                 <hr>
@@ -616,6 +824,10 @@ async function addExtensionSettings() {
     
     $('#mg-familiar').on('change', function() {
         setFamiliarForm($(this).val());
+    });
+    
+    $('#mg-scale').on('change', function() {
+        setScale($(this).val());
     });
     
     $('#mg-reset-position').on('click', function() {
@@ -679,6 +891,10 @@ window.PetitGrimoire = {
     getSettings: () => extensionSettings,
     setTheme,
     setFamiliarForm,
+    setScale,
     showNyxSpeech,
-    updateNyxMood
+    updateNyxMood,
+    updateSpriteDisplay,
+    startSpriteAnimation,
+    stopSpriteAnimation
 };
