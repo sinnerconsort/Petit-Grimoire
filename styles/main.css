@@ -193,6 +193,22 @@
     transition: transform 0.1s ease-out;
 }
 
+/* Scale options */
+.nyxgotchi[data-mg-scale="small"] {
+    transform: scale(0.7);
+    transform-origin: top right;
+}
+
+.nyxgotchi[data-mg-scale="medium"] {
+    transform: scale(0.85);
+    transform-origin: top right;
+}
+
+.nyxgotchi[data-mg-scale="large"] {
+    transform: scale(1);
+    transform-origin: top right;
+}
+
 .nyxgotchi:active {
     cursor: grabbing;
 }
@@ -204,8 +220,8 @@
 /* The Shell (Egg Shape) */
 .nyxgotchi-shell {
     position: relative;
-    width: 110px;
-    height: 140px;
+    width: 130px;
+    height: 170px;
     
     /* Egg shape */
     border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
@@ -226,11 +242,13 @@
         inset 0 2px 10px rgba(255, 255, 255, 0.2),
         inset 0 -2px 10px rgba(0, 0, 0, 0.1);
     
-    /* Layout */
+    /* Layout - center everything vertically */
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding-top: 12px;
+    justify-content: center;
+    padding: 18px 12px 12px 12px;
+    box-sizing: border-box;
 }
 
 /* Decorative chain */
@@ -279,8 +297,8 @@
 /* Screen */
 .nyxgotchi-screen {
     position: relative;
-    width: 72px;
-    height: 58px;
+    width: 95px;
+    height: 78px;
     
     background: var(--mg-screen-bg, linear-gradient(135deg, #dcedc1, #a8e6cf));
     border: 3px solid var(--mg-screen-border, #9b59b6);
@@ -360,21 +378,28 @@
     justify-content: center;
     align-items: center;
     position: relative;
+    min-height: 50px;
 }
 
 .nyxgotchi-sprite {
-    width: 32px;
-    height: 32px;
     display: flex;
     align-items: center;
     justify-content: center;
-    image-rendering: pixelated;
+    font-family: monospace, 'Courier New';
+    font-size: 9px;
+    line-height: 1.1;
+    white-space: pre;
+    color: var(--mg-screen-pixel, #2d2d2d);
     animation: spriteIdle 2s ease-in-out infinite;
 }
 
 .nyxgotchi-sprite pre {
     margin: 0;
-    line-height: 1;
+    padding: 0;
+    font-family: inherit;
+    font-size: inherit;
+    line-height: inherit;
+    color: inherit;
 }
 
 @keyframes spriteIdle {
@@ -439,8 +464,7 @@
     display: flex;
     justify-content: center;
     gap: 10px;
-    margin-top: 12px;
-    padding-bottom: 8px;
+    margin-top: 8px;
 }
 
 .nyxgotchi-button {
@@ -476,55 +500,62 @@
         inset 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
-/* Speech bubble */
-.nyxgotchi-speech {
+/* Thought bubble (cloud style) */
+.nyxgotchi-thought {
     position: absolute;
     bottom: 100%;
-    right: 0;
-    margin-bottom: 10px;
+    right: -10px;
+    margin-bottom: 15px;
     
     background: var(--mg-shell-primary, #ff9ed2);
     border: 2px solid var(--mg-shell-border, #e875b0);
-    border-radius: 12px;
+    border-radius: 20px;
     padding: 8px 12px;
     
     font-size: 11px;
     font-family: sans-serif;
     color: var(--mg-text-primary, #4a154b);
-    max-width: 200px;
+    max-width: 180px;
     
     box-shadow: 0 2px 8px var(--mg-shell-shadow, rgba(255, 105, 180, 0.4));
     
-    animation: speechAppear 0.3s ease-out;
+    animation: thoughtAppear 0.3s ease-out;
     
     display: none;
 }
 
-.nyxgotchi-speech.visible {
+.nyxgotchi-thought.visible {
     display: block;
 }
 
-.nyxgotchi-speech::after {
+/* Cloud puff trail */
+.nyxgotchi-thought::after {
     content: '';
     position: absolute;
     bottom: -8px;
-    right: 20px;
-    border-left: 8px solid transparent;
-    border-right: 8px solid transparent;
-    border-top: 8px solid var(--mg-shell-primary, #ff9ed2);
+    right: 25px;
+    width: 12px;
+    height: 12px;
+    background: var(--mg-shell-primary, #ff9ed2);
+    border: 2px solid var(--mg-shell-border, #e875b0);
+    border-radius: 50%;
+    box-shadow: 0 1px 3px var(--mg-shell-shadow, rgba(255, 105, 180, 0.3));
 }
 
-.nyxgotchi-speech::before {
+.nyxgotchi-thought::before {
     content: '';
     position: absolute;
-    bottom: -12px;
-    right: 18px;
-    border-left: 10px solid transparent;
-    border-right: 10px solid transparent;
-    border-top: 10px solid var(--mg-shell-border, #e875b0);
+    bottom: -18px;
+    right: 30px;
+    width: 8px;
+    height: 8px;
+    background: var(--mg-shell-primary, #ff9ed2);
+    border: 2px solid var(--mg-shell-border, #e875b0);
+    border-radius: 50%;
+    box-shadow: 0 1px 2px var(--mg-shell-shadow, rgba(255, 105, 180, 0.3));
 }
 
-@keyframes speechAppear {
+@keyframes thoughtAppear {
     0% {
         opacity: 0;
         transform: translateY(10px) scale(0.9);
@@ -582,12 +613,17 @@
     .nyxgotchi {
         top: 60px;
         right: 10px;
-        transform: scale(0.9);
+    }
+    
+    /* Scale options stay the same, just different origin if positioned left */
+    .nyxgotchi[data-mg-scale="small"],
+    .nyxgotchi[data-mg-scale="medium"],
+    .nyxgotchi[data-mg-scale="large"] {
         transform-origin: top right;
     }
     
-    .nyxgotchi-speech {
-        max-width: 160px;
+    .nyxgotchi-thought {
+        max-width: 150px;
         font-size: 10px;
     }
 }
@@ -602,7 +638,7 @@
 @media (prefers-reduced-motion: reduce) {
     .nyxgotchi-sprite,
     .nyxgotchi-heart,
-    .nyxgotchi-speech,
+    .nyxgotchi-thought,
     .nyxgotchi-card-flash {
         animation: none;
     }
