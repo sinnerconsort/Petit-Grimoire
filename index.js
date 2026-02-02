@@ -102,6 +102,46 @@ function saveSettings() {
 }
 
 // ============================================
+// COMPACT FAB HTML
+// ============================================
+
+function getCompactFabHTML() {
+    return `
+        <div class="mg-compact-fab" id="mg-compact-fab" data-mg-theme="${extensionSettings.shellTheme}">
+            <!-- Outer ring with gems -->
+            <div class="mg-compact-ring">
+                <span class="mg-compact-gem mg-compact-gem--n"></span>
+                <span class="mg-compact-gem mg-compact-gem--e"></span>
+                <span class="mg-compact-gem mg-compact-gem--s"></span>
+                <span class="mg-compact-gem mg-compact-gem--w"></span>
+            </div>
+            
+            <!-- Inner face -->
+            <div class="mg-compact-face">
+                <!-- Central symbol -->
+                <div class="mg-compact-symbol">
+                    <span class="mg-compact-star">★</span>
+                    <span class="mg-compact-moon">☽</span>
+                </div>
+                
+                <!-- Mirror/crystal overlay -->
+                <div class="mg-compact-mirror"></div>
+            </div>
+            
+            <!-- Sparkle effects (hidden until hover/click) -->
+            <div class="mg-compact-sparkles">
+                <span class="mg-sparkle mg-sparkle--1">✦</span>
+                <span class="mg-sparkle mg-sparkle--2">✧</span>
+                <span class="mg-sparkle mg-sparkle--3">✦</span>
+                <span class="mg-sparkle mg-sparkle--4">✧</span>
+                <span class="mg-sparkle mg-sparkle--5">⋆</span>
+                <span class="mg-sparkle mg-sparkle--6">✦</span>
+            </div>
+        </div>
+    `;
+}
+
+// ============================================
 // NYX-GOTCHI HTML
 // ============================================
 
@@ -404,6 +444,79 @@ function getMoodText(disposition) {
     if (disposition < 60) return 'neutral';
     if (disposition < 80) return 'amused';
     return 'delighted';
+}
+
+// ============================================
+// COMPACT FAB CREATION
+// ============================================
+
+function createCompactFab() {
+    // Remove existing if any
+    $('#mg-compact-fab').remove();
+    
+    // Add to DOM
+    $('body').append(getCompactFabHTML());
+    
+    // Apply theme
+    $('#mg-compact-fab').attr('data-mg-theme', extensionSettings.shellTheme);
+    
+    // Wire up events
+    setupCompactEvents();
+    
+    console.log(`[${extensionName}] Compact FAB created`);
+}
+
+function setupCompactEvents() {
+    const $compact = $('#mg-compact-fab');
+    
+    // Click to transform and open grimoire
+    $compact.on('click', (e) => {
+        e.stopPropagation();
+        triggerTransformation();
+    });
+}
+
+function triggerTransformation() {
+    const $compact = $('#mg-compact-fab');
+    
+    // Already transforming? Ignore
+    if ($compact.hasClass('transforming')) return;
+    
+    // If grimoire is open, close it
+    if ($compact.hasClass('active')) {
+        closeGrimoire();
+        return;
+    }
+    
+    // Start transformation sequence
+    $compact.addClass('transforming');
+    
+    // Nyx reacts
+    showNyxSpeech("✨ Let's see what the cards reveal... ✨", 3000);
+    
+    // After animation, open grimoire
+    setTimeout(() => {
+        $compact.removeClass('transforming').addClass('active');
+        openGrimoire();
+    }, 800);
+}
+
+function openGrimoire() {
+    // TODO: Create and show the Grimoire panel
+    console.log(`[${extensionName}] Opening Grimoire...`);
+    
+    // Placeholder - will build the actual grimoire next
+    if (typeof toastr !== 'undefined') {
+        toastr.info('✨ Grimoire opened! (Panel coming soon)', 'Petit Grimoire');
+    }
+}
+
+function closeGrimoire() {
+    const $compact = $('#mg-compact-fab');
+    $compact.removeClass('active');
+    
+    // TODO: Hide the Grimoire panel
+    console.log(`[${extensionName}] Closing Grimoire...`);
 }
 
 // ============================================
@@ -728,6 +841,7 @@ function updateNyxMood() {
 function setTheme(themeName) {
     extensionSettings.shellTheme = themeName;
     $('#nyxgotchi').attr('data-mg-theme', themeName);
+    $('#mg-compact-fab').attr('data-mg-theme', themeName);
     saveSettings();
 }
 
@@ -813,8 +927,11 @@ async function addExtensionSettings() {
         
         if (extensionSettings.enabled) {
             createNyxgotchi();
+            createCompactFab();
         } else {
             $('#nyxgotchi').remove();
+            $('#mg-compact-fab').remove();
+            stopSpriteAnimation();
         }
     });
     
@@ -865,6 +982,7 @@ jQuery(async () => {
         if (extensionSettings.enabled) {
             console.log(`[${extensionName}] Extension is enabled, creating Nyx-gotchi...`);
             createNyxgotchi();
+            createCompactFab();
         } else {
             console.log(`[${extensionName}] Extension is disabled, skipping Nyx-gotchi creation`);
         }
@@ -896,5 +1014,8 @@ window.PetitGrimoire = {
     updateNyxMood,
     updateSpriteDisplay,
     startSpriteAnimation,
-    stopSpriteAnimation
+    stopSpriteAnimation,
+    triggerTransformation,
+    openGrimoire,
+    closeGrimoire
 };
