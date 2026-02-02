@@ -1,0 +1,202 @@
+/* ============================================
+   PETIT GRIMOIRE - THEME SYSTEM
+   ============================================ */
+
+/* ----------------------------------------
+   DEFAULT THEME (Sailor Moon - Light)
+   ---------------------------------------- */
+:root,
+[data-mg-theme="sailor-moon"] {
+    /* Shell colors */
+    --mg-shell-primary: #ff9ed2;
+    --mg-shell-secondary: #ffb6e1;
+    --mg-shell-accent: #ffd700;
+    --mg-shell-border: #e875b0;
+    --mg-shell-shadow: rgba(255, 105, 180, 0.4);
+    
+    /* Screen colors */
+    --mg-screen-bg: linear-gradient(135deg, #dcedc1, #a8e6cf);
+    --mg-screen-border: #9b59b6;
+    --mg-screen-pixel: #2d2d2d;
+    
+    /* Button colors */
+    --mg-button-primary: #ff69b4;
+    --mg-button-secondary: #ff1493;
+    --mg-button-border: #c71585;
+    --mg-button-shadow: rgba(199, 21, 133, 0.3);
+    
+    /* Decorations */
+    --mg-decoration-1: #ffd700;
+    --mg-decoration-2: #ff69b4;
+    --mg-decoration-3: #87ceeb;
+    
+    /* Text */
+    --mg-text-primary: #4a154b;
+    --mg-text-secondary: #9b59b6;
+    --mg-text-mood: #ff69b4;
+}
+
+/* ----------------------------------------
+   MADOKA MODE (Dark)
+   ---------------------------------------- */
+[data-mg-theme="madoka"] {
+    /* Shell colors */
+    --mg-shell-primary: #2d1b3d;
+    --mg-shell-secondary: #4a2c5a;
+    --mg-shell-accent: #9b59b6;
+    --mg-shell-border: #1a0f24;
+    --mg-shell-shadow: rgba(155, 89, 182, 0.5);
+    
+    /* Screen colors */
+    --mg-screen-bg: linear-gradient(135deg, #1a1a2e, #2d2d44);
+    --mg-screen-border: #9b59b6;
+    --mg-screen-pixel: #e0e0e0;
+    
+    /* Button colors */
+    --mg-button-primary: #9b59b6;
+    --mg-button-secondary: #7d3c98;
+    --mg-button-border: #5b2c6f;
+    --mg-button-shadow: rgba(91, 44, 111, 0.5);
+    
+    /* Decorations */
+    --mg-decoration-1: #9b59b6;
+    --mg-decoration-2: #e91e8c;
+    --mg-decoration-3: #3d3d5c;
+    
+    /* Text */
+    --mg-text-primary: #e0e0e0;
+    --mg-text-secondary: #b39ddb;
+    --mg-text-mood: #e91e8c;
+}
+
+/* ----------------------------------------
+   WITCH CORE (Green/Black)
+   ---------------------------------------- */
+[data-mg-theme="witch-core"] {
+    /* Shell colors */
+    --mg-shell-primary: #1a1a1a;
+    --mg-shell-secondary: #2d2d2d;
+    --mg-shell-accent: #50c878;
+    --mg-shell-border: #0d0d0d;
+    --mg-shell-shadow: rgba(80, 200, 120, 0.3);
+    
+    /* Screen colors */
+    --mg-screen-bg: linear-gradient(135deg, #0a1f0a, #1a3a1a);
+    --mg-screen-border: #50c878;
+    --mg-screen-pixel: #90ee90;
+    
+    /* Button colors */
+    --mg-button-primary: #2e8b57;
+    --mg-button-secondary: #228b22;
+    --mg-button-border: #006400;
+    --mg-button-shadow: rgba(0, 100, 0, 0.5);
+    
+    /* Decorations */
+    --mg-decoration-1: #50c878;
+    --mg-decoration-2: #c0c0c0;
+    --mg-decoration-3: #4a4a4a;
+    
+    /* Text */
+    --mg-text-primary: #90ee90;
+    --mg-text-secondary: #50c878;
+    --mg-text-mood: #98fb98;
+}
+
+/* ----------------------------------------
+   PASTEL GOTH (Lavender/Pink/Black)
+   ---------------------------------------- */
+[data-mg-theme="pastel-goth"] {
+    /* Shell colors */
+    --mg-shell-primary: #e6e6fa;
+    --mg-shell-secondary: #dda0dd;
+    --mg-shell-accent: #2d2d2d;
+    --mg-shell-border: #9370db;
+    --mg-shell-shadow: rgba(147, 112, 219, 0.4);
+    
+    /* Screen colors */
+    --mg-screen-bg: linear-gradient(135deg, #2d2d2d, #1a1a1a);
+    --mg-screen-border: #dda0dd;
+    --mg-screen-pixel: #e6e6fa;
+    
+    /* Button colors */
+    --mg-button-primary: #ffb6c1;
+    --mg-button-secondary: #ff69b4;
+    --mg-button-border: #2d2d2d;
+    --mg-button-shadow: rgba(0, 0, 0, 0.4);
+    
+    /* Decorations */
+    --mg-decoration-1: #ffb6c1;
+    --mg-decoration-2: #2d2d2d;
+    --mg-decoration-3: #dda0dd;
+    
+    /* Text */
+    --mg-text-primary: #2d2d2d;
+    --mg-text-secondary: #9370db;
+    --mg-text-mood: #ff69b4;
+}
+
+/* ----------------------------------------
+   Y2K (Cyan/Magenta/Chrome)
+   ---------------------------------------- */
+[data-mg-theme="y2k"] {
+    /* Shell colors */
+    --mg-shell-primary: #4169e1;
+    --mg-shell-secondary: #00ced1;
+    --mg-shell-accent: #ff00ff;
+    --mg-shell-border: #1e90ff;
+    --mg-shell-shadow: rgba(0, 255, 255, 0.4);
+    
+    /* Screen colors */
+    --mg-screen-bg: linear-gradient(135deg, #e0ffff, #b0e0e6);
+    --mg-screen-border: #ff00ff;
+    --mg-screen-pixel: #000080;
+    
+    /* Button colors */
+    --mg-button-primary: #ff00ff;
+    --mg-button-secondary: #ff1493;
+    --mg-button-border: #8b008b;
+    --mg-button-shadow: rgba(139, 0, 139, 0.5);
+    
+    /* Decorations */
+    --mg-decoration-1: #00ffff;
+    --mg-decoration-2: #ff00ff;
+    --mg-decoration-3: #ffff00;
+    
+    /* Text */
+    --mg-text-primary: #000080;
+    --mg-text-secondary: #4169e1;
+    --mg-text-mood: #ff00ff;
+}
+
+/* ----------------------------------------
+   CLASSIC (90s Tamagotchi homage)
+   ---------------------------------------- */
+[data-mg-theme="classic"] {
+    /* Shell colors */
+    --mg-shell-primary: #4040bf;
+    --mg-shell-secondary: #5050d0;
+    --mg-shell-accent: #00e5e5;
+    --mg-shell-border: #2a2a8f;
+    --mg-shell-shadow: rgba(64, 64, 191, 0.5);
+    
+    /* Screen colors */
+    --mg-screen-bg: linear-gradient(135deg, #c5d9a4, #a8c896);
+    --mg-screen-border: #6b6b6b;
+    --mg-screen-pixel: #2d2d2d;
+    
+    /* Button colors */
+    --mg-button-primary: #ff1493;
+    --mg-button-secondary: #ff69b4;
+    --mg-button-border: #c71585;
+    --mg-button-shadow: rgba(199, 21, 133, 0.4);
+    
+    /* Decorations - 90s shapes */
+    --mg-decoration-1: #ffff00;
+    --mg-decoration-2: #00e5e5;
+    --mg-decoration-3: #ff1493;
+    
+    /* Text */
+    --mg-text-primary: #2d2d2d;
+    --mg-text-secondary: #4040bf;
+    --mg-text-mood: #ff1493;
+}

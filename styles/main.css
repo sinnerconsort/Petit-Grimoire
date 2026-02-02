@@ -1,0 +1,10 @@
+/* Petit Grimoire - Main Stylesheet */
+
+/* Import component styles */
+@import url('./nyxgotchi.css');
+@import url('./themes.css');
+
+/* Future imports:
+@import url('./spellbook.css');
+@import url('./effects.css');
+*/

@@ -1,0 +1,563 @@
+/* ============================================
+   NYX-GOTCHI - TAMAGOTCHI COMPANION
+   ============================================ */
+
+/* ----------------------------------------
+   CONTAINER & POSITIONING
+   ---------------------------------------- */
+.nyxgotchi {
+    position: fixed;
+    bottom: 80px;
+    right: 20px;
+    z-index: 9999;
+    
+    /* Allow dragging */
+    cursor: grab;
+    touch-action: none;
+    user-select: none;
+    
+    /* Smooth repositioning */
+    transition: transform 0.1s ease-out;
+}
+
+.nyxgotchi:active {
+    cursor: grabbing;
+}
+
+.nyxgotchi.dragging {
+    transition: none;
+}
+
+/* ----------------------------------------
+   THE SHELL (Egg Shape)
+   ---------------------------------------- */
+.nyxgotchi-shell {
+    position: relative;
+    width: 110px;
+    height: 140px;
+    
+    /* Egg shape via border-radius */
+    border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+    
+    /* Shell coloring */
+    background: linear-gradient(
+        145deg,
+        var(--mg-shell-secondary) 0%,
+        var(--mg-shell-primary) 30%,
+        var(--mg-shell-primary) 70%,
+        var(--mg-shell-secondary) 100%
+    );
+    
+    /* Border and shadow */
+    border: 3px solid var(--mg-shell-border);
+    box-shadow: 
+        0 4px 15px var(--mg-shell-shadow),
+        inset 0 2px 10px rgba(255, 255, 255, 0.2),
+        inset 0 -2px 10px rgba(0, 0, 0, 0.1);
+    
+    /* For positioning children */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 12px;
+}
+
+/* Decorative chain at top */
+.nyxgotchi-chain {
+    position: absolute;
+    top: -15px;
+    left: 50%;
+    transform: translateX(-50%);
+    
+    display: flex;
+    gap: 2px;
+}
+
+.nyxgotchi-chain-link {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: linear-gradient(145deg, #c0c0c0, #a0a0a0);
+    border: 1px solid #808080;
+}
+
+/* ----------------------------------------
+   DECORATIONS (Stars, moons, shapes)
+   ---------------------------------------- */
+.nyxgotchi-decorations {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    overflow: hidden;
+    border-radius: inherit;
+}
+
+.nyxgotchi-deco {
+    position: absolute;
+    font-size: 10px;
+    opacity: 0.9;
+}
+
+/* Positioned decorations */
+.nyxgotchi-deco--1 {
+    top: 25px;
+    left: 8px;
+    color: var(--mg-decoration-1);
+    font-size: 12px;
+}
+
+.nyxgotchi-deco--2 {
+    top: 60px;
+    left: 5px;
+    color: var(--mg-decoration-2);
+}
+
+.nyxgotchi-deco--3 {
+    top: 90px;
+    left: 10px;
+    color: var(--mg-decoration-3);
+}
+
+.nyxgotchi-deco--4 {
+    top: 20px;
+    right: 8px;
+    color: var(--mg-decoration-2);
+}
+
+.nyxgotchi-deco--5 {
+    top: 55px;
+    right: 5px;
+    color: var(--mg-decoration-3);
+    font-size: 8px;
+}
+
+.nyxgotchi-deco--6 {
+    top: 85px;
+    right: 8px;
+    color: var(--mg-decoration-1);
+}
+
+/* ----------------------------------------
+   THE SCREEN
+   ---------------------------------------- */
+.nyxgotchi-screen {
+    position: relative;
+    width: 72px;
+    height: 58px;
+    
+    /* Screen styling */
+    background: var(--mg-screen-bg);
+    border: 3px solid var(--mg-screen-border);
+    border-radius: 4px;
+    
+    /* Inner shadow for depth */
+    box-shadow: 
+        inset 0 2px 4px rgba(0, 0, 0, 0.2),
+        inset 0 -1px 2px rgba(255, 255, 255, 0.3);
+    
+    /* Pixel art rendering */
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+    
+    /* Layout */
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* Scanline effect (subtle) */
+.nyxgotchi-screen::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0, 0, 0, 0.03) 2px,
+        rgba(0, 0, 0, 0.03) 4px
+    );
+    pointer-events: none;
+}
+
+/* ----------------------------------------
+   SCREEN - STATUS BAR
+   ---------------------------------------- */
+.nyxgotchi-status {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 2px 4px;
+    font-size: 8px;
+    font-family: 'Courier New', monospace;
+    color: var(--mg-screen-pixel);
+    background: rgba(0, 0, 0, 0.1);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.nyxgotchi-status-item {
+    display: flex;
+    align-items: center;
+    gap: 1px;
+}
+
+/* Queue badge */
+.nyxgotchi-queue-badge {
+    font-weight: bold;
+}
+
+/* Heart pulse animation */
+.nyxgotchi-heart {
+    animation: heartPulse 1.5s ease-in-out infinite;
+}
+
+.nyxgotchi-heart.invested {
+    animation: heartPulse 0.8s ease-in-out infinite;
+}
+
+@keyframes heartPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+}
+
+/* ----------------------------------------
+   SCREEN - SPRITE AREA
+   ---------------------------------------- */
+.nyxgotchi-sprite-area {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+
+.nyxgotchi-sprite {
+    width: 32px;
+    height: 32px;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+    
+    /* Sprite animation */
+    animation: spriteIdle 2s ease-in-out infinite;
+}
+
+@keyframes spriteIdle {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-2px); }
+}
+
+/* Sprite mood variations */
+.nyxgotchi-sprite.mood-annoyed {
+    animation: spriteAnnoyed 0.5s ease-in-out infinite;
+}
+
+@keyframes spriteAnnoyed {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-1px); }
+    75% { transform: translateX(1px); }
+}
+
+.nyxgotchi-sprite.mood-bored {
+    animation: spriteBored 3s ease-in-out infinite;
+}
+
+@keyframes spriteBored {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(1px); }
+}
+
+.nyxgotchi-sprite.mood-delighted {
+    animation: spriteDelighted 0.8s ease-in-out infinite;
+}
+
+@keyframes spriteDelighted {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    25% { transform: translateY(-2px) rotate(-3deg); }
+    75% { transform: translateY(-2px) rotate(3deg); }
+}
+
+/* Reaction animations */
+.nyxgotchi-sprite.reacting {
+    animation: spriteReact 0.3s ease-out;
+}
+
+@keyframes spriteReact {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+/* ----------------------------------------
+   SCREEN - MOOD TEXT
+   ---------------------------------------- */
+.nyxgotchi-mood {
+    font-size: 7px;
+    font-family: 'Courier New', monospace;
+    color: var(--mg-text-mood);
+    text-align: center;
+    padding: 2px;
+    background: rgba(0, 0, 0, 0.1);
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    text-transform: lowercase;
+    letter-spacing: 0.5px;
+}
+
+/* ----------------------------------------
+   BUTTONS
+   ---------------------------------------- */
+.nyxgotchi-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 12px;
+    padding-bottom: 8px;
+}
+
+.nyxgotchi-button {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    
+    /* Button styling */
+    background: linear-gradient(
+        145deg,
+        var(--mg-button-primary),
+        var(--mg-button-secondary)
+    );
+    border: 2px solid var(--mg-button-border);
+    box-shadow: 
+        0 2px 4px var(--mg-button-shadow),
+        inset 0 1px 2px rgba(255, 255, 255, 0.3);
+    
+    /* Interactive */
+    cursor: pointer;
+    transition: all 0.1s ease;
+}
+
+.nyxgotchi-button:hover {
+    transform: scale(1.05);
+    box-shadow: 
+        0 3px 6px var(--mg-button-shadow),
+        inset 0 1px 2px rgba(255, 255, 255, 0.3);
+}
+
+.nyxgotchi-button:active {
+    transform: translateY(2px) scale(0.98);
+    box-shadow: 
+        0 1px 2px var(--mg-button-shadow),
+        inset 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+/* Button labels (screen reader + tooltip) */
+.nyxgotchi-button[data-action="draw"]::after {
+    content: 'Draw';
+}
+.nyxgotchi-button[data-action="queue"]::after {
+    content: 'Queue';
+}
+.nyxgotchi-button[data-action="poke"]::after {
+    content: 'Poke';
+}
+
+/* Tooltip on hover */
+.nyxgotchi-button {
+    position: relative;
+}
+
+.nyxgotchi-button::after {
+    position: absolute;
+    bottom: -20px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 8px;
+    font-family: sans-serif;
+    color: var(--mg-text-secondary);
+    opacity: 0;
+    transition: opacity 0.2s;
+    white-space: nowrap;
+    pointer-events: none;
+}
+
+.nyxgotchi-button:hover::after {
+    opacity: 1;
+}
+
+/* ----------------------------------------
+   SPEECH BUBBLE (Nyx Commentary)
+   ---------------------------------------- */
+.nyxgotchi-speech {
+    position: absolute;
+    bottom: 100%;
+    right: 0;
+    margin-bottom: 10px;
+    
+    /* Bubble styling */
+    background: var(--mg-shell-primary);
+    border: 2px solid var(--mg-shell-border);
+    border-radius: 12px;
+    padding: 8px 12px;
+    
+    /* Text */
+    font-size: 11px;
+    font-family: sans-serif;
+    color: var(--mg-text-primary);
+    max-width: 200px;
+    
+    /* Shadow */
+    box-shadow: 0 2px 8px var(--mg-shell-shadow);
+    
+    /* Animation */
+    animation: speechAppear 0.3s ease-out;
+    
+    /* Hidden by default */
+    display: none;
+}
+
+.nyxgotchi-speech.visible {
+    display: block;
+}
+
+.nyxgotchi-speech::after {
+    content: '';
+    position: absolute;
+    bottom: -8px;
+    right: 20px;
+    
+    /* Triangle */
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-top: 8px solid var(--mg-shell-primary);
+}
+
+.nyxgotchi-speech::before {
+    content: '';
+    position: absolute;
+    bottom: -12px;
+    right: 18px;
+    
+    /* Triangle border */
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    border-top: 10px solid var(--mg-shell-border);
+}
+
+@keyframes speechAppear {
+    0% {
+        opacity: 0;
+        transform: translateY(10px) scale(0.9);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* ----------------------------------------
+   CARD FLASH (When drawing)
+   ---------------------------------------- */
+.nyxgotchi-card-flash {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    
+    background: rgba(255, 255, 255, 0.9);
+    opacity: 0;
+    pointer-events: none;
+    
+    border-radius: inherit;
+}
+
+.nyxgotchi-card-flash.active {
+    animation: cardFlash 1.5s ease-out forwards;
+}
+
+@keyframes cardFlash {
+    0% { opacity: 0; }
+    10% { opacity: 1; }
+    80% { opacity: 1; }
+    100% { opacity: 0; }
+}
+
+.nyxgotchi-card-flash .card-icon {
+    font-size: 24px;
+    animation: cardReveal 1.5s ease-out forwards;
+}
+
+@keyframes cardReveal {
+    0% { transform: scale(0) rotateY(180deg); }
+    30% { transform: scale(1.2) rotateY(0deg); }
+    50% { transform: scale(1); }
+    100% { transform: scale(1); }
+}
+
+/* ----------------------------------------
+   MOBILE ADJUSTMENTS
+   ---------------------------------------- */
+@media (max-width: 768px) {
+    .nyxgotchi {
+        bottom: 100px; /* Higher to avoid mobile keyboards */
+        right: 10px;
+        transform: scale(0.9);
+        transform-origin: bottom right;
+    }
+    
+    .nyxgotchi-speech {
+        max-width: 160px;
+        font-size: 10px;
+    }
+}
+
+/* Very small screens */
+@media (max-width: 400px) {
+    .nyxgotchi {
+        transform: scale(0.8);
+    }
+}
+
+/* ----------------------------------------
+   ACCESSIBILITY
+   ---------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+    .nyxgotchi-sprite,
+    .nyxgotchi-heart,
+    .nyxgotchi-speech,
+    .nyxgotchi-card-flash {
+        animation: none;
+    }
+}
+
+/* ----------------------------------------
+   COLLAPSED STATE (Optional)
+   ---------------------------------------- */
+.nyxgotchi.collapsed .nyxgotchi-screen,
+.nyxgotchi.collapsed .nyxgotchi-buttons,
+.nyxgotchi.collapsed .nyxgotchi-decorations {
+    display: none;
+}
+
+.nyxgotchi.collapsed .nyxgotchi-shell {
+    width: 50px;
+    height: 60px;
+    cursor: pointer;
+}
+
+.nyxgotchi.collapsed .nyxgotchi-shell::after {
+    content: '👁️';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 20px;
+}
