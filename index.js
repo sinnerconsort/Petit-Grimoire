@@ -340,7 +340,7 @@ function stopSpriteAnimation() {
 // GENERIC DRAG SYSTEM (reusable per FAB)
 // ============================================
 
-function setupFabDrag(elementId, stateKey, positionKey) {
+function setupFabDrag(elementId, stateKey, positionKey, onTap) {
     const el = document.getElementById(elementId);
     if (!el) return;
     
@@ -389,21 +389,28 @@ function setupFabDrag(elementId, stateKey, positionKey) {
         e.preventDefault();
     }
     
-    function onEnd() {
+    function onEnd(e) {
         if (!state.active) return;
         
         state.active = false;
         el.classList.remove('dragging');
         
-        // Save position
-        const rect = el.getBoundingClientRect();
-        extensionSettings[positionKey] = {
-            top: rect.top,
-            left: rect.left,
-            right: 'auto',
-            bottom: 'auto'
-        };
-        saveSettings();
+        if (!state.moved && onTap) {
+            // It was a tap, not a drag
+            onTap(e);
+        } else if (state.moved) {
+            // Save position after drag
+            const rect = el.getBoundingClientRect();
+            extensionSettings[positionKey] = {
+                top: rect.top,
+                left: rect.left,
+                right: 'auto',
+                bottom: 'auto'
+            };
+            saveSettings();
+        }
+        
+        state.moved = false;
     }
     
     el.addEventListener('mousedown', onStart);
@@ -505,16 +512,7 @@ function createCompact() {
     // Apply position (always top/left, clamped to viewport)
     applyPosition('mg-compact', 'compactPosition');
     
-    setupFabDrag('mg-compact', 'compact', 'compactPosition');
-    
-    // Click → open grimoire (but not if dragged)
-    $compact.on('click', (e) => {
-        if (e.target.closest('button')) return;
-        e.stopPropagation();
-        if (dragState.compact.moved) {
-            dragState.compact.moved = false;
-            return;
-        }
+    setupFabDrag('mg-compact', 'compact', 'compactPosition', () => {
         triggerTransformation();
     });
     
