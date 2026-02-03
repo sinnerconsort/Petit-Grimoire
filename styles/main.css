@@ -598,6 +598,7 @@
     opacity: 0;
     transform: scale(0.9) translateY(20px);
     transition: opacity 0.3s ease, transform 0.3s ease;
+    overflow: hidden;
 }
 .mg-grimoire.visible {
     opacity: 1;
@@ -615,6 +616,10 @@
         0 2px 8px rgba(0, 0, 0, 0.2),
         inset 0 1px 2px rgba(255, 255, 255, 0.15);
     position: relative;
+    display: flex;
+    flex-direction: column;
+    max-height: 100%;
+    overflow: hidden;
 }
 
 /* Embossed inner border */
@@ -645,12 +650,17 @@
     background: var(--mg-tama-screen);
     border-radius: 8px;
     overflow: hidden;
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
 }
 
 /* Layout: side tabs + content */
 .mg-tome-layout {
     display: flex;
-    min-height: 340px;
+    flex: 1;
+    min-height: 0;
 }
 
 /* Side tabs */
@@ -666,12 +676,12 @@
 .mg-tome-tab {
     writing-mode: vertical-rl;
     text-orientation: mixed;
-    padding: 10px 6px;
+    padding: 7px 5px;
     border: none;
     background: transparent;
     color: var(--mg-tama-text);
     opacity: 0.4;
-    font-size: 10px;
+    font-size: 9px;
     font-weight: 600;
     cursor: pointer;
     display: flex;
@@ -699,9 +709,10 @@
 .mg-tome-content {
     flex: 1;
     min-width: 0;
+    min-height: 0;
     padding: 12px 14px;
     overflow-y: auto;
-    max-height: 340px;
+    -webkit-overflow-scrolling: touch;
 }
 
 /* Tab panels */
@@ -1013,6 +1024,329 @@
 .mg-nyx-log-entry::before {
     content: '› ';
     opacity: 0.5;
+}
+
+/* ======================== */
+/* Crystal Ball             */
+/* ======================== */
+
+.mg-crystal-orb {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 12px 0;
+}
+
+.mg-crystal-sphere {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%,
+        rgba(255,255,255,0.3),
+        var(--mg-gem-1) 40%,
+        rgba(0,0,0,0.4) 100%
+    );
+    position: relative;
+    overflow: hidden;
+    box-shadow:
+        0 0 20px var(--mg-gem-1),
+        0 0 6px rgba(0,0,0,0.3),
+        inset 0 -4px 12px rgba(0,0,0,0.3);
+    transition: box-shadow 0.5s ease;
+}
+
+.mg-crystal-sphere.mg-crystal-active {
+    box-shadow:
+        0 0 40px var(--mg-gem-1),
+        0 0 80px var(--mg-gem-2),
+        inset 0 -4px 12px rgba(0,0,0,0.3);
+}
+
+.mg-crystal-mist {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: radial-gradient(circle at 50% 50%,
+        transparent 20%,
+        rgba(255,255,255,0.08) 50%,
+        transparent 80%
+    );
+    animation: mgMistSwirl 6s ease-in-out infinite;
+}
+
+.mg-crystal-mist--2 {
+    animation: mgMistSwirl 8s ease-in-out infinite reverse;
+    opacity: 0.6;
+}
+
+@keyframes mgMistSwirl {
+    0%, 100% { transform: rotate(0deg) scale(1); opacity: 0.4; }
+    50% { transform: rotate(180deg) scale(1.1); opacity: 0.8; }
+}
+
+.mg-crystal-glint {
+    position: absolute;
+    top: 12px;
+    left: 16px;
+    width: 8px;
+    height: 4px;
+    background: rgba(255,255,255,0.6);
+    border-radius: 50%;
+    filter: blur(2px);
+}
+
+.mg-crystal-base {
+    width: 40px;
+    height: 10px;
+    background: var(--mg-ring);
+    border-radius: 0 0 8px 8px;
+    border: 1px solid rgba(255,255,255,0.1);
+    border-top: none;
+    margin-top: -2px;
+}
+
+.mg-crystal-vision {
+    font-size: 11px;
+    line-height: 1.5;
+    color: var(--mg-tama-text);
+    opacity: 0.8;
+    font-style: italic;
+    padding: 6px 0;
+}
+
+.mg-crystal-gaze-btn svg {
+    flex-shrink: 0;
+}
+
+/* ======================== */
+/* Spells                   */
+/* ======================== */
+
+.mg-spells-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+    margin: 8px 0;
+}
+
+.mg-spell-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 6px;
+    padding: 8px 6px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.mg-spell-card:active {
+    transform: scale(0.95);
+}
+
+.mg-spell-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--mg-gem-1);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    border-radius: 6px;
+}
+
+.mg-spell-card.mg-spell-cast::after {
+    opacity: 0.15;
+}
+
+.mg-spell-card.mg-spell-cooldown {
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+.mg-spell-card.mg-spell-cooldown .mg-spell-status {
+    color: var(--mg-gem-2);
+}
+
+.mg-spell-icon {
+    font-size: 18px;
+    margin-bottom: 2px;
+}
+
+.mg-spell-name {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--mg-tama-text);
+    font-family: Georgia, serif;
+}
+
+.mg-spell-desc {
+    font-size: 9px;
+    color: var(--mg-tama-text);
+    opacity: 0.6;
+    margin: 2px 0;
+}
+
+.mg-spell-status {
+    font-size: 9px;
+    color: var(--mg-gem-1);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.mg-spell-log {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.mg-spell-log-entry {
+    font-size: 10px;
+    color: var(--mg-tama-text);
+    opacity: 0.7;
+    line-height: 1.4;
+}
+
+/* ======================== */
+/* Ouija Board              */
+/* ======================== */
+
+.mg-ouija-board {
+    background: rgba(0,0,0,0.15);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 8px;
+    padding: 10px 8px 8px;
+    margin: 8px 0;
+    text-align: center;
+    position: relative;
+    font-family: Georgia, serif;
+}
+
+.mg-ouija-row {
+    margin: 4px 0;
+}
+
+.mg-ouija-answers {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 4px;
+    margin-bottom: 6px;
+}
+
+.mg-ouija-answer {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--mg-gem-1);
+    letter-spacing: 1px;
+}
+
+.mg-ouija-sun {
+    font-size: 14px;
+    opacity: 0.5;
+}
+
+.mg-ouija-letters {
+    margin: 6px 0;
+}
+
+.mg-ouija-letters .mg-ouija-row {
+    font-size: 11px;
+    letter-spacing: 3px;
+    color: var(--mg-tama-text);
+    opacity: 0.7;
+    font-weight: 600;
+}
+
+.mg-ouija-numbers span {
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: var(--mg-tama-text);
+    opacity: 0.5;
+}
+
+.mg-ouija-farewell {
+    font-size: 11px;
+    letter-spacing: 4px;
+    color: var(--mg-tama-text);
+    opacity: 0.4;
+    margin-top: 6px;
+    font-weight: 700;
+}
+
+.mg-ouija-planchette {
+    width: 28px;
+    height: 28px;
+    margin: -6px auto 6px;
+    position: relative;
+    transition: transform 0.3s ease;
+}
+
+.mg-ouija-lens {
+    width: 100%;
+    height: 100%;
+    border: 2px solid var(--mg-gem-2);
+    border-radius: 50% 50% 50% 0;
+    transform: rotate(-45deg);
+    opacity: 0.4;
+    transition: opacity 0.3s ease;
+}
+
+.mg-ouija-planchette.mg-ouija-moving {
+    animation: mgPlanchetteMove 1.5s ease-in-out;
+}
+
+.mg-ouija-planchette.mg-ouija-moving .mg-ouija-lens {
+    opacity: 0.9;
+    box-shadow: 0 0 12px var(--mg-gem-2);
+}
+
+@keyframes mgPlanchetteMove {
+    0% { transform: translateX(0); }
+    25% { transform: translateX(-15px) rotate(-5deg); }
+    50% { transform: translateX(15px) rotate(5deg); }
+    75% { transform: translateX(-8px) rotate(-2deg); }
+    100% { transform: translateX(0); }
+}
+
+.mg-ouija-response {
+    min-height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mg-ouija-waiting {
+    font-size: 10px;
+    color: var(--mg-tama-text);
+    opacity: 0.5;
+    font-style: italic;
+}
+
+.mg-ouija-result {
+    text-align: center;
+    padding: 4px 0;
+}
+
+.mg-ouija-answer-text {
+    font-size: 16px;
+    font-weight: 700;
+    font-family: Georgia, serif;
+    color: var(--mg-gem-1);
+    letter-spacing: 2px;
+    margin-bottom: 2px;
+}
+
+.mg-ouija-mood-warning .mg-ouija-answer-text { color: #e74c3c; }
+.mg-ouija-mood-wild .mg-ouija-answer-text { color: var(--mg-gem-2); }
+.mg-ouija-mood-cryptic .mg-ouija-answer-text { opacity: 0.7; }
+
+.mg-ouija-flavor-text {
+    font-size: 10px;
+    color: var(--mg-tama-text);
+    opacity: 0.7;
+    font-style: italic;
 }
 
 /* Clasp */
