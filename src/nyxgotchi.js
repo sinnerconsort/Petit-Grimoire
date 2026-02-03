@@ -116,7 +116,7 @@ function loadSpriteStrip(el, anim) {
     el.textContent = ''; // Clear any ASCII
 
     // Set the strip as background
-    el.style.backgroundImage = `url('${anim.path}')`;
+    el.style.backgroundImage = `url('${anim.src}')`;
     el.style.backgroundSize = `${anim.frames * anim.fw}px ${anim.fh}px`;
     el.style.width = `${anim.fw}px`;
     el.style.height = `${anim.fh}px`;
@@ -176,7 +176,7 @@ export function updateSpriteDisplay() {
         const anim = getSpriteAnimation(form, mood);
         if (!anim) return;
 
-        const animKey = `${form}:${anim.path}`;
+        const animKey = `${form}:${mood}`;
 
         // Only reload the strip if animation changed
         if (_currentAnimKey !== animKey) {
@@ -336,7 +336,7 @@ export function playSpecialAnimation(animName, holdCycles = 1) {
     // Load the special animation
     loadSpriteStrip(sprite, anim);
     setCurrentSpriteFrame(0);
-    _currentAnimKey = `${form}:${anim.path}:special`; // Unique key so mood change will override
+    _currentAnimKey = `${form}:${animName}:special`; // Unique key so mood change will override
     _currentAnim = anim;
 
     // Stop current loop, start special loop
