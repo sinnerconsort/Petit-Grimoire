@@ -1,6 +1,77 @@
 /* ============================================
    NYX-GOTCHI - TAMAGOTCHI COMPANION
+   7 Themed Decks: Guardian, Umbra, Apothecary,
+   Moonstone, Phosphor, Rosewood, Celestial
    ============================================ */
+
+/* ============================================
+   NEW VARIABLES (added to themes.css scope)
+   These extend the existing --mg-* system
+   ============================================ 
+   
+   --mg-screen-frame-bg    Decorative border around LCD
+   --mg-screen-frame-shadow  Inner glow of frame
+   --mg-crt-glow           Inherited from themes.css
+   --mg-shell-primary      Inherited
+   --mg-shell-secondary    Inherited
+   --mg-shell-border       Inherited
+   --mg-shell-shadow       Inherited
+   --mg-screen-bg          Inherited
+   --mg-screen-border      Inherited
+   --mg-screen-pixel       Inherited
+   --mg-button-primary     Inherited
+   --mg-button-secondary   Inherited
+   --mg-button-border      Inherited
+   --mg-button-shadow      Inherited
+   --mg-decoration-1/2/3   Inherited
+   --mg-text-primary       Inherited
+   --mg-text-secondary     Inherited
+   --mg-text-mood          Inherited
+   
+   ============================================ */
+
+
+/* ----------------------------------------
+   SCREEN FRAME VARIABLES PER THEME
+   (the colored border around the LCD,
+    like the purple on the pink Tama)
+   ---------------------------------------- */
+:root,
+[data-mg-theme="guardian"] {
+    --mg-screen-frame-bg: #c8609a;
+    --mg-screen-frame-shadow: rgba(220, 120, 170, 0.3);
+}
+
+[data-mg-theme="umbra"] {
+    --mg-screen-frame-bg: #5d0971;
+    --mg-screen-frame-shadow: rgba(148, 14, 143, 0.4);
+}
+
+[data-mg-theme="apothecary"] {
+    --mg-screen-frame-bg: #5a3a20;
+    --mg-screen-frame-shadow: rgba(76, 107, 32, 0.25);
+}
+
+[data-mg-theme="moonstone"] {
+    --mg-screen-frame-bg: #a060d0;
+    --mg-screen-frame-shadow: rgba(214, 146, 255, 0.35);
+}
+
+[data-mg-theme="phosphor"] {
+    --mg-screen-frame-bg: #3a2080;
+    --mg-screen-frame-shadow: rgba(249, 144, 246, 0.4);
+}
+
+[data-mg-theme="rosewood"] {
+    --mg-screen-frame-bg: #b08090;
+    --mg-screen-frame-shadow: rgba(131, 182, 172, 0.25);
+}
+
+[data-mg-theme="celestial"] {
+    --mg-screen-frame-bg: #1a3070;
+    --mg-screen-frame-shadow: rgba(227, 179, 95, 0.3);
+}
+
 
 /* ----------------------------------------
    CONTAINER & POSITIONING
@@ -28,6 +99,7 @@
     transition: none;
 }
 
+
 /* ----------------------------------------
    THE SHELL (Egg Shape)
    ---------------------------------------- */
@@ -37,7 +109,7 @@
     height: 140px;
     
     /* Egg shape via border-radius */
-    border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+    border-radius: 50% 50% 50% 50% / 58% 58% 42% 42%;
     
     /* Shell coloring */
     background: linear-gradient(
@@ -59,16 +131,19 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding-top: 12px;
+    padding-top: 8px;
+    overflow: hidden;
 }
 
-/* Decorative chain at top */
+
+/* ----------------------------------------
+   DECORATIVE CHAIN (top keychain loop)
+   ---------------------------------------- */
 .nyxgotchi-chain {
     position: absolute;
     top: -15px;
     left: 50%;
     transform: translateX(-50%);
-    
     display: flex;
     gap: 2px;
 }
@@ -81,8 +156,9 @@
     border: 1px solid #808080;
 }
 
+
 /* ----------------------------------------
-   DECORATIONS (Stars, moons, shapes)
+   SHELL DECORATIONS (themed SVG overlay)
    ---------------------------------------- */
 .nyxgotchi-decorations {
     position: absolute;
@@ -93,42 +169,45 @@
     pointer-events: none;
     overflow: hidden;
     border-radius: inherit;
+    z-index: 1;
 }
 
+/* Decoration items - positioned via HTML data attrs or classes */
 .nyxgotchi-deco {
     position: absolute;
     font-size: 10px;
     opacity: 0.9;
 }
 
-/* Positioned decorations */
+/* 6 decoration slots around the shell */
 .nyxgotchi-deco--1 {
-    top: 25px;
+    top: 22px;
     left: 8px;
     color: var(--mg-decoration-1);
     font-size: 12px;
 }
 
 .nyxgotchi-deco--2 {
-    top: 60px;
+    top: 55px;
     left: 5px;
     color: var(--mg-decoration-2);
 }
 
 .nyxgotchi-deco--3 {
-    top: 90px;
+    top: 88px;
     left: 10px;
     color: var(--mg-decoration-3);
+    font-size: 8px;
 }
 
 .nyxgotchi-deco--4 {
-    top: 20px;
+    top: 18px;
     right: 8px;
     color: var(--mg-decoration-2);
 }
 
 .nyxgotchi-deco--5 {
-    top: 55px;
+    top: 52px;
     right: 5px;
     color: var(--mg-decoration-3);
     font-size: 8px;
@@ -140,8 +219,137 @@
     color: var(--mg-decoration-1);
 }
 
+/* ─── Theme-specific decoration content ───
+   Each theme sets its own deco symbols.
+   JS sets these via textContent, but we can
+   provide defaults via CSS for fallback. 
+   ───────────────────────────────────────── */
+
+/* Guardian: stars, hearts, moons */
+[data-mg-theme="guardian"] .nyxgotchi-deco--1::before { content: '★'; }
+[data-mg-theme="guardian"] .nyxgotchi-deco--2::before { content: '♥'; }
+[data-mg-theme="guardian"] .nyxgotchi-deco--3::before { content: '☽'; }
+[data-mg-theme="guardian"] .nyxgotchi-deco--4::before { content: '✦'; }
+[data-mg-theme="guardian"] .nyxgotchi-deco--5::before { content: '★'; }
+[data-mg-theme="guardian"] .nyxgotchi-deco--6::before { content: '♥'; }
+
+/* Umbra: grief seeds, diamonds, crosses */
+[data-mg-theme="umbra"] .nyxgotchi-deco--1::before { content: '◆'; }
+[data-mg-theme="umbra"] .nyxgotchi-deco--2::before { content: '✦'; }
+[data-mg-theme="umbra"] .nyxgotchi-deco--3::before { content: '†'; }
+[data-mg-theme="umbra"] .nyxgotchi-deco--4::before { content: '◆'; }
+[data-mg-theme="umbra"] .nyxgotchi-deco--5::before { content: '✦'; }
+[data-mg-theme="umbra"] .nyxgotchi-deco--6::before { content: '◇'; }
+
+/* Apothecary: herbs, mushrooms, flowers */
+[data-mg-theme="apothecary"] .nyxgotchi-deco--1::before { content: '❀'; }
+[data-mg-theme="apothecary"] .nyxgotchi-deco--2::before { content: '🍄'; font-size: 9px; }
+[data-mg-theme="apothecary"] .nyxgotchi-deco--3::before { content: '♣'; }
+[data-mg-theme="apothecary"] .nyxgotchi-deco--4::before { content: '❋'; }
+[data-mg-theme="apothecary"] .nyxgotchi-deco--5::before { content: '♣'; }
+[data-mg-theme="apothecary"] .nyxgotchi-deco--6::before { content: '❀'; }
+
+/* Moonstone: moons, crystals, stars */
+[data-mg-theme="moonstone"] .nyxgotchi-deco--1::before { content: '☽'; }
+[data-mg-theme="moonstone"] .nyxgotchi-deco--2::before { content: '◇'; }
+[data-mg-theme="moonstone"] .nyxgotchi-deco--3::before { content: '✦'; }
+[data-mg-theme="moonstone"] .nyxgotchi-deco--4::before { content: '◇'; }
+[data-mg-theme="moonstone"] .nyxgotchi-deco--5::before { content: '☆'; }
+[data-mg-theme="moonstone"] .nyxgotchi-deco--6::before { content: '☽'; }
+
+/* Phosphor: geometric shapes (90s tama style) */
+[data-mg-theme="phosphor"] .nyxgotchi-deco--1::before { content: '△'; }
+[data-mg-theme="phosphor"] .nyxgotchi-deco--2::before { content: '◎'; }
+[data-mg-theme="phosphor"] .nyxgotchi-deco--3::before { content: '⚡'; font-size: 9px; }
+[data-mg-theme="phosphor"] .nyxgotchi-deco--4::before { content: '□'; }
+[data-mg-theme="phosphor"] .nyxgotchi-deco--5::before { content: '◎'; }
+[data-mg-theme="phosphor"] .nyxgotchi-deco--6::before { content: '△'; }
+
+/* Rosewood: roses, feathers, vines */
+[data-mg-theme="rosewood"] .nyxgotchi-deco--1::before { content: '❀'; }
+[data-mg-theme="rosewood"] .nyxgotchi-deco--2::before { content: '♡'; }
+[data-mg-theme="rosewood"] .nyxgotchi-deco--3::before { content: '❧'; }
+[data-mg-theme="rosewood"] .nyxgotchi-deco--4::before { content: '♡'; }
+[data-mg-theme="rosewood"] .nyxgotchi-deco--5::before { content: '❧'; }
+[data-mg-theme="rosewood"] .nyxgotchi-deco--6::before { content: '❀'; }
+
+/* Celestial: stars, chains, compass */
+[data-mg-theme="celestial"] .nyxgotchi-deco--1::before { content: '✴'; }
+[data-mg-theme="celestial"] .nyxgotchi-deco--2::before { content: '⚬'; }
+[data-mg-theme="celestial"] .nyxgotchi-deco--3::before { content: '⚬'; }
+[data-mg-theme="celestial"] .nyxgotchi-deco--4::before { content: '✴'; }
+[data-mg-theme="celestial"] .nyxgotchi-deco--5::before { content: '☆'; }
+[data-mg-theme="celestial"] .nyxgotchi-deco--6::before { content: '⚬'; }
+
+/* Phosphor gets a subtle neon glow on decos */
+[data-mg-theme="phosphor"] .nyxgotchi-deco {
+    text-shadow: 0 0 4px currentColor;
+}
+
+/* Umbra gets a subtle flicker */
+[data-mg-theme="umbra"] .nyxgotchi-deco {
+    animation: umbraFlicker 4s ease-in-out infinite;
+}
+
+@keyframes umbraFlicker {
+    0%, 100% { opacity: 0.9; }
+    50% { opacity: 0.5; }
+}
+
+
 /* ----------------------------------------
-   THE SCREEN
+   THE SCREEN FRAME
+   (Decorative colored border around LCD,
+    like the purple frame on real Tamagotchis)
+   ---------------------------------------- */
+.nyxgotchi-screen-frame {
+    position: relative;
+    z-index: 2;
+    
+    /* The colored frame */
+    background: var(--mg-screen-frame-bg);
+    border-radius: 8px;
+    padding: 3px;
+    
+    /* Depth */
+    box-shadow: 
+        inset 0 1px 3px rgba(0, 0, 0, 0.3),
+        0 1px 2px rgba(255, 255, 255, 0.1);
+    
+    /* Layout */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* ─── Status icon rows (above & below screen) ─── */
+.nyxgotchi-icons-row {
+    display: flex;
+    justify-content: space-around;
+    width: 100%;
+    padding: 1px 4px;
+    font-size: 7px;
+    opacity: 0.8;
+    line-height: 1;
+}
+
+.nyxgotchi-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 14px;
+    height: 12px;
+    font-size: 8px;
+}
+
+/* Icon row items inherit theme colors for tint */
+.nyxgotchi-icons-row .nyxgotchi-icon {
+    filter: grayscale(0.3);
+}
+
+
+/* ----------------------------------------
+   THE SCREEN (LCD)
    ---------------------------------------- */
 .nyxgotchi-screen {
     position: relative;
@@ -150,13 +358,14 @@
     
     /* Screen styling */
     background: var(--mg-screen-bg);
-    border: 3px solid var(--mg-screen-border);
+    border: 2px solid var(--mg-screen-border);
     border-radius: 4px;
     
     /* Inner shadow for depth */
     box-shadow: 
-        inset 0 2px 4px rgba(0, 0, 0, 0.2),
-        inset 0 -1px 2px rgba(255, 255, 255, 0.3);
+        inset 0 0 10px var(--mg-crt-glow, rgba(0, 200, 100, 0.1)),
+        inset 0 2px 4px rgba(0, 0, 0, 0.15),
+        0 1px 3px rgba(0, 0, 0, 0.2);
     
     /* Pixel art rendering */
     image-rendering: pixelated;
@@ -168,7 +377,7 @@
     overflow: hidden;
 }
 
-/* Scanline effect (subtle) */
+/* Scanline effect */
 .nyxgotchi-screen::after {
     content: '';
     position: absolute;
@@ -184,7 +393,25 @@
         rgba(0, 0, 0, 0.03) 4px
     );
     pointer-events: none;
+    z-index: 3;
+    border-radius: inherit;
 }
+
+/* CRT screen curve highlight */
+.nyxgotchi-screen::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: radial-gradient(
+        ellipse at 30% 20%,
+        rgba(255, 255, 255, 0.1) 0%,
+        transparent 60%
+    );
+    pointer-events: none;
+    z-index: 4;
+}
+
 
 /* ----------------------------------------
    SCREEN - STATUS BAR
@@ -197,8 +424,10 @@
     font-size: 8px;
     font-family: 'Courier New', monospace;
     color: var(--mg-screen-pixel);
-    background: rgba(0, 0, 0, 0.1);
-    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    background: rgba(0, 0, 0, 0.08);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+    position: relative;
+    z-index: 2;
 }
 
 .nyxgotchi-status-item {
@@ -225,6 +454,7 @@
     0%, 100% { transform: scale(1); }
     50% { transform: scale(1.2); }
 }
+
 
 /* ----------------------------------------
    SCREEN - SPRITE AREA
@@ -293,6 +523,7 @@
     100% { transform: scale(1); }
 }
 
+
 /* ----------------------------------------
    SCREEN - MOOD TEXT
    ---------------------------------------- */
@@ -302,27 +533,33 @@
     color: var(--mg-text-mood);
     text-align: center;
     padding: 2px;
-    background: rgba(0, 0, 0, 0.1);
-    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    background: rgba(0, 0, 0, 0.08);
+    border-top: 1px solid rgba(0, 0, 0, 0.08);
     text-transform: lowercase;
     letter-spacing: 0.5px;
+    position: relative;
+    z-index: 2;
 }
 
+
 /* ----------------------------------------
-   BUTTONS
+   BUTTONS (3 chunky circles below screen)
    ---------------------------------------- */
 .nyxgotchi-buttons {
     display: flex;
     justify-content: center;
     gap: 10px;
-    margin-top: 12px;
-    padding-bottom: 8px;
+    margin-top: 10px;
+    padding-bottom: 6px;
+    position: relative;
+    z-index: 2;
 }
 
 .nyxgotchi-button {
     width: 18px;
     height: 18px;
     border-radius: 50%;
+    position: relative;
     
     /* Button styling */
     background: linear-gradient(
@@ -354,28 +591,27 @@
         inset 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
-/* Button labels (screen reader + tooltip) */
-.nyxgotchi-button[data-action="draw"]::after {
-    content: 'Draw';
-}
-.nyxgotchi-button[data-action="queue"]::after {
-    content: 'Queue';
-}
-.nyxgotchi-button[data-action="poke"]::after {
-    content: 'Poke';
+/* Button middle (accent color) */
+.nyxgotchi-button--middle {
+    background: linear-gradient(
+        145deg,
+        var(--mg-shell-accent),
+        var(--mg-decoration-1)
+    );
+    border-color: var(--mg-shell-border);
 }
 
 /* Tooltip on hover */
-.nyxgotchi-button {
-    position: relative;
-}
+.nyxgotchi-button[data-action="draw"]::after { content: 'Draw'; }
+.nyxgotchi-button[data-action="queue"]::after { content: 'Queue'; }
+.nyxgotchi-button[data-action="poke"]::after { content: 'Poke'; }
 
 .nyxgotchi-button::after {
     position: absolute;
-    bottom: -20px;
+    bottom: -18px;
     left: 50%;
     transform: translateX(-50%);
-    font-size: 8px;
+    font-size: 7px;
     font-family: sans-serif;
     color: var(--mg-text-secondary);
     opacity: 0;
@@ -387,6 +623,7 @@
 .nyxgotchi-button:hover::after {
     opacity: 1;
 }
+
 
 /* ----------------------------------------
    SPEECH BUBBLE (Nyx Commentary)
@@ -428,8 +665,6 @@
     position: absolute;
     bottom: -8px;
     right: 20px;
-    
-    /* Triangle */
     border-left: 8px solid transparent;
     border-right: 8px solid transparent;
     border-top: 8px solid var(--mg-shell-primary);
@@ -440,8 +675,6 @@
     position: absolute;
     bottom: -12px;
     right: 18px;
-    
-    /* Triangle border */
     border-left: 10px solid transparent;
     border-right: 10px solid transparent;
     border-top: 10px solid var(--mg-shell-border);
@@ -458,8 +691,9 @@
     }
 }
 
+
 /* ----------------------------------------
-   CARD FLASH (When drawing)
+   CARD FLASH (When drawing tarot)
    ---------------------------------------- */
 .nyxgotchi-card-flash {
     position: absolute;
@@ -477,6 +711,14 @@
     pointer-events: none;
     
     border-radius: inherit;
+    z-index: 5;
+}
+
+/* Dark themes get a dark flash instead of white */
+[data-mg-theme="umbra"] .nyxgotchi-card-flash,
+[data-mg-theme="phosphor"] .nyxgotchi-card-flash,
+[data-mg-theme="celestial"] .nyxgotchi-card-flash {
+    background: rgba(0, 0, 0, 0.85);
 }
 
 .nyxgotchi-card-flash.active {
@@ -502,12 +744,121 @@
     100% { transform: scale(1); }
 }
 
+
+/* ----------------------------------------
+   THEME-SPECIFIC SHELL EFFECTS
+   ---------------------------------------- */
+
+/* Phosphor: neon glow pulse on shell */
+[data-mg-theme="phosphor"] .nyxgotchi-shell {
+    animation: phosphorPulse 3s ease-in-out infinite;
+}
+
+@keyframes phosphorPulse {
+    0%, 100% {
+        box-shadow:
+            0 4px 15px var(--mg-shell-shadow),
+            inset 0 2px 10px rgba(255, 255, 255, 0.1),
+            inset 0 -2px 10px rgba(0, 0, 0, 0.1);
+    }
+    50% {
+        box-shadow:
+            0 4px 20px rgba(249, 144, 246, 0.5),
+            0 0 30px rgba(115, 117, 202, 0.3),
+            inset 0 2px 10px rgba(255, 255, 255, 0.1),
+            inset 0 -2px 10px rgba(0, 0, 0, 0.1);
+    }
+}
+
+/* Celestial: slow golden shimmer */
+[data-mg-theme="celestial"] .nyxgotchi-shell {
+    animation: celestialShimmer 4s ease-in-out infinite;
+}
+
+@keyframes celestialShimmer {
+    0%, 100% {
+        box-shadow:
+            0 4px 15px var(--mg-shell-shadow),
+            inset 0 2px 10px rgba(255, 255, 255, 0.2),
+            inset 0 -2px 10px rgba(0, 0, 0, 0.1);
+    }
+    50% {
+        box-shadow:
+            0 4px 20px rgba(227, 179, 95, 0.5),
+            0 0 25px rgba(227, 179, 95, 0.2),
+            inset 0 2px 10px rgba(255, 255, 255, 0.25),
+            inset 0 -2px 10px rgba(0, 0, 0, 0.1);
+    }
+}
+
+/* Umbra: subtle dark energy pulse */
+[data-mg-theme="umbra"] .nyxgotchi-shell {
+    animation: umbraPulse 5s ease-in-out infinite;
+}
+
+@keyframes umbraPulse {
+    0%, 100% {
+        box-shadow:
+            0 4px 15px var(--mg-shell-shadow),
+            inset 0 2px 10px rgba(255, 255, 255, 0.1),
+            inset 0 -2px 10px rgba(0, 0, 0, 0.2);
+    }
+    50% {
+        box-shadow:
+            0 4px 20px rgba(148, 14, 143, 0.6),
+            0 0 30px rgba(93, 9, 113, 0.3),
+            inset 0 2px 10px rgba(200, 177, 247, 0.05),
+            inset 0 -2px 10px rgba(0, 0, 0, 0.2);
+    }
+}
+
+/* Guardian: sparkle highlight */
+[data-mg-theme="guardian"] .nyxgotchi-shell::after {
+    content: '';
+    position: absolute;
+    top: 8px;
+    right: 15px;
+    width: 4px;
+    height: 4px;
+    background: #fff;
+    border-radius: 50%;
+    opacity: 0;
+    animation: guardianSparkle 3s ease-in-out infinite;
+    pointer-events: none;
+    z-index: 3;
+}
+
+@keyframes guardianSparkle {
+    0%, 70%, 100% { opacity: 0; transform: scale(0.5); }
+    80% { opacity: 0.8; transform: scale(1.2); }
+    90% { opacity: 0; transform: scale(0.5); }
+}
+
+/* Moonstone: soft iridescent sheen */
+[data-mg-theme="moonstone"] .nyxgotchi-shell::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: linear-gradient(
+        135deg,
+        rgba(188, 241, 253, 0.08) 0%,
+        transparent 30%,
+        rgba(214, 146, 255, 0.06) 50%,
+        transparent 70%,
+        rgba(254, 235, 255, 0.08) 100%
+    );
+    pointer-events: none;
+    z-index: 3;
+}
+
+
 /* ----------------------------------------
    MOBILE ADJUSTMENTS
    ---------------------------------------- */
 @media (max-width: 768px) {
     .nyxgotchi {
-        bottom: 100px; /* Higher to avoid mobile keyboards */
+        bottom: 100px;
         right: 10px;
         transform: scale(0.9);
         transform-origin: bottom right;
@@ -526,6 +877,7 @@
     }
 }
 
+
 /* ----------------------------------------
    ACCESSIBILITY
    ---------------------------------------- */
@@ -533,15 +885,18 @@
     .nyxgotchi-sprite,
     .nyxgotchi-heart,
     .nyxgotchi-speech,
-    .nyxgotchi-card-flash {
-        animation: none;
+    .nyxgotchi-card-flash,
+    .nyxgotchi-shell,
+    .nyxgotchi-deco {
+        animation: none !important;
     }
 }
 
+
 /* ----------------------------------------
-   COLLAPSED STATE (Optional)
+   COLLAPSED STATE
    ---------------------------------------- */
-.nyxgotchi.collapsed .nyxgotchi-screen,
+.nyxgotchi.collapsed .nyxgotchi-screen-frame,
 .nyxgotchi.collapsed .nyxgotchi-buttons,
 .nyxgotchi.collapsed .nyxgotchi-decorations {
     display: none;
@@ -560,4 +915,5 @@
     left: 50%;
     transform: translate(-50%, -50%);
     font-size: 20px;
+    animation: none;
 }
