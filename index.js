@@ -720,6 +720,8 @@ let grimoireOpen = false;
 function triggerTransformation() {
     const $compact = $('#mg-compact');
     
+    if (typeof toastr !== 'undefined') toastr.info('🔮 Transformation triggered', 'Debug');
+    
     if ($compact.hasClass('transforming')) return;
     
     if (grimoireOpen) {
@@ -740,32 +742,34 @@ function openGrimoire() {
     if (grimoireOpen) return;
     grimoireOpen = true;
     
+    if (typeof toastr !== 'undefined') toastr.info('📖 openGrimoire called', 'Debug');
+    
     // Remove any existing
     $('#mg-grimoire, #mg-overlay').remove();
     
     // Add to body
-    $('body').append(getGrimoireHTML());
+    const html = getGrimoireHTML();
+    $('body').append(html);
     
     const grimoire = document.getElementById('mg-grimoire');
     const overlay = document.getElementById('mg-overlay');
+    
+    if (typeof toastr !== 'undefined') {
+        toastr.info(`grimoire: ${!!grimoire}, overlay: ${!!overlay}`, 'Debug Elements');
+    }
+    
     if (!grimoire || !overlay) return;
     
-    // Position near compact brooch
-    const compact = document.getElementById('mg-compact');
-    if (compact) {
-        const rect = compact.getBoundingClientRect();
-        const vpW = window.innerWidth;
-        const vpH = window.innerHeight;
-        
-        // On mobile: center horizontally, position from bottom
-        const gW = Math.min(300, vpW - 32);
-        let gLeft = (vpW - gW) / 2;
-        let gTop = Math.max(60, vpH - 480);
-        
-        grimoire.style.setProperty('width', gW + 'px', 'important');
-        grimoire.style.setProperty('left', gLeft + 'px', 'important');
-        grimoire.style.setProperty('top', gTop + 'px', 'important');
-    }
+    // Position: center horizontally, upper portion of screen
+    const vpW = window.innerWidth;
+    const vpH = window.innerHeight;
+    const gW = Math.min(300, vpW - 32);
+    let gLeft = (vpW - gW) / 2;
+    let gTop = Math.max(60, vpH - 480);
+    
+    grimoire.style.setProperty('width', gW + 'px', 'important');
+    grimoire.style.setProperty('left', gLeft + 'px', 'important');
+    grimoire.style.setProperty('top', gTop + 'px', 'important');
     
     // Force display then animate
     grimoire.style.setProperty('display', 'block', 'important');
@@ -778,6 +782,11 @@ function openGrimoire() {
     
     // Wire up events
     setupGrimoireEvents();
+    
+    if (typeof toastr !== 'undefined') {
+        const r = grimoire.getBoundingClientRect();
+        toastr.success(`📐 ${Math.round(r.left)},${Math.round(r.top)} ${Math.round(r.width)}x${Math.round(r.height)}`, 'Grimoire Pos');
+    }
     
     console.log(`[${extensionName}] Grimoire opened`);
 }
