@@ -355,10 +355,10 @@ function setupFabDrag(elementId, stateKey, positionKey) {
         newLeft = Math.max(5, Math.min(window.innerWidth - rect.width - 5, newLeft));
         newTop = Math.max(5, Math.min(window.innerHeight - rect.height - 5, newTop));
         
-        el.style.left = newLeft + 'px';
-        el.style.top = newTop + 'px';
-        el.style.right = 'auto';
-        el.style.bottom = 'auto';
+        el.style.setProperty('left', newLeft + 'px', 'important');
+        el.style.setProperty('top', newTop + 'px', 'important');
+        el.style.setProperty('right', 'auto', 'important');
+        el.style.setProperty('bottom', 'auto', 'important');
         
         e.preventDefault();
     }
@@ -398,43 +398,39 @@ function applyPosition(elementId, positionKey) {
     if (!el) return;
     
     const pos = extensionSettings[positionKey];
-    const isCompact = elementId === 'mg-compact';
     
-    // ALWAYS clear all inline position styles first - prevents stale values
+    // Clear all position styles
     el.style.removeProperty('top');
     el.style.removeProperty('bottom');
     el.style.removeProperty('left');
     el.style.removeProperty('right');
     
-    // If no valid position, let CSS defaults handle it
     if (!pos || typeof pos !== 'object') return;
     
     const maxX = window.innerWidth - 10;
     const maxY = window.innerHeight - 10;
     
-    // Apply vertical position
+    // Apply vertical - use setProperty with !important for mobile reliability
     if (pos.top !== undefined && pos.top !== 'auto' && !isNaN(Number(pos.top))) {
         const safeTop = Math.max(5, Math.min(maxY, Number(pos.top)));
-        el.style.top = safeTop + 'px';
-        el.style.bottom = 'auto';
+        el.style.setProperty('top', safeTop + 'px', 'important');
+        el.style.setProperty('bottom', 'auto', 'important');
     } else if (pos.bottom !== undefined && pos.bottom !== 'auto' && !isNaN(Number(pos.bottom))) {
         const safeBottom = Math.max(5, Math.min(maxY, Number(pos.bottom)));
-        el.style.bottom = safeBottom + 'px';
-        el.style.top = 'auto';
+        el.style.setProperty('bottom', safeBottom + 'px', 'important');
+        el.style.setProperty('top', 'auto', 'important');
     }
-    // else: no inline style → CSS class defaults kick in
     
-    // Apply horizontal position
+    // Apply horizontal
     if (pos.left !== undefined && pos.left !== 'auto' && !isNaN(Number(pos.left))) {
         const safeLeft = Math.max(5, Math.min(maxX, Number(pos.left)));
-        el.style.left = safeLeft + 'px';
-        el.style.right = 'auto';
+        el.style.setProperty('left', safeLeft + 'px', 'important');
+        el.style.setProperty('right', 'auto', 'important');
     } else if (pos.right !== undefined && pos.right !== 'auto' && !isNaN(Number(pos.right))) {
         const safeRight = Math.max(5, Math.min(maxX, Number(pos.right)));
-        el.style.right = safeRight + 'px';
-        el.style.left = 'auto';
+        el.style.setProperty('right', safeRight + 'px', 'important');
+        el.style.setProperty('left', 'auto', 'important');
     }
-    // else: no inline style → CSS class defaults kick in
 }
 
 // ============================================
@@ -452,7 +448,28 @@ function createCompact() {
         return;
     }
     
+    // Apply saved position OR defaults
     applyPosition('mg-compact', 'compactPosition');
+    
+    // Then force-ensure critical properties that must never be overridden
+    const el = $compact[0];
+    el.style.setProperty('position', 'fixed', 'important');
+    el.style.setProperty('z-index', '2147483647', 'important');
+    el.style.setProperty('display', 'flex', 'important');
+    el.style.setProperty('visibility', 'visible', 'important');
+    el.style.setProperty('opacity', '1', 'important');
+    el.style.setProperty('pointer-events', 'auto', 'important');
+    
+    // If applyPosition didn't set position (no saved data), force defaults
+    if (!el.style.bottom && !el.style.top) {
+        el.style.setProperty('bottom', '120px', 'important');
+        el.style.setProperty('top', 'auto', 'important');
+    }
+    if (!el.style.right && !el.style.left) {
+        el.style.setProperty('right', '20px', 'important');
+        el.style.setProperty('left', 'auto', 'important');
+    }
+    
     setupFabDrag('mg-compact', 'compact', 'compactPosition');
     
     // Click → open grimoire (but not if dragged)
@@ -468,7 +485,7 @@ function createCompact() {
     
     // Respect visibility setting
     if (!extensionSettings.showCompact) {
-        $compact.hide();
+        el.style.setProperty('display', 'none', 'important');
     }
     
     console.log(`[${extensionName}] Compact created`);
@@ -490,15 +507,25 @@ function createTama() {
     }
     
     // Force positioning - ensure tama is definitely on screen
-    $tama.css({
-        'position': 'fixed',
-        'z-index': '99999',
-        'display': 'flex',
-        'visibility': 'visible',
-        'pointer-events': 'auto'
-    });
-    
     applyPosition('mg-tama', 'tamaPosition');
+    
+    const tamaEl = $tama[0];
+    tamaEl.style.setProperty('position', 'fixed', 'important');
+    tamaEl.style.setProperty('z-index', '2147483647', 'important');
+    tamaEl.style.setProperty('display', 'flex', 'important');
+    tamaEl.style.setProperty('visibility', 'visible', 'important');
+    tamaEl.style.setProperty('opacity', '1', 'important');
+    tamaEl.style.setProperty('pointer-events', 'auto', 'important');
+    
+    if (!tamaEl.style.bottom && !tamaEl.style.top) {
+        tamaEl.style.setProperty('bottom', '220px', 'important');
+        tamaEl.style.setProperty('top', 'auto', 'important');
+    }
+    if (!tamaEl.style.right && !tamaEl.style.left) {
+        tamaEl.style.setProperty('right', '20px', 'important');
+        tamaEl.style.setProperty('left', 'auto', 'important');
+    }
+    
     setupFabDrag('mg-tama', 'tama', 'tamaPosition');
     
     // Tama buttons
@@ -519,7 +546,7 @@ function createTama() {
     
     // Respect visibility setting
     if (!extensionSettings.showTama) {
-        $tama.hide();
+        tamaEl.style.setProperty('display', 'none', 'important');
     }
     
     // Start sprite animation
@@ -812,20 +839,18 @@ async function addExtensionSettings() {
     $('#mg-show-compact').on('change', function() {
         extensionSettings.showCompact = $(this).prop('checked');
         saveSettings();
-        if (extensionSettings.showCompact) {
-            $('#mg-compact').show();
-        } else {
-            $('#mg-compact').hide();
+        const el = document.getElementById('mg-compact');
+        if (el) {
+            el.style.setProperty('display', extensionSettings.showCompact ? 'flex' : 'none', 'important');
         }
     });
     
     $('#mg-show-tama').on('change', function() {
         extensionSettings.showTama = $(this).prop('checked');
         saveSettings();
-        if (extensionSettings.showTama) {
-            $('#mg-tama').show();
-        } else {
-            $('#mg-tama').hide();
+        const el = document.getElementById('mg-tama');
+        if (el) {
+            el.style.setProperty('display', extensionSettings.showTama ? 'flex' : 'none', 'important');
         }
     });
     
@@ -860,6 +885,24 @@ jQuery(async () => {
             createCompact();
             createTama();
         }
+        
+        // Diagnostic - remove after debugging
+        setTimeout(() => {
+            const compact = document.getElementById('mg-compact');
+            const tama = document.getElementById('mg-tama');
+            const cRect = compact ? compact.getBoundingClientRect() : null;
+            const tRect = tama ? tama.getBoundingClientRect() : null;
+            const msg = [
+                `C:${compact ? 'YES' : 'NO'}`,
+                cRect ? `${Math.round(cRect.x)},${Math.round(cRect.y)} ${Math.round(cRect.width)}x${Math.round(cRect.height)}` : 'null',
+                `T:${tama ? 'YES' : 'NO'}`,
+                tRect ? `${Math.round(tRect.x)},${Math.round(tRect.y)} ${Math.round(tRect.width)}x${Math.round(tRect.height)}` : 'null',
+                `VP:${window.innerWidth}x${window.innerHeight}`
+            ].join(' | ');
+            if (typeof toastr !== 'undefined') {
+                toastr.info(msg, 'PG Debug', { timeOut: 15000 });
+            }
+        }, 1000);
         
         console.log(`[${extensionName}] ✅ Loaded successfully`);
         
