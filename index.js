@@ -1259,6 +1259,7 @@ function setTheme(themeName) {
     extensionSettings.shellTheme = themeName;
     $('#mg-compact').attr('data-mg-theme', themeName);
     $('#mg-tama').attr('data-mg-theme', themeName);
+    $('#mg-grimoire').attr('data-mg-theme', themeName);
     saveSettings();
 }
 
