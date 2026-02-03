@@ -21,7 +21,7 @@ export const defaultSettings = {
     enabled: true,
 
     // Theme & appearance
-    shellTheme: 'sailor-moon',
+    shellTheme: 'guardian',
     familiarForm: 'cat',
 
     // Independent sizes
@@ -78,7 +78,7 @@ export let grimoireOpen = false;
 /** Speech bubble */
 export let speechTimeout = null;
 
-// ---- Mutable state setters (needed because `export let` rebinding doesn't propagate) ----
+// ---- Mutable state setters ----
 
 export function setSpriteInterval(val) { spriteInterval = val; }
 export function setCurrentSpriteFrame(val) { currentSpriteFrame = val; }
@@ -107,6 +107,19 @@ export function loadSettings() {
     extensionSettings.features = { ...defaultSettings.features, ...extensionSettings.features };
     extensionSettings.compactPosition = extensionSettings.compactPosition || {};
     extensionSettings.tamaPosition = extensionSettings.tamaPosition || {};
+
+    // Migrate old theme names → new 7-deck system
+    const themeMigration = {
+        'sailor-moon': 'guardian',
+        'madoka': 'umbra',
+        'witch-core': 'apothecary',
+        'pastel-goth': 'moonstone',
+        'y2k': 'phosphor',
+        'classic': 'rosewood'
+    };
+    if (themeMigration[extensionSettings.shellTheme]) {
+        extensionSettings.shellTheme = themeMigration[extensionSettings.shellTheme];
+    }
 
     // Migrate old nyxPosition if present
     if (extensionSettings.nyxPosition && !context.extensionSettings[extensionName].compactPosition) {
