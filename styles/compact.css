@@ -1,33 +1,13 @@
 /* ============================================
-   PETIT GRIMOIRE - Shared FAB Base
+   PETIT GRIMOIRE - COMPACT BROOCH
+   Crystal Star Brooch + Variants
    ============================================ */
 
-.mg-fab {
-    position: fixed;
-    z-index: 99999;
-    display: flex;
-    visibility: visible;
-    opacity: 1;
-    cursor: pointer;
-    transition: opacity 0.2s ease;
-    touch-action: none;
-    user-select: none;
-    pointer-events: auto;
-}
 
-.mg-fab.dragging {
-    opacity: 0.7;
-    transition: none !important;
-    cursor: grabbing !important;
-}
-
-
-/* ============================================
-   COMPACT BROOCH - Base Structure
-   ============================================ */
+/* ── Base Structure ── */
 
 .mg-compact {
-    /* Position set by JS via top/left only */
+    /* Position set by JS via top/left */
 }
 
 .mg-compact .mg-compact-body {
@@ -163,7 +143,7 @@
 
 
 /* ══════════════════════════════════════════════
-   COMPACT ANIMATIONS
+   ANIMATIONS
    ══════════════════════════════════════════════ */
 
 .mg-compact.transforming .mg-compact-body {
@@ -206,7 +186,7 @@
 
 
 /* ══════════════════════════════════════════════
-   COMPACT SIZES
+   SIZES
    ══════════════════════════════════════════════ */
 
 [data-mg-size="small"].mg-compact .mg-compact-body {
@@ -229,16 +209,53 @@
 
 
 /* ══════════════════════════════════════════════
-   MOBILE
+   PER-THEME COMPACT EFFECTS
    ══════════════════════════════════════════════ */
 
-@media (max-width: 768px) {
-    .mg-compact .mg-compact-body {
-        width: 50px;
-        height: 50px;
-    }
+/* Umbra: grief seed glow */
+[data-mg-theme="umbra"] .mg-compact-star {
+    text-shadow: 0 0 8px #d89520, 0 0 16px #940e8f;
+}
 
-    .mg-compact-star {
-        font-size: 18px;
+/* Apothecary: herb glow */
+[data-mg-theme="apothecary"] .mg-compact-star {
+    text-shadow: 0 0 6px #bdbf46;
+}
+
+/* Phosphor: neon shimmer */
+[data-mg-theme="phosphor"] .mg-compact-ring {
+    animation: mgPhosphorShimmer 3s ease-in-out infinite;
+}
+
+@keyframes mgPhosphorShimmer {
+    0%, 100% { filter: hue-rotate(0deg); }
+    50% { filter: hue-rotate(25deg); }
+}
+
+[data-mg-theme="phosphor"] .mg-compact-star {
+    text-shadow: 0 0 8px #f990f6, 0 0 16px #7375ca;
+}
+
+/* Celestial: golden pulse */
+[data-mg-theme="celestial"] .mg-compact-star {
+    text-shadow: 0 0 8px #fbe09c, 0 0 16px #e3b35f;
+}
+
+[data-mg-theme="celestial"] .mg-compact-ring {
+    animation: mgCelestialPulse 4s ease-in-out infinite;
+}
+
+@keyframes mgCelestialPulse {
+    0%, 100% {
+        box-shadow:
+            0 3px 12px var(--mg-glow),
+            0 0 20px var(--mg-glow),
+            inset 0 2px 4px rgba(255, 255, 255, 0.4);
+    }
+    50% {
+        box-shadow:
+            0 3px 18px var(--mg-glow),
+            0 0 35px var(--mg-glow),
+            inset 0 2px 4px rgba(255, 255, 255, 0.5);
     }
 }

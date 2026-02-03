@@ -1,275 +1,467 @@
 /* ============================================
-   PETIT GRIMOIRE - Theme Variables
-   Defaults (Sailor Moon) + per-theme overrides
+   PETIT GRIMOIRE - THEME VARIABLES
+   7 Themed Decks: Guardian, Umbra, Apothecary,
+   Moonstone, Phosphor, Rosewood, Celestial
+
+   Sources merged:
+   - Tama shell/screen/button/deco/text → themes.css
+   - Screen frame → nyxgotchi.css
+   - Compact brooch → main.css
+   - CRT effects + speech → main.css
    ============================================ */
 
+
 /* ----------------------------------------
-   DEFAULTS (Sailor Moon)
-   Applied to all .mg-fab elements
+   DEFAULT THEME (Guardian - Star Prism)
+   Main: #dc78aa  Secondary: #f3aa1e
+   Accents: #e71720, #26508a
    ---------------------------------------- */
-.mg-fab {
-    /* Compact — outer ring */
-    --mg-ring: linear-gradient(145deg, #ffd700, #daa520);
+:root,
+[data-mg-theme="guardian"] {
+    /* ── Tama Shell ── */
+    --mg-shell-primary: #dc78aa;
+    --mg-shell-secondary: #e89ac0;
+    --mg-shell-accent: #f3aa1e;
+    --mg-shell-border: #b85a8a;
+    --mg-shell-shadow: rgba(220, 120, 170, 0.4);
+
+    /* ── Tama Screen ── */
+    --mg-screen-bg: linear-gradient(135deg, #fce4ec, #f8bbd0);
+    --mg-screen-border: #dc78aa;
+    --mg-screen-pixel: #4a1530;
+    --mg-screen-frame-bg: #c8609a;
+    --mg-screen-frame-shadow: rgba(220, 120, 170, 0.3);
+
+    /* ── Tama Buttons ── */
+    --mg-button-primary: #dc78aa;
+    --mg-button-secondary: #c5608f;
+    --mg-button-border: #a04872;
+    --mg-button-shadow: rgba(220, 120, 170, 0.35);
+
+    /* ── Decorations ── */
+    --mg-decoration-1: #f3aa1e;
+    --mg-decoration-2: #e71720;
+    --mg-decoration-3: #26508a;
+
+    /* ── Text ── */
+    --mg-text-primary: #4a1530;
+    --mg-text-secondary: #dc78aa;
+    --mg-text-mood: #e71720;
+
+    /* ── Compact Brooch ── */
+    --mg-ring: linear-gradient(145deg, #f3aa1e, #d89520);
     --mg-ring-border: #b8860b;
-    --mg-glow: rgba(255, 215, 0, 0.5);
-    /* Compact — inner face */
-    --mg-face: linear-gradient(145deg, #ffb6c1, #ff69b4);
-    --mg-face-border: #ff1493;
-    /* Compact — center accent */
-    --mg-star: #ffd700;
-    --mg-sparkle: #ffd700;
-    /* Compact — gems */
-    --mg-gem-1: #ff69b4;
-    --mg-gem-2: #32cd32;
-    --mg-gem-3: #4169e1;
-    --mg-gem-4: #ffa500;
-    /* Compact — accent (crescent, clasp, antenna) */
-    --mg-accent: #ffd700;
+    --mg-glow: rgba(243, 170, 30, 0.5);
+    --mg-face: linear-gradient(145deg, #e89ac0, #dc78aa);
+    --mg-face-border: #c5608f;
+    --mg-face-alt: linear-gradient(145deg, #fce4ec, #f8bbd0);
+    --mg-star: #f3aa1e;
+    --mg-sparkle: #f3aa1e;
+    --mg-gem-1: #e71720;
+    --mg-gem-2: #26508a;
+    --mg-gem-3: #dc78aa;
+    --mg-gem-4: #f3aa1e;
+    --mg-accent: #f3aa1e;
     --mg-accent-border: #b8860b;
-    /* Compact — secondary face */
-    --mg-face-alt: linear-gradient(145deg, #ffe4e9, #ffc0cb);
 
-    /* Tama shell */
-    --mg-tama-bg: rgba(255, 158, 210, 0.95);
-    --mg-tama-border: #e875b0;
-    --mg-tama-shadow: rgba(255, 105, 180, 0.4);
-    --mg-tama-screen: #c5f0d2;
-    --mg-tama-screen-border: #9ad1a8;
-    --mg-tama-text: #2d5a3d;
-    --mg-btn-1: #ff69b4;
-    --mg-btn-2: #ff1493;
-    --mg-btn-border: #c71585;
+    /* ── Speech Bubble ── */
+    --mg-speech-bg: #dc78aa;
+    --mg-speech-border: #b85a8a;
+    --mg-speech-text: #4a1530;
 
-    /* Speech bubble */
-    --mg-speech-bg: #ff9ed2;
-    --mg-speech-border: #e875b0;
-    --mg-speech-text: #4a154b;
-
-    /* CRT screen effects */
-    --mg-crt-glow: rgba(100, 200, 120, 0.15);
-    --mg-crt-scanline: rgba(0, 80, 30, 0.05);
-    --mg-crt-divider: rgba(0, 60, 30, 0.12);
-    --mg-crt-flash: rgba(255, 215, 0, 0.85);
+    /* ── CRT Effects ── */
+    --mg-crt-glow: rgba(220, 120, 170, 0.15);
+    --mg-crt-scanline: rgba(74, 21, 48, 0.05);
+    --mg-crt-divider: rgba(220, 120, 170, 0.12);
+    --mg-crt-flash: rgba(243, 170, 30, 0.85);
 }
 
 
-/* ══════════════════════════════════════════════
-   THEME: MADOKA
-   ══════════════════════════════════════════════ */
+/* ----------------------------------------
+   UMBRA (Shadow / Grief Seeds)
+   Main: #940e8f  Secondary: #d89520
+   Accents: #5d0971, #c8b1f7
+   ---------------------------------------- */
+[data-mg-theme="umbra"] {
+    /* ── Tama Shell ── */
+    --mg-shell-primary: #2d0835;
+    --mg-shell-secondary: #40104a;
+    --mg-shell-accent: #940e8f;
+    --mg-shell-border: #1a0420;
+    --mg-shell-shadow: rgba(148, 14, 143, 0.5);
 
-[data-mg-theme="madoka"] {
-    --mg-ring: linear-gradient(145deg, #4a2c5a, #2d1b3d);
-    --mg-ring-border: #1a0f24;
-    --mg-glow: rgba(155, 89, 182, 0.6);
-    --mg-face: linear-gradient(145deg, #c870f0, #9b59b6);
-    --mg-face-border: #6c3483;
-    --mg-star: #e91e8c;
-    --mg-sparkle: #d080f0;
-    --mg-gem-1: #e91e8c;
-    --mg-gem-2: #9b59b6;
-    --mg-gem-3: #6c3483;
-    --mg-gem-4: #e91e8c;
-    --mg-accent: #9b59b6;
-    --mg-accent-border: #4a2c5a;
-    --mg-face-alt: linear-gradient(145deg, #2d1b3d, #1a0f24);
+    /* ── Tama Screen ── */
+    --mg-screen-bg: linear-gradient(135deg, #1a0825, #2d1040);
+    --mg-screen-border: #940e8f;
+    --mg-screen-pixel: #e0d0f0;
+    --mg-screen-frame-bg: #5d0971;
+    --mg-screen-frame-shadow: rgba(148, 14, 143, 0.4);
 
-    --mg-tama-bg: rgba(45, 27, 61, 0.95);
-    --mg-tama-border: #9b59b6;
-    --mg-tama-shadow: rgba(155, 89, 182, 0.4);
-    --mg-tama-screen: #1a0f24;
-    --mg-tama-screen-border: #4a2c5a;
-    --mg-tama-text: #d4a5e0;
-    --mg-btn-1: #9b59b6;
-    --mg-btn-2: #6c3483;
-    --mg-btn-border: #4a2c5a;
+    /* ── Tama Buttons ── */
+    --mg-button-primary: #940e8f;
+    --mg-button-secondary: #750a70;
+    --mg-button-border: #5d0971;
+    --mg-button-shadow: rgba(93, 9, 113, 0.5);
 
-    --mg-speech-bg: #2d1b3d;
-    --mg-speech-border: #9b59b6;
-    --mg-speech-text: #d4a5e0;
+    /* ── Decorations ── */
+    --mg-decoration-1: #d89520;
+    --mg-decoration-2: #940e8f;
+    --mg-decoration-3: #c8b1f7;
 
-    --mg-crt-glow: rgba(155, 89, 182, 0.2);
-    --mg-crt-scanline: rgba(100, 50, 130, 0.08);
-    --mg-crt-divider: rgba(155, 89, 182, 0.15);
-    --mg-crt-flash: rgba(233, 30, 140, 0.85);
-}
+    /* ── Text ── */
+    --mg-text-primary: #e8d5f5;
+    --mg-text-secondary: #c8b1f7;
+    --mg-text-mood: #d89520;
 
-[data-mg-theme="madoka"] .mg-compact-star {
-    text-shadow: 0 0 8px #e91e8c, 0 0 16px #9b59b6;
-}
+    /* ── Compact Brooch ── */
+    --mg-ring: linear-gradient(145deg, #40104a, #2d0835);
+    --mg-ring-border: #1a0420;
+    --mg-glow: rgba(148, 14, 143, 0.6);
+    --mg-face: linear-gradient(145deg, #b030a8, #940e8f);
+    --mg-face-border: #5d0971;
+    --mg-face-alt: linear-gradient(145deg, #2d0835, #1a0420);
+    --mg-star: #d89520;
+    --mg-sparkle: #c8b1f7;
+    --mg-gem-1: #d89520;
+    --mg-gem-2: #940e8f;
+    --mg-gem-3: #5d0971;
+    --mg-gem-4: #c8b1f7;
+    --mg-accent: #d89520;
+    --mg-accent-border: #a07018;
 
+    /* ── Speech Bubble ── */
+    --mg-speech-bg: #2d0835;
+    --mg-speech-border: #940e8f;
+    --mg-speech-text: #c8b1f7;
 
-/* ══════════════════════════════════════════════
-   THEME: WITCH CORE
-   ══════════════════════════════════════════════ */
-
-[data-mg-theme="witch-core"] {
-    --mg-ring: linear-gradient(145deg, #3a3a3a, #1a1a1a);
-    --mg-ring-border: #0d0d0d;
-    --mg-glow: rgba(80, 200, 120, 0.4);
-    --mg-face: linear-gradient(145deg, #2a5a3a, #1a3a2a);
-    --mg-face-border: #50c878;
-    --mg-star: #50c878;
-    --mg-sparkle: #90ee90;
-    --mg-gem-1: #50c878;
-    --mg-gem-2: #90ee90;
-    --mg-gem-3: #2d8f4e;
-    --mg-gem-4: #50c878;
-    --mg-accent: #2d8f4e;
-    --mg-accent-border: #1a5a2e;
-    --mg-face-alt: linear-gradient(145deg, #0d1a0d, #0a120a);
-
-    --mg-tama-bg: rgba(26, 26, 26, 0.95);
-    --mg-tama-border: #50c878;
-    --mg-tama-shadow: rgba(80, 200, 120, 0.3);
-    --mg-tama-screen: #0d1a0d;
-    --mg-tama-screen-border: #2d5a3d;
-    --mg-tama-text: #90ee90;
-    --mg-btn-1: #50c878;
-    --mg-btn-2: #2d8f4e;
-    --mg-btn-border: #1a5a2e;
-
-    --mg-speech-bg: #1a1a1a;
-    --mg-speech-border: #50c878;
-    --mg-speech-text: #90ee90;
-
-    --mg-crt-glow: rgba(80, 200, 120, 0.25);
-    --mg-crt-scanline: rgba(0, 100, 40, 0.1);
-    --mg-crt-divider: rgba(80, 200, 120, 0.15);
-    --mg-crt-flash: rgba(80, 200, 120, 0.85);
-}
-
-[data-mg-theme="witch-core"] .mg-compact-star {
-    text-shadow: 0 0 6px #50c878;
+    /* ── CRT Effects ── */
+    --mg-crt-glow: rgba(148, 14, 143, 0.2);
+    --mg-crt-scanline: rgba(93, 9, 113, 0.08);
+    --mg-crt-divider: rgba(148, 14, 143, 0.15);
+    --mg-crt-flash: rgba(216, 149, 32, 0.85);
 }
 
 
-/* ══════════════════════════════════════════════
-   THEME: PASTEL GOTH
-   ══════════════════════════════════════════════ */
+/* ----------------------------------------
+   APOTHECARY (Herbs & Botanicals)
+   Main: #76482e  Secondary: #4c6b20
+   Accents: #bdbf46, #e9ae75
+   ---------------------------------------- */
+[data-mg-theme="apothecary"] {
+    /* ── Tama Shell ── */
+    --mg-shell-primary: #76482e;
+    --mg-shell-secondary: #8d5c3a;
+    --mg-shell-accent: #4c6b20;
+    --mg-shell-border: #5a3420;
+    --mg-shell-shadow: rgba(76, 107, 32, 0.3);
 
-[data-mg-theme="pastel-goth"] {
-    --mg-ring: linear-gradient(145deg, #dda0dd, #9370db);
-    --mg-ring-border: #8b008b;
-    --mg-glow: rgba(147, 112, 219, 0.5);
-    --mg-face: linear-gradient(145deg, #e6e6fa, #dda0dd);
-    --mg-face-border: #2d2d2d;
-    --mg-star: #2d2d2d;
-    --mg-sparkle: #dda0dd;
-    --mg-gem-1: #2d2d2d;
-    --mg-gem-2: #dda0dd;
-    --mg-gem-3: #2d2d2d;
-    --mg-gem-4: #9370db;
-    --mg-accent: #9370db;
-    --mg-accent-border: #6a0dad;
-    --mg-face-alt: linear-gradient(145deg, #f0e6ff, #e6d0f5);
+    /* ── Tama Screen ── */
+    --mg-screen-bg: linear-gradient(135deg, #f5ecd5, #e8dcc0);
+    --mg-screen-border: #76482e;
+    --mg-screen-pixel: #3a2a18;
+    --mg-screen-frame-bg: #5a3a20;
+    --mg-screen-frame-shadow: rgba(76, 107, 32, 0.25);
 
-    --mg-tama-bg: rgba(221, 160, 221, 0.95);
-    --mg-tama-border: #9370db;
-    --mg-tama-shadow: rgba(147, 112, 219, 0.4);
-    --mg-tama-screen: #f0e6ff;
-    --mg-tama-screen-border: #c8a0e6;
-    --mg-tama-text: #4a2d5a;
-    --mg-btn-1: #2d2d2d;
-    --mg-btn-2: #1a1a1a;
-    --mg-btn-border: #9370db;
+    /* ── Tama Buttons ── */
+    --mg-button-primary: #4c6b20;
+    --mg-button-secondary: #3d5618;
+    --mg-button-border: #2e4010;
+    --mg-button-shadow: rgba(76, 107, 32, 0.4);
 
-    --mg-speech-bg: #e6e6fa;
-    --mg-speech-border: #9370db;
-    --mg-speech-text: #4a2d5a;
+    /* ── Decorations ── */
+    --mg-decoration-1: #bdbf46;
+    --mg-decoration-2: #4c6b20;
+    --mg-decoration-3: #e9ae75;
 
-    --mg-crt-glow: rgba(147, 112, 219, 0.15);
-    --mg-crt-scanline: rgba(74, 45, 90, 0.05);
-    --mg-crt-divider: rgba(147, 112, 219, 0.12);
-    --mg-crt-flash: rgba(221, 160, 221, 0.85);
+    /* ── Text ── */
+    --mg-text-primary: #3a2a18;
+    --mg-text-secondary: #76482e;
+    --mg-text-mood: #bdbf46;
+
+    /* ── Compact Brooch ── */
+    --mg-ring: linear-gradient(145deg, #8d5c3a, #76482e);
+    --mg-ring-border: #5a3420;
+    --mg-glow: rgba(76, 107, 32, 0.4);
+    --mg-face: linear-gradient(145deg, #5a7a28, #4c6b20);
+    --mg-face-border: #3d5618;
+    --mg-face-alt: linear-gradient(135deg, #f5ecd5, #e8dcc0);
+    --mg-star: #bdbf46;
+    --mg-sparkle: #e9ae75;
+    --mg-gem-1: #bdbf46;
+    --mg-gem-2: #4c6b20;
+    --mg-gem-3: #e9ae75;
+    --mg-gem-4: #76482e;
+    --mg-accent: #76482e;
+    --mg-accent-border: #5a3420;
+
+    /* ── Speech Bubble ── */
+    --mg-speech-bg: #76482e;
+    --mg-speech-border: #4c6b20;
+    --mg-speech-text: #f5ecd5;
+
+    /* ── CRT Effects ── */
+    --mg-crt-glow: rgba(76, 107, 32, 0.15);
+    --mg-crt-scanline: rgba(58, 42, 24, 0.06);
+    --mg-crt-divider: rgba(76, 107, 32, 0.12);
+    --mg-crt-flash: rgba(189, 191, 70, 0.85);
 }
 
 
-/* ══════════════════════════════════════════════
-   THEME: Y2K
-   ══════════════════════════════════════════════ */
+/* ----------------------------------------
+   MOONSTONE (Crystals & Moon Phases)
+   Main: #d9c7fb  Secondary: #bcf1fd
+   Accents: #feebff, #d692ff
+   ---------------------------------------- */
+[data-mg-theme="moonstone"] {
+    /* ── Tama Shell ── */
+    --mg-shell-primary: #d9c7fb;
+    --mg-shell-secondary: #e8dcff;
+    --mg-shell-accent: #bcf1fd;
+    --mg-shell-border: #b8a0e0;
+    --mg-shell-shadow: rgba(214, 146, 255, 0.4);
 
-[data-mg-theme="y2k"] {
-    --mg-ring: linear-gradient(145deg, #00ced1, #4169e1, #ff00ff);
-    --mg-ring-border: #1e90ff;
-    --mg-glow: rgba(0, 255, 255, 0.5);
-    --mg-face: linear-gradient(145deg, #e0ffff, #b0e0e6);
-    --mg-face-border: #ff00ff;
-    --mg-star: #ff00ff;
-    --mg-sparkle: #00ffff;
-    --mg-gem-1: #00ffff;
-    --mg-gem-2: #ff00ff;
-    --mg-gem-3: #00ffff;
-    --mg-gem-4: #ff00ff;
-    --mg-accent: #00ced1;
-    --mg-accent-border: #008b8b;
-    --mg-face-alt: linear-gradient(145deg, #f0ffff, #e0f0ff);
+    /* ── Tama Screen ── */
+    --mg-screen-bg: linear-gradient(135deg, #2a2040, #1e1535);
+    --mg-screen-border: #d692ff;
+    --mg-screen-pixel: #feebff;
+    --mg-screen-frame-bg: #a060d0;
+    --mg-screen-frame-shadow: rgba(214, 146, 255, 0.35);
 
-    --mg-tama-bg: rgba(176, 224, 230, 0.95);
-    --mg-tama-border: #00ced1;
-    --mg-tama-shadow: rgba(0, 206, 209, 0.4);
-    --mg-tama-screen: #e0ffff;
-    --mg-tama-screen-border: #00ced1;
-    --mg-tama-text: #1e3a5f;
-    --mg-btn-1: #ff00ff;
-    --mg-btn-2: #cc00cc;
-    --mg-btn-border: #00ced1;
+    /* ── Tama Buttons ── */
+    --mg-button-primary: #d692ff;
+    --mg-button-secondary: #c070ee;
+    --mg-button-border: #a050d0;
+    --mg-button-shadow: rgba(214, 146, 255, 0.4);
 
-    --mg-speech-bg: #e0ffff;
-    --mg-speech-border: #00ced1;
-    --mg-speech-text: #1e3a5f;
+    /* ── Decorations ── */
+    --mg-decoration-1: #bcf1fd;
+    --mg-decoration-2: #d692ff;
+    --mg-decoration-3: #feebff;
 
-    --mg-crt-glow: rgba(0, 206, 209, 0.2);
-    --mg-crt-scanline: rgba(0, 100, 110, 0.06);
-    --mg-crt-divider: rgba(0, 206, 209, 0.15);
-    --mg-crt-flash: rgba(255, 0, 255, 0.8);
+    /* ── Text ── */
+    --mg-text-primary: #2a1540;
+    --mg-text-secondary: #b8a0e0;
+    --mg-text-mood: #d692ff;
+
+    /* ── Compact Brooch ── */
+    --mg-ring: linear-gradient(145deg, #e8dcff, #d9c7fb);
+    --mg-ring-border: #b8a0e0;
+    --mg-glow: rgba(214, 146, 255, 0.5);
+    --mg-face: linear-gradient(145deg, #feebff, #d9c7fb);
+    --mg-face-border: #d692ff;
+    --mg-face-alt: linear-gradient(145deg, #feebff, #e8dcff);
+    --mg-star: #d692ff;
+    --mg-sparkle: #bcf1fd;
+    --mg-gem-1: #d692ff;
+    --mg-gem-2: #bcf1fd;
+    --mg-gem-3: #d692ff;
+    --mg-gem-4: #bcf1fd;
+    --mg-accent: #bcf1fd;
+    --mg-accent-border: #90d0e0;
+
+    /* ── Speech Bubble ── */
+    --mg-speech-bg: #e8dcff;
+    --mg-speech-border: #d692ff;
+    --mg-speech-text: #3a2050;
+
+    /* ── CRT Effects ── */
+    --mg-crt-glow: rgba(214, 146, 255, 0.2);
+    --mg-crt-scanline: rgba(42, 32, 64, 0.08);
+    --mg-crt-divider: rgba(214, 146, 255, 0.15);
+    --mg-crt-flash: rgba(188, 241, 253, 0.85);
 }
 
-[data-mg-theme="y2k"] .mg-compact-ring {
-    animation: mgY2kShimmer 3s ease-in-out infinite;
+
+/* ----------------------------------------
+   PHOSPHOR (Neon / Vaporwave)
+   Main: #7375ca  Secondary: #feffff
+   Accents: #f990f6, #120147
+   ---------------------------------------- */
+[data-mg-theme="phosphor"] {
+    /* ── Tama Shell ── */
+    --mg-shell-primary: #120147;
+    --mg-shell-secondary: #1e0860;
+    --mg-shell-accent: #7375ca;
+    --mg-shell-border: #0a0030;
+    --mg-shell-shadow: rgba(115, 117, 202, 0.5);
+
+    /* ── Tama Screen ── */
+    --mg-screen-bg: linear-gradient(135deg, #0a0030, #150650);
+    --mg-screen-border: #f990f6;
+    --mg-screen-pixel: #feffff;
+    --mg-screen-frame-bg: #3a2080;
+    --mg-screen-frame-shadow: rgba(249, 144, 246, 0.4);
+
+    /* ── Tama Buttons ── */
+    --mg-button-primary: #f990f6;
+    --mg-button-secondary: #d070d0;
+    --mg-button-border: #7375ca;
+    --mg-button-shadow: rgba(249, 144, 246, 0.4);
+
+    /* ── Decorations ── */
+    --mg-decoration-1: #7375ca;
+    --mg-decoration-2: #f990f6;
+    --mg-decoration-3: #feffff;
+
+    /* ── Text ── */
+    --mg-text-primary: #feffff;
+    --mg-text-secondary: #7375ca;
+    --mg-text-mood: #f990f6;
+
+    /* ── Compact Brooch ── */
+    --mg-ring: linear-gradient(145deg, #7375ca, #4a4c90, #f990f6);
+    --mg-ring-border: #120147;
+    --mg-glow: rgba(249, 144, 246, 0.5);
+    --mg-face: linear-gradient(145deg, #1e0860, #120147);
+    --mg-face-border: #f990f6;
+    --mg-face-alt: linear-gradient(145deg, #150650, #0a0030);
+    --mg-star: #f990f6;
+    --mg-sparkle: #7375ca;
+    --mg-gem-1: #f990f6;
+    --mg-gem-2: #7375ca;
+    --mg-gem-3: #f990f6;
+    --mg-gem-4: #feffff;
+    --mg-accent: #7375ca;
+    --mg-accent-border: #4a4c90;
+
+    /* ── Speech Bubble ── */
+    --mg-speech-bg: #120147;
+    --mg-speech-border: #f990f6;
+    --mg-speech-text: #feffff;
+
+    /* ── CRT Effects ── */
+    --mg-crt-glow: rgba(249, 144, 246, 0.2);
+    --mg-crt-scanline: rgba(18, 1, 71, 0.1);
+    --mg-crt-divider: rgba(115, 117, 202, 0.15);
+    --mg-crt-flash: rgba(249, 144, 246, 0.85);
 }
 
-@keyframes mgY2kShimmer {
-    0%, 100% { filter: hue-rotate(0deg); }
-    50% { filter: hue-rotate(30deg); }
+
+/* ----------------------------------------
+   ROSEWOOD (Floral / Dream Parlour)
+   Main: #e4b0bc  Secondary: #d8caca
+   Accents: #83b6ac, #177656
+   ---------------------------------------- */
+[data-mg-theme="rosewood"] {
+    /* ── Tama Shell ── */
+    --mg-shell-primary: #e4b0bc;
+    --mg-shell-secondary: #edc5cf;
+    --mg-shell-accent: #83b6ac;
+    --mg-shell-border: #c8909e;
+    --mg-shell-shadow: rgba(228, 176, 188, 0.4);
+
+    /* ── Tama Screen ── */
+    --mg-screen-bg: linear-gradient(135deg, #faf0f2, #f0e0e5);
+    --mg-screen-border: #c8909e;
+    --mg-screen-pixel: #4a2030;
+    --mg-screen-frame-bg: #b08090;
+    --mg-screen-frame-shadow: rgba(131, 182, 172, 0.25);
+
+    /* ── Tama Buttons ── */
+    --mg-button-primary: #83b6ac;
+    --mg-button-secondary: #177656;
+    --mg-button-border: #105040;
+    --mg-button-shadow: rgba(131, 182, 172, 0.4);
+
+    /* ── Decorations ── */
+    --mg-decoration-1: #e4b0bc;
+    --mg-decoration-2: #83b6ac;
+    --mg-decoration-3: #177656;
+
+    /* ── Text ── */
+    --mg-text-primary: #4a2030;
+    --mg-text-secondary: #c8909e;
+    --mg-text-mood: #177656;
+
+    /* ── Compact Brooch ── */
+    --mg-ring: linear-gradient(145deg, #edc5cf, #e4b0bc);
+    --mg-ring-border: #c8909e;
+    --mg-glow: rgba(228, 176, 188, 0.5);
+    --mg-face: linear-gradient(145deg, #faf0f2, #f0e0e5);
+    --mg-face-border: #c8909e;
+    --mg-face-alt: linear-gradient(145deg, #faf5f6, #f0e8ea);
+    --mg-star: #177656;
+    --mg-sparkle: #83b6ac;
+    --mg-gem-1: #83b6ac;
+    --mg-gem-2: #177656;
+    --mg-gem-3: #e4b0bc;
+    --mg-gem-4: #83b6ac;
+    --mg-accent: #83b6ac;
+    --mg-accent-border: #5a9080;
+
+    /* ── Speech Bubble ── */
+    --mg-speech-bg: #f0e0e5;
+    --mg-speech-border: #c8909e;
+    --mg-speech-text: #4a2030;
+
+    /* ── CRT Effects ── */
+    --mg-crt-glow: rgba(131, 182, 172, 0.15);
+    --mg-crt-scanline: rgba(74, 32, 48, 0.04);
+    --mg-crt-divider: rgba(200, 144, 158, 0.12);
+    --mg-crt-flash: rgba(131, 182, 172, 0.85);
 }
 
 
-/* ══════════════════════════════════════════════
-   THEME: CLASSIC (90s Retro)
-   ══════════════════════════════════════════════ */
+/* ----------------------------------------
+   CELESTIAL (Starbound Grimoire)
+   Main: #002f86  Secondary: #e3b35f
+   Accents: #132040, #fbe09c
+   ---------------------------------------- */
+[data-mg-theme="celestial"] {
+    /* ── Tama Shell ── */
+    --mg-shell-primary: #002f86;
+    --mg-shell-secondary: #0a3d9a;
+    --mg-shell-accent: #e3b35f;
+    --mg-shell-border: #001a50;
+    --mg-shell-shadow: rgba(0, 47, 134, 0.5);
 
-[data-mg-theme="classic"] {
-    --mg-ring: linear-gradient(145deg, #5050d0, #4040bf);
-    --mg-ring-border: #2a2a8f;
-    --mg-glow: rgba(64, 64, 191, 0.5);
-    --mg-face: linear-gradient(145deg, #c5d9a4, #a8c896);
-    --mg-face-border: #6b6b6b;
-    --mg-star: #2d2d2d;
-    --mg-sparkle: #ffff00;
-    --mg-gem-1: #ff1493;
-    --mg-gem-2: #ff1493;
-    --mg-gem-3: #ff1493;
-    --mg-gem-4: #ff1493;
-    --mg-accent: #4040bf;
-    --mg-accent-border: #2a2a8f;
-    --mg-face-alt: linear-gradient(145deg, #d0e4b0, #c5d9a4);
+    /* ── Tama Screen ── */
+    --mg-screen-bg: linear-gradient(135deg, #0a1525, #132040);
+    --mg-screen-border: #e3b35f;
+    --mg-screen-pixel: #fbe09c;
+    --mg-screen-frame-bg: #1a3070;
+    --mg-screen-frame-shadow: rgba(227, 179, 95, 0.3);
 
-    --mg-tama-bg: rgba(80, 80, 208, 0.95);
-    --mg-tama-border: #3a3abf;
-    --mg-tama-shadow: rgba(64, 64, 191, 0.4);
-    --mg-tama-screen: #c5d9a4;
-    --mg-tama-screen-border: #8fae6b;
-    --mg-tama-text: #2d4a1d;
-    --mg-btn-1: #d4d400;
-    --mg-btn-2: #aaaa00;
-    --mg-btn-border: #2a2a8f;
+    /* ── Tama Buttons ── */
+    --mg-button-primary: #e3b35f;
+    --mg-button-secondary: #c89840;
+    --mg-button-border: #9a7528;
+    --mg-button-shadow: rgba(227, 179, 95, 0.4);
 
-    --mg-speech-bg: #4040bf;
-    --mg-speech-border: #6060e0;
-    --mg-speech-text: #e0e0ff;
+    /* ── Decorations ── */
+    --mg-decoration-1: #e3b35f;
+    --mg-decoration-2: #fbe09c;
+    --mg-decoration-3: #002f86;
 
-    --mg-crt-glow: rgba(100, 160, 60, 0.2);
-    --mg-crt-scanline: rgba(0, 60, 0, 0.08);
-    --mg-crt-divider: rgba(45, 74, 29, 0.15);
-    --mg-crt-flash: rgba(212, 212, 0, 0.85);
+    /* ── Text ── */
+    --mg-text-primary: #fbe09c;
+    --mg-text-secondary: #e3b35f;
+    --mg-text-mood: #fbe09c;
+
+    /* ── Compact Brooch ── */
+    --mg-ring: linear-gradient(145deg, #e3b35f, #c89840);
+    --mg-ring-border: #9a7528;
+    --mg-glow: rgba(227, 179, 95, 0.5);
+    --mg-face: linear-gradient(145deg, #0a3d9a, #002f86);
+    --mg-face-border: #e3b35f;
+    --mg-face-alt: linear-gradient(145deg, #132040, #0a1525);
+    --mg-star: #fbe09c;
+    --mg-sparkle: #e3b35f;
+    --mg-gem-1: #e3b35f;
+    --mg-gem-2: #fbe09c;
+    --mg-gem-3: #002f86;
+    --mg-gem-4: #e3b35f;
+    --mg-accent: #e3b35f;
+    --mg-accent-border: #9a7528;
+
+    /* ── Speech Bubble ── */
+    --mg-speech-bg: #132040;
+    --mg-speech-border: #e3b35f;
+    --mg-speech-text: #fbe09c;
+
+    /* ── CRT Effects ── */
+    --mg-crt-glow: rgba(227, 179, 95, 0.15);
+    --mg-crt-scanline: rgba(19, 32, 64, 0.08);
+    --mg-crt-divider: rgba(227, 179, 95, 0.12);
+    --mg-crt-flash: rgba(251, 224, 156, 0.85);
 }

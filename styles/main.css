@@ -1,9 +1,51 @@
 /* ============================================
-   PETIT GRIMOIRE - Main Stylesheet
-   Import hub — all styles split by component
+   PETIT GRIMOIRE - Main Stylesheet Hub
+   7 Themed Decks × Compact + Nyxgotchi + Grimoire
    ============================================ */
 
 @import url('variables.css');
 @import url('compact.css');
 @import url('nyxgotchi.css');
 @import url('grimoire.css');
+
+
+/* ============================================
+   SHARED FAB BASE
+   Both compact and nyxgotchi use .mg-fab
+   for fixed positioning and drag behavior.
+   ============================================ */
+
+.mg-fab {
+    position: fixed;
+    z-index: 99999;
+    display: flex;
+    visibility: visible;
+    opacity: 1;
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+    touch-action: none;
+    user-select: none;
+    pointer-events: auto;
+}
+
+.mg-fab.dragging {
+    opacity: 0.7;
+    transition: none !important;
+    cursor: grabbing !important;
+}
+
+
+/* ============================================
+   MOBILE
+   ============================================ */
+
+@media (max-width: 768px) {
+    .mg-compact .mg-compact-body {
+        width: 50px;
+        height: 50px;
+    }
+
+    .mg-compact-star {
+        font-size: 18px;
+    }
+}

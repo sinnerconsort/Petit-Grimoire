@@ -90,7 +90,7 @@
    ══════════════════════════════════════════════ */
 
 .mg-tome-page {
-    background: var(--mg-tama-screen);
+    background: var(--mg-screen-bg);
     border-radius: 8px;
     overflow: hidden;
     flex: 1;
@@ -125,7 +125,7 @@
     padding: 7px 5px;
     border: none;
     background: transparent;
-    color: var(--mg-tama-text);
+    color: var(--mg-text-primary);
     opacity: 0.4;
     font-size: 9px;
     font-weight: 600;
@@ -185,14 +185,14 @@
 .mg-tome-heading {
     font-size: 14px;
     font-weight: 700;
-    color: var(--mg-tama-text);
+    color: var(--mg-text-primary);
     font-family: Georgia, serif;
     margin-bottom: 4px;
 }
 
 .mg-tome-flavor {
     font-size: 10px;
-    color: var(--mg-tama-text);
+    color: var(--mg-text-primary);
     opacity: 0.5;
     font-style: italic;
     margin-bottom: 12px;
@@ -210,7 +210,7 @@
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 1px;
-    color: var(--mg-tama-text);
+    color: var(--mg-text-primary);
     opacity: 0.5;
     margin-bottom: 6px;
 }
@@ -219,15 +219,15 @@
 .mg-tome-btn {
     width: 100%;
     padding: 9px 0;
-    background: linear-gradient(145deg, var(--mg-btn-1), var(--mg-btn-2));
-    border: 2px solid var(--mg-btn-border);
+    background: linear-gradient(145deg, var(--mg-button-primary), var(--mg-button-secondary));
+    border: 2px solid var(--mg-button-border);
     border-radius: 20px;
     color: #fff;
     font-size: 12px;
     font-weight: 600;
     cursor: pointer;
     letter-spacing: 0.3px;
-    box-shadow: 0 2px 8px var(--mg-tama-shadow);
+    box-shadow: 0 2px 8px var(--mg-shell-shadow);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -235,7 +235,7 @@
     transition: all 0.15s ease;
 }
 
-.mg-tome-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px var(--mg-tama-shadow); }
+.mg-tome-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px var(--mg-shell-shadow); }
 .mg-tome-btn:active { transform: translateY(1px); }
 
 
@@ -266,7 +266,7 @@
 
 .mg-card-symbol {
     font-size: 18px;
-    color: var(--mg-tama-text);
+    color: var(--mg-text-primary);
     opacity: 0.6;
 }
 
@@ -289,19 +289,19 @@
     justify-content: center;
     font-size: 10px;
     font-weight: 700;
-    color: var(--mg-tama-text);
+    color: var(--mg-text-primary);
     flex-shrink: 0;
 }
 
 .mg-last-reading-name {
     font-size: 11px;
     font-weight: 600;
-    color: var(--mg-tama-text);
+    color: var(--mg-text-primary);
 }
 
 .mg-last-reading-keywords {
     font-size: 10px;
-    color: var(--mg-tama-text);
+    color: var(--mg-text-primary);
     opacity: 0.5;
     font-style: italic;
 }
@@ -319,7 +319,7 @@
     text-align: center;
     padding: 24px 8px;
     font-size: 11px;
-    color: var(--mg-tama-text);
+    color: var(--mg-text-primary);
     opacity: 0.4;
     font-style: italic;
     line-height: 1.5;
@@ -327,7 +327,7 @@
 
 .mg-queue-empty-icon {
     margin-bottom: 8px;
-    color: var(--mg-tama-text);
+    color: var(--mg-text-primary);
 }
 
 .mg-queue-item {
@@ -350,17 +350,17 @@
     justify-content: center;
     font-size: 9px;
     font-weight: 700;
-    color: var(--mg-tama-text);
+    color: var(--mg-text-primary);
     flex-shrink: 0;
 }
 
 .mg-queue-info { flex: 1; min-width: 0; }
-.mg-queue-name { font-size: 11px; font-weight: 600; color: var(--mg-tama-text); }
-.mg-queue-keywords { font-size: 10px; color: var(--mg-tama-text); opacity: 0.5; font-style: italic; }
+.mg-queue-name { font-size: 11px; font-weight: 600; color: var(--mg-text-primary); }
+.mg-queue-keywords { font-size: 10px; color: var(--mg-text-primary); opacity: 0.5; font-style: italic; }
 
 .mg-queue-inject {
     font-size: 9px;
-    color: var(--mg-tama-text);
+    color: var(--mg-text-primary);
     opacity: 0.5;
     border: 1px solid var(--mg-crt-divider, rgba(0, 0, 0, 0.15));
     border-radius: 10px;
@@ -374,7 +374,7 @@
 .mg-queue-footer {
     text-align: center;
     font-size: 10px;
-    color: var(--mg-tama-text);
+    color: var(--mg-text-primary);
     opacity: 0.4;
     font-style: italic;
     margin-top: 10px;
@@ -403,13 +403,13 @@
 .mg-nyx-stats-header span:first-child {
     font-size: 11px;
     font-weight: 600;
-    color: var(--mg-tama-text);
+    color: var(--mg-text-primary);
 }
 
 .mg-nyx-score {
     font-size: 18px;
     font-weight: 700;
-    color: var(--mg-btn-1);
+    color: var(--mg-button-primary);
 }
 
 .mg-nyx-bar {
@@ -421,7 +421,7 @@
 
 .mg-nyx-bar-fill {
     height: 100%;
-    background: linear-gradient(90deg, var(--mg-btn-2), var(--mg-btn-1));
+    background: linear-gradient(90deg, var(--mg-button-secondary), var(--mg-button-primary));
     border-radius: 3px;
     transition: width 0.5s ease;
 }
@@ -430,7 +430,7 @@
     display: flex;
     justify-content: space-between;
     font-size: 8px;
-    color: var(--mg-tama-text);
+    color: var(--mg-text-primary);
     opacity: 0.4;
     margin-top: 3px;
 }
@@ -439,7 +439,7 @@
     text-align: center;
     padding: 8px 0;
     font-size: 11px;
-    color: var(--mg-tama-text);
+    color: var(--mg-text-primary);
     font-style: italic;
     border-bottom: 1px solid var(--mg-crt-divider, rgba(0, 0, 0, 0.06));
     margin-bottom: 10px;
@@ -459,7 +459,7 @@
     background: transparent;
     border: 1.5px solid var(--mg-crt-divider, rgba(0, 0, 0, 0.15));
     border-radius: 16px;
-    color: var(--mg-tama-text);
+    color: var(--mg-text-primary);
     font-size: 10px;
     font-weight: 500;
     cursor: pointer;
@@ -468,13 +468,13 @@
 
 .mg-nyx-action-btn:hover {
     background: var(--mg-crt-glow, rgba(0, 0, 0, 0.05));
-    border-color: var(--mg-btn-1);
-    color: var(--mg-btn-1);
+    border-color: var(--mg-button-primary);
+    color: var(--mg-button-primary);
 }
 
 .mg-nyx-log {
     font-size: 10px;
-    color: var(--mg-tama-text);
+    color: var(--mg-text-primary);
     opacity: 0.6;
     font-style: italic;
     line-height: 1.6;
@@ -572,7 +572,7 @@
 .mg-crystal-vision {
     font-size: 11px;
     line-height: 1.5;
-    color: var(--mg-tama-text);
+    color: var(--mg-text-primary);
     opacity: 0.8;
     font-style: italic;
     padding: 6px 0;
@@ -641,13 +641,13 @@
 .mg-spell-name {
     font-size: 11px;
     font-weight: 700;
-    color: var(--mg-tama-text);
+    color: var(--mg-text-primary);
     font-family: Georgia, serif;
 }
 
 .mg-spell-desc {
     font-size: 9px;
-    color: var(--mg-tama-text);
+    color: var(--mg-text-primary);
     opacity: 0.6;
     margin: 2px 0;
 }
@@ -668,7 +668,7 @@
 
 .mg-spell-log-entry {
     font-size: 10px;
-    color: var(--mg-tama-text);
+    color: var(--mg-text-primary);
     opacity: 0.7;
     line-height: 1.4;
 }
@@ -720,7 +720,7 @@
 .mg-ouija-letters .mg-ouija-row {
     font-size: 11px;
     letter-spacing: 3px;
-    color: var(--mg-tama-text);
+    color: var(--mg-text-primary);
     opacity: 0.7;
     font-weight: 600;
 }
@@ -728,14 +728,14 @@
 .mg-ouija-numbers span {
     font-size: 10px;
     letter-spacing: 3px;
-    color: var(--mg-tama-text);
+    color: var(--mg-text-primary);
     opacity: 0.5;
 }
 
 .mg-ouija-farewell {
     font-size: 11px;
     letter-spacing: 4px;
-    color: var(--mg-tama-text);
+    color: var(--mg-text-primary);
     opacity: 0.4;
     margin-top: 6px;
     font-weight: 700;
@@ -785,7 +785,7 @@
 
 .mg-ouija-waiting {
     font-size: 10px;
-    color: var(--mg-tama-text);
+    color: var(--mg-text-primary);
     opacity: 0.5;
     font-style: italic;
 }
@@ -810,7 +810,7 @@
 
 .mg-ouija-flavor-text {
     font-size: 10px;
-    color: var(--mg-tama-text);
+    color: var(--mg-text-primary);
     opacity: 0.7;
     font-style: italic;
 }
