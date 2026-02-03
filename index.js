@@ -52,8 +52,8 @@ const defaultSettings = {
     tamaPosition: {
         top: 'auto',
         left: 'auto',
-        right: 80,
-        bottom: 160
+        right: 20,
+        bottom: 200
     },
     
     // Visibility toggles
@@ -120,6 +120,19 @@ function loadSettings() {
     // Migrate old nyxPosition if present
     if (extensionSettings.nyxPosition && !context.extensionSettings[extensionName].compactPosition) {
         extensionSettings.compactPosition = extensionSettings.nyxPosition;
+    }
+    
+    // Force reset tama position if it looks like stale data from old architecture
+    // (old version didn't have tamaPosition, so if all values are 'auto' it was never set)
+    const tp = extensionSettings.tamaPosition;
+    if (!tp || (tp.top === 'auto' && tp.bottom === 'auto' && tp.left === 'auto' && tp.right === 'auto')) {
+        extensionSettings.tamaPosition = { ...defaultSettings.tamaPosition };
+    }
+    
+    // Migrate old variant names
+    const variantMigration = { 'soul-gem': 'crescent-wand', 'hex-crystal': 'silver-crystal' };
+    if (variantMigration[extensionSettings.compactVariant]) {
+        extensionSettings.compactVariant = variantMigration[extensionSettings.compactVariant];
     }
 }
 
@@ -397,20 +410,40 @@ function applyPosition(elementId, positionKey) {
     
     const pos = extensionSettings[positionKey];
     
+    // Safety: if position is missing or corrupted, use sensible defaults
+    if (!pos || typeof pos !== 'object') {
+        const isCompact = elementId === 'mg-compact';
+        $el.css({ 
+            bottom: isCompact ? '100px' : '180px', 
+            right: isCompact ? '20px' : '20px', 
+            top: 'auto', 
+            left: 'auto' 
+        });
+        return;
+    }
+    
+    // Validate position values are reasonable (on screen)
+    const maxX = window.innerWidth - 20;
+    const maxY = window.innerHeight - 20;
+    
     // Top/Bottom
-    if (pos.top !== undefined && pos.top !== 'auto') {
-        $el.css({ top: pos.top + 'px', bottom: 'auto' });
-    } else if (pos.bottom !== undefined && pos.bottom !== 'auto') {
-        $el.css({ bottom: pos.bottom + 'px', top: 'auto' });
+    if (pos.top !== undefined && pos.top !== 'auto' && !isNaN(pos.top)) {
+        const safeTop = Math.max(5, Math.min(maxY, Number(pos.top)));
+        $el.css({ top: safeTop + 'px', bottom: 'auto' });
+    } else if (pos.bottom !== undefined && pos.bottom !== 'auto' && !isNaN(pos.bottom)) {
+        const safeBottom = Math.max(5, Math.min(maxY, Number(pos.bottom)));
+        $el.css({ bottom: safeBottom + 'px', top: 'auto' });
     } else {
-        $el.css({ bottom: '100px', top: 'auto' });
+        $el.css({ bottom: elementId === 'mg-compact' ? '100px' : '180px', top: 'auto' });
     }
     
     // Left/Right
-    if (pos.left !== undefined && pos.left !== 'auto') {
-        $el.css({ left: pos.left + 'px', right: 'auto' });
-    } else if (pos.right !== undefined && pos.right !== 'auto') {
-        $el.css({ right: pos.right + 'px', left: 'auto' });
+    if (pos.left !== undefined && pos.left !== 'auto' && !isNaN(pos.left)) {
+        const safeLeft = Math.max(5, Math.min(maxX, Number(pos.left)));
+        $el.css({ left: safeLeft + 'px', right: 'auto' });
+    } else if (pos.right !== undefined && pos.right !== 'auto' && !isNaN(pos.right)) {
+        const safeRight = Math.max(5, Math.min(maxX, Number(pos.right)));
+        $el.css({ right: safeRight + 'px', left: 'auto' });
     } else {
         $el.css({ right: '20px', left: 'auto' });
     }
@@ -467,6 +500,15 @@ function createTama() {
         console.error(`[${extensionName}] Failed to create tama`);
         return;
     }
+    
+    // Force positioning - ensure tama is definitely on screen
+    $tama.css({
+        'position': 'fixed',
+        'z-index': '99999',
+        'display': 'flex',
+        'visibility': 'visible',
+        'pointer-events': 'auto'
+    });
     
     applyPosition('mg-tama', 'tamaPosition');
     setupFabDrag('mg-tama', 'tama', 'tamaPosition');
