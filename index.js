@@ -37,19 +37,9 @@ const defaultSettings = {
     compactSize: 'medium',   // small, medium, large
     tamaSize: 'medium',      // small, medium, large
     
-    // Independent positions (Tribunal pattern)
-    compactPosition: {
-        top: 'auto',
-        left: 'auto',
-        right: 20,
-        bottom: 100
-    },
-    tamaPosition: {
-        top: 'auto',
-        left: 'auto',
-        right: 20,
-        bottom: 200
-    },
+    // Independent positions - stored as top/left only (bottom/right breaks in ST transforms)
+    compactPosition: {},
+    tamaPosition: {},
     
     // Visibility toggles
     showCompact: true,
@@ -109,19 +99,12 @@ function loadSettings() {
     // Deep merge nested objects
     extensionSettings.nyx = { ...defaultSettings.nyx, ...extensionSettings.nyx };
     extensionSettings.features = { ...defaultSettings.features, ...extensionSettings.features };
-    extensionSettings.compactPosition = { ...defaultSettings.compactPosition, ...extensionSettings.compactPosition };
-    extensionSettings.tamaPosition = { ...defaultSettings.tamaPosition, ...extensionSettings.tamaPosition };
+    extensionSettings.compactPosition = extensionSettings.compactPosition || {};
+    extensionSettings.tamaPosition = extensionSettings.tamaPosition || {};
     
     // Migrate old nyxPosition if present
     if (extensionSettings.nyxPosition && !context.extensionSettings[extensionName].compactPosition) {
         extensionSettings.compactPosition = extensionSettings.nyxPosition;
-    }
-    
-    // Force reset tama position if it looks like stale data from old architecture
-    // (old version didn't have tamaPosition, so if all values are 'auto' it was never set)
-    const tp = extensionSettings.tamaPosition;
-    if (!tp || (tp.top === 'auto' && tp.bottom === 'auto' && tp.left === 'auto' && tp.right === 'auto')) {
-        extensionSettings.tamaPosition = { ...defaultSettings.tamaPosition };
     }
 }
 
@@ -393,44 +376,62 @@ function setupFabDrag(elementId, stateKey, positionKey) {
 // POSITION APPLICATION
 // ============================================
 
+function getDefaultPosition(elementId) {
+    // Always compute as top/left from viewport - never use bottom/right
+    // (ST/themes may have transforms that break fixed positioning with bottom/right)
+    const vpW = window.innerWidth;
+    const vpH = window.innerHeight;
+    
+    if (elementId === 'mg-tama') {
+        return { top: vpH - 240, left: vpW - 130 };
+    }
+    // compact default
+    return { top: vpH - 120, left: vpW - 76 };
+}
+
 function applyPosition(elementId, positionKey) {
     const el = document.getElementById(elementId);
     if (!el) return;
     
     const pos = extensionSettings[positionKey];
+    const vpW = window.innerWidth;
+    const vpH = window.innerHeight;
     
-    // Clear all position styles
-    el.style.removeProperty('top');
-    el.style.removeProperty('bottom');
-    el.style.removeProperty('left');
-    el.style.removeProperty('right');
+    let top, left;
     
-    if (!pos || typeof pos !== 'object') return;
-    
-    const maxX = window.innerWidth - 10;
-    const maxY = window.innerHeight - 10;
-    
-    // Apply vertical - use setProperty with !important for mobile reliability
-    if (pos.top !== undefined && pos.top !== 'auto' && !isNaN(Number(pos.top))) {
-        const safeTop = Math.max(5, Math.min(maxY, Number(pos.top)));
-        el.style.setProperty('top', safeTop + 'px', 'important');
-        el.style.setProperty('bottom', 'auto', 'important');
-    } else if (pos.bottom !== undefined && pos.bottom !== 'auto' && !isNaN(Number(pos.bottom))) {
-        const safeBottom = Math.max(5, Math.min(maxY, Number(pos.bottom)));
-        el.style.setProperty('bottom', safeBottom + 'px', 'important');
-        el.style.setProperty('top', 'auto', 'important');
+    // Try to use saved position (always stored as top/left after drag)
+    if (pos && typeof pos === 'object') {
+        if (pos.top !== undefined && pos.top !== 'auto' && !isNaN(Number(pos.top))) {
+            top = Number(pos.top);
+        } else if (pos.bottom !== undefined && pos.bottom !== 'auto' && !isNaN(Number(pos.bottom))) {
+            // Convert old bottom-based position to top
+            top = vpH - Number(pos.bottom) - (el.offsetHeight || 56);
+        }
+        if (pos.left !== undefined && pos.left !== 'auto' && !isNaN(Number(pos.left))) {
+            left = Number(pos.left);
+        } else if (pos.right !== undefined && pos.right !== 'auto' && !isNaN(Number(pos.right))) {
+            // Convert old right-based position to left
+            left = vpW - Number(pos.right) - (el.offsetWidth || 56);
+        }
     }
     
-    // Apply horizontal
-    if (pos.left !== undefined && pos.left !== 'auto' && !isNaN(Number(pos.left))) {
-        const safeLeft = Math.max(5, Math.min(maxX, Number(pos.left)));
-        el.style.setProperty('left', safeLeft + 'px', 'important');
-        el.style.setProperty('right', 'auto', 'important');
-    } else if (pos.right !== undefined && pos.right !== 'auto' && !isNaN(Number(pos.right))) {
-        const safeRight = Math.max(5, Math.min(maxX, Number(pos.right)));
-        el.style.setProperty('right', safeRight + 'px', 'important');
-        el.style.setProperty('left', 'auto', 'important');
+    // Fall back to computed defaults if no valid saved position
+    if (top === undefined || left === undefined) {
+        const defaults = getDefaultPosition(elementId);
+        if (top === undefined) top = defaults.top;
+        if (left === undefined) left = defaults.left;
     }
+    
+    // Clamp to viewport (with small margin)
+    const elW = el.offsetWidth || 56;
+    const elH = el.offsetHeight || 56;
+    top = Math.max(5, Math.min(vpH - elH - 5, top));
+    left = Math.max(5, Math.min(vpW - elW - 5, left));
+    
+    el.style.setProperty('top', top + 'px', 'important');
+    el.style.setProperty('left', left + 'px', 'important');
+    el.style.setProperty('bottom', 'auto', 'important');
+    el.style.setProperty('right', 'auto', 'important');
 }
 
 // ============================================
@@ -448,11 +449,9 @@ function createCompact() {
         return;
     }
     
-    // Apply saved position OR defaults
-    applyPosition('mg-compact', 'compactPosition');
-    
-    // Then force-ensure critical properties that must never be overridden
     const el = $compact[0];
+    
+    // Force critical display properties
     el.style.setProperty('position', 'fixed', 'important');
     el.style.setProperty('z-index', '2147483647', 'important');
     el.style.setProperty('display', 'flex', 'important');
@@ -460,15 +459,8 @@ function createCompact() {
     el.style.setProperty('opacity', '1', 'important');
     el.style.setProperty('pointer-events', 'auto', 'important');
     
-    // If applyPosition didn't set position (no saved data), force defaults
-    if (!el.style.bottom && !el.style.top) {
-        el.style.setProperty('bottom', '120px', 'important');
-        el.style.setProperty('top', 'auto', 'important');
-    }
-    if (!el.style.right && !el.style.left) {
-        el.style.setProperty('right', '20px', 'important');
-        el.style.setProperty('left', 'auto', 'important');
-    }
+    // Apply position (always top/left, clamped to viewport)
+    applyPosition('mg-compact', 'compactPosition');
     
     setupFabDrag('mg-compact', 'compact', 'compactPosition');
     
@@ -506,10 +498,9 @@ function createTama() {
         return;
     }
     
-    // Force positioning - ensure tama is definitely on screen
-    applyPosition('mg-tama', 'tamaPosition');
-    
     const tamaEl = $tama[0];
+    
+    // Force critical display properties
     tamaEl.style.setProperty('position', 'fixed', 'important');
     tamaEl.style.setProperty('z-index', '2147483647', 'important');
     tamaEl.style.setProperty('display', 'flex', 'important');
@@ -517,14 +508,8 @@ function createTama() {
     tamaEl.style.setProperty('opacity', '1', 'important');
     tamaEl.style.setProperty('pointer-events', 'auto', 'important');
     
-    if (!tamaEl.style.bottom && !tamaEl.style.top) {
-        tamaEl.style.setProperty('bottom', '220px', 'important');
-        tamaEl.style.setProperty('top', 'auto', 'important');
-    }
-    if (!tamaEl.style.right && !tamaEl.style.left) {
-        tamaEl.style.setProperty('right', '20px', 'important');
-        tamaEl.style.setProperty('left', 'auto', 'important');
-    }
+    // Apply position (always top/left, clamped to viewport)
+    applyPosition('mg-tama', 'tamaPosition');
     
     setupFabDrag('mg-tama', 'tama', 'tamaPosition');
     
