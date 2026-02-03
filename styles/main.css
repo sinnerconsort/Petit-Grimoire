@@ -75,8 +75,7 @@
    ============================================ */
 
 .mg-compact {
-    bottom: 100px;
-    right: 20px;
+    /* Position set by JS via top/left only */
 }
 
 .mg-compact .mg-compact-body {
@@ -282,8 +281,7 @@
    ══════════════════════════════════════════════ */
 
 .mg-tama {
-    bottom: 200px;
-    right: 20px;
+    /* Position set by JS via top/left only */
 }
 
 .mg-tama-shell {
