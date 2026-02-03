@@ -1,0 +1,275 @@
+/* ============================================
+   PETIT GRIMOIRE - Theme Variables
+   Defaults (Sailor Moon) + per-theme overrides
+   ============================================ */
+
+/* ----------------------------------------
+   DEFAULTS (Sailor Moon)
+   Applied to all .mg-fab elements
+   ---------------------------------------- */
+.mg-fab {
+    /* Compact — outer ring */
+    --mg-ring: linear-gradient(145deg, #ffd700, #daa520);
+    --mg-ring-border: #b8860b;
+    --mg-glow: rgba(255, 215, 0, 0.5);
+    /* Compact — inner face */
+    --mg-face: linear-gradient(145deg, #ffb6c1, #ff69b4);
+    --mg-face-border: #ff1493;
+    /* Compact — center accent */
+    --mg-star: #ffd700;
+    --mg-sparkle: #ffd700;
+    /* Compact — gems */
+    --mg-gem-1: #ff69b4;
+    --mg-gem-2: #32cd32;
+    --mg-gem-3: #4169e1;
+    --mg-gem-4: #ffa500;
+    /* Compact — accent (crescent, clasp, antenna) */
+    --mg-accent: #ffd700;
+    --mg-accent-border: #b8860b;
+    /* Compact — secondary face */
+    --mg-face-alt: linear-gradient(145deg, #ffe4e9, #ffc0cb);
+
+    /* Tama shell */
+    --mg-tama-bg: rgba(255, 158, 210, 0.95);
+    --mg-tama-border: #e875b0;
+    --mg-tama-shadow: rgba(255, 105, 180, 0.4);
+    --mg-tama-screen: #c5f0d2;
+    --mg-tama-screen-border: #9ad1a8;
+    --mg-tama-text: #2d5a3d;
+    --mg-btn-1: #ff69b4;
+    --mg-btn-2: #ff1493;
+    --mg-btn-border: #c71585;
+
+    /* Speech bubble */
+    --mg-speech-bg: #ff9ed2;
+    --mg-speech-border: #e875b0;
+    --mg-speech-text: #4a154b;
+
+    /* CRT screen effects */
+    --mg-crt-glow: rgba(100, 200, 120, 0.15);
+    --mg-crt-scanline: rgba(0, 80, 30, 0.05);
+    --mg-crt-divider: rgba(0, 60, 30, 0.12);
+    --mg-crt-flash: rgba(255, 215, 0, 0.85);
+}
+
+
+/* ══════════════════════════════════════════════
+   THEME: MADOKA
+   ══════════════════════════════════════════════ */
+
+[data-mg-theme="madoka"] {
+    --mg-ring: linear-gradient(145deg, #4a2c5a, #2d1b3d);
+    --mg-ring-border: #1a0f24;
+    --mg-glow: rgba(155, 89, 182, 0.6);
+    --mg-face: linear-gradient(145deg, #c870f0, #9b59b6);
+    --mg-face-border: #6c3483;
+    --mg-star: #e91e8c;
+    --mg-sparkle: #d080f0;
+    --mg-gem-1: #e91e8c;
+    --mg-gem-2: #9b59b6;
+    --mg-gem-3: #6c3483;
+    --mg-gem-4: #e91e8c;
+    --mg-accent: #9b59b6;
+    --mg-accent-border: #4a2c5a;
+    --mg-face-alt: linear-gradient(145deg, #2d1b3d, #1a0f24);
+
+    --mg-tama-bg: rgba(45, 27, 61, 0.95);
+    --mg-tama-border: #9b59b6;
+    --mg-tama-shadow: rgba(155, 89, 182, 0.4);
+    --mg-tama-screen: #1a0f24;
+    --mg-tama-screen-border: #4a2c5a;
+    --mg-tama-text: #d4a5e0;
+    --mg-btn-1: #9b59b6;
+    --mg-btn-2: #6c3483;
+    --mg-btn-border: #4a2c5a;
+
+    --mg-speech-bg: #2d1b3d;
+    --mg-speech-border: #9b59b6;
+    --mg-speech-text: #d4a5e0;
+
+    --mg-crt-glow: rgba(155, 89, 182, 0.2);
+    --mg-crt-scanline: rgba(100, 50, 130, 0.08);
+    --mg-crt-divider: rgba(155, 89, 182, 0.15);
+    --mg-crt-flash: rgba(233, 30, 140, 0.85);
+}
+
+[data-mg-theme="madoka"] .mg-compact-star {
+    text-shadow: 0 0 8px #e91e8c, 0 0 16px #9b59b6;
+}
+
+
+/* ══════════════════════════════════════════════
+   THEME: WITCH CORE
+   ══════════════════════════════════════════════ */
+
+[data-mg-theme="witch-core"] {
+    --mg-ring: linear-gradient(145deg, #3a3a3a, #1a1a1a);
+    --mg-ring-border: #0d0d0d;
+    --mg-glow: rgba(80, 200, 120, 0.4);
+    --mg-face: linear-gradient(145deg, #2a5a3a, #1a3a2a);
+    --mg-face-border: #50c878;
+    --mg-star: #50c878;
+    --mg-sparkle: #90ee90;
+    --mg-gem-1: #50c878;
+    --mg-gem-2: #90ee90;
+    --mg-gem-3: #2d8f4e;
+    --mg-gem-4: #50c878;
+    --mg-accent: #2d8f4e;
+    --mg-accent-border: #1a5a2e;
+    --mg-face-alt: linear-gradient(145deg, #0d1a0d, #0a120a);
+
+    --mg-tama-bg: rgba(26, 26, 26, 0.95);
+    --mg-tama-border: #50c878;
+    --mg-tama-shadow: rgba(80, 200, 120, 0.3);
+    --mg-tama-screen: #0d1a0d;
+    --mg-tama-screen-border: #2d5a3d;
+    --mg-tama-text: #90ee90;
+    --mg-btn-1: #50c878;
+    --mg-btn-2: #2d8f4e;
+    --mg-btn-border: #1a5a2e;
+
+    --mg-speech-bg: #1a1a1a;
+    --mg-speech-border: #50c878;
+    --mg-speech-text: #90ee90;
+
+    --mg-crt-glow: rgba(80, 200, 120, 0.25);
+    --mg-crt-scanline: rgba(0, 100, 40, 0.1);
+    --mg-crt-divider: rgba(80, 200, 120, 0.15);
+    --mg-crt-flash: rgba(80, 200, 120, 0.85);
+}
+
+[data-mg-theme="witch-core"] .mg-compact-star {
+    text-shadow: 0 0 6px #50c878;
+}
+
+
+/* ══════════════════════════════════════════════
+   THEME: PASTEL GOTH
+   ══════════════════════════════════════════════ */
+
+[data-mg-theme="pastel-goth"] {
+    --mg-ring: linear-gradient(145deg, #dda0dd, #9370db);
+    --mg-ring-border: #8b008b;
+    --mg-glow: rgba(147, 112, 219, 0.5);
+    --mg-face: linear-gradient(145deg, #e6e6fa, #dda0dd);
+    --mg-face-border: #2d2d2d;
+    --mg-star: #2d2d2d;
+    --mg-sparkle: #dda0dd;
+    --mg-gem-1: #2d2d2d;
+    --mg-gem-2: #dda0dd;
+    --mg-gem-3: #2d2d2d;
+    --mg-gem-4: #9370db;
+    --mg-accent: #9370db;
+    --mg-accent-border: #6a0dad;
+    --mg-face-alt: linear-gradient(145deg, #f0e6ff, #e6d0f5);
+
+    --mg-tama-bg: rgba(221, 160, 221, 0.95);
+    --mg-tama-border: #9370db;
+    --mg-tama-shadow: rgba(147, 112, 219, 0.4);
+    --mg-tama-screen: #f0e6ff;
+    --mg-tama-screen-border: #c8a0e6;
+    --mg-tama-text: #4a2d5a;
+    --mg-btn-1: #2d2d2d;
+    --mg-btn-2: #1a1a1a;
+    --mg-btn-border: #9370db;
+
+    --mg-speech-bg: #e6e6fa;
+    --mg-speech-border: #9370db;
+    --mg-speech-text: #4a2d5a;
+
+    --mg-crt-glow: rgba(147, 112, 219, 0.15);
+    --mg-crt-scanline: rgba(74, 45, 90, 0.05);
+    --mg-crt-divider: rgba(147, 112, 219, 0.12);
+    --mg-crt-flash: rgba(221, 160, 221, 0.85);
+}
+
+
+/* ══════════════════════════════════════════════
+   THEME: Y2K
+   ══════════════════════════════════════════════ */
+
+[data-mg-theme="y2k"] {
+    --mg-ring: linear-gradient(145deg, #00ced1, #4169e1, #ff00ff);
+    --mg-ring-border: #1e90ff;
+    --mg-glow: rgba(0, 255, 255, 0.5);
+    --mg-face: linear-gradient(145deg, #e0ffff, #b0e0e6);
+    --mg-face-border: #ff00ff;
+    --mg-star: #ff00ff;
+    --mg-sparkle: #00ffff;
+    --mg-gem-1: #00ffff;
+    --mg-gem-2: #ff00ff;
+    --mg-gem-3: #00ffff;
+    --mg-gem-4: #ff00ff;
+    --mg-accent: #00ced1;
+    --mg-accent-border: #008b8b;
+    --mg-face-alt: linear-gradient(145deg, #f0ffff, #e0f0ff);
+
+    --mg-tama-bg: rgba(176, 224, 230, 0.95);
+    --mg-tama-border: #00ced1;
+    --mg-tama-shadow: rgba(0, 206, 209, 0.4);
+    --mg-tama-screen: #e0ffff;
+    --mg-tama-screen-border: #00ced1;
+    --mg-tama-text: #1e3a5f;
+    --mg-btn-1: #ff00ff;
+    --mg-btn-2: #cc00cc;
+    --mg-btn-border: #00ced1;
+
+    --mg-speech-bg: #e0ffff;
+    --mg-speech-border: #00ced1;
+    --mg-speech-text: #1e3a5f;
+
+    --mg-crt-glow: rgba(0, 206, 209, 0.2);
+    --mg-crt-scanline: rgba(0, 100, 110, 0.06);
+    --mg-crt-divider: rgba(0, 206, 209, 0.15);
+    --mg-crt-flash: rgba(255, 0, 255, 0.8);
+}
+
+[data-mg-theme="y2k"] .mg-compact-ring {
+    animation: mgY2kShimmer 3s ease-in-out infinite;
+}
+
+@keyframes mgY2kShimmer {
+    0%, 100% { filter: hue-rotate(0deg); }
+    50% { filter: hue-rotate(30deg); }
+}
+
+
+/* ══════════════════════════════════════════════
+   THEME: CLASSIC (90s Retro)
+   ══════════════════════════════════════════════ */
+
+[data-mg-theme="classic"] {
+    --mg-ring: linear-gradient(145deg, #5050d0, #4040bf);
+    --mg-ring-border: #2a2a8f;
+    --mg-glow: rgba(64, 64, 191, 0.5);
+    --mg-face: linear-gradient(145deg, #c5d9a4, #a8c896);
+    --mg-face-border: #6b6b6b;
+    --mg-star: #2d2d2d;
+    --mg-sparkle: #ffff00;
+    --mg-gem-1: #ff1493;
+    --mg-gem-2: #ff1493;
+    --mg-gem-3: #ff1493;
+    --mg-gem-4: #ff1493;
+    --mg-accent: #4040bf;
+    --mg-accent-border: #2a2a8f;
+    --mg-face-alt: linear-gradient(145deg, #d0e4b0, #c5d9a4);
+
+    --mg-tama-bg: rgba(80, 80, 208, 0.95);
+    --mg-tama-border: #3a3abf;
+    --mg-tama-shadow: rgba(64, 64, 191, 0.4);
+    --mg-tama-screen: #c5d9a4;
+    --mg-tama-screen-border: #8fae6b;
+    --mg-tama-text: #2d4a1d;
+    --mg-btn-1: #d4d400;
+    --mg-btn-2: #aaaa00;
+    --mg-btn-border: #2a2a8f;
+
+    --mg-speech-bg: #4040bf;
+    --mg-speech-border: #6060e0;
+    --mg-speech-text: #e0e0ff;
+
+    --mg-crt-glow: rgba(100, 160, 60, 0.2);
+    --mg-crt-scanline: rgba(0, 60, 0, 0.08);
+    --mg-crt-divider: rgba(45, 74, 29, 0.15);
+    --mg-crt-flash: rgba(212, 212, 0, 0.85);
+}
