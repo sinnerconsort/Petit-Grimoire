@@ -15,7 +15,7 @@
  */
 
 import {
-    extensionName, extensionSettings, defaultSettings,
+    extensionName, extensionFolderPath, extensionSettings, defaultSettings,
     loadSettings, saveSettings,
     setCurrentSpriteFrame
 } from './src/state.js';
@@ -34,13 +34,31 @@ import {
 } from './src/grimoire.js';
 
 // ============================================
+// CSS LOADING
+// ============================================
+
+function loadCSS() {
+    // Only load once
+    if (document.getElementById('petit-grimoire-styles')) return;
+
+    const link = document.createElement('link');
+    link.id = 'petit-grimoire-styles';
+    link.rel = 'stylesheet';
+    link.type = 'text/css';
+    link.href = `${extensionFolderPath}/styles/main.css`;
+    document.head.appendChild(link);
+
+    console.log(`[${extensionName}] CSS loaded`);
+}
+
+// ============================================
 // THEME & VARIANT SWITCHING
 // ============================================
 
 function setTheme(themeName) {
     extensionSettings.shellTheme = themeName;
     $('#mg-compact').attr('data-mg-theme', themeName);
-    $('#mg-tama').attr('data-mg-theme', themeName);
+    $('#nyxgotchi').attr('data-mg-theme', themeName);
     $('#mg-grimoire').attr('data-mg-theme', themeName);
     saveSettings();
 }
@@ -60,7 +78,7 @@ function setCompactSize(size) {
 
 function setTamaSize(size) {
     extensionSettings.tamaSize = size;
-    $('#mg-tama').attr('data-mg-size', size);
+    $('#nyxgotchi').attr('data-mg-size', size);
     saveSettings();
 }
 
@@ -85,6 +103,20 @@ function initTama() {
 // ============================================
 
 async function addExtensionSettings() {
+    const themes = [
+        { value: 'guardian',    label: '✦ Guardian (Star Prism)' },
+        { value: 'umbra',      label: '◆ Umbra (Grief Seeds)' },
+        { value: 'apothecary', label: '❀ Apothecary (Botanicals)' },
+        { value: 'moonstone',  label: '☽ Moonstone (Crystals)' },
+        { value: 'phosphor',   label: '△ Phosphor (Neon)' },
+        { value: 'rosewood',   label: '❀ Rosewood (Floral)' },
+        { value: 'celestial',  label: '✴ Celestial (Starbound)' },
+    ];
+
+    const themeOptions = themes.map(t =>
+        `<option value="${t.value}" ${extensionSettings.shellTheme === t.value ? 'selected' : ''}>${t.label}</option>`
+    ).join('\n');
+
     const html = `
         <div class="inline-drawer">
             <div class="inline-drawer-toggle inline-drawer-header">
@@ -102,12 +134,7 @@ async function addExtensionSettings() {
 
                 <label for="mg-theme">Color Theme:</label>
                 <select id="mg-theme" class="text_pole">
-                    <option value="sailor-moon" ${extensionSettings.shellTheme === 'sailor-moon' ? 'selected' : ''}>Sailor Moon</option>
-                    <option value="madoka" ${extensionSettings.shellTheme === 'madoka' ? 'selected' : ''}>Madoka</option>
-                    <option value="witch-core" ${extensionSettings.shellTheme === 'witch-core' ? 'selected' : ''}>Witch Core</option>
-                    <option value="pastel-goth" ${extensionSettings.shellTheme === 'pastel-goth' ? 'selected' : ''}>Pastel Goth</option>
-                    <option value="y2k" ${extensionSettings.shellTheme === 'y2k' ? 'selected' : ''}>Y2K</option>
-                    <option value="classic" ${extensionSettings.shellTheme === 'classic' ? 'selected' : ''}>Classic</option>
+                    ${themeOptions}
                 </select>
 
                 <label for="mg-compact-size">Compact Size:</label>
@@ -174,7 +201,7 @@ async function addExtensionSettings() {
             initTama();
         } else {
             $('#mg-compact').remove();
-            $('#mg-tama').remove();
+            $('#nyxgotchi').remove();
             stopSpriteAnimation();
         }
     });
@@ -207,7 +234,7 @@ async function addExtensionSettings() {
     $('#mg-show-tama').on('change', function () {
         extensionSettings.showTama = $(this).prop('checked');
         saveSettings();
-        const el = document.getElementById('mg-tama');
+        const el = document.getElementById('nyxgotchi');
         if (el) {
             el.style.setProperty('display', extensionSettings.showTama ? 'flex' : 'none', 'important');
         }
@@ -234,6 +261,9 @@ async function addExtensionSettings() {
 jQuery(async () => {
     try {
         console.log(`[${extensionName}] Starting initialization...`);
+
+        // Load CSS first!
+        loadCSS();
 
         loadSettings();
 
