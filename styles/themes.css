@@ -1,0 +1,251 @@
+/* ============================================
+   PETIT GRIMOIRE - THEME SYSTEM
+   7 Themed Decks: Guardian, Umbra, Apothecary,
+   Moonstone, Phosphor, Rosewood, Celestial
+   ============================================ */
+
+/* ----------------------------------------
+   DEFAULT THEME (Guardian - Star Prism)
+   Main: #dc78aa  Secondary: #f3aa1e
+   Accents: #e71720, #26508a
+   ---------------------------------------- */
+:root,
+[data-mg-theme="guardian"] {
+    /* Shell colors */
+    --mg-shell-primary: #dc78aa;
+    --mg-shell-secondary: #e89ac0;
+    --mg-shell-accent: #f3aa1e;
+    --mg-shell-border: #b85a8a;
+    --mg-shell-shadow: rgba(220, 120, 170, 0.4);
+    
+    /* Screen colors */
+    --mg-screen-bg: linear-gradient(135deg, #fce4ec, #f8bbd0);
+    --mg-screen-border: #dc78aa;
+    --mg-screen-pixel: #4a1530;
+    
+    /* Button colors */
+    --mg-button-primary: #dc78aa;
+    --mg-button-secondary: #c5608f;
+    --mg-button-border: #a04872;
+    --mg-button-shadow: rgba(220, 120, 170, 0.35);
+    
+    /* Decorations */
+    --mg-decoration-1: #f3aa1e;
+    --mg-decoration-2: #e71720;
+    --mg-decoration-3: #26508a;
+    
+    /* Text */
+    --mg-text-primary: #4a1530;
+    --mg-text-secondary: #dc78aa;
+    --mg-text-mood: #e71720;
+}
+
+/* ----------------------------------------
+   UMBRA (Shadow / Grief Seeds)
+   Main: #940e8f  Secondary: #d89520
+   Accents: #5d0971, #c8b1f7
+   ---------------------------------------- */
+[data-mg-theme="umbra"] {
+    /* Shell colors */
+    --mg-shell-primary: #2d0835;
+    --mg-shell-secondary: #40104a;
+    --mg-shell-accent: #940e8f;
+    --mg-shell-border: #1a0420;
+    --mg-shell-shadow: rgba(148, 14, 143, 0.5);
+    
+    /* Screen colors */
+    --mg-screen-bg: linear-gradient(135deg, #1a0825, #2d1040);
+    --mg-screen-border: #940e8f;
+    --mg-screen-pixel: #e0d0f0;
+    
+    /* Button colors */
+    --mg-button-primary: #940e8f;
+    --mg-button-secondary: #750a70;
+    --mg-button-border: #5d0971;
+    --mg-button-shadow: rgba(93, 9, 113, 0.5);
+    
+    /* Decorations */
+    --mg-decoration-1: #d89520;
+    --mg-decoration-2: #940e8f;
+    --mg-decoration-3: #c8b1f7;
+    
+    /* Text */
+    --mg-text-primary: #e8d5f5;
+    --mg-text-secondary: #c8b1f7;
+    --mg-text-mood: #d89520;
+}
+
+/* ----------------------------------------
+   APOTHECARY (Herbs & Botanicals)
+   Main: #76482e  Secondary: #4c6b20
+   Accents: #bdbf46, #e9ae75
+   ---------------------------------------- */
+[data-mg-theme="apothecary"] {
+    /* Shell colors */
+    --mg-shell-primary: #76482e;
+    --mg-shell-secondary: #8d5c3a;
+    --mg-shell-accent: #4c6b20;
+    --mg-shell-border: #5a3420;
+    --mg-shell-shadow: rgba(76, 107, 32, 0.3);
+    
+    /* Screen colors */
+    --mg-screen-bg: linear-gradient(135deg, #f5ecd5, #e8dcc0);
+    --mg-screen-border: #76482e;
+    --mg-screen-pixel: #3a2a18;
+    
+    /* Button colors */
+    --mg-button-primary: #4c6b20;
+    --mg-button-secondary: #3d5618;
+    --mg-button-border: #2e4010;
+    --mg-button-shadow: rgba(76, 107, 32, 0.4);
+    
+    /* Decorations */
+    --mg-decoration-1: #bdbf46;
+    --mg-decoration-2: #4c6b20;
+    --mg-decoration-3: #e9ae75;
+    
+    /* Text */
+    --mg-text-primary: #3a2a18;
+    --mg-text-secondary: #76482e;
+    --mg-text-mood: #bdbf46;
+}
+
+/* ----------------------------------------
+   MOONSTONE (Crystals & Moon Phases)
+   Main: #d9c7fb  Secondary: #bcf1fd
+   Accents: #feebff, #d692ff
+   ---------------------------------------- */
+[data-mg-theme="moonstone"] {
+    /* Shell colors */
+    --mg-shell-primary: #d9c7fb;
+    --mg-shell-secondary: #e8dcff;
+    --mg-shell-accent: #bcf1fd;
+    --mg-shell-border: #b8a0e0;
+    --mg-shell-shadow: rgba(214, 146, 255, 0.4);
+    
+    /* Screen colors */
+    --mg-screen-bg: linear-gradient(135deg, #2a2040, #1e1535);
+    --mg-screen-border: #d692ff;
+    --mg-screen-pixel: #feebff;
+    
+    /* Button colors */
+    --mg-button-primary: #d692ff;
+    --mg-button-secondary: #c070ee;
+    --mg-button-border: #a050d0;
+    --mg-button-shadow: rgba(214, 146, 255, 0.4);
+    
+    /* Decorations */
+    --mg-decoration-1: #bcf1fd;
+    --mg-decoration-2: #d692ff;
+    --mg-decoration-3: #feebff;
+    
+    /* Text */
+    --mg-text-primary: #2a1540;
+    --mg-text-secondary: #b8a0e0;
+    --mg-text-mood: #d692ff;
+}
+
+/* ----------------------------------------
+   PHOSPHOR (Neon / Vaporwave)
+   Main: #7375ca  Secondary: #feffff
+   Accents: #f990f6, #120147
+   ---------------------------------------- */
+[data-mg-theme="phosphor"] {
+    /* Shell colors */
+    --mg-shell-primary: #120147;
+    --mg-shell-secondary: #1e0860;
+    --mg-shell-accent: #7375ca;
+    --mg-shell-border: #0a0030;
+    --mg-shell-shadow: rgba(115, 117, 202, 0.5);
+    
+    /* Screen colors */
+    --mg-screen-bg: linear-gradient(135deg, #0a0030, #150650);
+    --mg-screen-border: #f990f6;
+    --mg-screen-pixel: #feffff;
+    
+    /* Button colors */
+    --mg-button-primary: #f990f6;
+    --mg-button-secondary: #d070d0;
+    --mg-button-border: #7375ca;
+    --mg-button-shadow: rgba(249, 144, 246, 0.4);
+    
+    /* Decorations */
+    --mg-decoration-1: #7375ca;
+    --mg-decoration-2: #f990f6;
+    --mg-decoration-3: #feffff;
+    
+    /* Text */
+    --mg-text-primary: #feffff;
+    --mg-text-secondary: #7375ca;
+    --mg-text-mood: #f990f6;
+}
+
+/* ----------------------------------------
+   ROSEWOOD (Floral / Dream Parlour)
+   Main: #e4b0bc  Secondary: #d8caca
+   Accents: #83b6ac, #177656
+   ---------------------------------------- */
+[data-mg-theme="rosewood"] {
+    /* Shell colors */
+    --mg-shell-primary: #e4b0bc;
+    --mg-shell-secondary: #edc5cf;
+    --mg-shell-accent: #83b6ac;
+    --mg-shell-border: #c8909e;
+    --mg-shell-shadow: rgba(228, 176, 188, 0.4);
+    
+    /* Screen colors */
+    --mg-screen-bg: linear-gradient(135deg, #faf0f2, #f0e0e5);
+    --mg-screen-border: #c8909e;
+    --mg-screen-pixel: #4a2030;
+    
+    /* Button colors */
+    --mg-button-primary: #83b6ac;
+    --mg-button-secondary: #177656;
+    --mg-button-border: #105040;
+    --mg-button-shadow: rgba(131, 182, 172, 0.4);
+    
+    /* Decorations */
+    --mg-decoration-1: #e4b0bc;
+    --mg-decoration-2: #83b6ac;
+    --mg-decoration-3: #177656;
+    
+    /* Text */
+    --mg-text-primary: #4a2030;
+    --mg-text-secondary: #c8909e;
+    --mg-text-mood: #177656;
+}
+
+/* ----------------------------------------
+   CELESTIAL (Starbound Grimoire)
+   Main: #002f86  Secondary: #e3b35f
+   Accents: #132040, #fbe09c
+   ---------------------------------------- */
+[data-mg-theme="celestial"] {
+    /* Shell colors */
+    --mg-shell-primary: #002f86;
+    --mg-shell-secondary: #0a3d9a;
+    --mg-shell-accent: #e3b35f;
+    --mg-shell-border: #001a50;
+    --mg-shell-shadow: rgba(0, 47, 134, 0.5);
+    
+    /* Screen colors */
+    --mg-screen-bg: linear-gradient(135deg, #0a1525, #132040);
+    --mg-screen-border: #e3b35f;
+    --mg-screen-pixel: #fbe09c;
+    
+    /* Button colors */
+    --mg-button-primary: #e3b35f;
+    --mg-button-secondary: #c89840;
+    --mg-button-border: #9a7528;
+    --mg-button-shadow: rgba(227, 179, 95, 0.4);
+    
+    /* Decorations */
+    --mg-decoration-1: #e3b35f;
+    --mg-decoration-2: #fbe09c;
+    --mg-decoration-3: #002f86;
+    
+    /* Text */
+    --mg-text-primary: #fbe09c;
+    --mg-text-secondary: #e3b35f;
+    --mg-text-mood: #fbe09c;
+}
