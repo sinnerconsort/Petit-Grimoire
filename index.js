@@ -8,14 +8,10 @@
  */
 
 import { 
-    getContext, 
-    renderExtensionTemplateAsync,
-    extension_settings
+    getContext
 } from '../../../extensions.js';
 
 import { 
-    eventSource, 
-    event_types, 
     saveSettingsDebounced
 } from '../../../../script.js';
 
@@ -475,7 +471,7 @@ function createCompact() {
         $compact.hide();
     }
     
-    console.log(`[${extensionName}] Compact created (${extensionSettings.compactVariant})`);
+    console.log(`[${extensionName}] Compact created`);
 }
 
 // ============================================
@@ -844,7 +840,6 @@ async function addExtensionSettings() {
         
         if (typeof toastr !== 'undefined') {
             toastr.info('Positions reset!');
-        }
         }
     });
 }
