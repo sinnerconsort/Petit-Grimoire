@@ -410,15 +410,16 @@
     justify-content: center;
     align-items: center;
     position: relative;
+    overflow: hidden;
 }
 
 .nyxgotchi-sprite {
-    width: 30px;
-    height: 28px;
     image-rendering: pixelated;
     image-rendering: crisp-edges;
 
-    /* For ASCII/text sprites */
+    /* For ASCII/text sprites (default) */
+    width: 30px;
+    height: 28px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -430,6 +431,24 @@
 
     /* Sprite animation */
     animation: spriteIdle 2s ease-in-out infinite;
+}
+
+/* ── Image sprite mode ──
+   When JS loads a sprite strip, it adds .sprite-mode
+   and sets background-image, background-position, width, height inline.
+   These rules override ASCII text styles. */
+.nyxgotchi-sprite.sprite-mode {
+    /* Override ASCII text properties */
+    font-size: 0;
+    color: transparent;
+
+    /* Crisp pixel rendering */
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+    background-repeat: no-repeat;
+
+    /* No flex centering of text content — size comes from inline styles */
+    display: block;
 }
 
 @keyframes spriteIdle {
