@@ -35,7 +35,6 @@ const defaultSettings = {
     
     // Theme & appearance
     shellTheme: 'sailor-moon',
-    compactVariant: 'crystal-star',  // crystal-star, cosmic-heart, crescent-wand, communicator, star-locket, silver-crystal
     familiarForm: 'cat',
     
     // Independent sizes
@@ -128,12 +127,6 @@ function loadSettings() {
     if (!tp || (tp.top === 'auto' && tp.bottom === 'auto' && tp.left === 'auto' && tp.right === 'auto')) {
         extensionSettings.tamaPosition = { ...defaultSettings.tamaPosition };
     }
-    
-    // Migrate old variant names
-    const variantMigration = { 'soul-gem': 'crescent-wand', 'hex-crystal': 'silver-crystal' };
-    if (variantMigration[extensionSettings.compactVariant]) {
-        extensionSettings.compactVariant = variantMigration[extensionSettings.compactVariant];
-    }
 }
 
 function saveSettings() {
@@ -143,14 +136,14 @@ function saveSettings() {
 }
 
 // ============================================
-// COMPACT HTML (Shape driven by data-mg-variant)
+// COMPACT HTML (Crystal Star Brooch)
 // ============================================
 
 function getCompactHTML() {
     return `
         <div class="mg-fab mg-compact" id="mg-compact" 
              data-mg-theme="${extensionSettings.shellTheme}" 
-             data-mg-variant="${extensionSettings.compactVariant}"
+             data-mg-variant="crystal-star"
              data-mg-size="${extensionSettings.compactSize || 'medium'}">
             <div class="mg-compact-body">
                 <div class="mg-compact-ring">
@@ -405,48 +398,47 @@ function setupFabDrag(elementId, stateKey, positionKey) {
 // ============================================
 
 function applyPosition(elementId, positionKey) {
-    const $el = $(`#${elementId}`);
-    if ($el.length === 0) return;
+    const el = document.getElementById(elementId);
+    if (!el) return;
     
     const pos = extensionSettings[positionKey];
+    const isCompact = elementId === 'mg-compact';
     
-    // Safety: if position is missing or corrupted, use sensible defaults
-    if (!pos || typeof pos !== 'object') {
-        const isCompact = elementId === 'mg-compact';
-        $el.css({ 
-            bottom: isCompact ? '100px' : '180px', 
-            right: isCompact ? '20px' : '20px', 
-            top: 'auto', 
-            left: 'auto' 
-        });
-        return;
-    }
+    // ALWAYS clear all inline position styles first - prevents stale values
+    el.style.removeProperty('top');
+    el.style.removeProperty('bottom');
+    el.style.removeProperty('left');
+    el.style.removeProperty('right');
     
-    // Validate position values are reasonable (on screen)
-    const maxX = window.innerWidth - 20;
-    const maxY = window.innerHeight - 20;
+    // If no valid position, let CSS defaults handle it
+    if (!pos || typeof pos !== 'object') return;
     
-    // Top/Bottom
-    if (pos.top !== undefined && pos.top !== 'auto' && !isNaN(pos.top)) {
+    const maxX = window.innerWidth - 10;
+    const maxY = window.innerHeight - 10;
+    
+    // Apply vertical position
+    if (pos.top !== undefined && pos.top !== 'auto' && !isNaN(Number(pos.top))) {
         const safeTop = Math.max(5, Math.min(maxY, Number(pos.top)));
-        $el.css({ top: safeTop + 'px', bottom: 'auto' });
-    } else if (pos.bottom !== undefined && pos.bottom !== 'auto' && !isNaN(pos.bottom)) {
+        el.style.top = safeTop + 'px';
+        el.style.bottom = 'auto';
+    } else if (pos.bottom !== undefined && pos.bottom !== 'auto' && !isNaN(Number(pos.bottom))) {
         const safeBottom = Math.max(5, Math.min(maxY, Number(pos.bottom)));
-        $el.css({ bottom: safeBottom + 'px', top: 'auto' });
-    } else {
-        $el.css({ bottom: elementId === 'mg-compact' ? '100px' : '180px', top: 'auto' });
+        el.style.bottom = safeBottom + 'px';
+        el.style.top = 'auto';
     }
+    // else: no inline style → CSS class defaults kick in
     
-    // Left/Right
-    if (pos.left !== undefined && pos.left !== 'auto' && !isNaN(pos.left)) {
+    // Apply horizontal position
+    if (pos.left !== undefined && pos.left !== 'auto' && !isNaN(Number(pos.left))) {
         const safeLeft = Math.max(5, Math.min(maxX, Number(pos.left)));
-        $el.css({ left: safeLeft + 'px', right: 'auto' });
-    } else if (pos.right !== undefined && pos.right !== 'auto' && !isNaN(pos.right)) {
+        el.style.left = safeLeft + 'px';
+        el.style.right = 'auto';
+    } else if (pos.right !== undefined && pos.right !== 'auto' && !isNaN(Number(pos.right))) {
         const safeRight = Math.max(5, Math.min(maxX, Number(pos.right)));
-        $el.css({ right: safeRight + 'px', left: 'auto' });
-    } else {
-        $el.css({ right: '20px', left: 'auto' });
+        el.style.right = safeRight + 'px';
+        el.style.left = 'auto';
     }
+    // else: no inline style → CSS class defaults kick in
 }
 
 // ============================================
@@ -687,13 +679,6 @@ function setTheme(themeName) {
     saveSettings();
 }
 
-function setCompactVariant(variantName) {
-    extensionSettings.compactVariant = variantName;
-    // Recreate compact with new variant
-    createCompact();
-    saveSettings();
-}
-
 function setFamiliarForm(formName) {
     extensionSettings.familiarForm = formName;
     currentSpriteFrame = 0;
@@ -732,16 +717,6 @@ async function addExtensionSettings() {
                 
                 <hr>
                 <h5>Compact Brooch</h5>
-                
-                <label for="mg-compact-variant">Compact Style:</label>
-                <select id="mg-compact-variant" class="text_pole">
-                    <option value="crystal-star" ${extensionSettings.compactVariant === 'crystal-star' ? 'selected' : ''}>Crystal Star Brooch</option>
-                    <option value="cosmic-heart" ${extensionSettings.compactVariant === 'cosmic-heart' ? 'selected' : ''}>Cosmic Heart</option>
-                    <option value="crescent-wand" ${extensionSettings.compactVariant === 'crescent-wand' ? 'selected' : ''}>Crescent Wand</option>
-                    <option value="communicator" ${extensionSettings.compactVariant === 'communicator' ? 'selected' : ''}>Communicator</option>
-                    <option value="star-locket" ${extensionSettings.compactVariant === 'star-locket' ? 'selected' : ''}>Star Locket</option>
-                    <option value="silver-crystal" ${extensionSettings.compactVariant === 'silver-crystal' ? 'selected' : ''}>Silver Crystal</option>
-                </select>
                 
                 <label for="mg-theme">Color Theme:</label>
                 <select id="mg-theme" class="text_pole">
@@ -822,10 +797,6 @@ async function addExtensionSettings() {
         }
     });
     
-    $('#mg-compact-variant').on('change', function() {
-        setCompactVariant($(this).val());
-    });
-    
     $('#mg-theme').on('change', function() {
         setTheme($(this).val());
     });
@@ -865,11 +836,15 @@ async function addExtensionSettings() {
     $('#mg-reset-positions').on('click', function() {
         extensionSettings.compactPosition = { ...defaultSettings.compactPosition };
         extensionSettings.tamaPosition = { ...defaultSettings.tamaPosition };
-        applyPosition('mg-compact', 'compactPosition');
-        applyPosition('mg-tama', 'tamaPosition');
         saveSettings();
+        
+        // Nuke inline styles completely and recreate - most reliable on mobile
+        createCompact();
+        createTama();
+        
         if (typeof toastr !== 'undefined') {
             toastr.info('Positions reset!');
+        }
         }
     });
 }
@@ -908,7 +883,6 @@ jQuery(async () => {
 window.PetitGrimoire = {
     getSettings: () => extensionSettings,
     setTheme,
-    setCompactVariant,
     setFamiliarForm,
     setCompactSize,
     setTamaSize,
