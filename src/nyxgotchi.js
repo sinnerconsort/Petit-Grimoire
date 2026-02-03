@@ -1,6 +1,13 @@
 /**
  * Petit Grimoire — Nyx-gotchi
  * Egg-shaped tamagotchi widget: HTML, sprites, speech bubble, card flash, mood
+ *
+ * Sprite system: Two rendering modes
+ *   1. Sprite Mode — CSS background-position stepping through strip PNGs
+ *   2. ASCII Mode  — Text-based fallback (original system)
+ *
+ * Mode is auto-detected: if the familiar has entries in FAMILIAR_SPRITES,
+ * sprite mode is used. Otherwise falls back to ASCII.
  */
 
 import {
@@ -10,9 +17,10 @@ import {
     setSpriteInterval, setCurrentSpriteFrame, setSpeechTimeout
 } from './state.js';
 import { setupFabDrag, applyPosition } from './drag.js';
+import { hasSpriteSupport, getSpriteAnimation } from './sprites.js';
 
 // ============================================
-// SPRITE DATA
+// ASCII SPRITE DATA (fallback)
 // ============================================
 
 export const SPRITES = {
@@ -67,6 +75,16 @@ export const SPRITES = {
 };
 
 // ============================================
+// INTERNAL STATE
+// ============================================
+
+/** Track which animation is currently loaded to avoid reloading same strip */
+let _currentAnimKey = null;
+
+/** Track current animation data for frame stepping */
+let _currentAnim = null;
+
+// ============================================
 // MOOD HELPERS
 // ============================================
 
@@ -83,10 +101,45 @@ export function getMoodForDisposition(disposition) {
 }
 
 // ============================================
-// SPRITE SYSTEM
+// SPRITE SYSTEM — IMAGE MODE
 // ============================================
 
-export function getCurrentSprite() {
+/**
+ * Load a sprite strip onto the sprite element using background-image.
+ * Sets up dimensions, background-size, and positions to frame 0.
+ *
+ * @param {HTMLElement} el - The sprite div
+ * @param {Object} anim - Animation data { path, frames, fw, fh, speed }
+ */
+function loadSpriteStrip(el, anim) {
+    el.classList.add('sprite-mode');
+    el.textContent = ''; // Clear any ASCII
+
+    // Set the strip as background
+    el.style.backgroundImage = `url('${anim.path}')`;
+    el.style.backgroundSize = `${anim.frames * anim.fw}px ${anim.fh}px`;
+    el.style.width = `${anim.fw}px`;
+    el.style.height = `${anim.fh}px`;
+
+    // Start at frame 0
+    el.style.backgroundPosition = '0px 0px';
+}
+
+/**
+ * Step to a specific frame in the current sprite strip.
+ * @param {HTMLElement} el - The sprite div
+ * @param {number} frame - Frame index
+ * @param {number} fw - Frame width in px
+ */
+function setSpriteFrame(el, frame, fw) {
+    el.style.backgroundPosition = `-${frame * fw}px 0px`;
+}
+
+// ============================================
+// SPRITE SYSTEM — ASCII MODE (fallback)
+// ============================================
+
+function getAsciiSprite() {
     const form = extensionSettings.familiarForm || 'cat';
     const mood = getMoodForDisposition(extensionSettings.nyx.disposition);
 
@@ -100,21 +153,87 @@ export function getCurrentSprite() {
     return moodFrames[currentSpriteFrame % moodFrames.length];
 }
 
+// ============================================
+// UNIFIED DISPLAY UPDATE
+// ============================================
+
+/**
+ * Update the sprite display. Auto-detects mode:
+ * - If familiar has sprite support → image mode (background-position)
+ * - Otherwise → ASCII text mode
+ *
+ * Called on: init, mood change, frame tick, familiar change
+ */
 export function updateSpriteDisplay() {
     const sprite = document.getElementById('nyxgotchi-sprite');
-    if (sprite) {
-        sprite.textContent = getCurrentSprite();
+    if (!sprite) return;
+
+    const form = extensionSettings.familiarForm || 'cat';
+    const mood = getMoodForDisposition(extensionSettings.nyx.disposition);
+
+    // ── Image sprite mode ──
+    if (hasSpriteSupport(form)) {
+        const anim = getSpriteAnimation(form, mood);
+        if (!anim) return;
+
+        const animKey = `${form}:${anim.path}`;
+
+        // Only reload the strip if animation changed
+        if (_currentAnimKey !== animKey) {
+            _currentAnimKey = animKey;
+            _currentAnim = anim;
+            loadSpriteStrip(sprite, anim);
+            setCurrentSpriteFrame(0);
+
+            // Restart animation loop with new speed
+            _restartAnimLoop(anim.speed);
+        }
+
+        // Step to current frame
+        const frame = currentSpriteFrame % anim.frames;
+        setSpriteFrame(sprite, frame, anim.fw);
+
+    // ── ASCII fallback mode ──
+    } else {
+        sprite.classList.remove('sprite-mode');
+        sprite.style.backgroundImage = '';
+        sprite.style.width = '';
+        sprite.style.height = '';
+        sprite.textContent = getAsciiSprite();
     }
+}
+
+// ============================================
+// ANIMATION LOOP
+// ============================================
+
+/**
+ * Restart the frame-stepping interval with a new speed.
+ * @param {number} speed - ms per frame
+ */
+function _restartAnimLoop(speed) {
+    stopSpriteAnimation();
+
+    setSpriteInterval(setInterval(() => {
+        setCurrentSpriteFrame(currentSpriteFrame + 1);
+        updateSpriteDisplay();
+    }, speed));
 }
 
 export function startSpriteAnimation() {
     stopSpriteAnimation();
     updateSpriteDisplay();
 
-    setSpriteInterval(setInterval(() => {
-        setCurrentSpriteFrame(currentSpriteFrame + 1);
-        updateSpriteDisplay();
-    }, 2000));
+    // If in sprite mode, speed comes from animation data
+    if (_currentAnim) {
+        _restartAnimLoop(_currentAnim.speed);
+    } else {
+        // ASCII mode: fixed 2s cycle
+        setSpriteInterval(setInterval(() => {
+            setCurrentSpriteFrame(currentSpriteFrame + 1);
+            updateSpriteDisplay();
+        }, 2000));
+    }
 }
 
 export function stopSpriteAnimation() {
@@ -168,13 +287,18 @@ export function updateNyxMood() {
     $('#nyxgotchi-mood').text(mood);
     $('#nyxgotchi-disposition').text(disposition);
 
+    // Reset animation state for mood change
+    _currentAnimKey = null; // Force strip reload
     setCurrentSpriteFrame(0);
     updateSpriteDisplay();
 
-    // Apply mood class to sprite for CSS animations
+    // Apply mood class to sprite for CSS movement overlays
     const sprite = document.getElementById('nyxgotchi-sprite');
     if (sprite) {
+        // Preserve sprite-mode class, reset mood classes
+        const isSpriteMode = sprite.classList.contains('sprite-mode');
         sprite.className = 'nyxgotchi-sprite';
+        if (isSpriteMode) sprite.classList.add('sprite-mode');
         if (mood !== 'neutral') {
             sprite.classList.add(`mood-${mood}`);
         }
@@ -186,6 +310,51 @@ export function updateNyxMood() {
     } else {
         heart.removeClass('invested');
     }
+}
+
+// ============================================
+// PLAY SPECIAL ANIMATION
+// ============================================
+
+/**
+ * Temporarily play a special animation (e.g. spell cast on card draw).
+ * Reverts to mood-based animation after it completes one cycle.
+ *
+ * @param {string} animName - Key from FAMILIAR_SPRITES animations (e.g. 'special', 'flying')
+ * @param {number} [holdCycles=1] - How many full cycles to play before reverting
+ */
+export function playSpecialAnimation(animName, holdCycles = 1) {
+    const form = extensionSettings.familiarForm || 'cat';
+    if (!hasSpriteSupport(form)) return;
+
+    const anim = getSpriteAnimation(form, animName);
+    if (!anim) return;
+
+    const sprite = document.getElementById('nyxgotchi-sprite');
+    if (!sprite) return;
+
+    // Load the special animation
+    loadSpriteStrip(sprite, anim);
+    setCurrentSpriteFrame(0);
+    _currentAnimKey = `${form}:${anim.path}:special`; // Unique key so mood change will override
+    _currentAnim = anim;
+
+    // Stop current loop, start special loop
+    stopSpriteAnimation();
+    const totalFrames = anim.frames * holdCycles;
+    let frameCount = 0;
+
+    setSpriteInterval(setInterval(() => {
+        frameCount++;
+        setCurrentSpriteFrame(frameCount);
+        setSpriteFrame(sprite, frameCount % anim.frames, anim.fw);
+
+        // After full cycle(s), revert to mood animation
+        if (frameCount >= totalFrames) {
+            _currentAnimKey = null; // Force reload on next update
+            startSpriteAnimation();
+        }
+    }, anim.speed));
 }
 
 // ============================================
@@ -302,6 +471,10 @@ export function getTamaHTML() {
 export function createTama(callbacks = {}) {
     $('#nyxgotchi').remove();
 
+    // Reset animation state on recreate
+    _currentAnimKey = null;
+    _currentAnim = null;
+
     $('body').append(getTamaHTML());
 
     const $tama = $('#nyxgotchi');
@@ -347,5 +520,7 @@ export function createTama(callbacks = {}) {
 
     startSpriteAnimation();
 
-    console.log(`[${extensionName}] Nyxgotchi created`);
+    const form = extensionSettings.familiarForm || 'cat';
+    const mode = hasSpriteSupport(form) ? 'sprite' : 'ASCII';
+    console.log(`[${extensionName}] Nyxgotchi created (${mode} mode: ${form})`);
 }
