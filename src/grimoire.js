@@ -264,27 +264,38 @@ export function getGrimoireHTML() {
 // ============================================
 
 export function triggerTransformation() {
-    const $compact = $('#mg-compact');
+    try {
+        const $compact = $('#mg-compact');
 
-    if ($compact.hasClass('transforming')) return;
+        if ($compact.hasClass('transforming')) return;
 
-    if (grimoireOpen) {
-        closeGrimoire();
-        return;
+        if (grimoireOpen) {
+            closeGrimoire();
+            return;
+        }
+
+        $compact.addClass('transforming');
+        showSpeech('✨ Let\'s see what the cards reveal...', 2000);
+
+        setTimeout(() => {
+            try {
+                $compact.removeClass('transforming');
+                openGrimoire();
+            } catch (err) {
+                console.error(`[${extensionName}] openGrimoire error:`, err);
+                if (typeof toastr !== 'undefined') toastr.error(`Grimoire open failed: ${err.message}`, 'PG Error', { timeOut: 10000 });
+            }
+        }, 600);
+    } catch (err) {
+        console.error(`[${extensionName}] triggerTransformation error:`, err);
+        if (typeof toastr !== 'undefined') toastr.error(`Transform failed: ${err.message}`, 'PG Error', { timeOut: 10000 });
     }
-
-    $compact.addClass('transforming');
-    showSpeech('✨ Let\'s see what the cards reveal...', 2000);
-
-    setTimeout(() => {
-        $compact.removeClass('transforming');
-        openGrimoire();
-    }, 600);
 }
 
 export function openGrimoire() {
-    if (grimoireOpen) return;
-    setGrimoireOpen(true);
+    try {
+        if (grimoireOpen) return;
+        setGrimoireOpen(true);
 
     // Remove any existing
     $('#mg-grimoire, #mg-overlay').remove();
@@ -320,6 +331,11 @@ export function openGrimoire() {
     setupGrimoireEvents();
 
     console.log(`[${extensionName}] Grimoire opened`);
+    } catch (err) {
+        console.error(`[${extensionName}] openGrimoire error:`, err);
+        if (typeof toastr !== 'undefined') toastr.error(`Grimoire error: ${err.message}`, 'PG Error', { timeOut: 10000 });
+        setGrimoireOpen(false);
+    }
 }
 
 export function closeGrimoire() {

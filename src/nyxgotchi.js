@@ -1,6 +1,6 @@
 /**
  * Petit Grimoire — Nyx-gotchi
- * Egg-shaped tamagotchi widget: HTML, sprites, speech bubble, card flash, mood
+ * Egg-shaped tamagotchi widget: HTML, pixel sprites, speech bubble, card flash, mood
  */
 
 import {
@@ -10,16 +10,24 @@ import {
     setSpriteInterval, setCurrentSpriteFrame, setSpeechTimeout
 } from './state.js';
 import { setupFabDrag, applyPosition } from './drag.js';
+import { getSpriteAnimation, hasSpriteSupport } from './sprites.js';
 
-// Temporary mood override for reaction animations
+// ============================================
+// ANIMATION STATE
+// ============================================
+
 let specialAnimMoodOverride = null;
 let specialAnimTimeout = null;
+let currentAnimData = null;
+
+// Display size for pixel sprites (32px native → 52px display)
+const SPRITE_DISPLAY = 52;
 
 // ============================================
-// SPRITE DATA
+// ASCII FALLBACK SPRITES
 // ============================================
 
-export const SPRITES = {
+const ASCII_SPRITES = {
     cat: {
         neutral: [
 `  ╱|、
@@ -87,27 +95,65 @@ export function getMoodForDisposition(disposition) {
 }
 
 // ============================================
-// SPRITE SYSTEM
+// SPRITE SYSTEM (Pixel + ASCII fallback)
 // ============================================
 
-export function getCurrentSprite() {
+function usePixelSprites() {
     const form = extensionSettings.familiarForm || 'cat';
-    const mood = specialAnimMoodOverride || getMoodForDisposition(extensionSettings.nyx.disposition);
+    return hasSpriteSupport(form);
+}
 
-    const formSprites = SPRITES[form] || SPRITES.cat;
+function getCurrentMood() {
+    return specialAnimMoodOverride || getMoodForDisposition(extensionSettings.nyx.disposition);
+}
+
+function getCurrentAsciiSprite() {
+    const form = extensionSettings.familiarForm || 'cat';
+    const mood = getCurrentMood();
+    const formSprites = ASCII_SPRITES[form] || ASCII_SPRITES.cat;
     const moodFrames = formSprites[mood] || formSprites.neutral;
-
     if (!moodFrames || moodFrames.length === 0) {
-        return SPRITES.cat.neutral[0];
+        return ASCII_SPRITES.cat.neutral[0];
     }
-
     return moodFrames[currentSpriteFrame % moodFrames.length];
 }
 
 export function updateSpriteDisplay() {
     const sprite = document.getElementById('nyxgotchi-sprite');
-    if (sprite) {
-        sprite.textContent = getCurrentSprite();
+    if (!sprite) return;
+
+    const form = extensionSettings.familiarForm || 'cat';
+    const mood = getCurrentMood();
+
+    if (usePixelSprites()) {
+        const anim = getSpriteAnimation(form, mood);
+        if (!anim) {
+            // Fallback to ASCII
+            sprite.style.backgroundImage = '';
+            sprite.textContent = getCurrentAsciiSprite();
+            sprite.classList.remove('pixel-mode');
+            currentAnimData = null;
+            return;
+        }
+
+        currentAnimData = anim;
+        const frame = currentSpriteFrame % anim.frames;
+        const sheetWidth = anim.frames * SPRITE_DISPLAY;
+
+        sprite.textContent = '';
+        sprite.classList.add('pixel-mode');
+        sprite.style.width = SPRITE_DISPLAY + 'px';
+        sprite.style.height = SPRITE_DISPLAY + 'px';
+        sprite.style.backgroundImage = `url(${anim.src})`;
+        sprite.style.backgroundSize = `${sheetWidth}px ${SPRITE_DISPLAY}px`;
+        sprite.style.backgroundPosition = `-${frame * SPRITE_DISPLAY}px 0`;
+        sprite.style.backgroundRepeat = 'no-repeat';
+        sprite.style.imageRendering = 'pixelated';
+    } else {
+        sprite.style.backgroundImage = '';
+        sprite.classList.remove('pixel-mode');
+        sprite.textContent = getCurrentAsciiSprite();
+        currentAnimData = null;
     }
 }
 
@@ -115,10 +161,11 @@ export function startSpriteAnimation() {
     stopSpriteAnimation();
     updateSpriteDisplay();
 
+    const speed = currentAnimData ? currentAnimData.speed : 2000;
     setSpriteInterval(setInterval(() => {
         setCurrentSpriteFrame(currentSpriteFrame + 1);
         updateSpriteDisplay();
-    }, 2000));
+    }, speed));
 }
 
 export function stopSpriteAnimation() {
@@ -130,30 +177,31 @@ export function stopSpriteAnimation() {
 
 /**
  * Temporarily override the sprite to show a reaction mood, then revert.
- * @param {string} mood - 'annoyed', 'bored', 'amused', 'delighted', or 'neutral'
- * @param {number} durationSeconds - How long to show the reaction
  */
 export function playSpecialAnimation(mood, durationSeconds = 2) {
-    if (specialAnimTimeout) clearTimeout(specialAnimTimeout);
+    try {
+        if (specialAnimTimeout) clearTimeout(specialAnimTimeout);
 
-    specialAnimMoodOverride = mood;
-    setCurrentSpriteFrame(0);
-    updateSpriteDisplay();
+        specialAnimMoodOverride = mood;
+        setCurrentSpriteFrame(0);
+        startSpriteAnimation();
 
-    // Apply reaction mood class to sprite element
-    const sprite = document.getElementById('nyxgotchi-sprite');
-    if (sprite) {
-        sprite.className = 'nyxgotchi-sprite';
-        if (mood !== 'neutral') {
-            sprite.classList.add(`mood-${mood}`);
+        const sprite = document.getElementById('nyxgotchi-sprite');
+        if (sprite) {
+            sprite.className = 'nyxgotchi-sprite';
+            if (usePixelSprites()) sprite.classList.add('pixel-mode');
+            if (mood !== 'neutral') sprite.classList.add(`mood-${mood}`);
         }
-    }
 
-    specialAnimTimeout = setTimeout(() => {
-        specialAnimMoodOverride = null;
-        specialAnimTimeout = null;
-        updateNyxMood(); // resets sprite to real disposition mood
-    }, durationSeconds * 1000);
+        specialAnimTimeout = setTimeout(() => {
+            specialAnimMoodOverride = null;
+            specialAnimTimeout = null;
+            startSpriteAnimation();
+            updateNyxMood();
+        }, durationSeconds * 1000);
+    } catch (err) {
+        console.error(`[${extensionName}] playSpecialAnimation error:`, err);
+    }
 }
 
 // ============================================
@@ -184,7 +232,7 @@ export function showCardFlash() {
     if (!flash) return;
 
     flash.classList.remove('active');
-    void flash.offsetWidth; // Force reflow
+    void flash.offsetWidth;
     flash.classList.add('active');
     setTimeout(() => flash.classList.remove('active'), 1600);
 }
@@ -200,16 +248,16 @@ export function updateNyxMood() {
     $('#nyxgotchi-mood').text(mood);
     $('#nyxgotchi-disposition').text(disposition);
 
-    setCurrentSpriteFrame(0);
-    updateSpriteDisplay();
+    if (!specialAnimMoodOverride) {
+        setCurrentSpriteFrame(0);
+        startSpriteAnimation();
+    }
 
-    // Apply mood class to sprite for CSS animations
     const sprite = document.getElementById('nyxgotchi-sprite');
-    if (sprite) {
+    if (sprite && !specialAnimMoodOverride) {
         sprite.className = 'nyxgotchi-sprite';
-        if (mood !== 'neutral') {
-            sprite.classList.add(`mood-${mood}`);
-        }
+        if (usePixelSprites()) sprite.classList.add('pixel-mode');
+        if (mood !== 'neutral') sprite.classList.add(`mood-${mood}`);
     }
 
     const heart = $('#nyxgotchi-heart');
@@ -221,7 +269,7 @@ export function updateNyxMood() {
 }
 
 // ============================================
-// TAMA HTML (Egg Shell Design)
+// TAMA HTML (Egg Shell Design — no icon rows)
 // ============================================
 
 export function getTamaHTML() {
@@ -232,7 +280,7 @@ export function getTamaHTML() {
              data-mg-theme="${extensionSettings.shellTheme}"
              data-mg-size="${extensionSettings.tamaSize || 'medium'}">
 
-            <!-- Speech bubble (appears above on commentary) -->
+            <!-- Speech bubble -->
             <div class="nyxgotchi-speech" id="nyxgotchi-speech">
                 <span class="nyxgotchi-speech-text">Hello, mortal.</span>
             </div>
@@ -247,7 +295,7 @@ export function getTamaHTML() {
             <!-- Egg shell -->
             <div class="nyxgotchi-shell">
 
-                <!-- Shell decorations (CSS fills content per theme) -->
+                <!-- Shell decorations -->
                 <div class="nyxgotchi-decorations">
                     <span class="nyxgotchi-deco nyxgotchi-deco--1"></span>
                     <span class="nyxgotchi-deco nyxgotchi-deco--2"></span>
@@ -257,16 +305,8 @@ export function getTamaHTML() {
                     <span class="nyxgotchi-deco nyxgotchi-deco--6"></span>
                 </div>
 
-                <!-- Screen frame (colored border like real Tamas) -->
+                <!-- Screen frame -->
                 <div class="nyxgotchi-screen-frame">
-
-                    <!-- Top status icons -->
-                    <div class="nyxgotchi-icons-row">
-                        <span class="nyxgotchi-icon">💡</span>
-                        <span class="nyxgotchi-icon">🍴</span>
-                        <span class="nyxgotchi-icon">⚡</span>
-                        <span class="nyxgotchi-icon">🎒</span>
-                    </div>
 
                     <!-- LCD Screen -->
                     <div class="nyxgotchi-screen">
@@ -297,14 +337,6 @@ export function getTamaHTML() {
 
                     </div>
 
-                    <!-- Bottom status icons -->
-                    <div class="nyxgotchi-icons-row">
-                        <span class="nyxgotchi-icon">👑</span>
-                        <span class="nyxgotchi-icon">❤</span>
-                        <span class="nyxgotchi-icon">🔮</span>
-                        <span class="nyxgotchi-icon">📖</span>
-                    </div>
-
                 </div><!-- end screen-frame -->
 
                 <!-- Buttons -->
@@ -324,13 +356,6 @@ export function getTamaHTML() {
 // TAMA CREATION
 // ============================================
 
-/**
- * Create tama widget and append to DOM.
- * @param {Object} callbacks - Button click handlers
- * @param {Function} callbacks.onDraw
- * @param {Function} callbacks.onQueue
- * @param {Function} callbacks.onPoke
- */
 export function createTama(callbacks = {}) {
     $('#nyxgotchi').remove();
 
@@ -344,7 +369,6 @@ export function createTama(callbacks = {}) {
 
     const tamaEl = $tama[0];
 
-    // Force critical display properties
     tamaEl.style.setProperty('position', 'fixed', 'important');
     tamaEl.style.setProperty('z-index', '2147483647', 'important');
     tamaEl.style.setProperty('display', 'flex', 'important');
@@ -356,7 +380,6 @@ export function createTama(callbacks = {}) {
 
     setupFabDrag('nyxgotchi', 'tama', 'tamaPosition');
 
-    // Tama buttons → wired to callbacks from index.js
     $('#nyxgotchi-btn-draw').on('click', (e) => {
         e.stopPropagation();
         if (callbacks.onDraw) callbacks.onDraw();
@@ -372,7 +395,6 @@ export function createTama(callbacks = {}) {
         if (callbacks.onPoke) callbacks.onPoke();
     });
 
-    // Respect visibility setting
     if (!extensionSettings.showTama) {
         tamaEl.style.setProperty('display', 'none', 'important');
     }
