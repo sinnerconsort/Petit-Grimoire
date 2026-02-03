@@ -505,45 +505,69 @@
 
 
 /* ══════════════════════════════════════════════
-   SPEECH BUBBLE (anchored to compact)
+   THOUGHT BUBBLE (anchored to tama)
    ══════════════════════════════════════════════ */
 
-.mg-speech {
-    position: absolute;
-    bottom: 100%;
-    right: 0;
-    margin-bottom: 10px;
+.mg-tama {
+    /* Needed for thought bubble absolute positioning */
+    flex-direction: column;
+    align-items: center;
+}
+
+.mg-thought {
+    position: relative;
     background: var(--mg-speech-bg);
     border: 2px solid var(--mg-speech-border);
-    border-radius: 20px;
-    padding: 8px 12px;
+    border-radius: 20px 20px 20px 8px;
+    padding: 6px 10px;
     font-size: 11px;
     font-family: sans-serif;
     color: var(--mg-speech-text);
-    max-width: 180px;
+    max-width: 140px;
+    min-width: 60px;
     white-space: normal;
+    text-align: center;
     box-shadow: 0 2px 8px var(--mg-tama-shadow);
     display: none;
     z-index: 10;
     pointer-events: none;
+    margin-bottom: 4px;
+    align-self: flex-start;
 }
 
-.mg-speech.visible {
-    display: block;
-    animation: mgSpeechIn 0.3s ease-out;
-}
-
-.mg-speech::after {
-    content: '•';
+/* Medium trailing dot */
+.mg-thought::before {
+    content: '';
     position: absolute;
-    bottom: -12px;
-    right: 20px;
-    font-size: 14px;
-    color: var(--mg-speech-bg);
+    bottom: -8px;
+    left: 20px;
+    width: 8px;
+    height: 8px;
+    background: var(--mg-speech-bg);
+    border: 1.5px solid var(--mg-speech-border);
+    border-radius: 50%;
 }
 
-@keyframes mgSpeechIn {
-    from { opacity: 0; transform: translateY(5px) scale(0.9); }
+/* Small trailing dot */
+.mg-thought::after {
+    content: '';
+    position: absolute;
+    bottom: -14px;
+    left: 30px;
+    width: 5px;
+    height: 5px;
+    background: var(--mg-speech-bg);
+    border: 1px solid var(--mg-speech-border);
+    border-radius: 50%;
+}
+
+.mg-thought.visible {
+    display: block;
+    animation: mgThoughtIn 0.35s ease-out;
+}
+
+@keyframes mgThoughtIn {
+    from { opacity: 0; transform: translateY(8px) scale(0.85); }
     to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
