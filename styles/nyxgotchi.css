@@ -253,8 +253,8 @@
     padding: 2px;
 
     /* Constrain to fit within egg curvature */
-    width: 82px;
-    max-width: 82px;
+    width: 88px;
+    max-width: 88px;
 
     /* Depth */
     box-shadow:
@@ -298,8 +298,8 @@
    ---------------------------------------- */
 .nyxgotchi-screen {
     position: relative;
-    width: 68px;
-    height: 54px;
+    width: 76px;
+    height: 66px;
 
     /* Screen styling */
     background: var(--mg-screen-bg);
@@ -592,10 +592,18 @@
     transition: opacity 0.2s;
     white-space: nowrap;
     pointer-events: none;
+    /* Hidden by default — only show on true hover (desktop) */
+    display: none;
 }
 
-.nyxgotchi-button:hover::after {
-    opacity: 1;
+/* Only show tooltips on devices that support hover (not touch) */
+@media (hover: hover) and (pointer: fine) {
+    .nyxgotchi-button::after {
+        display: block;
+    }
+    .nyxgotchi-button:hover::after {
+        opacity: 1;
+    }
 }
 
 
