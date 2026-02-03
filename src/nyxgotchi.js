@@ -397,14 +397,6 @@ export function getTamaHTML() {
                 <!-- Screen frame (colored border like real Tamas) -->
                 <div class="nyxgotchi-screen-frame">
 
-                    <!-- Top status icons -->
-                    <div class="nyxgotchi-icons-row">
-                        <span class="nyxgotchi-icon">💡</span>
-                        <span class="nyxgotchi-icon">🍴</span>
-                        <span class="nyxgotchi-icon">⚡</span>
-                        <span class="nyxgotchi-icon">🎒</span>
-                    </div>
-
                     <!-- LCD Screen -->
                     <div class="nyxgotchi-screen">
 
@@ -432,14 +424,6 @@ export function getTamaHTML() {
                         <!-- Mood text -->
                         <div class="nyxgotchi-mood" id="nyxgotchi-mood">${mood}</div>
 
-                    </div>
-
-                    <!-- Bottom status icons -->
-                    <div class="nyxgotchi-icons-row">
-                        <span class="nyxgotchi-icon">👑</span>
-                        <span class="nyxgotchi-icon">❤</span>
-                        <span class="nyxgotchi-icon">🔮</span>
-                        <span class="nyxgotchi-icon">📖</span>
                     </div>
 
                 </div><!-- end screen-frame -->
