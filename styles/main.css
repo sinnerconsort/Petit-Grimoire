@@ -573,6 +573,476 @@
 
 
 /* ══════════════════════════════════════════════
+   GRIMOIRE PANEL (Tome + Clasp)
+   ══════════════════════════════════════════════ */
+
+/* Backdrop overlay */
+.mg-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 2147483640;
+    display: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    -webkit-backdrop-filter: blur(2px);
+    backdrop-filter: blur(2px);
+}
+.mg-overlay.visible { opacity: 1; }
+
+/* Grimoire container */
+.mg-grimoire {
+    position: fixed;
+    z-index: 2147483645;
+    display: none;
+    opacity: 0;
+    transform: scale(0.9) translateY(20px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+.mg-grimoire.visible {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+}
+
+/* Tome cover */
+.mg-tome {
+    background: var(--mg-ring);
+    border-radius: 12px;
+    border: 2px solid var(--mg-ring-border);
+    padding: 6px 6px 6px 8px;
+    box-shadow:
+        0 8px 32px rgba(0, 0, 0, 0.4),
+        0 2px 8px rgba(0, 0, 0, 0.2),
+        inset 0 1px 2px rgba(255, 255, 255, 0.15);
+    position: relative;
+}
+
+/* Embossed inner border */
+.mg-tome-border {
+    position: absolute;
+    inset: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    pointer-events: none;
+}
+
+/* Corner gems */
+.mg-tome-gem {
+    position: absolute;
+    width: 7px;
+    height: 7px;
+    background: var(--mg-gem-1);
+    box-shadow: 0 0 6px var(--mg-gem-1);
+    z-index: 2;
+}
+.mg-tome-gem--tl { top: 8px; left: 8px; border-radius: 50%; }
+.mg-tome-gem--tr { top: 8px; right: 8px; transform: rotate(45deg); border-radius: 1px; }
+.mg-tome-gem--bl { bottom: 8px; left: 8px; transform: rotate(45deg); border-radius: 1px; }
+.mg-tome-gem--br { bottom: 8px; right: 8px; border-radius: 50%; }
+
+/* Inner page */
+.mg-tome-page {
+    background: var(--mg-tama-screen);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+/* Layout: side tabs + content */
+.mg-tome-layout {
+    display: flex;
+    min-height: 340px;
+}
+
+/* Side tabs */
+.mg-tome-tabs {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    padding: 6px 0;
+    flex-shrink: 0;
+    border-right: 1px solid var(--mg-crt-divider, rgba(0,0,0,0.08));
+}
+
+.mg-tome-tab {
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    padding: 10px 6px;
+    border: none;
+    background: transparent;
+    color: var(--mg-tama-text);
+    opacity: 0.4;
+    font-size: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    transition: all 0.15s ease;
+    letter-spacing: 0.5px;
+    position: relative;
+}
+
+.mg-tome-tab:hover { opacity: 0.7; }
+
+.mg-tome-tab.active {
+    background: var(--mg-face);
+    color: var(--mg-face-border);
+    opacity: 1;
+    border-radius: 0;
+}
+
+.mg-tome-tab svg {
+    flex-shrink: 0;
+}
+
+/* Content area */
+.mg-tome-content {
+    flex: 1;
+    min-width: 0;
+    padding: 12px 14px;
+    overflow-y: auto;
+    max-height: 340px;
+}
+
+/* Tab panels */
+.mg-tome-panel {
+    display: none;
+}
+.mg-tome-panel.active {
+    display: block;
+    animation: mgPanelIn 0.2s ease-out;
+}
+@keyframes mgPanelIn {
+    from { opacity: 0; transform: translateX(6px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+/* Typography */
+.mg-tome-heading {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--mg-tama-text);
+    font-family: Georgia, serif;
+    margin-bottom: 4px;
+}
+
+.mg-tome-flavor {
+    font-size: 10px;
+    color: var(--mg-tama-text);
+    opacity: 0.5;
+    font-style: italic;
+    margin-bottom: 12px;
+    line-height: 1.4;
+}
+
+.mg-tome-section {
+    margin-top: 14px;
+    padding-top: 10px;
+    border-top: 1px solid var(--mg-crt-divider, rgba(0,0,0,0.08));
+}
+
+.mg-tome-section-title {
+    font-size: 9px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--mg-tama-text);
+    opacity: 0.5;
+    margin-bottom: 6px;
+}
+
+/* Card spread */
+.mg-card-spread {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+    margin-bottom: 14px;
+}
+
+.mg-card-slot {
+    width: 50px;
+    height: 72px;
+    background: linear-gradient(145deg, var(--mg-face), var(--mg-face-border));
+    opacity: 0.2;
+    border: 1.5px solid var(--mg-face-border);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    transition: all 0.2s ease;
+}
+
+.mg-card-symbol {
+    font-size: 18px;
+    color: var(--mg-tama-text);
+    opacity: 0.6;
+}
+
+/* Primary action button */
+.mg-tome-btn {
+    width: 100%;
+    padding: 9px 0;
+    background: linear-gradient(145deg, var(--mg-btn-1), var(--mg-btn-2));
+    border: 2px solid var(--mg-btn-border);
+    border-radius: 20px;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    letter-spacing: 0.3px;
+    box-shadow: 0 2px 8px var(--mg-tama-shadow);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    transition: all 0.15s ease;
+}
+
+.mg-tome-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px var(--mg-tama-shadow); }
+.mg-tome-btn:active { transform: translateY(1px); }
+
+/* Last reading */
+.mg-last-reading {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.mg-mini-card {
+    width: 28px;
+    height: 40px;
+    background: linear-gradient(145deg, var(--mg-face), var(--mg-face-border));
+    opacity: 0.25;
+    border: 1px solid var(--mg-face-border);
+    border-radius: 3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--mg-tama-text);
+    flex-shrink: 0;
+}
+
+.mg-last-reading-name {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--mg-tama-text);
+}
+
+.mg-last-reading-keywords {
+    font-size: 10px;
+    color: var(--mg-tama-text);
+    opacity: 0.5;
+    font-style: italic;
+}
+
+/* Queue list */
+.mg-queue-list {
+    min-height: 120px;
+}
+
+.mg-queue-empty {
+    text-align: center;
+    padding: 24px 8px;
+    font-size: 11px;
+    color: var(--mg-tama-text);
+    opacity: 0.4;
+    font-style: italic;
+    line-height: 1.5;
+}
+
+.mg-queue-empty-icon {
+    margin-bottom: 8px;
+    color: var(--mg-tama-text);
+}
+
+.mg-queue-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--mg-crt-divider, rgba(0,0,0,0.06));
+}
+
+.mg-queue-card {
+    width: 28px;
+    height: 40px;
+    background: linear-gradient(145deg, var(--mg-face), var(--mg-face-border));
+    opacity: 0.3;
+    border: 1.5px solid var(--mg-face-border);
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 9px;
+    font-weight: 700;
+    color: var(--mg-tama-text);
+    flex-shrink: 0;
+}
+
+.mg-queue-info { flex: 1; min-width: 0; }
+.mg-queue-name { font-size: 11px; font-weight: 600; color: var(--mg-tama-text); }
+.mg-queue-keywords { font-size: 10px; color: var(--mg-tama-text); opacity: 0.5; font-style: italic; }
+
+.mg-queue-inject {
+    font-size: 9px;
+    color: var(--mg-tama-text);
+    opacity: 0.5;
+    border: 1px solid var(--mg-crt-divider, rgba(0,0,0,0.15));
+    border-radius: 10px;
+    padding: 2px 8px;
+    background: transparent;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+.mg-queue-inject:hover { opacity: 1; }
+
+.mg-queue-footer {
+    text-align: center;
+    font-size: 10px;
+    color: var(--mg-tama-text);
+    opacity: 0.4;
+    font-style: italic;
+    margin-top: 10px;
+}
+
+/* Nyx stats */
+.mg-nyx-stats {
+    background: var(--mg-crt-glow, rgba(0,0,0,0.05));
+    border: 1px solid var(--mg-crt-divider, rgba(0,0,0,0.08));
+    border-radius: 10px;
+    padding: 10px 12px;
+    margin: 8px 0 12px;
+}
+
+.mg-nyx-stats-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+}
+
+.mg-nyx-stats-header span:first-child {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--mg-tama-text);
+}
+
+.mg-nyx-score {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--mg-btn-1);
+}
+
+.mg-nyx-bar {
+    height: 6px;
+    background: var(--mg-crt-divider, rgba(0,0,0,0.1));
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.mg-nyx-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--mg-btn-2), var(--mg-btn-1));
+    border-radius: 3px;
+    transition: width 0.5s ease;
+}
+
+.mg-nyx-bar-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 8px;
+    color: var(--mg-tama-text);
+    opacity: 0.4;
+    margin-top: 3px;
+}
+
+.mg-nyx-mood {
+    text-align: center;
+    padding: 8px 0;
+    font-size: 11px;
+    color: var(--mg-tama-text);
+    font-style: italic;
+    border-bottom: 1px solid var(--mg-crt-divider, rgba(0,0,0,0.06));
+    margin-bottom: 10px;
+    line-height: 1.4;
+}
+
+/* Nyx action buttons */
+.mg-nyx-actions {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-bottom: 4px;
+}
+
+.mg-nyx-action-btn {
+    flex: 1 1 calc(50% - 3px);
+    padding: 7px 0;
+    background: transparent;
+    border: 1.5px solid var(--mg-crt-divider, rgba(0,0,0,0.15));
+    border-radius: 16px;
+    color: var(--mg-tama-text);
+    font-size: 10px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+
+.mg-nyx-action-btn:hover {
+    background: var(--mg-crt-glow, rgba(0,0,0,0.05));
+    border-color: var(--mg-btn-1);
+    color: var(--mg-btn-1);
+}
+
+/* Nyx log */
+.mg-nyx-log {
+    font-size: 10px;
+    color: var(--mg-tama-text);
+    opacity: 0.6;
+    font-style: italic;
+    line-height: 1.6;
+}
+
+.mg-nyx-log-entry {
+    padding: 2px 0;
+}
+
+.mg-nyx-log-entry::before {
+    content: '› ';
+    opacity: 0.5;
+}
+
+/* Clasp */
+.mg-tome-clasp {
+    position: absolute;
+    right: -7px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 14px;
+    height: 36px;
+    background: var(--mg-accent, var(--mg-star));
+    border-radius: 0 6px 6px 0;
+    border: 2px solid var(--mg-ring-border);
+    border-left: none;
+    box-shadow: 2px 0 6px rgba(0, 0, 0, 0.25);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.mg-tome-clasp-dot {
+    width: 4px;
+    height: 4px;
+    background: var(--mg-ring-border);
+    border-radius: 50%;
+}
+
+
+/* ══════════════════════════════════════════════
    THEME: MADOKA
    ══════════════════════════════════════════════ */
 
