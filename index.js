@@ -138,11 +138,6 @@ function getCompactHTML() {
                     <span>✦</span><span>✧</span><span>✦</span><span>✧</span>
                 </div>
             </div>
-            
-            <!-- Speech bubble anchored to compact -->
-            <div class="mg-speech" id="mg-speech">
-                Hello, mortal.
-            </div>
         </div>
     `;
 }
@@ -157,6 +152,10 @@ function getTamaHTML() {
         <div class="mg-fab mg-tama" id="mg-tama"
              data-mg-theme="${extensionSettings.shellTheme}"
              data-mg-size="${extensionSettings.tamaSize || 'medium'}">
+            <!-- Thought bubble (floats above tama) -->
+            <div class="mg-thought" id="mg-speech">
+                <span class="mg-thought-text">Hello, mortal.</span>
+            </div>
             <div class="mg-tama-shell">
                 <!-- Antenna / decoration -->
                 <div class="mg-tama-antenna"></div>
@@ -689,7 +688,8 @@ function showSpeech(text, duration = 4000) {
     
     clearTimeout(speechTimeout);
     
-    speech.textContent = text;
+    const textEl = speech.querySelector('.mg-thought-text');
+    if (textEl) textEl.textContent = text;
     speech.classList.add('visible');
     
     speechTimeout = setTimeout(() => {
