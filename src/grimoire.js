@@ -8,7 +8,7 @@ import {
     grimoireOpen, setGrimoireOpen,
     saveSettings
 } from './state.js';
-import { showSpeech, showCardFlash, updateNyxMood, getMoodText } from './nyxgotchi.js';
+import { showSpeech, showCardFlash, updateNyxMood, getMoodText, playSpecialAnimation } from './nyxgotchi.js';
 
 // ============================================
 // GRIMOIRE HTML
@@ -392,6 +392,7 @@ function setupGrimoireEvents() {
 export function onDrawCard() {
     showCardFlash();
     showSpeech('A card? Very well. Let\'s see what fate has in store...');
+    playSpecialAnimation('amused', 2);
 
     const currentQueue = parseInt($('#mg-tama-queue').text()) || 0;
     $('#mg-tama-queue').text(Math.min(currentQueue + 1, 5));
@@ -417,24 +418,25 @@ export function onViewQueue() {
 
 export function onPokeNyx() {
     const responses = [
-        "*swats your hand away* Don't.",
-        "...what do you want?",
-        "*stretches* I was napping.",
-        "Touch me again and I'll curse you.",
-        "Oh, you're still here.",
-        "*stares at you with ancient contempt*",
-        "*yawns dramatically*",
-        "I've lived a thousand years for THIS?"
+        { text: "*swats your hand away* Don't.", anim: 'annoyed' },
+        { text: "...what do you want?", anim: 'bored' },
+        { text: "*stretches* I was napping.", anim: 'bored' },
+        { text: "Touch me again and I'll curse you.", anim: 'annoyed' },
+        { text: "Oh, you're still here.", anim: 'bored' },
+        { text: "*stares at you with ancient contempt*", anim: 'annoyed' },
+        { text: "*yawns dramatically*", anim: 'bored' },
+        { text: "I've lived a thousand years for THIS?", anim: 'annoyed' },
     ];
 
     const response = responses[Math.floor(Math.random() * responses.length)];
-    showSpeech(response);
+    showSpeech(response.text);
 
     // Disposition shift
     const shift = Math.random() < 0.3 ? 2 : -1;
-    extensionSettings.nyx.disposition = Math.max(0, Math.min(100, extensionSettings.nyx.disposition + shift));
-    saveSettings();
-    updateNyxMood();
+    shiftDisposition(shift);
+
+    // Sprite reaction
+    playSpecialAnimation(response.anim, 2);
 }
 
 // ============================================
@@ -548,6 +550,9 @@ function onCastSpell(spellName, $card) {
     }
 
     showSpeech(result, 3000);
+
+    // Sprite reaction - chaos gets special treatment
+    playSpecialAnimation(spellName === 'chaos' ? 'delighted' : 'amused', 2);
 }
 
 // ============================================
@@ -591,6 +596,32 @@ function onOuijaAsk() {
     }
 
     showSpeech(response.flavor, 3000);
+
+    // Sprite reacts to ouija mood
+    const ouijaAnim = { positive: 'amused', negative: 'annoyed', warning: 'annoyed',
+        wild: 'delighted', cryptic: 'bored', uncertain: 'bored' };
+    playSpecialAnimation(ouijaAnim[response.mood] || 'bored', 2);
+}
+
+// ============================================
+// NYX HELPERS
+// ============================================
+
+/** Sync the grimoire's Nyx panel UI with current disposition */
+function updateNyxPanel() {
+    const d = extensionSettings.nyx.disposition;
+    $('#mg-nyx-score').text(d);
+    $('#mg-nyx-bar').css('width', d + '%');
+    $('#mg-nyx-mood-text').html(`Currently: <b>${getMoodText(d)}</b>`);
+}
+
+/** Apply a disposition shift, clamp, save, and update all UI */
+function shiftDisposition(amount) {
+    extensionSettings.nyx.disposition = Math.max(0, Math.min(100,
+        extensionSettings.nyx.disposition + amount));
+    saveSettings();
+    updateNyxMood();   // updates tama widget (sprite, mood text, heart)
+    updateNyxPanel();  // updates grimoire panel (bar, score, mood label)
 }
 
 // ============================================
@@ -598,22 +629,54 @@ function onOuijaAsk() {
 // ============================================
 
 function onNyxAction(action) {
+    // Each response: [text, dispositionShift, spriteReaction]
     const responses = {
-        treat: ['Nyx accepted the treat graciously. +2', 'Nyx sniffed it and looked unimpressed.', 'Nyx devoured it instantly! +3'],
-        advice: ["Nyx says: 'Trust the next card drawn.'", "Nyx says: 'Patience is a virtue you lack.'", 'Nyx stares at you in eloquent silence.'],
-        pet: ['Nyx purrs contentedly. +1', 'Nyx tolerates this. Barely.', 'Nyx leans into your hand. +2'],
-        tease: ['Nyx narrows her eyes. -1', 'Nyx swats at you dismissively.', 'Nyx pretends not to care. She cares.'],
+        treat: [
+            ['Nyx accepted the treat graciously.', 2, 'delighted'],
+            ['Nyx sniffed it and looked unimpressed.', 0, 'bored'],
+            ['Nyx devoured it instantly!', 3, 'delighted'],
+        ],
+        advice: [
+            ["Nyx says: 'Trust the next card drawn.'", 0, null],
+            ["Nyx says: 'Patience is a virtue you lack.'", 0, 'annoyed'],
+            ['Nyx stares at you in eloquent silence.', 0, 'bored'],
+        ],
+        pet: [
+            ['Nyx purrs contentedly.', 1, 'amused'],
+            ['Nyx tolerates this. Barely.', 0, 'bored'],
+            ['Nyx leans into your hand.', 2, 'delighted'],
+        ],
+        tease: [
+            ['Nyx narrows her eyes.', -1, 'annoyed'],
+            ['Nyx swats at you dismissively.', -2, 'annoyed'],
+            ['Nyx pretends not to care. She cares.', 0, 'bored'],
+        ],
     };
 
-    const options = responses[action] || ['Nyx ignores you.'];
-    const response = options[Math.floor(Math.random() * options.length)];
+    const options = responses[action] || [['Nyx ignores you.', 0, null]];
+    const [text, shift, anim] = options[Math.floor(Math.random() * options.length)];
+
+    // Build display text with shift indicator
+    let displayText = '› ' + text;
+    if (shift > 0) displayText += ` +${shift}`;
+    else if (shift < 0) displayText += ` ${shift}`;
+
+    // Apply disposition change
+    if (shift !== 0) {
+        shiftDisposition(shift);
+    }
+
+    // Trigger sprite reaction on tama (after disposition update)
+    if (anim) {
+        playSpecialAnimation(anim, 2);
+    }
 
     // Add to log
     const log = document.getElementById('mg-nyx-log');
     if (log) {
         const entry = document.createElement('div');
         entry.className = 'mg-nyx-log-entry';
-        entry.textContent = response;
+        entry.textContent = displayText;
         log.prepend(entry);
 
         while (log.children.length > 5) {
@@ -621,5 +684,5 @@ function onNyxAction(action) {
         }
     }
 
-    showSpeech(response, 3000);
+    showSpeech(text, 3000);
 }
