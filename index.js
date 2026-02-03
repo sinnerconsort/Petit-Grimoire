@@ -152,17 +152,39 @@ function getCompactHTML() {
 // ============================================
 
 function getTamaHTML() {
+    const disposition = extensionSettings.nyx.disposition;
     return `
         <div class="mg-fab mg-tama" id="mg-tama"
              data-mg-theme="${extensionSettings.shellTheme}"
              data-mg-size="${extensionSettings.tamaSize || 'medium'}">
             <div class="mg-tama-shell">
+                <!-- Antenna / decoration -->
+                <div class="mg-tama-antenna"></div>
+                
                 <div class="mg-tama-screen">
+                    <!-- CRT scanline overlay -->
+                    <div class="mg-tama-scanlines"></div>
+                    
                     <!-- Status bar -->
                     <div class="mg-tama-status">
-                        <span>🎴<span id="mg-tama-queue">0</span></span>
-                        <span class="mg-tama-heart" id="mg-tama-heart">💜</span>
-                        <span>⭐<span id="mg-tama-disposition">${extensionSettings.nyx.disposition}</span></span>
+                        <span class="mg-tama-stat">
+                            <svg width="8" height="10" viewBox="0 0 12 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="2" y="0.5" width="8" height="11" rx="1"/>
+                                <rect x="0.5" y="2.5" width="8" height="11" rx="1"/>
+                            </svg>
+                            <span id="mg-tama-queue">0</span>
+                        </span>
+                        <span class="mg-tama-stat mg-tama-heart" id="mg-tama-heart">
+                            <svg width="10" height="10" viewBox="0 0 16 16" fill="currentColor" stroke="none">
+                                <path d="M8 14s-5.5-4.5-6.5-7C.5 4.5 2 2 4.5 2 6 2 7.5 3.5 8 4.5 8.5 3.5 10 2 11.5 2 14 2 15.5 4.5 14.5 7 13.5 9.5 8 14 8 14z"/>
+                            </svg>
+                        </span>
+                        <span class="mg-tama-stat">
+                            <svg width="10" height="10" viewBox="0 0 16 16" fill="currentColor" stroke="none">
+                                <path d="M8 0l2.5 5 5.5.8-4 3.9.9 5.5L8 12.5 3.1 15.2l.9-5.5-4-3.9L5.5 5z"/>
+                            </svg>
+                            <span id="mg-tama-disposition">${disposition}</span>
+                        </span>
                     </div>
                     
                     <!-- Sprite -->
@@ -170,18 +192,40 @@ function getTamaHTML() {
                     
                     <!-- Card flash overlay -->
                     <div class="mg-tama-flash" id="mg-tama-flash">
-                        <span class="card-icon">🎴</span>
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="1" width="14" height="20" rx="2"/>
+                            <path d="M10 7l-2 4h4l-2 4"/>
+                        </svg>
                     </div>
                     
                     <!-- Mood -->
-                    <div class="mg-tama-mood" id="mg-tama-mood">${getMoodText(extensionSettings.nyx.disposition)}</div>
+                    <div class="mg-tama-mood" id="mg-tama-mood">${getMoodText(disposition)}</div>
                 </div>
                 
                 <!-- Buttons -->
                 <div class="mg-tama-buttons">
-                    <button class="mg-tama-btn" id="mg-tama-btn-draw" title="Draw Card">🎴</button>
-                    <button class="mg-tama-btn" id="mg-tama-btn-queue" title="Queue">📋</button>
-                    <button class="mg-tama-btn" id="mg-tama-btn-poke" title="Poke">👆</button>
+                    <button class="mg-tama-btn" id="mg-tama-btn-draw" title="Draw Card">
+                        <svg width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="1" width="10" height="14" rx="1.5"/>
+                            <path d="M6 5.5l-1 2.5h3l-1 2.5"/>
+                        </svg>
+                    </button>
+                    <button class="mg-tama-btn" id="mg-tama-btn-queue" title="Queue">
+                        <svg width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="4" y1="3" x2="13" y2="3"/>
+                            <line x1="4" y1="8" x2="13" y2="8"/>
+                            <line x1="4" y1="13" x2="13" y2="13"/>
+                            <circle cx="1.5" cy="3" r="0.75" fill="currentColor"/>
+                            <circle cx="1.5" cy="8" r="0.75" fill="currentColor"/>
+                            <circle cx="1.5" cy="13" r="0.75" fill="currentColor"/>
+                        </svg>
+                    </button>
+                    <button class="mg-tama-btn" id="mg-tama-btn-poke" title="Poke Nyx">
+                        <svg width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M10 1v6M7.5 4v5M12.5 4v5M5 7v4"/>
+                            <path d="M5 11c0 2.5 2 4 5 4s4-1.5 4-3.5V8"/>
+                        </svg>
+                    </button>
                 </div>
             </div>
         </div>
@@ -580,7 +624,7 @@ function closeGrimoire() {
 // ============================================
 
 function onDrawCard() {
-    showCardFlash('🎴');
+    showCardFlash();
     showSpeech("A card? Very well. Let's see what fate has in store...");
     
     const currentQueue = parseInt($('#mg-tama-queue').text()) || 0;
@@ -623,13 +667,12 @@ function onPokeNyx() {
 // CARD FLASH
 // ============================================
 
-function showCardFlash(emoji) {
+function showCardFlash() {
     const flash = document.getElementById('mg-tama-flash');
     if (!flash) return;
     
-    const icon = flash.querySelector('.card-icon');
-    if (icon) icon.textContent = emoji;
-    
+    flash.classList.remove('visible');
+    void flash.offsetWidth; // Force reflow for re-triggering
     flash.classList.add('visible');
     setTimeout(() => flash.classList.remove('visible'), 600);
 }
@@ -870,24 +913,6 @@ jQuery(async () => {
             createCompact();
             createTama();
         }
-        
-        // Diagnostic - remove after debugging
-        setTimeout(() => {
-            const compact = document.getElementById('mg-compact');
-            const tama = document.getElementById('mg-tama');
-            const cRect = compact ? compact.getBoundingClientRect() : null;
-            const tRect = tama ? tama.getBoundingClientRect() : null;
-            const msg = [
-                `C:${compact ? 'YES' : 'NO'}`,
-                cRect ? `${Math.round(cRect.x)},${Math.round(cRect.y)} ${Math.round(cRect.width)}x${Math.round(cRect.height)}` : 'null',
-                `T:${tama ? 'YES' : 'NO'}`,
-                tRect ? `${Math.round(tRect.x)},${Math.round(tRect.y)} ${Math.round(tRect.width)}x${Math.round(tRect.height)}` : 'null',
-                `VP:${window.innerWidth}x${window.innerHeight}`
-            ].join(' | ');
-            if (typeof toastr !== 'undefined') {
-                toastr.info(msg, 'PG Debug', { timeOut: 15000 });
-            }
-        }, 1000);
         
         console.log(`[${extensionName}] ✅ Loaded successfully`);
         
