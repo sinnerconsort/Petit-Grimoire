@@ -584,38 +584,275 @@ function createTama() {
 }
 
 // ============================================
-// GRIMOIRE TRANSFORMATION
+// GRIMOIRE PANEL (Tome + Clasp)
 // ============================================
+
+function getGrimoireHTML() {
+    return `
+        <div class="mg-overlay" id="mg-overlay"></div>
+        <div class="mg-grimoire mg-fab" id="mg-grimoire" data-mg-theme="${extensionSettings.shellTheme}">
+            <div class="mg-tome">
+                <!-- Corner gems -->
+                <span class="mg-tome-gem mg-tome-gem--tl"></span>
+                <span class="mg-tome-gem mg-tome-gem--tr"></span>
+                <span class="mg-tome-gem mg-tome-gem--bl"></span>
+                <span class="mg-tome-gem mg-tome-gem--br"></span>
+                
+                <!-- Embossed border -->
+                <div class="mg-tome-border"></div>
+                
+                <!-- Inner page -->
+                <div class="mg-tome-page">
+                    <div class="mg-tome-layout">
+                        <!-- Side tabs -->
+                        <div class="mg-tome-tabs">
+                            <button class="mg-tome-tab active" data-mg-tab="cards">
+                                <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="1" width="10" height="14" rx="1.5"/><path d="M6 5.5l-1 2.5h3l-1 2.5"/></svg>
+                                <span>Cards</span>
+                            </button>
+                            <button class="mg-tome-tab" data-mg-tab="queue">
+                                <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="4" y1="3" x2="13" y2="3"/><line x1="4" y1="8" x2="13" y2="8"/><line x1="4" y1="13" x2="13" y2="13"/><circle cx="1.5" cy="3" r="0.75" fill="currentColor"/><circle cx="1.5" cy="8" r="0.75" fill="currentColor"/><circle cx="1.5" cy="13" r="0.75" fill="currentColor"/></svg>
+                                <span>Queue</span>
+                            </button>
+                            <button class="mg-tome-tab" data-mg-tab="nyx">
+                                <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor" stroke="none"><path d="M8 14s-5.5-4.5-6.5-7C.5 4.5 2 2 4.5 2 6 2 7.5 3.5 8 4.5 8.5 3.5 10 2 11.5 2 14 2 15.5 4.5 14.5 7 13.5 9.5 8 14 8 14z"/></svg>
+                                <span>Nyx</span>
+                            </button>
+                        </div>
+                        
+                        <!-- Content area -->
+                        <div class="mg-tome-content">
+                            <!-- Cards Tab -->
+                            <div class="mg-tome-panel active" data-mg-panel="cards">
+                                <div class="mg-tome-heading">Draw from the Deck</div>
+                                <div class="mg-tome-flavor">The cards whisper of what is to come...</div>
+                                
+                                <div class="mg-card-spread">
+                                    <div class="mg-card-slot" style="transform:rotate(-5deg)"><span class="mg-card-symbol">✦</span></div>
+                                    <div class="mg-card-slot"><span class="mg-card-symbol">✦</span></div>
+                                    <div class="mg-card-slot" style="transform:rotate(5deg)"><span class="mg-card-symbol">✦</span></div>
+                                </div>
+                                
+                                <button class="mg-tome-btn mg-draw-btn" id="mg-grimoire-draw">
+                                    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="1" width="10" height="14" rx="1.5"/><path d="M6 5.5l-1 2.5h3l-1 2.5"/></svg>
+                                    Draw a Card
+                                </button>
+                                
+                                <div class="mg-tome-section">
+                                    <div class="mg-tome-section-title">Last Reading</div>
+                                    <div class="mg-last-reading">
+                                        <div class="mg-mini-card">—</div>
+                                        <div class="mg-last-reading-info">
+                                            <div class="mg-last-reading-name" id="mg-last-card-name">No cards drawn yet</div>
+                                            <div class="mg-last-reading-keywords" id="mg-last-card-keywords">Draw to reveal your fate</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Queue Tab -->
+                            <div class="mg-tome-panel" data-mg-panel="queue">
+                                <div class="mg-tome-heading">Card Queue</div>
+                                <div class="mg-tome-flavor">Cards drawn, awaiting their moment in the story</div>
+                                
+                                <div class="mg-queue-list" id="mg-queue-list">
+                                    <div class="mg-queue-empty">
+                                        <div class="mg-queue-empty-icon">
+                                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.4"><rect x="4" y="2" width="12" height="18" rx="2"/><line x1="8" y1="8" x2="14" y2="8"/><line x1="8" y1="12" x2="12" y2="12"/></svg>
+                                        </div>
+                                        The queue is empty. Draw some cards!
+                                    </div>
+                                </div>
+                                
+                                <div class="mg-queue-footer" id="mg-queue-footer">0 of 5 slots filled</div>
+                            </div>
+                            
+                            <!-- Nyx Tab -->
+                            <div class="mg-tome-panel" data-mg-panel="nyx">
+                                <div class="mg-tome-heading">Nyx</div>
+                                
+                                <div class="mg-nyx-stats">
+                                    <div class="mg-nyx-stats-header">
+                                        <span>Disposition</span>
+                                        <span class="mg-nyx-score" id="mg-nyx-score">${extensionSettings.nyx.disposition}</span>
+                                    </div>
+                                    <div class="mg-nyx-bar">
+                                        <div class="mg-nyx-bar-fill" id="mg-nyx-bar" style="width:${extensionSettings.nyx.disposition}%"></div>
+                                    </div>
+                                    <div class="mg-nyx-bar-labels">
+                                        <span>hostile</span><span>neutral</span><span>devoted</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="mg-nyx-mood" id="mg-nyx-mood-text">
+                                    Currently: <b>${getMoodText(extensionSettings.nyx.disposition)}</b>
+                                </div>
+                                
+                                <div class="mg-nyx-actions">
+                                    <button class="mg-nyx-action-btn" data-action="treat">Offer Treat</button>
+                                    <button class="mg-nyx-action-btn" data-action="advice">Ask Advice</button>
+                                    <button class="mg-nyx-action-btn" data-action="pet">Pet</button>
+                                    <button class="mg-nyx-action-btn" data-action="tease">Tease</button>
+                                </div>
+                                
+                                <div class="mg-tome-section">
+                                    <div class="mg-tome-section-title">Recent</div>
+                                    <div class="mg-nyx-log" id="mg-nyx-log">
+                                        <div class="mg-nyx-log-entry">Nyx watches you curiously...</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Clasp -->
+                <div class="mg-tome-clasp">
+                    <div class="mg-tome-clasp-dot"></div>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+let grimoireOpen = false;
 
 function triggerTransformation() {
     const $compact = $('#mg-compact');
     
     if ($compact.hasClass('transforming')) return;
     
-    if ($compact.hasClass('active')) {
+    if (grimoireOpen) {
         closeGrimoire();
         return;
     }
     
     $compact.addClass('transforming');
-    showSpeech("✨ Let's see what the cards reveal... ✨", 3000);
+    showSpeech("✨ Let's see what the cards reveal...", 2000);
     
     setTimeout(() => {
-        $compact.removeClass('transforming').addClass('active');
+        $compact.removeClass('transforming');
         openGrimoire();
-    }, 800);
+    }, 600);
 }
 
 function openGrimoire() {
-    console.log(`[${extensionName}] Opening Grimoire...`);
-    if (typeof toastr !== 'undefined') {
-        toastr.info('✨ Grimoire opened! (Panel coming soon)', 'Petit Grimoire');
+    if (grimoireOpen) return;
+    grimoireOpen = true;
+    
+    // Remove any existing
+    $('#mg-grimoire, #mg-overlay').remove();
+    
+    // Add to body
+    $('body').append(getGrimoireHTML());
+    
+    const grimoire = document.getElementById('mg-grimoire');
+    const overlay = document.getElementById('mg-overlay');
+    if (!grimoire || !overlay) return;
+    
+    // Position near compact brooch
+    const compact = document.getElementById('mg-compact');
+    if (compact) {
+        const rect = compact.getBoundingClientRect();
+        const vpW = window.innerWidth;
+        const vpH = window.innerHeight;
+        
+        // On mobile: center horizontally, position from bottom
+        const gW = Math.min(300, vpW - 32);
+        let gLeft = (vpW - gW) / 2;
+        let gTop = Math.max(60, vpH - 480);
+        
+        grimoire.style.setProperty('width', gW + 'px', 'important');
+        grimoire.style.setProperty('left', gLeft + 'px', 'important');
+        grimoire.style.setProperty('top', gTop + 'px', 'important');
     }
+    
+    // Force display then animate
+    grimoire.style.setProperty('display', 'block', 'important');
+    overlay.style.setProperty('display', 'block', 'important');
+    
+    requestAnimationFrame(() => {
+        grimoire.classList.add('visible');
+        overlay.classList.add('visible');
+    });
+    
+    // Wire up events
+    setupGrimoireEvents();
+    
+    console.log(`[${extensionName}] Grimoire opened`);
 }
 
 function closeGrimoire() {
+    grimoireOpen = false;
+    
+    const grimoire = document.getElementById('mg-grimoire');
+    const overlay = document.getElementById('mg-overlay');
+    
+    if (grimoire) grimoire.classList.remove('visible');
+    if (overlay) overlay.classList.remove('visible');
+    
+    // Remove after animation
+    setTimeout(() => {
+        $('#mg-grimoire, #mg-overlay').remove();
+    }, 300);
+    
     $('#mg-compact').removeClass('active');
-    console.log(`[${extensionName}] Closing Grimoire...`);
+    console.log(`[${extensionName}] Grimoire closed`);
+}
+
+function setupGrimoireEvents() {
+    // Overlay click to close
+    $('#mg-overlay').on('click', closeGrimoire);
+    
+    // Tab switching
+    $('.mg-tome-tab').on('click', function() {
+        const tabName = $(this).data('mg-tab');
+        
+        $('.mg-tome-tab').removeClass('active');
+        $(this).addClass('active');
+        
+        $('.mg-tome-panel').removeClass('active');
+        $(`.mg-tome-panel[data-mg-panel="${tabName}"]`).addClass('active');
+    });
+    
+    // Draw button
+    $('#mg-grimoire-draw').on('click', function() {
+        onDrawCard();
+    });
+    
+    // Nyx action buttons
+    $('.mg-nyx-action-btn').on('click', function() {
+        const action = $(this).data('action');
+        onNyxAction(action);
+    });
+}
+
+function onNyxAction(action) {
+    const responses = {
+        treat: ["Nyx accepted the treat graciously. +2", "Nyx sniffed it and looked unimpressed.", "Nyx devoured it instantly! +3"],
+        advice: ["Nyx says: 'Trust the next card drawn.'", "Nyx says: 'Patience is a virtue you lack.'", "Nyx stares at you in eloquent silence."],
+        pet: ["Nyx purrs contentedly. +1", "Nyx tolerates this. Barely.", "Nyx leans into your hand. +2"],
+        tease: ["Nyx narrows her eyes. -1", "Nyx swats at you dismissively.", "Nyx pretends not to care. She cares."],
+    };
+    
+    const options = responses[action] || ["Nyx ignores you."];
+    const response = options[Math.floor(Math.random() * options.length)];
+    
+    // Add to log
+    const log = document.getElementById('mg-nyx-log');
+    if (log) {
+        const entry = document.createElement('div');
+        entry.className = 'mg-nyx-log-entry';
+        entry.textContent = response;
+        log.prepend(entry);
+        
+        // Keep log trimmed
+        while (log.children.length > 5) {
+            log.removeChild(log.lastChild);
+        }
+    }
+    
+    showSpeech(response, 3000);
 }
 
 // ============================================
