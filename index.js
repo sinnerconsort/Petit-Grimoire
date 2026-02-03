@@ -25,7 +25,8 @@ import { createCompact } from './src/compact.js';
 import {
     createTama, stopSpriteAnimation,
     showSpeech, updateNyxMood,
-    updateSpriteDisplay
+    updateSpriteDisplay,
+    playSpecialAnimation
 } from './src/nyxgotchi.js';
 
 import {
@@ -296,6 +297,7 @@ window.PetitGrimoire = {
     setTamaSize,
     showSpeech,
     updateNyxMood,
+    playSpecialAnimation,
     triggerTransformation,
     openGrimoire,
     closeGrimoire
