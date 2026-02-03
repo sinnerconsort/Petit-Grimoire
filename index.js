@@ -608,9 +608,21 @@ function getGrimoireHTML() {
                                 <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="1" width="10" height="14" rx="1.5"/><path d="M6 5.5l-1 2.5h3l-1 2.5"/></svg>
                                 <span>Cards</span>
                             </button>
+                            <button class="mg-tome-tab" data-mg-tab="crystal">
+                                <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="5"/><ellipse cx="8" cy="13" rx="4" ry="1.5"/><path d="M5 6.5c1.5-1 4-1 5.5 0" opacity="0.5"/></svg>
+                                <span>Crystal</span>
+                            </button>
+                            <button class="mg-tome-tab" data-mg-tab="spells">
+                                <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 1l1 3h3l-2.5 2 1 3L8 7.5 5.5 9l1-3L4 4h3z"/><path d="M4 12l1-1M12 12l-1-1M8 14v-1" opacity="0.5"/></svg>
+                                <span>Spells</span>
+                            </button>
                             <button class="mg-tome-tab" data-mg-tab="queue">
                                 <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="4" y1="3" x2="13" y2="3"/><line x1="4" y1="8" x2="13" y2="8"/><line x1="4" y1="13" x2="13" y2="13"/><circle cx="1.5" cy="3" r="0.75" fill="currentColor"/><circle cx="1.5" cy="8" r="0.75" fill="currentColor"/><circle cx="1.5" cy="13" r="0.75" fill="currentColor"/></svg>
                                 <span>Queue</span>
+                            </button>
+                            <button class="mg-tome-tab" data-mg-tab="ouija">
+                                <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><ellipse cx="8" cy="8" rx="7" ry="5.5"/><circle cx="8" cy="7" r="2" opacity="0.5"/><path d="M4 4.5l1 .5M11 4.5l-1 .5"/></svg>
+                                <span>Ouija</span>
                             </button>
                             <button class="mg-tome-tab" data-mg-tab="nyx">
                                 <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor" stroke="none"><path d="M8 14s-5.5-4.5-6.5-7C.5 4.5 2 2 4.5 2 6 2 7.5 3.5 8 4.5 8.5 3.5 10 2 11.5 2 14 2 15.5 4.5 14.5 7 13.5 9.5 8 14 8 14z"/></svg>
@@ -663,6 +675,111 @@ function getGrimoireHTML() {
                                 </div>
                                 
                                 <div class="mg-queue-footer" id="mg-queue-footer">0 of 5 slots filled</div>
+                            </div>
+                            
+                            <!-- Crystal Ball Tab -->
+                            <div class="mg-tome-panel" data-mg-panel="crystal">
+                                <div class="mg-tome-heading">Crystal Ball</div>
+                                <div class="mg-tome-flavor">Wild magic swirls within... what will it reveal?</div>
+                                
+                                <div class="mg-crystal-orb">
+                                    <div class="mg-crystal-sphere">
+                                        <div class="mg-crystal-mist"></div>
+                                        <div class="mg-crystal-mist mg-crystal-mist--2"></div>
+                                        <div class="mg-crystal-glint"></div>
+                                    </div>
+                                    <div class="mg-crystal-base"></div>
+                                </div>
+                                
+                                <button class="mg-tome-btn mg-crystal-gaze-btn" id="mg-crystal-gaze">
+                                    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="5"/><path d="M5 6.5c1.5-1 4-1 5.5 0"/></svg>
+                                    Gaze into the Mist
+                                </button>
+                                
+                                <div class="mg-tome-section">
+                                    <div class="mg-tome-section-title">Last Vision</div>
+                                    <div class="mg-crystal-vision" id="mg-crystal-vision">
+                                        The mists have not yet parted...
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Spells Tab -->
+                            <div class="mg-tome-panel" data-mg-panel="spells">
+                                <div class="mg-tome-heading">Spell Cards</div>
+                                <div class="mg-tome-flavor">Active enchantments shimmer around you</div>
+                                
+                                <div class="mg-spells-grid" id="mg-spells-grid">
+                                    <div class="mg-spell-card" data-spell="shield">
+                                        <div class="mg-spell-icon">🛡️</div>
+                                        <div class="mg-spell-name">Aegis</div>
+                                        <div class="mg-spell-desc">Deflects negative outcomes</div>
+                                        <div class="mg-spell-status">Ready</div>
+                                    </div>
+                                    <div class="mg-spell-card" data-spell="charm">
+                                        <div class="mg-spell-icon">💖</div>
+                                        <div class="mg-spell-name">Charm</div>
+                                        <div class="mg-spell-desc">Amplifies social interactions</div>
+                                        <div class="mg-spell-status">Ready</div>
+                                    </div>
+                                    <div class="mg-spell-card" data-spell="insight">
+                                        <div class="mg-spell-icon">👁️</div>
+                                        <div class="mg-spell-name">Insight</div>
+                                        <div class="mg-spell-desc">Reveals hidden details</div>
+                                        <div class="mg-spell-status">Ready</div>
+                                    </div>
+                                    <div class="mg-spell-card" data-spell="chaos">
+                                        <div class="mg-spell-icon">🌀</div>
+                                        <div class="mg-spell-name">Chaos</div>
+                                        <div class="mg-spell-desc">Wildcard narrative twist</div>
+                                        <div class="mg-spell-status">Ready</div>
+                                    </div>
+                                </div>
+                                
+                                <div class="mg-tome-section">
+                                    <div class="mg-tome-section-title">Spell Log</div>
+                                    <div class="mg-spell-log" id="mg-spell-log">
+                                        <div class="mg-spell-log-entry">No spells cast yet</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Ouija Tab -->
+                            <div class="mg-tome-panel" data-mg-panel="ouija">
+                                <div class="mg-tome-heading">Spirit Board</div>
+                                <div class="mg-tome-flavor">Ask the spirits a yes or no question...</div>
+                                
+                                <div class="mg-ouija-board">
+                                    <div class="mg-ouija-row mg-ouija-answers">
+                                        <span class="mg-ouija-answer" data-answer="yes">YES</span>
+                                        <span class="mg-ouija-sun">☀</span>
+                                        <span class="mg-ouija-answer" data-answer="no">NO</span>
+                                    </div>
+                                    <div class="mg-ouija-letters">
+                                        <div class="mg-ouija-row">ABCDEFGHIJKLM</div>
+                                        <div class="mg-ouija-row">NOPQRSTUVWXYZ</div>
+                                    </div>
+                                    <div class="mg-ouija-row mg-ouija-numbers">
+                                        <span>1234567890</span>
+                                    </div>
+                                    <div class="mg-ouija-farewell">GOODBYE</div>
+                                </div>
+                                
+                                <div class="mg-ouija-planchette" id="mg-ouija-planchette">
+                                    <div class="mg-ouija-lens"></div>
+                                </div>
+                                
+                                <button class="mg-tome-btn mg-ouija-ask-btn" id="mg-ouija-ask">
+                                    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6"/><path d="M6 6c0-1.5 1.5-2.5 3-1.5s1 3-1 3v1"/><circle cx="8" cy="12" r="0.5" fill="currentColor"/></svg>
+                                    Ask the Spirits
+                                </button>
+                                
+                                <div class="mg-tome-section">
+                                    <div class="mg-tome-section-title">The Spirits Say</div>
+                                    <div class="mg-ouija-response" id="mg-ouija-response">
+                                        <span class="mg-ouija-waiting">Waiting for a question...</span>
+                                    </div>
+                                </div>
                             </div>
                             
                             <!-- Nyx Tab -->
@@ -718,7 +835,7 @@ let grimoireOpen = false;
 function triggerTransformation() {
     const $compact = $('#mg-compact');
     
-    if (typeof toastr !== 'undefined') toastr.info('🔮 Transformation triggered', 'Debug');
+
     
     if ($compact.hasClass('transforming')) return;
     
@@ -740,7 +857,7 @@ function openGrimoire() {
     if (grimoireOpen) return;
     grimoireOpen = true;
     
-    if (typeof toastr !== 'undefined') toastr.info('📖 openGrimoire called', 'Debug');
+
     
     // Remove any existing
     $('#mg-grimoire, #mg-overlay').remove();
@@ -752,22 +869,22 @@ function openGrimoire() {
     const grimoire = document.getElementById('mg-grimoire');
     const overlay = document.getElementById('mg-overlay');
     
-    if (typeof toastr !== 'undefined') {
-        toastr.info(`grimoire: ${!!grimoire}, overlay: ${!!overlay}`, 'Debug Elements');
-    }
+
     
     if (!grimoire || !overlay) return;
     
-    // Position: center horizontally, upper portion of screen
+    // Position: center horizontally, constrain within viewport
     const vpW = window.innerWidth;
     const vpH = window.innerHeight;
     const gW = Math.min(300, vpW - 32);
     let gLeft = (vpW - gW) / 2;
-    let gTop = Math.max(60, vpH - 480);
+    let gTop = Math.max(40, vpH * 0.12);
+    const gMaxH = vpH - gTop - 16; // leave 16px bottom margin
     
     grimoire.style.setProperty('width', gW + 'px', 'important');
     grimoire.style.setProperty('left', gLeft + 'px', 'important');
     grimoire.style.setProperty('top', gTop + 'px', 'important');
+    grimoire.style.setProperty('max-height', gMaxH + 'px', 'important');
     
     // Force display then animate
     grimoire.style.setProperty('display', 'block', 'important');
@@ -781,10 +898,7 @@ function openGrimoire() {
     // Wire up events
     setupGrimoireEvents();
     
-    if (typeof toastr !== 'undefined') {
-        const r = grimoire.getBoundingClientRect();
-        toastr.success(`📐 ${Math.round(r.left)},${Math.round(r.top)} ${Math.round(r.width)}x${Math.round(r.height)}`, 'Grimoire Pos');
-    }
+
     
     console.log(`[${extensionName}] Grimoire opened`);
 }
@@ -827,6 +941,22 @@ function setupGrimoireEvents() {
         onDrawCard();
     });
     
+    // Crystal Ball gaze button
+    $('#mg-crystal-gaze').on('click', function() {
+        onCrystalGaze();
+    });
+    
+    // Spell card clicks
+    $('.mg-spell-card').on('click', function() {
+        const spell = $(this).data('spell');
+        onCastSpell(spell, $(this));
+    });
+    
+    // Ouija ask button
+    $('#mg-ouija-ask').on('click', function() {
+        onOuijaAsk();
+    });
+    
     // Nyx action buttons
     $('.mg-nyx-action-btn').on('click', function() {
         const action = $(this).data('action');
@@ -860,6 +990,164 @@ function onNyxAction(action) {
     }
     
     showSpeech(response, 3000);
+}
+
+// ============================================
+// CRYSTAL BALL
+// ============================================
+
+function onCrystalGaze() {
+    const visions = [
+        { text: "A fork in the road... the left path glimmers with possibility.", type: "choice" },
+        { text: "Someone unexpected will arrive before the story ends.", type: "character" },
+        { text: "The next conflict will resolve through words, not force.", type: "tone" },
+        { text: "A secret is about to surface. Be ready.", type: "plot" },
+        { text: "The mists show... laughter. An unlikely alliance forms.", type: "social" },
+        { text: "Danger approaches from a direction no one expects.", type: "threat" },
+        { text: "An old promise resurfaces. It cannot be ignored.", type: "plot" },
+        { text: "The crystal pulses warmly. A moment of peace is near.", type: "mood" },
+        { text: "Something precious will be lost... but something greater found.", type: "bittersweet" },
+        { text: "The spirits are restless. Chaos favors the bold tonight.", type: "wild" },
+        { text: "A door thought closed swings open again.", type: "opportunity" },
+        { text: "Beware of the one who smiles too much.", type: "warning" },
+    ];
+    
+    const vision = visions[Math.floor(Math.random() * visions.length)];
+    
+    // Animate the orb
+    const sphere = document.querySelector('.mg-crystal-sphere');
+    if (sphere) {
+        sphere.classList.add('mg-crystal-active');
+        setTimeout(() => sphere.classList.remove('mg-crystal-active'), 2000);
+    }
+    
+    // Update vision text
+    const el = document.getElementById('mg-crystal-vision');
+    if (el) {
+        el.textContent = vision.text;
+        el.dataset.type = vision.type;
+    }
+    
+    showSpeech(`The crystal shows: "${vision.text}"`, 4000);
+}
+
+// ============================================
+// SPELLS
+// ============================================
+
+function onCastSpell(spellName, $card) {
+    const spells = {
+        shield: {
+            name: 'Aegis',
+            cast: ["Aegis shimmers into place! Negative outcomes weakened.", "The shield holds... for now.", "A barrier of light surrounds the scene."],
+            cooldown: 3,
+        },
+        charm: {
+            name: 'Charm',
+            cast: ["Charm weaves through the air! Social rolls enhanced.", "Hearts flutter. The charm takes hold.", "A warm glow settles over the conversation."],
+            cooldown: 3,
+        },
+        insight: {
+            name: 'Insight',
+            cast: ["Insight pierces the veil! Hidden details may surface.", "The third eye opens briefly.", "Patterns emerge from the chaos. You see more clearly now."],
+            cooldown: 3,
+        },
+        chaos: {
+            name: 'Chaos',
+            cast: ["WILD MAGIC SURGE! Anything could happen!", "The threads of fate tangle and reform!", "Chaos laughs. The story lurches sideways."],
+            cooldown: 5,
+        },
+    };
+    
+    const spell = spells[spellName];
+    if (!spell) return;
+    
+    // Check if on cooldown
+    if ($card.hasClass('mg-spell-cooldown')) {
+        showSpeech(`${spell.name} is still recharging...`);
+        return;
+    }
+    
+    // Cast it
+    const result = spell.cast[Math.floor(Math.random() * spell.cast.length)];
+    
+    // Visual feedback
+    $card.addClass('mg-spell-cast');
+    setTimeout(() => $card.removeClass('mg-spell-cast'), 600);
+    
+    // Set cooldown
+    $card.addClass('mg-spell-cooldown');
+    $card.find('.mg-spell-status').text(`Cooldown: ${spell.cooldown}`);
+    
+    let remaining = spell.cooldown;
+    const cdInterval = setInterval(() => {
+        remaining--;
+        if (remaining <= 0) {
+            clearInterval(cdInterval);
+            $card.removeClass('mg-spell-cooldown');
+            $card.find('.mg-spell-status').text('Ready');
+        } else {
+            $card.find('.mg-spell-status').text(`Cooldown: ${remaining}`);
+        }
+    }, 10000); // 10 seconds per "turn"
+    
+    // Log it
+    const log = document.getElementById('mg-spell-log');
+    if (log) {
+        const entry = document.createElement('div');
+        entry.className = 'mg-spell-log-entry';
+        entry.textContent = `✦ ${result}`;
+        if (log.firstChild && log.firstChild.textContent === 'No spells cast yet') {
+            log.innerHTML = '';
+        }
+        log.prepend(entry);
+        while (log.children.length > 4) log.removeChild(log.lastChild);
+    }
+    
+    showSpeech(result, 3000);
+}
+
+// ============================================
+// OUIJA BOARD
+// ============================================
+
+function onOuijaAsk() {
+    const responses = [
+        { answer: "YES", flavor: "The planchette moves decisively to YES.", mood: "positive" },
+        { answer: "YES", flavor: "A warm glow passes over the board... YES.", mood: "positive" },
+        { answer: "NO", flavor: "The spirits pull firmly toward NO.", mood: "negative" },
+        { answer: "NO", flavor: "A chill passes. The answer is NO.", mood: "negative" },
+        { answer: "MAYBE", flavor: "The planchette trembles between answers...", mood: "uncertain" },
+        { answer: "ASK AGAIN", flavor: "The spirits are unclear. Ask again later.", mood: "uncertain" },
+        { answer: "BEWARE", flavor: "The board spells out: B-E-W-A-R-E...", mood: "warning" },
+        { answer: "SOON", flavor: "The planchette circles, then settles: SOON.", mood: "cryptic" },
+        { answer: "NEVER", flavor: "A cold wind. The spirits say: NEVER.", mood: "negative" },
+        { answer: "FATE DECIDES", flavor: "The planchette spins wildly! Fate will decide!", mood: "wild" },
+        { answer: "GOODBYE", flavor: "The spirits wish to end the session...", mood: "cryptic" },
+        { answer: "LOOK BEHIND YOU", flavor: "The letters glow one by one... unsettling.", mood: "warning" },
+    ];
+    
+    const response = responses[Math.floor(Math.random() * responses.length)];
+    
+    // Animate planchette
+    const planchette = document.getElementById('mg-ouija-planchette');
+    if (planchette) {
+        planchette.classList.add('mg-ouija-moving');
+        setTimeout(() => planchette.classList.remove('mg-ouija-moving'), 1500);
+    }
+    
+    // Update response area
+    const el = document.getElementById('mg-ouija-response');
+    if (el) {
+        el.innerHTML = `
+            <div class="mg-ouija-result mg-ouija-mood-${response.mood}">
+                <div class="mg-ouija-answer-text">${response.answer}</div>
+                <div class="mg-ouija-flavor-text">${response.flavor}</div>
+            </div>
+        `;
+    }
+    
+    showSpeech(response.flavor, 3000);
 }
 
 // ============================================
