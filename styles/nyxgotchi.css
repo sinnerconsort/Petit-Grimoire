@@ -86,57 +86,74 @@
 
 /* ----------------------------------------
    THEME FILTERS (Recolor shell PNG)
-   Base shell is pink/purple (Guardian).
+   Base shell is pink (~330° hue).
+   
+   Hue math from pink:
+     → magenta/purple: -30° to -60°
+     → blue: -90° to -110°
+     → brown/orange: +40° with sepia
    ---------------------------------------- */
 [data-mg-theme="guardian"] .nyxgotchi-shell-img {
-    filter: none;
+    filter: none;  /* Pink base - no change */
 }
 
 [data-mg-theme="umbra"] .nyxgotchi-shell-img {
+    /* Deep magenta/purple - Madoka grief seed vibes */
     filter:
-        hue-rotate(25deg)
-        brightness(0.42)
-        saturate(1.8)
-        contrast(1.1);
+        hue-rotate(-25deg)
+        brightness(0.55)
+        saturate(1.6)
+        contrast(1.15);
 }
 
 [data-mg-theme="apothecary"] .nyxgotchi-shell-img {
+    /* Earthy brown/olive - hedgewitch herbalism
+       Target: Brown #76482e (~25°)
+       More sepia, warmer tone */
     filter:
-        hue-rotate(105deg)
-        saturate(0.5)
-        brightness(0.82)
-        sepia(0.25);
+        hue-rotate(50deg)
+        sepia(0.5)
+        saturate(0.55)
+        brightness(0.75);
 }
 
 [data-mg-theme="moonstone"] .nyxgotchi-shell-img {
+    /* Soft lavender/pastel - ethereal dreaming
+       Target: Pale lavender #d9c7fb (~270°)
+       Keep it light and dreamy */
     filter:
-        hue-rotate(10deg)
-        saturate(0.38)
-        brightness(1.15)
-        contrast(0.9);
+        hue-rotate(-55deg)
+        saturate(0.35)
+        brightness(1.2)
+        contrast(0.85);
 }
 
 [data-mg-theme="phosphor"] .nyxgotchi-shell-img {
+    /* Neon purple/magenta - digital witch */
     filter:
-        hue-rotate(50deg)
-        saturate(1.8)
-        brightness(0.48)
+        hue-rotate(-60deg)
+        saturate(1.7)
+        brightness(0.6)
         contrast(1.25);
 }
 
 [data-mg-theme="rosewood"] .nyxgotchi-shell-img {
+    /* Dusty rose - vintage dreamcatcher */
     filter:
-        hue-rotate(-5deg)
-        saturate(0.48)
-        brightness(1.08)
-        contrast(0.95);
+        hue-rotate(-8deg)
+        saturate(0.5)
+        brightness(1.05)
+        contrast(0.92);
 }
 
 [data-mg-theme="celestial"] .nyxgotchi-shell-img {
+    /* Midnight blue/navy - starbound grimoire
+       Target: Navy #002f86 (~220°)
+       From pink 330°: need -110° */
     filter:
-        hue-rotate(160deg)
-        saturate(0.85)
-        brightness(0.52)
+        hue-rotate(-110deg)
+        saturate(0.9)
+        brightness(0.5)
         contrast(1.2);
 }
 
