@@ -5,7 +5,7 @@
 
 import { getContext } from '../../../../extensions.js';
 import { extensionName, extensionSettings, saveSettings } from './state.js';
-import { nyxSay } from './nyxgotchi.js';
+import { nyxSay, updateShellTheme } from './nyxgotchi.js';
 
 // ============================================
 // PROFILE UTILITIES
@@ -292,6 +292,7 @@ function bindSettingsEvents() {
     $(document).on('change', '#mg-theme', function() {
         extensionSettings.shellTheme = $(this).val();
         $('[data-mg-theme]').attr('data-mg-theme', extensionSettings.shellTheme);
+        updateShellTheme();
         saveSettings();
     });
     
@@ -428,6 +429,7 @@ function resetToDefaults() {
         cardExpiry: 20,
     });
     saveSettings();
+    updateShellTheme();
     
     const panel = document.querySelector('[data-mg-panel="settings"]');
     if (panel) panel.innerHTML = getSettingsPanelHTML();
