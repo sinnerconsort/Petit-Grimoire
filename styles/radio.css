@@ -108,19 +108,13 @@
 
 
 /* ══════════════════════════════════════════════
-   TUNING DISPLAY — dark window with dial
+   TUNING DISPLAY — now lives inside .mg-radio-tuner 
+   (CH 0 of the screen)
+   The .mg-radio-display class is retired.
    ══════════════════════════════════════════════ */
 
-.mg-radio-display {
-    position: relative;
-    z-index: 1;
-    margin: 4px 4px 0;
+.mg-radio-tuner {
     padding: 8px 10px 6px;
-    border-radius: 6px;
-    background: linear-gradient(180deg, #0a0a14, #12121e, #0e0e18);
-    border: 1px solid rgba(255, 255, 255, 0.06);
-    box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.6);
-    overflow: hidden;
 }
 
 /* Band labels */
@@ -246,100 +240,58 @@
 }
 
 
-/* ══════════════════════════════════════════════
-   STATUS STRIP — between display and speaker
-   ══════════════════════════════════════════════ */
-
-.mg-radio-status {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 4px 10px;
-    margin: 0 4px;
-    position: relative;
-    z-index: 1;
-}
-
-.mg-radio-led {
-    width: 5px;
-    height: 5px;
-    border-radius: 50%;
-    background: #444;
-    border: 1px solid #333;
-    transition: all 0.3s;
-    flex-shrink: 0;
-}
-
-.mg-radio.is-tuned .mg-radio-led {
-    background: #4ade80;
-    box-shadow: 0 0 6px rgba(74, 222, 128, 0.6);
-}
-
-.mg-radio-brand {
-    font-size: 0.55rem;
-    font-weight: 600;
-    letter-spacing: 2px;
-    color: rgba(255, 255, 255, 0.2);
-    font-family: var(--mg-radio-font, 'Courier New', monospace);
-    text-transform: uppercase;
-}
+/* (Status strip removed — functionality moved to bottom bar) */
 
 
 /* ══════════════════════════════════════════════
-   SPEAKER GRILLE — punched dot grid
+   SCREEN — unified CRT display
+   The whole center of the radio is one dark screen.
+   Channel knob swaps what's shown on it.
    ══════════════════════════════════════════════ */
 
-.mg-radio-speaker {
+.mg-radio-screen {
     position: relative;
     z-index: 1;
-    margin: 0 4px;
-    border-radius: 8px;
-    background: linear-gradient(180deg,
-        var(--mg-radio-body-mid),
-        var(--mg-radio-body-dark)
-    );
-    border: 1px solid rgba(0, 0, 0, 0.15);
-    box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.25);
-    padding: 10px;
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 3px;
-    justify-items: center;
-    align-items: center;
-    min-height: 100px;
+    margin: 4px 4px 0;
+    border-radius: 6px;
+    background: linear-gradient(180deg, #0a0a14, #12121e, #0e0e18);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.6);
+    min-height: 160px;
+    overflow: hidden;
 }
 
-.mg-radio-speaker-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: rgba(0, 0, 0, 0.3);
-    box-shadow:
-        inset 0 1px 2px rgba(0, 0, 0, 0.4),
-        0 0.5px 0 rgba(255, 255, 255, 0.04);
-}
-
-/* Speaker grate overlay — horizontal lines like real radios */
-.mg-radio-speaker::before {
-    content: '';
+/* CRT scanline overlay — on all channels */
+.mg-radio-screen-scanlines {
     position: absolute;
     inset: 0;
     border-radius: 8px;
     pointer-events: none;
+    z-index: 5;
     background: repeating-linear-gradient(
         0deg,
         transparent 0px,
-        transparent 4px,
-        rgba(0, 0, 0, 0.12) 4px,
-        rgba(0, 0, 0, 0.12) 5px
+        transparent 3px,
+        rgba(0, 0, 0, 0.08) 3px,
+        rgba(0, 0, 0, 0.08) 4px
     );
-    z-index: 1;
 }
 
+/* Subtle CRT glow on active content */
+.mg-radio-screen-glow {
+    position: absolute;
+    inset: 0;
+    border-radius: 8px;
+    pointer-events: none;
+    z-index: 4;
+    background: radial-gradient(ellipse at 50% 40%,
+        rgba(255, 255, 255, 0.03) 0%,
+        transparent 70%
+    );
+}
 
 /* ══════════════════════════════════════════════
-   EQ VISUALIZER — inside speaker area
-   (used when a station is playing)
+   EQ VISUALIZER — floats on top of screen
    ══════════════════════════════════════════════ */
 
 .mg-radio-eq {
@@ -348,27 +300,23 @@
     justify-content: center;
     gap: 3px;
     height: 50px;
-    position: relative;
-    z-index: 2;
-    grid-column: 1 / -1;
-}
-
-.mg-radio.is-playing .mg-radio-speaker {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    position: absolute;
+    bottom: 6px;
+    left: 0;
+    right: 0;
+    z-index: 6;
+    pointer-events: none;
+    padding: 0 10px;
 }
 
 .mg-radio.is-playing .mg-radio-eq {
     display: flex;
 }
 
-.mg-radio.is-playing .mg-radio-speaker-dot {
-    display: none;
-}
-
 .mg-radio-eq-bar {
     width: 6px;
+    flex: 1;
+    max-width: 12px;
     border-radius: 3px;
     transition: height 0.12s ease-out;
     background: linear-gradient(180deg,
@@ -384,6 +332,7 @@
         var(--mg-radio-playing-dim) 100%
     );
     box-shadow: 0 0 4px var(--mg-radio-playing-glow);
+    opacity: 0.6;
 }
 
 @keyframes mgRadioEqBounce {
@@ -500,32 +449,16 @@
 
 
 /* ══════════════════════════════════════════════
-   STATION LIST — scrollable within speaker area
+   STATION LIST — inside screen
    ══════════════════════════════════════════════ */
 
 .mg-radio-stations {
-    margin: 6px 4px 0;
     max-height: 140px;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
-    border-radius: 6px;
     position: relative;
     z-index: 1;
-
-    /* Scrollable grate bg */
-    background:
-        repeating-linear-gradient(
-            0deg,
-            transparent 0px,
-            transparent 3px,
-            rgba(0, 0, 0, 0.25) 3px,
-            rgba(0, 0, 0, 0.25) 5px
-        ),
-        linear-gradient(180deg,
-            var(--mg-radio-body-dark),
-            rgba(0, 0, 0, 0.3)
-        );
-    background-attachment: local;
+    background: transparent;
 }
 
 .mg-radio-station {
@@ -576,15 +509,15 @@
 
 
 /* ══════════════════════════════════════════════
-   BOTTOM PANEL — on-air + brand
+   BOTTOM BAR — on-air + channel dots
    ══════════════════════════════════════════════ */
 
 .mg-radio-bottom {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 6px 10px;
-    margin: 4px 4px 0;
+    padding: 5px 10px;
+    margin: 3px 4px 0;
     border-radius: 0 0 6px 6px;
     background: linear-gradient(180deg,
         var(--mg-radio-body),
@@ -598,12 +531,13 @@
 .mg-radio-on-air {
     display: flex;
     align-items: center;
-    gap: 5px;
+    gap: 4px;
+    flex-shrink: 0;
 }
 
 .mg-radio-on-air-light {
-    width: 7px;
-    height: 7px;
+    width: 6px;
+    height: 6px;
     border-radius: 50%;
     background: #444;
     border: 1px solid #333;
@@ -622,7 +556,7 @@
 }
 
 .mg-radio-on-air-text {
-    font-size: 0.5rem;
+    font-size: 0.45rem;
     font-weight: 700;
     letter-spacing: 1.5px;
     color: rgba(255, 255, 255, 0.25);
@@ -633,187 +567,286 @@
     color: rgba(255, 255, 255, 0.6);
 }
 
-.mg-radio-brand-name {
-    font-size: 0.6rem;
-    font-weight: 700;
-    letter-spacing: 2px;
-    color: rgba(255, 255, 255, 0.18);
-    font-family: Georgia, serif;
-    font-style: italic;
+/* Channel dots — live in bottom bar */
+.mg-radio-ch-bar {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.mg-radio-ch-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    border: 1.5px solid rgba(255, 255, 255, 0.15);
+    background: transparent;
+    cursor: pointer;
+    padding: 0;
+    transition: all 0.2s ease;
+    font-size: 0;     /* hide emoji text */
+    line-height: 0;
+}
+
+.mg-radio-ch-dot:hover {
+    border-color: rgba(255, 255, 255, 0.35);
+}
+
+.mg-radio-ch-dot.active {
+    background: var(--mg-radio-needle, var(--mg-accent-secondary));
+    border-color: var(--mg-radio-needle, var(--mg-accent-secondary));
+    box-shadow: 0 0 6px var(--mg-radio-needle-glow, rgba(255, 200, 0, 0.3));
+}
+
+.mg-radio-ch-label {
+    font-family: var(--mg-radio-font, 'Courier New', monospace);
+    font-size: 0.45rem;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: rgba(255, 255, 255, 0.2);
+    min-width: 45px;
+    text-align: right;
 }
 
 
 /* ══════════════════════════════════════════════
-   WEATHER DISPLAY — inside the content area
-   below the radio hardware
+   WEATHER DISPLAY — CRT screen context
    ══════════════════════════════════════════════ */
 
 .mg-radio-weather {
-    margin-top: 12px;
-    padding: 10px;
-    border-radius: 8px;
-    background: rgba(0, 0, 0, 0.08);
-    border: 1px solid var(--mg-crt-divider, rgba(0, 0, 0, 0.06));
+    padding: 8px 10px;
 }
 
 .mg-radio-weather-header {
     display: flex;
     justify-content: space-between;
     align-items: baseline;
-    margin-bottom: 8px;
+    margin-bottom: 6px;
 }
 
 .mg-radio-weather-title {
-    font-size: 9px;
+    font-size: 0.55rem;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 1px;
-    color: var(--mg-text-primary);
-    opacity: 0.5;
+    color: var(--mg-radio-display-text, rgba(255, 255, 255, 0.5));
 }
 
 .mg-radio-weather-source {
-    font-size: 8px;
-    color: var(--mg-text-primary);
-    opacity: 0.3;
+    font-size: 0.5rem;
+    color: rgba(255, 255, 255, 0.2);
     font-style: italic;
+    font-family: var(--mg-radio-font, 'Courier New', monospace);
 }
 
-/* Current conditions row */
 .mg-radio-weather-current {
     display: flex;
     align-items: center;
     gap: 10px;
-    margin-bottom: 8px;
+    margin-bottom: 6px;
 }
 
 .mg-radio-weather-icon {
-    font-size: 24px;
+    font-size: 22px;
     line-height: 1;
     flex-shrink: 0;
 }
 
 .mg-radio-weather-temp {
-    font-size: 20px;
+    font-size: 18px;
     font-weight: 700;
-    color: var(--mg-text-primary);
-    font-family: Georgia, serif;
+    color: var(--mg-radio-display-text, rgba(255, 255, 255, 0.8));
+    font-family: var(--mg-radio-font, 'Courier New', monospace);
     line-height: 1;
+    text-shadow: 0 0 6px var(--mg-radio-display-glow, rgba(255, 200, 0, 0.2));
 }
 
 .mg-radio-weather-desc {
-    font-size: 10px;
-    color: var(--mg-text-primary);
-    opacity: 0.6;
+    font-size: 0.55rem;
+    color: rgba(255, 255, 255, 0.4);
     font-style: italic;
+    font-family: var(--mg-radio-font, 'Courier New', monospace);
 }
 
-/* Conditions grid */
 .mg-radio-weather-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 4px 12px;
+    gap: 2px 12px;
+    padding-top: 4px;
+    border-top: 1px solid rgba(255, 255, 255, 0.04);
 }
 
 .mg-radio-weather-stat {
     display: flex;
     justify-content: space-between;
-    font-size: 9px;
-    color: var(--mg-text-primary);
-    opacity: 0.5;
+    font-size: 0.5rem;
+    color: rgba(255, 255, 255, 0.3);
+    font-family: var(--mg-radio-font, 'Courier New', monospace);
     padding: 2px 0;
 }
 
 .mg-radio-weather-stat-value {
     font-weight: 600;
-    opacity: 1;
+    color: rgba(255, 255, 255, 0.5);
 }
 
 
 /* ══════════════════════════════════════════════
-   MOON PHASE DISPLAY
+   MOON PHASE DISPLAY — CRT screen context
    ══════════════════════════════════════════════ */
 
 .mg-radio-moon {
-    margin-top: 10px;
-    padding: 10px;
-    border-radius: 8px;
-    background: rgba(0, 0, 0, 0.08);
-    border: 1px solid var(--mg-crt-divider, rgba(0, 0, 0, 0.06));
+    padding: 8px 10px;
     text-align: center;
 }
 
 .mg-radio-moon-phase {
-    font-size: 32px;
+    font-size: 28px;
     line-height: 1;
     margin-bottom: 4px;
 }
 
 .mg-radio-moon-name {
-    font-size: 11px;
+    font-size: 0.65rem;
     font-weight: 600;
-    color: var(--mg-text-primary);
-    font-family: Georgia, serif;
+    color: var(--mg-radio-display-text, rgba(255, 255, 255, 0.7));
+    font-family: var(--mg-radio-font, 'Courier New', monospace);
+    letter-spacing: 1px;
+    text-shadow: 0 0 6px var(--mg-radio-display-glow, rgba(255, 200, 0, 0.2));
     margin-bottom: 2px;
 }
 
 .mg-radio-moon-detail {
-    font-size: 9px;
-    color: var(--mg-text-primary);
-    opacity: 0.5;
+    font-size: 0.5rem;
+    color: rgba(255, 255, 255, 0.35);
     font-style: italic;
+    font-family: var(--mg-radio-font, 'Courier New', monospace);
 }
 
-/* Moon phase strip — all 8 phases in a row */
 .mg-radio-moon-strip {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-top: 8px;
-    padding: 4px 0;
+    margin-top: 6px;
+    padding-top: 6px;
+    border-top: 1px solid rgba(255, 255, 255, 0.04);
 }
 
 .mg-radio-moon-pip {
-    font-size: 12px;
-    opacity: 0.3;
+    font-size: 11px;
+    opacity: 0.25;
     transition: all 0.3s;
 }
 
 .mg-radio-moon-pip.active {
     opacity: 1;
     font-size: 14px;
-    filter: drop-shadow(0 0 4px var(--mg-gem-1));
+    filter: drop-shadow(0 0 6px var(--mg-radio-needle-glow, rgba(255, 200, 0, 0.4)));
 }
 
 
 /* ══════════════════════════════════════════════
-   FICTIONAL WEATHER — in-story conditions
+   NYX-CAM — lo-fi familiar surveillance
+   ══════════════════════════════════════════════ */
+
+.mg-radio-nyxcam {
+    padding: 6px 10px;
+    display: flex;
+    flex-direction: column;
+    min-height: 120px;
+}
+
+.mg-radio-nyxcam-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 4px;
+}
+
+.mg-radio-nyxcam-rec {
+    font-size: 0.5rem;
+    color: #ef4444;
+    font-family: var(--mg-radio-font, 'Courier New', monospace);
+    letter-spacing: 1px;
+    animation: mgRadioPulse 1.5s ease-in-out infinite;
+}
+
+.mg-radio-nyxcam-label {
+    font-size: 0.5rem;
+    color: rgba(255, 255, 255, 0.25);
+    font-family: var(--mg-radio-font, 'Courier New', monospace);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+
+.mg-radio-nyxcam-viewport {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 60px;
+    position: relative;
+}
+
+.mg-radio-nyxcam-sprite {
+    font-size: 36px;
+    image-rendering: pixelated;
+    filter: drop-shadow(0 0 8px var(--mg-radio-display-glow, rgba(255, 200, 0, 0.15)));
+}
+
+.mg-radio-nyxcam-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.45rem;
+    font-family: var(--mg-radio-font, 'Courier New', monospace);
+    color: rgba(255, 255, 255, 0.25);
+    padding: 2px 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.04);
+    margin-top: 2px;
+}
+
+.mg-radio-nyxcam-mood {
+    letter-spacing: 1px;
+}
+
+.mg-radio-nyxcam-disp {
+    color: var(--mg-radio-needle, rgba(255, 200, 0, 0.5));
+}
+
+.mg-radio-nyxcam-quip {
+    font-size: 0.5rem;
+    color: rgba(255, 255, 255, 0.35);
+    font-style: italic;
+    font-family: var(--mg-radio-font, 'Courier New', monospace);
+    text-align: center;
+    padding: 4px 0 2px;
+    line-height: 1.4;
+}
+
+
+/* ══════════════════════════════════════════════
+   BROADCAST / FICTION — CRT screen context
    ══════════════════════════════════════════════ */
 
 .mg-radio-fiction {
-    margin-top: 10px;
-    padding: 10px;
-    border-radius: 8px;
-    background: rgba(0, 0, 0, 0.08);
-    border: 1px solid var(--mg-crt-divider, rgba(0, 0, 0, 0.06));
+    padding: 8px 10px;
 }
 
 .mg-radio-fiction-header {
-    font-size: 9px;
+    font-size: 0.55rem;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 1px;
-    color: var(--mg-text-primary);
-    opacity: 0.5;
+    color: var(--mg-radio-display-text, rgba(255, 255, 255, 0.5));
     margin-bottom: 6px;
 }
 
 .mg-radio-fiction-broadcast {
-    font-size: 10px;
-    color: var(--mg-text-primary);
-    opacity: 0.7;
+    font-size: 0.55rem;
+    color: rgba(255, 255, 255, 0.45);
     font-style: italic;
     line-height: 1.6;
+    font-family: var(--mg-radio-font, 'Courier New', monospace);
 }
 
 .mg-radio-fiction-broadcast::before {
@@ -833,59 +866,14 @@
 
 
 /* ══════════════════════════════════════════════
-   CHANNEL SWITCHER — third knob swaps lower panels
+   CHANNEL SWITCHING — panels inside screen
    ══════════════════════════════════════════════ */
-
-.mg-radio-channels {
-    margin-top: 10px;
-}
-
-/* Channel dot bar */
-.mg-radio-ch-bar {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    padding: 6px 0 8px;
-}
-
-.mg-radio-ch-dot {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    border: 1.5px solid var(--mg-radio-body-dark, #555);
-    background: transparent;
-    cursor: pointer;
-    padding: 0;
-    transition: all 0.2s ease;
-    opacity: 0.4;
-}
-
-.mg-radio-ch-dot:hover {
-    opacity: 0.7;
-}
-
-.mg-radio-ch-dot.active {
-    background: var(--mg-radio-needle, var(--mg-accent-secondary));
-    border-color: var(--mg-radio-needle, var(--mg-accent-secondary));
-    opacity: 1;
-    box-shadow: 0 0 6px var(--mg-radio-needle-glow, rgba(255, 200, 0, 0.3));
-}
-
-.mg-radio-ch-label {
-    font-family: var(--mg-radio-font, 'Courier New', monospace);
-    font-size: 8px;
-    text-transform: uppercase;
-    letter-spacing: 1.5px;
-    color: var(--mg-text-primary);
-    opacity: 0.35;
-    margin-left: 4px;
-    min-width: 55px;
-}
 
 /* Channel panels — only .active is visible */
 .mg-radio-channel {
     display: none;
+    position: relative;
+    z-index: 1;
 }
 
 .mg-radio-channel.active {
@@ -894,17 +882,8 @@
 }
 
 @keyframes mg-radio-ch-fadein {
-    from { opacity: 0; transform: translateY(4px); }
-    to   { opacity: 1; transform: translateY(0); }
-}
-
-/* Remove top margins from panels when inside channels —
-   the channel container handles spacing */
-.mg-radio-channel .mg-radio-stations,
-.mg-radio-channel .mg-radio-weather,
-.mg-radio-channel .mg-radio-moon,
-.mg-radio-channel .mg-radio-fiction {
-    margin-top: 0;
+    from { opacity: 0; }
+    to   { opacity: 1; }
 }
 
 
@@ -922,13 +901,15 @@
         height: 24px;
     }
 
-    .mg-radio-speaker {
-        grid-template-columns: repeat(6, 1fr);
-        min-height: 80px;
-        padding: 8px;
+    .mg-radio-screen {
+        min-height: 130px;
     }
 
     .mg-radio-weather-temp {
-        font-size: 18px;
+        font-size: 16px;
+    }
+
+    .mg-radio-nyxcam-sprite {
+        font-size: 28px;
     }
 }
