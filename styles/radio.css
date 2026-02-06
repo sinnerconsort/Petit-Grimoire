@@ -48,7 +48,7 @@
 .mg-radio-knobs {
     display: flex;
     justify-content: space-between;
-    padding: 0 20%;
+    padding: 0 12%;
     margin-top: -14px;
     margin-bottom: 4px;
     position: relative;
@@ -99,6 +99,11 @@
 
 .mg-radio-knob--tune .mg-radio-knob-indicator {
     transform: translateX(-50%) rotate(45deg);
+}
+
+.mg-radio-knob--ch .mg-radio-knob-indicator {
+    transform: translateX(-50%) rotate(-90deg);
+    transition: transform 0.3s ease;
 }
 
 
@@ -828,12 +833,88 @@
 
 
 /* ══════════════════════════════════════════════
+   CHANNEL SWITCHER — third knob swaps lower panels
+   ══════════════════════════════════════════════ */
+
+.mg-radio-channels {
+    margin-top: 10px;
+}
+
+/* Channel dot bar */
+.mg-radio-ch-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 6px 0 8px;
+}
+
+.mg-radio-ch-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    border: 1.5px solid var(--mg-radio-body-dark, #555);
+    background: transparent;
+    cursor: pointer;
+    padding: 0;
+    transition: all 0.2s ease;
+    opacity: 0.4;
+}
+
+.mg-radio-ch-dot:hover {
+    opacity: 0.7;
+}
+
+.mg-radio-ch-dot.active {
+    background: var(--mg-radio-needle, var(--mg-accent-secondary));
+    border-color: var(--mg-radio-needle, var(--mg-accent-secondary));
+    opacity: 1;
+    box-shadow: 0 0 6px var(--mg-radio-needle-glow, rgba(255, 200, 0, 0.3));
+}
+
+.mg-radio-ch-label {
+    font-family: var(--mg-radio-font, 'Courier New', monospace);
+    font-size: 8px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--mg-text-primary);
+    opacity: 0.35;
+    margin-left: 4px;
+    min-width: 55px;
+}
+
+/* Channel panels — only .active is visible */
+.mg-radio-channel {
+    display: none;
+}
+
+.mg-radio-channel.active {
+    display: block;
+    animation: mg-radio-ch-fadein 0.25s ease;
+}
+
+@keyframes mg-radio-ch-fadein {
+    from { opacity: 0; transform: translateY(4px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Remove top margins from panels when inside channels —
+   the channel container handles spacing */
+.mg-radio-channel .mg-radio-stations,
+.mg-radio-channel .mg-radio-weather,
+.mg-radio-channel .mg-radio-moon,
+.mg-radio-channel .mg-radio-fiction {
+    margin-top: 0;
+}
+
+
+/* ══════════════════════════════════════════════
    RESPONSIVE
    ══════════════════════════════════════════════ */
 
 @media (max-width: 400px) {
     .mg-radio-knobs {
-        padding: 0 15%;
+        padding: 0 8%;
     }
 
     .mg-radio-knob {
