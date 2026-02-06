@@ -296,11 +296,39 @@ export function updateNyxMood() {
 }
 
 // ============================================
+// SHELL THEME UPDATE
+// ============================================
+
+export function updateShellTheme() {
+    const theme = extensionSettings.shellTheme || 'guardian';
+    const $tama = $('#nyxgotchi');
+    
+    if ($tama.length === 0) return;
+    
+    // Update data attribute for CSS variables
+    $tama.attr('data-mg-theme', theme);
+    
+    // Update shell image source
+    const shellImg = $tama.find('.nyxgotchi-shell-img');
+    if (shellImg.length > 0) {
+        const newSrc = getShellImagePath();
+        shellImg.attr('src', newSrc);
+    }
+    
+    console.log(`[${extensionName}] Shell theme updated to: ${theme}`);
+}
+
+// ============================================
 // TAMA HTML
 // ============================================
 
+// ============================================
+// SHELL IMAGE PATH
+// ============================================
+
 function getShellImagePath() {
-    return `/scripts/extensions/third-party/${extensionName}/assets/sprites/nyxgotchi-shell.png`;
+    const theme = extensionSettings.shellTheme || 'guardian';
+    return `/scripts/extensions/third-party/${extensionName}/assets/shells/${theme}-shell.png`;
 }
 
 export function getTamaHTML() {
