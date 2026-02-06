@@ -1,6 +1,6 @@
 /**
  * Petit Grimoire — Compact Brooch
- * Crystal Star Brooch HTML generation + creation
+ * Pixel art moon sprite FAB — opens the Grimoire
  */
 
 import { extensionName, extensionSettings } from './state.js';
@@ -14,21 +14,17 @@ export function getCompactHTML() {
     return `
         <div class="mg-fab mg-compact" id="mg-compact"
              data-mg-theme="${extensionSettings.shellTheme}"
-             data-mg-variant="crystal-star"
              data-mg-size="${extensionSettings.compactSize || 'medium'}">
             <div class="mg-compact-body">
-                <div class="mg-compact-ring">
-                    <div class="mg-compact-face">
-                        <span class="mg-compact-star">★</span>
-                    </div>
-                    <span class="mg-compact-gem mg-compact-gem--1"></span>
-                    <span class="mg-compact-gem mg-compact-gem--2"></span>
-                    <span class="mg-compact-gem mg-compact-gem--3"></span>
-                    <span class="mg-compact-gem mg-compact-gem--4"></span>
-                </div>
+                <div class="mg-compact-glow"></div>
+                <div class="mg-compact-icon"></div>
                 <div class="mg-compact-sparkles">
-                    <span>✦</span><span>✧</span><span>✦</span><span>✧</span>
+                    <span class="mg-compact-sparkle"></span>
+                    <span class="mg-compact-sparkle"></span>
+                    <span class="mg-compact-sparkle"></span>
+                    <span class="mg-compact-sparkle"></span>
                 </div>
+                <div class="mg-compact-badge" id="mg-compact-badge"></div>
             </div>
         </div>
     `;
@@ -75,4 +71,43 @@ export function createCompact(onTap) {
     }
 
     console.log(`[${extensionName}] Compact created`);
+}
+
+// ============================================
+// BADGE (fate queue count)
+// ============================================
+
+/**
+ * Update the queue badge on the compact FAB.
+ * @param {number} count - Number of cards in the fate queue
+ */
+export function updateCompactBadge(count) {
+    const $badge = $('#mg-compact-badge');
+    if ($badge.length === 0) return;
+
+    if (count > 0) {
+        $badge.text(count).addClass('visible');
+    } else {
+        $badge.removeClass('visible');
+    }
+}
+
+// ============================================
+// VISUAL STATE
+// ============================================
+
+/**
+ * Set active state (grimoire is open)
+ */
+export function setCompactActive(isActive) {
+    $('#mg-compact').toggleClass('active', isActive);
+}
+
+/**
+ * Play transformation flash animation
+ */
+export function playTransformFlash() {
+    const $compact = $('#mg-compact');
+    $compact.addClass('transforming');
+    setTimeout(() => $compact.removeClass('transforming'), 400);
 }
