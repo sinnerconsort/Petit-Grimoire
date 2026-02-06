@@ -198,16 +198,19 @@
    ── TUNING ──
    Adjust these % values if the screen
    doesn't align with the glass area.
+   
+   Shell: 198x198px
+   Glass area: (55,59) to (142,149) = 88x91px
    ---------------------------------------- */
 .nyxgotchi-screen {
     position: absolute;
     z-index: 1;
 
     /* Glass area alignment (198x198 shell) */
-    left: 23%;
-    top: 29%;
-    width: 54%;
-    height: 23%;
+    left: 27.8%;
+    top: 29.8%;
+    width: 44.4%;
+    height: 46%;
 
     /* Screen background */
     background: var(--mg-screen-bg);
