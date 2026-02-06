@@ -236,10 +236,13 @@ export function getGrimoireHTML() {
 
                                     <!-- Knobs (poke above body) -->
                                     <div class="mg-radio-knobs">
-                                        <div class="mg-radio-knob mg-radio-knob--vol">
+                                        <div class="mg-radio-knob mg-radio-knob--vol" title="Volume">
                                             <div class="mg-radio-knob-indicator"></div>
                                         </div>
-                                        <div class="mg-radio-knob mg-radio-knob--tune">
+                                        <div class="mg-radio-knob mg-radio-knob--tune" title="Tune">
+                                            <div class="mg-radio-knob-indicator"></div>
+                                        </div>
+                                        <div class="mg-radio-knob mg-radio-knob--ch" id="mg-radio-ch-knob" title="Channel">
                                             <div class="mg-radio-knob-indicator"></div>
                                         </div>
                                     </div>
@@ -293,89 +296,108 @@ export function getGrimoireHTML() {
                                     </div>
                                 </div>
 
-                                <!-- Station List -->
-                                <div class="mg-radio-stations" id="mg-radio-stations">
-                                    <button class="mg-radio-station active" data-station="witchfm">
-                                        <span class="mg-radio-station-dial">96.6</span>
-                                        <span class="mg-radio-station-label">WITCH FM</span>
-                                        <span class="mg-radio-station-type">MAIN</span>
-                                    </button>
-                                    <button class="mg-radio-station" data-station="rain">
-                                        <span class="mg-radio-station-dial">91.7</span>
-                                        <span class="mg-radio-station-label">RAINFALL</span>
-                                        <span class="mg-radio-station-type">AMBIENT</span>
-                                    </button>
-                                    <button class="mg-radio-station" data-station="night">
-                                        <span class="mg-radio-station-dial">97.5</span>
-                                        <span class="mg-radio-station-label">NIGHTSIDE</span>
-                                        <span class="mg-radio-station-type">AMBIENT</span>
-                                    </button>
-                                    <button class="mg-radio-station" data-station="storm">
-                                        <span class="mg-radio-station-dial">93.3</span>
-                                        <span class="mg-radio-station-label">TEMPEST</span>
-                                        <span class="mg-radio-station-type">WEATHER</span>
-                                    </button>
-                                    <button class="mg-radio-station" data-station="static">
-                                        <span class="mg-radio-station-dial">87.5</span>
-                                        <span class="mg-radio-station-label">THE VOID</span>
-                                        <span class="mg-radio-station-type">???</span>
-                                    </button>
-                                </div>
+                                <!-- Channel Switcher -->
+                                <div class="mg-radio-channels" id="mg-radio-channels">
+                                    <div class="mg-radio-ch-bar">
+                                        <button class="mg-radio-ch-dot active" data-ch="0" title="Stations"></button>
+                                        <button class="mg-radio-ch-dot" data-ch="1" title="Weather"></button>
+                                        <button class="mg-radio-ch-dot" data-ch="2" title="Moon"></button>
+                                        <button class="mg-radio-ch-dot" data-ch="3" title="Broadcast"></button>
+                                        <span class="mg-radio-ch-label" id="mg-radio-ch-label">Stations</span>
+                                    </div>
 
-                                <!-- Weather Display -->
-                                <div class="mg-radio-weather" id="mg-radio-weather">
-                                    <div class="mg-radio-weather-header">
-                                        <span class="mg-radio-weather-title">Current Conditions</span>
-                                        <span class="mg-radio-weather-source">Open-Meteo</span>
-                                    </div>
-                                    <div class="mg-radio-weather-current">
-                                        <div class="mg-radio-weather-icon" id="mg-radio-weather-icon">🌙</div>
-                                        <div>
-                                            <div class="mg-radio-weather-temp" id="mg-radio-weather-temp">--°</div>
-                                            <div class="mg-radio-weather-desc" id="mg-radio-weather-desc">Awaiting signal...</div>
+                                    <!-- CH 0: Station List -->
+                                    <div class="mg-radio-channel active" data-mg-ch="0">
+                                        <div class="mg-radio-stations" id="mg-radio-stations">
+                                            <button class="mg-radio-station active" data-station="witchfm">
+                                                <span class="mg-radio-station-dial">96.6</span>
+                                                <span class="mg-radio-station-label">WITCH FM</span>
+                                                <span class="mg-radio-station-type">MAIN</span>
+                                            </button>
+                                            <button class="mg-radio-station" data-station="rain">
+                                                <span class="mg-radio-station-dial">91.7</span>
+                                                <span class="mg-radio-station-label">RAINFALL</span>
+                                                <span class="mg-radio-station-type">AMBIENT</span>
+                                            </button>
+                                            <button class="mg-radio-station" data-station="night">
+                                                <span class="mg-radio-station-dial">97.5</span>
+                                                <span class="mg-radio-station-label">NIGHTSIDE</span>
+                                                <span class="mg-radio-station-type">AMBIENT</span>
+                                            </button>
+                                            <button class="mg-radio-station" data-station="storm">
+                                                <span class="mg-radio-station-dial">93.3</span>
+                                                <span class="mg-radio-station-label">TEMPEST</span>
+                                                <span class="mg-radio-station-type">WEATHER</span>
+                                            </button>
+                                            <button class="mg-radio-station" data-station="static">
+                                                <span class="mg-radio-station-dial">87.5</span>
+                                                <span class="mg-radio-station-label">THE VOID</span>
+                                                <span class="mg-radio-station-type">???</span>
+                                            </button>
                                         </div>
                                     </div>
-                                    <div class="mg-radio-weather-grid" id="mg-radio-weather-grid">
-                                        <div class="mg-radio-weather-stat">
-                                            <span>Humidity</span>
-                                            <span class="mg-radio-weather-stat-value" id="mg-weather-humidity">--%</span>
-                                        </div>
-                                        <div class="mg-radio-weather-stat">
-                                            <span>Wind</span>
-                                            <span class="mg-radio-weather-stat-value" id="mg-weather-wind">-- km/h</span>
-                                        </div>
-                                        <div class="mg-radio-weather-stat">
-                                            <span>Pressure</span>
-                                            <span class="mg-radio-weather-stat-value" id="mg-weather-pressure">-- hPa</span>
-                                        </div>
-                                        <div class="mg-radio-weather-stat">
-                                            <span>Cloud Cover</span>
-                                            <span class="mg-radio-weather-stat-value" id="mg-weather-cloud">--%</span>
-                                        </div>
-                                    </div>
-                                </div>
 
-                                <!-- Moon Phase -->
-                                <div class="mg-radio-moon" id="mg-radio-moon">
-                                    <div class="mg-radio-moon-phase" id="mg-radio-moon-phase">🌙</div>
-                                    <div class="mg-radio-moon-name" id="mg-radio-moon-name">Moon Phase</div>
-                                    <div class="mg-radio-moon-detail" id="mg-radio-moon-detail">Loading...</div>
-                                    <div class="mg-radio-moon-strip">
-                                        <span class="mg-radio-moon-pip" title="New Moon">🌑</span>
-                                        <span class="mg-radio-moon-pip" title="Waxing Crescent">🌒</span>
-                                        <span class="mg-radio-moon-pip" title="First Quarter">🌓</span>
-                                        <span class="mg-radio-moon-pip" title="Waxing Gibbous">🌔</span>
-                                        <span class="mg-radio-moon-pip" title="Full Moon">🌕</span>
-                                        <span class="mg-radio-moon-pip" title="Waning Gibbous">🌖</span>
-                                        <span class="mg-radio-moon-pip" title="Last Quarter">🌗</span>
-                                        <span class="mg-radio-moon-pip active" title="Waning Crescent">🌘</span>
+                                    <!-- CH 1: Weather -->
+                                    <div class="mg-radio-channel" data-mg-ch="1">
+                                        <div class="mg-radio-weather" id="mg-radio-weather">
+                                            <div class="mg-radio-weather-header">
+                                                <span class="mg-radio-weather-title">Current Conditions</span>
+                                                <span class="mg-radio-weather-source">Open-Meteo</span>
+                                            </div>
+                                            <div class="mg-radio-weather-current">
+                                                <div class="mg-radio-weather-icon" id="mg-radio-weather-icon">🌙</div>
+                                                <div>
+                                                    <div class="mg-radio-weather-temp" id="mg-radio-weather-temp">--°</div>
+                                                    <div class="mg-radio-weather-desc" id="mg-radio-weather-desc">Awaiting signal...</div>
+                                                </div>
+                                            </div>
+                                            <div class="mg-radio-weather-grid" id="mg-radio-weather-grid">
+                                                <div class="mg-radio-weather-stat">
+                                                    <span>Humidity</span>
+                                                    <span class="mg-radio-weather-stat-value" id="mg-weather-humidity">--%</span>
+                                                </div>
+                                                <div class="mg-radio-weather-stat">
+                                                    <span>Wind</span>
+                                                    <span class="mg-radio-weather-stat-value" id="mg-weather-wind">-- km/h</span>
+                                                </div>
+                                                <div class="mg-radio-weather-stat">
+                                                    <span>Pressure</span>
+                                                    <span class="mg-radio-weather-stat-value" id="mg-weather-pressure">-- hPa</span>
+                                                </div>
+                                                <div class="mg-radio-weather-stat">
+                                                    <span>Cloud Cover</span>
+                                                    <span class="mg-radio-weather-stat-value" id="mg-weather-cloud">--%</span>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
-                                </div>
 
-                                <!-- Fictional Weather -->
-                                <div class="mg-radio-fiction" id="mg-radio-fiction">
-                                    <div class="mg-radio-fiction-header">In-Story Broadcast</div>
-                                    <div class="mg-radio-fiction-broadcast" id="mg-radio-fiction-text">No broadcast detected yet. The static hums quietly...</div>
+                                    <!-- CH 2: Moon Phase -->
+                                    <div class="mg-radio-channel" data-mg-ch="2">
+                                        <div class="mg-radio-moon" id="mg-radio-moon">
+                                            <div class="mg-radio-moon-phase" id="mg-radio-moon-phase">🌙</div>
+                                            <div class="mg-radio-moon-name" id="mg-radio-moon-name">Moon Phase</div>
+                                            <div class="mg-radio-moon-detail" id="mg-radio-moon-detail">Loading...</div>
+                                            <div class="mg-radio-moon-strip">
+                                                <span class="mg-radio-moon-pip" title="New Moon">🌑</span>
+                                                <span class="mg-radio-moon-pip" title="Waxing Crescent">🌒</span>
+                                                <span class="mg-radio-moon-pip" title="First Quarter">🌓</span>
+                                                <span class="mg-radio-moon-pip" title="Waxing Gibbous">🌔</span>
+                                                <span class="mg-radio-moon-pip" title="Full Moon">🌕</span>
+                                                <span class="mg-radio-moon-pip" title="Waning Gibbous">🌖</span>
+                                                <span class="mg-radio-moon-pip" title="Last Quarter">🌗</span>
+                                                <span class="mg-radio-moon-pip active" title="Waning Crescent">🌘</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- CH 3: Fictional Weather / In-Story Broadcast -->
+                                    <div class="mg-radio-channel" data-mg-ch="3">
+                                        <div class="mg-radio-fiction" id="mg-radio-fiction">
+                                            <div class="mg-radio-fiction-header">In-Story Broadcast</div>
+                                            <div class="mg-radio-fiction-broadcast" id="mg-radio-fiction-text">No broadcast detected yet. The static hums quietly...</div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 
@@ -514,6 +536,9 @@ function setupGrimoireEvents() {
 // ============================================
 
 function initRadioPanel() {
+    const CH_NAMES = ['Stations', 'Weather', 'Moon', 'Broadcast'];
+    let currentCh = 0;
+
     // Generate tick marks
     const ticksEl = document.getElementById('mg-radio-ticks');
     if (ticksEl) {
@@ -539,6 +564,33 @@ function initRadioPanel() {
         const freqNum = parseFloat(freq);
         const pct = ((freqNum - 87.5) / (108 - 87.5)) * 90 + 5;
         $('#mg-radio-needle').css('left', pct + '%');
+    });
+
+    // Channel switching — knob click cycles forward
+    function switchChannel(ch) {
+        currentCh = ch;
+        $('.mg-radio-channel').removeClass('active');
+        $(`.mg-radio-channel[data-mg-ch="${ch}"]`).addClass('active');
+        $('.mg-radio-ch-dot').removeClass('active');
+        $(`.mg-radio-ch-dot[data-ch="${ch}"]`).addClass('active');
+        $('#mg-radio-ch-label').text(CH_NAMES[ch] || '');
+
+        // Rotate knob indicator to match channel position
+        const knob = document.querySelector('.mg-radio-knob--ch .mg-radio-knob-indicator');
+        if (knob) {
+            const angle = -90 + (ch / (CH_NAMES.length - 1)) * 180;
+            knob.style.transform = `rotate(${angle}deg)`;
+        }
+    }
+
+    // Third knob click — cycle channels
+    $('#mg-radio-ch-knob').on('click', function () {
+        switchChannel((currentCh + 1) % CH_NAMES.length);
+    });
+
+    // Dot click — jump to channel
+    $('.mg-radio-ch-dot').on('click', function () {
+        switchChannel(parseInt($(this).data('ch')));
     });
 }
 
