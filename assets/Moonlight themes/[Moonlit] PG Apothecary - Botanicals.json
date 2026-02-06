@@ -1,0 +1,26 @@
+{
+  "moonlitEchoesPreset": true,
+  "presetVersion": "3.0.0",
+  "presetName": "PG Apothecary - Botanicals",
+  "settings": {
+    "customThemeColor": "rgba(76, 107, 32, 1)",
+    "customThemeColor2": "rgba(189, 191, 70, 1)",
+    "customBgColor1": "rgba(76, 107, 32, 0.1)",
+    "customBgColor2": "rgba(118, 72, 46, 0.06)",
+    "customTopBarColor": "rgba(26, 21, 14, 1)",
+    "Drawer-iconColor": "rgba(233, 174, 117, 1)",
+    "sheldBackgroundColor": "rgba(26, 21, 14, 0.75)",
+    "customScrollbarColor": "rgba(76, 107, 32, 0.5)",
+    "customCSS-bg-blur": "4",
+    "sheldBlurStrength": "7",
+    "customCSS-bg-opacity": "1",
+    "custom-ChatAvatar": "42px",
+    "custom-EchoAvatarWidth": "20%",
+    "custom-EchoAvatarHeight": "300px",
+    "customlastInContext": "2px solid rgba(189, 191, 70, 0.7)",
+    "messageDetailsAnimationDuration": "0.6s",
+    "enableMobile-send_form": true,
+    "enableMessageDetails": false,
+    "justifyParagraphText": false
+  }
+}

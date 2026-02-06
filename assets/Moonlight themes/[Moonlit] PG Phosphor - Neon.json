@@ -1,0 +1,26 @@
+{
+  "moonlitEchoesPreset": true,
+  "presetVersion": "3.0.0",
+  "presetName": "PG Phosphor - Neon",
+  "settings": {
+    "customThemeColor": "rgba(249, 144, 246, 1)",
+    "customThemeColor2": "rgba(115, 117, 202, 1)",
+    "customBgColor1": "rgba(249, 144, 246, 0.08)",
+    "customBgColor2": "rgba(115, 117, 202, 0.05)",
+    "customTopBarColor": "rgba(6, 0, 24, 1)",
+    "Drawer-iconColor": "rgba(115, 117, 202, 1)",
+    "sheldBackgroundColor": "rgba(6, 0, 24, 0.8)",
+    "customScrollbarColor": "rgba(249, 144, 246, 0.5)",
+    "customCSS-bg-blur": "6",
+    "sheldBlurStrength": "10",
+    "customCSS-bg-opacity": "1",
+    "custom-ChatAvatar": "42px",
+    "custom-EchoAvatarWidth": "20%",
+    "custom-EchoAvatarHeight": "300px",
+    "customlastInContext": "2px solid rgba(249, 144, 246, 0.8)",
+    "messageDetailsAnimationDuration": "0.6s",
+    "enableMobile-send_form": true,
+    "enableMessageDetails": false,
+    "justifyParagraphText": false
+  }
+}
