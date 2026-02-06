@@ -86,75 +86,67 @@
 
 /* ----------------------------------------
    THEME FILTERS (Recolor shell PNG)
-   Base shell is pink (~330° hue).
+   Base shell: #dc78aa (330° hue, 59% sat, 67% light)
    
-   Hue math from pink:
-     → magenta/purple: -30° to -60°
-     → blue: -90° to -110°
-     → brown/orange: +40° with sepia
+   Values calculated from --mg-shell-primary in variables.css
    ---------------------------------------- */
 [data-mg-theme="guardian"] .nyxgotchi-shell-img {
-    filter: none;  /* Pink base - no change */
+    /* #dc78aa - Pink base, no change */
+    filter: none;
 }
 
 [data-mg-theme="umbra"] .nyxgotchi-shell-img {
-    /* Deep magenta/purple - Madoka grief seed vibes */
+    /* Target: #2d0835 (289°, 74% sat, 12% light)
+       Very dark purple - grief seed vibes */
     filter:
-        hue-rotate(-25deg)
-        brightness(0.55)
-        saturate(1.6)
-        contrast(1.15);
+        hue-rotate(-41deg)
+        saturate(1.25)
+        brightness(0.18);
 }
 
 [data-mg-theme="apothecary"] .nyxgotchi-shell-img {
-    /* Earthy brown/olive - hedgewitch herbalism
-       Target: Brown #76482e (~25°)
-       More sepia, warmer tone */
+    /* Target: #76482e (22°, 44% sat, 32% light)
+       Earthy brown - hedgewitch herbalism */
     filter:
-        hue-rotate(50deg)
-        sepia(0.5)
-        saturate(0.55)
-        brightness(0.75);
+        hue-rotate(52deg)
+        saturate(0.75)
+        brightness(0.48);
 }
 
 [data-mg-theme="moonstone"] .nyxgotchi-shell-img {
-    /* Soft lavender/pastel - ethereal dreaming
-       Target: Pale lavender #d9c7fb (~270°)
-       Keep it light and dreamy */
+    /* Target: #d9c7fb (261°, 87% sat, 88% light)
+       Pale lavender - ethereal dreaming */
     filter:
-        hue-rotate(-55deg)
-        saturate(0.35)
-        brightness(1.2)
-        contrast(0.85);
+        hue-rotate(-69deg)
+        saturate(1.47)
+        brightness(1.32);
 }
 
 [data-mg-theme="phosphor"] .nyxgotchi-shell-img {
-    /* Neon purple/magenta - digital witch */
+    /* Target: #120147 (255°, 97% sat, 14% light)
+       Deep indigo - neon witch */
     filter:
-        hue-rotate(-60deg)
-        saturate(1.7)
-        brightness(0.6)
-        contrast(1.25);
+        hue-rotate(-75deg)
+        saturate(1.65)
+        brightness(0.21);
 }
 
 [data-mg-theme="rosewood"] .nyxgotchi-shell-img {
-    /* Dusty rose - vintage dreamcatcher */
+    /* Target: #e4b0bc (346°, 49% sat, 79% light)
+       Dusty rose - vintage dreamcatcher */
     filter:
-        hue-rotate(-8deg)
-        saturate(0.5)
-        brightness(1.05)
-        contrast(0.92);
+        hue-rotate(16deg)
+        saturate(0.83)
+        brightness(1.19);
 }
 
 [data-mg-theme="celestial"] .nyxgotchi-shell-img {
-    /* Midnight blue/navy - starbound grimoire
-       Target: Navy #002f86 (~220°)
-       From pink 330°: need -110° */
+    /* Target: #002f86 (219°, 100% sat, 26% light)
+       Navy blue - starbound grimoire */
     filter:
-        hue-rotate(-110deg)
-        saturate(0.9)
-        brightness(0.5)
-        contrast(1.2);
+        hue-rotate(-111deg)
+        saturate(1.70)
+        brightness(0.39);
 }
 
 
