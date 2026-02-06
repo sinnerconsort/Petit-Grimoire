@@ -1,10 +1,6 @@
 /**
  * Petit Grimoire - Magical Girl Fortune Extension
  * Entry point: settings panel + initialization
- *
- * Architecture: Two independent FABs
- *   - Compact Brooch (main FAB → opens Grimoire)
- *   - Nyx-gotchi (pet widget, independent)
  */
 
 import {
@@ -26,9 +22,6 @@ import {
     triggerTransformation, openGrimoire, closeGrimoire,
     onDrawCard, onViewQueue, onPokeNyx
 } from './src/grimoire.js';
-
-import { initNyxVoice, handlePoke, nyxSay } from './src/nyx-voice.js';
-
 
 // ============================================
 // CSS LOADING
@@ -79,7 +72,7 @@ function setTamaSize(size) {
 }
 
 // ============================================
-// CREATION HELPERS (wire callbacks)
+// CREATION HELPERS
 // ============================================
 
 function initCompact() {
@@ -172,7 +165,7 @@ async function addExtensionSettings() {
 
                 <div class="flex-container">
                     <span>Nyx Disposition: </span>
-                    <span id="mg-disposition-display">${extensionSettings.nyx.disposition}</span>
+                    <span id="mg-disposition-display">${extensionSettings.nyx?.disposition ?? 50}</span>
                 </div>
 
                 <hr>
@@ -186,12 +179,10 @@ async function addExtensionSettings() {
 
     $('#extensions_settings2').append(html);
 
-    // ---- Event handlers ----
-
+    // Event handlers
     $('#mg-enabled').on('change', function () {
         extensionSettings.enabled = $(this).prop('checked');
         saveSettings();
-
         if (extensionSettings.enabled) {
             initCompact();
             initTama();
@@ -202,51 +193,32 @@ async function addExtensionSettings() {
         }
     });
 
-    $('#mg-theme').on('change', function () {
-        setTheme($(this).val());
-    });
-
-    $('#mg-compact-size').on('change', function () {
-        setCompactSize($(this).val());
-    });
-
-    $('#mg-familiar').on('change', function () {
-        setFamiliarForm($(this).val());
-    });
-
-    $('#mg-tama-size').on('change', function () {
-        setTamaSize($(this).val());
-    });
+    $('#mg-theme').on('change', function () { setTheme($(this).val()); });
+    $('#mg-compact-size').on('change', function () { setCompactSize($(this).val()); });
+    $('#mg-familiar').on('change', function () { setFamiliarForm($(this).val()); });
+    $('#mg-tama-size').on('change', function () { setTamaSize($(this).val()); });
 
     $('#mg-show-compact').on('change', function () {
         extensionSettings.showCompact = $(this).prop('checked');
         saveSettings();
         const el = document.getElementById('mg-compact');
-        if (el) {
-            el.style.setProperty('display', extensionSettings.showCompact ? 'flex' : 'none', 'important');
-        }
+        if (el) el.style.setProperty('display', extensionSettings.showCompact ? 'flex' : 'none', 'important');
     });
 
     $('#mg-show-tama').on('change', function () {
         extensionSettings.showTama = $(this).prop('checked');
         saveSettings();
         const el = document.getElementById('nyxgotchi');
-        if (el) {
-            el.style.setProperty('display', extensionSettings.showTama ? 'flex' : 'none', 'important');
-        }
+        if (el) el.style.setProperty('display', extensionSettings.showTama ? 'flex' : 'none', 'important');
     });
 
     $('#mg-reset-positions').on('click', function () {
         extensionSettings.compactPosition = { ...defaultSettings.compactPosition };
         extensionSettings.tamaPosition = { ...defaultSettings.tamaPosition };
         saveSettings();
-
         initCompact();
         initTama();
-
-        if (typeof toastr !== 'undefined') {
-            toastr.info('Positions reset!');
-        }
+        if (typeof toastr !== 'undefined') toastr.info('Positions reset!');
     });
 }
 
@@ -260,27 +232,22 @@ jQuery(async () => {
 
         loadCSS();
         loadSettings();
-
         await addExtensionSettings();
 
         if (extensionSettings.enabled) {
             initCompact();
             initTama();
-            initNyxVoice({ showSpeech: showSpeech });
         }
 
         console.log(`[${extensionName}] ✅ Loaded successfully`);
 
     } catch (error) {
         console.error(`[${extensionName}] ❌ Critical failure:`, error);
-        if (typeof toastr !== 'undefined') {
-            toastr.error('Petit Grimoire failed to initialize.', 'Error', { timeOut: 10000 });
-        }
     }
 });
 
 // ============================================
-// EXPORTS (for debugging)
+// EXPORTS
 // ============================================
 
 window.PetitGrimoire = {
