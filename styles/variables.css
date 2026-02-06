@@ -74,6 +74,20 @@
     --mg-crt-scanline: rgba(74, 21, 48, 0.05);
     --mg-crt-divider: rgba(220, 120, 170, 0.12);
     --mg-crt-flash: rgba(243, 170, 30, 0.85);
+
+    /* ── Radio ── */
+    --mg-radio-body: #dc78aa;
+    --mg-radio-body-mid: #c5608f;
+    --mg-radio-body-dark: #a04872;
+    --mg-radio-needle: #f3aa1e;
+    --mg-radio-needle-dark: #d89520;
+    --mg-radio-needle-glow: rgba(243, 170, 30, 0.4);
+    --mg-radio-display-text: #fce4ec;
+    --mg-radio-display-glow: rgba(252, 228, 236, 0.3);
+    --mg-radio-playing: #4ade80;
+    --mg-radio-playing-dim: #166534;
+    --mg-radio-playing-glow: rgba(74, 222, 128, 0.3);
+    --mg-radio-font: 'Courier New', monospace;
 }
 
 
@@ -139,6 +153,20 @@
     --mg-crt-scanline: rgba(93, 9, 113, 0.08);
     --mg-crt-divider: rgba(148, 14, 143, 0.15);
     --mg-crt-flash: rgba(216, 149, 32, 0.85);
+
+    /* ── Radio ── */
+    --mg-radio-body: #2d0835;
+    --mg-radio-body-mid: #40104a;
+    --mg-radio-body-dark: #1a0420;
+    --mg-radio-needle: #d89520;
+    --mg-radio-needle-dark: #a07018;
+    --mg-radio-needle-glow: rgba(216, 149, 32, 0.4);
+    --mg-radio-display-text: #c8b1f7;
+    --mg-radio-display-glow: rgba(200, 177, 247, 0.3);
+    --mg-radio-playing: #4ade80;
+    --mg-radio-playing-dim: #166534;
+    --mg-radio-playing-glow: rgba(74, 222, 128, 0.3);
+    --mg-radio-font: 'Courier New', monospace;
 }
 
 
@@ -204,6 +232,20 @@
     --mg-crt-scanline: rgba(58, 42, 24, 0.06);
     --mg-crt-divider: rgba(76, 107, 32, 0.12);
     --mg-crt-flash: rgba(189, 191, 70, 0.85);
+
+    /* ── Radio ── */
+    --mg-radio-body: #76482e;
+    --mg-radio-body-mid: #5a3420;
+    --mg-radio-body-dark: #3a2010;
+    --mg-radio-needle: #bdbf46;
+    --mg-radio-needle-dark: #8a8c30;
+    --mg-radio-needle-glow: rgba(189, 191, 70, 0.4);
+    --mg-radio-display-text: #f5ecd5;
+    --mg-radio-display-glow: rgba(245, 236, 213, 0.3);
+    --mg-radio-playing: #4ade80;
+    --mg-radio-playing-dim: #166534;
+    --mg-radio-playing-glow: rgba(74, 222, 128, 0.3);
+    --mg-radio-font: 'Courier New', monospace;
 }
 
 
@@ -269,6 +311,20 @@
     --mg-crt-scanline: rgba(42, 32, 64, 0.08);
     --mg-crt-divider: rgba(214, 146, 255, 0.15);
     --mg-crt-flash: rgba(188, 241, 253, 0.85);
+
+    /* ── Radio ── */
+    --mg-radio-body: #d9c7fb;
+    --mg-radio-body-mid: #c0a8e8;
+    --mg-radio-body-dark: #a890d0;
+    --mg-radio-needle: #bcf1fd;
+    --mg-radio-needle-dark: #90d0e0;
+    --mg-radio-needle-glow: rgba(188, 241, 253, 0.4);
+    --mg-radio-display-text: #feebff;
+    --mg-radio-display-glow: rgba(254, 235, 255, 0.3);
+    --mg-radio-playing: #4ade80;
+    --mg-radio-playing-dim: #166534;
+    --mg-radio-playing-glow: rgba(74, 222, 128, 0.3);
+    --mg-radio-font: 'Courier New', monospace;
 }
 
 
@@ -334,6 +390,20 @@
     --mg-crt-scanline: rgba(18, 1, 71, 0.1);
     --mg-crt-divider: rgba(115, 117, 202, 0.15);
     --mg-crt-flash: rgba(249, 144, 246, 0.85);
+
+    /* ── Radio ── */
+    --mg-radio-body: #120147;
+    --mg-radio-body-mid: #1e0860;
+    --mg-radio-body-dark: #0a0030;
+    --mg-radio-needle: #f990f6;
+    --mg-radio-needle-dark: #d070d0;
+    --mg-radio-needle-glow: rgba(249, 144, 246, 0.5);
+    --mg-radio-display-text: #feffff;
+    --mg-radio-display-glow: rgba(254, 255, 255, 0.3);
+    --mg-radio-playing: #f990f6;
+    --mg-radio-playing-dim: #7375ca;
+    --mg-radio-playing-glow: rgba(249, 144, 246, 0.4);
+    --mg-radio-font: 'Courier New', monospace;
 }
 
 
@@ -399,6 +469,20 @@
     --mg-crt-scanline: rgba(74, 32, 48, 0.04);
     --mg-crt-divider: rgba(200, 144, 158, 0.12);
     --mg-crt-flash: rgba(131, 182, 172, 0.85);
+
+    /* ── Radio ── */
+    --mg-radio-body: #e4b0bc;
+    --mg-radio-body-mid: #d0909e;
+    --mg-radio-body-dark: #b87888;
+    --mg-radio-needle: #83b6ac;
+    --mg-radio-needle-dark: #5a9080;
+    --mg-radio-needle-glow: rgba(131, 182, 172, 0.4);
+    --mg-radio-display-text: #faf0f2;
+    --mg-radio-display-glow: rgba(250, 240, 242, 0.3);
+    --mg-radio-playing: #4ade80;
+    --mg-radio-playing-dim: #166534;
+    --mg-radio-playing-glow: rgba(74, 222, 128, 0.3);
+    --mg-radio-font: 'Courier New', monospace;
 }
 
 
@@ -464,4 +548,18 @@
     --mg-crt-scanline: rgba(19, 32, 64, 0.08);
     --mg-crt-divider: rgba(227, 179, 95, 0.12);
     --mg-crt-flash: rgba(251, 224, 156, 0.85);
+
+    /* ── Radio ── */
+    --mg-radio-body: #002f86;
+    --mg-radio-body-mid: #001a60;
+    --mg-radio-body-dark: #001040;
+    --mg-radio-needle: #e3b35f;
+    --mg-radio-needle-dark: #c89840;
+    --mg-radio-needle-glow: rgba(227, 179, 95, 0.4);
+    --mg-radio-display-text: #fbe09c;
+    --mg-radio-display-glow: rgba(251, 224, 156, 0.3);
+    --mg-radio-playing: #4ade80;
+    --mg-radio-playing-dim: #166534;
+    --mg-radio-playing-glow: rgba(74, 222, 128, 0.3);
+    --mg-radio-font: 'Courier New', monospace;
 }
