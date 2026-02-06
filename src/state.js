@@ -10,7 +10,7 @@ import { saveSettingsDebounced } from '../../../../../script.js';
 // CONSTANTS
 // ============================================
 
-export const extensionName = 'petit-grimoire';
+export const extensionName = 'Petit-Grimoire';
 export const extensionFolderPath = `scripts/extensions/third-party/${extensionName}`;
 
 // ============================================
