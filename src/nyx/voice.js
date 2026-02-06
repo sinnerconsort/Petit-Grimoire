@@ -8,7 +8,15 @@ import { sendNyxRequest, isConnectionAvailable } from './connection.js';
 import { buildPrompt } from './contexts.js';
 import { getTemplateFallback } from './templates.js';
 import { getCurrentTimePeriod, getHour } from './time.js';
-import { getMoodText } from '../nyxgotchi.js';
+
+// Local mood calculation to avoid circular dependency with nyxgotchi
+function getMoodText(disposition) {
+    if (disposition < 20) return 'annoyed';
+    if (disposition < 35) return 'bored';
+    if (disposition < 60) return 'neutral';
+    if (disposition < 80) return 'amused';
+    return 'delighted';
+}
 
 // ============================================
 // CORE VOICE FUNCTION

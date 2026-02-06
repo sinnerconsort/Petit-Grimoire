@@ -4,7 +4,7 @@
  * Falls back gracefully when not available
  */
 
-import { getContext } from '../../../../extensions.js';
+import { getContext } from '../../../../../extensions.js';
 import { extensionSettings } from '../state.js';
 
 // ============================================

@@ -3,7 +3,6 @@
  * Activity tracking, unprompted commentary, session awareness
  */
 
-import { debounce } from '../../../../utils.js';
 import { extensionSettings } from '../state.js';
 import { nyxSpeak } from './voice.js';
 import { 
@@ -14,6 +13,19 @@ import {
     startPeriodMonitoring,
     stopPeriodMonitoring 
 } from './time.js';
+
+// Simple debounce implementation
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}
 
 // ============================================
 // STATE
