@@ -79,10 +79,10 @@
     box-shadow: 0 0 8px var(--mg-gem-1), 0 0 3px rgba(0,0,0,0.3);
     z-index: 10;
 }
-.mg-tome-gem--tl { top: -4px; left: -4px; border-radius: 50%; }
-.mg-tome-gem--tr { top: -4px; right: -4px; transform: rotate(45deg); border-radius: 1px; }
-.mg-tome-gem--bl { bottom: -4px; left: -4px; transform: rotate(45deg); border-radius: 1px; }
-.mg-tome-gem--br { bottom: -4px; right: -4px; border-radius: 50%; }
+.mg-tome-gem--tl { top: 2px; left: 2px; border-radius: 50%; }
+.mg-tome-gem--tr { top: 2px; right: 2px; transform: rotate(45deg); border-radius: 1px; }
+.mg-tome-gem--bl { bottom: 2px; left: 2px; transform: rotate(45deg); border-radius: 1px; }
+.mg-tome-gem--br { bottom: 2px; right: 2px; border-radius: 50%; }
 
 
 /* ══════════════════════════════════════════════
