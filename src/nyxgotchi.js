@@ -1,6 +1,7 @@
 /**
  * Petit Grimoire — Nyx-gotchi
  * Egg-shaped tamagotchi widget: HTML, pixel sprites, speech bubble, card flash, mood
+ * Now integrated with Nyx voice system for dynamic dialogue
  */
 
 import {
@@ -12,6 +13,10 @@ import {
 import { setupFabDrag, applyPosition } from './drag.js';
 import { getSpriteAnimation, hasSpriteSupport } from './sprites.js';
 
+// Import Nyx voice system
+import { nyxSpeak } from './nyx/voice.js';
+import { initIdleSystem, cleanupIdleSystem, handlePoke } from './nyx/idle.js';
+
 // ============================================
 // ANIMATION STATE
 // ============================================
@@ -19,6 +24,8 @@ import { getSpriteAnimation, hasSpriteSupport } from './sprites.js';
 let specialAnimMoodOverride = null;
 let specialAnimTimeout = null;
 let currentAnimData = null;
+let pokeHoldTimer = null;
+const LONG_PRESS_DURATION = 1500; // 1.5s for knucklebones trigger
 
 // Display size for pixel sprites (32px native → 52px display)
 const SPRITE_DISPLAY = 52;
@@ -223,6 +230,25 @@ export function showSpeech(text, duration = 4000) {
     }, duration));
 }
 
+/**
+ * Make Nyx speak with voice system and show in bubble
+ * @param {string} situation - Context for nyxSpeak
+ * @param {object} context - Additional context data
+ * @param {number} duration - How long to show speech
+ */
+export async function nyxSay(situation, context = {}, duration = 4000) {
+    try {
+        const line = await nyxSpeak(situation, context);
+        if (line) {
+            showSpeech(line, duration);
+        }
+        return line;
+    } catch (err) {
+        console.warn(`[${extensionName}] nyxSay error:`, err);
+        return null;
+    }
+}
+
 // ============================================
 // CARD FLASH
 // ============================================
@@ -282,7 +308,7 @@ export function getTamaHTML() {
 
             <!-- Speech bubble -->
             <div class="nyxgotchi-speech" id="nyxgotchi-speech">
-                <span class="nyxgotchi-speech-text">Hello, mortal.</span>
+                <span class="nyxgotchi-speech-text">...</span>
             </div>
 
             <!-- Keychain loop -->
@@ -353,6 +379,65 @@ export function getTamaHTML() {
 }
 
 // ============================================
+// POKE BUTTON HANDLERS (with long-press for Knucklebones)
+// ============================================
+
+function onPokeStart(e, callbacks) {
+    e.preventDefault();
+    
+    // Start long-press timer for Knucklebones
+    pokeHoldTimer = setTimeout(() => {
+        pokeHoldTimer = null;
+        // Long press detected - trigger Knucklebones!
+        if (callbacks.onKnucklebones) {
+            playSpecialAnimation('amused', 1);
+            callbacks.onKnucklebones();
+        }
+    }, LONG_PRESS_DURATION);
+}
+
+function onPokeEnd(e, callbacks) {
+    e.preventDefault();
+    
+    // If timer still exists, it was a short press
+    if (pokeHoldTimer) {
+        clearTimeout(pokeHoldTimer);
+        pokeHoldTimer = null;
+        
+        // Regular poke
+        onPokeClick(callbacks);
+    }
+}
+
+function onPokeCancel() {
+    if (pokeHoldTimer) {
+        clearTimeout(pokeHoldTimer);
+        pokeHoldTimer = null;
+    }
+}
+
+async function onPokeClick(callbacks) {
+    try {
+        // Use the idle system's poke handler for counting
+        const line = await handlePoke();
+        
+        if (line) {
+            showSpeech(line, 4000);
+        }
+        
+        // Play appropriate animation based on mood
+        const mood = getMoodText(extensionSettings.nyx.disposition);
+        playSpecialAnimation(mood === 'annoyed' ? 'annoyed' : 'neutral', 1.5);
+        
+        // Also call the callback if provided
+        if (callbacks.onPoke) callbacks.onPoke();
+    } catch (err) {
+        console.warn(`[${extensionName}] Poke error:`, err);
+        showSpeech("...", 2000);
+    }
+}
+
+// ============================================
 // TAMA CREATION
 // ============================================
 
@@ -380,26 +465,50 @@ export function createTama(callbacks = {}) {
 
     setupFabDrag('nyxgotchi', 'tama', 'tamaPosition');
 
+    // Draw button
     $('#nyxgotchi-btn-draw').on('click', (e) => {
         e.stopPropagation();
         if (callbacks.onDraw) callbacks.onDraw();
     });
 
+    // Queue button
     $('#nyxgotchi-btn-queue').on('click', (e) => {
         e.stopPropagation();
         if (callbacks.onQueue) callbacks.onQueue();
     });
 
-    $('#nyxgotchi-btn-poke').on('click', (e) => {
-        e.stopPropagation();
-        if (callbacks.onPoke) callbacks.onPoke();
-    });
+    // Poke button with long-press detection
+    const pokeBtn = document.getElementById('nyxgotchi-btn-poke');
+    if (pokeBtn) {
+        // Mouse events
+        pokeBtn.addEventListener('mousedown', (e) => onPokeStart(e, callbacks));
+        pokeBtn.addEventListener('mouseup', (e) => onPokeEnd(e, callbacks));
+        pokeBtn.addEventListener('mouseleave', onPokeCancel);
+        
+        // Touch events
+        pokeBtn.addEventListener('touchstart', (e) => onPokeStart(e, callbacks), { passive: false });
+        pokeBtn.addEventListener('touchend', (e) => onPokeEnd(e, callbacks), { passive: false });
+        pokeBtn.addEventListener('touchcancel', onPokeCancel);
+    }
 
     if (!extensionSettings.showTama) {
         tamaEl.style.setProperty('display', 'none', 'important');
     }
 
+    // Initialize idle system with showSpeech callback
+    initIdleSystem(showSpeech);
+
     startSpriteAnimation();
 
-    console.log(`[${extensionName}] Nyxgotchi created`);
+    console.log(`[${extensionName}] Nyxgotchi created with voice system`);
+}
+
+// ============================================
+// CLEANUP
+// ============================================
+
+export function destroyTama() {
+    cleanupIdleSystem();
+    stopSpriteAnimation();
+    $('#nyxgotchi').remove();
 }
