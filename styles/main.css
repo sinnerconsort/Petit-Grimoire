@@ -8,7 +8,7 @@
 @import url('nyxgotchi.css');
 @import url('grimoire.css');
 @import url('settings.css');
-@import url('radio.css');
+
 
 /* ============================================
    SHARED FAB BASE
@@ -36,17 +36,4 @@
 }
 
 
-/* ============================================
-   MOBILE
-   ============================================ */
-
-@media (max-width: 768px) {
-    .mg-compact .mg-compact-body {
-        width: 50px;
-        height: 50px;
-    }
-
-    .mg-compact-star {
-        font-size: 18px;
-    }
-}
+/* Mobile overrides now live in compact.css */
