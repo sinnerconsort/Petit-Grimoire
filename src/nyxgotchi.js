@@ -1,6 +1,10 @@
 /**
  * Petit Grimoire — Nyx-gotchi
- * Egg-shaped tamagotchi widget with Nyx voice integration
+ * Pixel art tamagotchi widget with Nyx voice integration
+ *
+ * Architecture: Screen content renders BEHIND the shell PNG.
+ * The transparent glass area in the pixel art shows content through.
+ * Entire shell is the poke target (tap = poke, long-press = knucklebones).
  */
 
 import {
@@ -82,11 +86,12 @@ const ASCII_SPRITES = {
 じしˍ,)ノ✧`,
 `  ╱|、✧
 (˃ᴗ˂ 。7
- |، 〵
+ |、 〵
 じしˍ,)ノ`
         ]
     }
 };
+
 
 // ============================================
 // MOOD HELPERS
@@ -294,9 +299,15 @@ export function updateNyxMood() {
 // TAMA HTML
 // ============================================
 
+function getShellImagePath() {
+    return `/scripts/extensions/third-party/${extensionName}/assets/sprites/nyxgotchi-shell.png`;
+}
+
 export function getTamaHTML() {
     const disposition = extensionSettings.nyx.disposition;
     const mood = getMoodText(disposition);
+    const shellSrc = getShellImagePath();
+
     return `
         <div class="nyxgotchi" id="nyxgotchi"
              data-mg-theme="${extensionSettings.shellTheme}"
@@ -306,53 +317,37 @@ export function getTamaHTML() {
                 <span class="nyxgotchi-speech-text">...</span>
             </div>
 
-            <div class="nyxgotchi-chain">
-                <div class="nyxgotchi-chain-link"></div>
-                <div class="nyxgotchi-chain-link"></div>
-                <div class="nyxgotchi-chain-link"></div>
-            </div>
+            <div class="nyxgotchi-shell" id="nyxgotchi-shell">
 
-            <div class="nyxgotchi-shell">
+                <!-- Screen content (z:1, behind glass) -->
+                <div class="nyxgotchi-screen">
 
-                <div class="nyxgotchi-decorations">
-                    <span class="nyxgotchi-deco nyxgotchi-deco--1"></span>
-                    <span class="nyxgotchi-deco nyxgotchi-deco--2"></span>
-                    <span class="nyxgotchi-deco nyxgotchi-deco--3"></span>
-                    <span class="nyxgotchi-deco nyxgotchi-deco--4"></span>
-                    <span class="nyxgotchi-deco nyxgotchi-deco--5"></span>
-                    <span class="nyxgotchi-deco nyxgotchi-deco--6"></span>
-                </div>
-
-                <div class="nyxgotchi-screen-frame">
-                    <div class="nyxgotchi-screen">
-
-                        <div class="nyxgotchi-status">
-                            <div class="nyxgotchi-status-item">
-                                <span class="nyxgotchi-heart" id="nyxgotchi-heart">♥</span>
-                                <span id="nyxgotchi-disposition">${disposition}</span>
-                            </div>
-                            <div class="nyxgotchi-status-item">
-                                <span class="nyxgotchi-queue-badge" id="nyxgotchi-queue">Q:0</span>
-                            </div>
+                    <div class="nyxgotchi-status">
+                        <div class="nyxgotchi-status-item">
+                            <span class="nyxgotchi-heart" id="nyxgotchi-heart">♥</span>
+                            <span id="nyxgotchi-disposition">${disposition}</span>
                         </div>
-
-                        <div class="nyxgotchi-sprite-area">
-                            <div class="nyxgotchi-sprite" id="nyxgotchi-sprite"></div>
-                            <div class="nyxgotchi-card-flash" id="nyxgotchi-flash">
-                                <span class="card-icon">🌟</span>
-                            </div>
+                        <div class="nyxgotchi-status-item">
+                            <span class="nyxgotchi-queue-badge" id="nyxgotchi-queue">Q:0</span>
                         </div>
-
-                        <div class="nyxgotchi-mood" id="nyxgotchi-mood">${mood}</div>
-
                     </div>
+
+                    <div class="nyxgotchi-sprite-area">
+                        <div class="nyxgotchi-sprite" id="nyxgotchi-sprite"></div>
+                        <div class="nyxgotchi-card-flash" id="nyxgotchi-flash">
+                            <span class="card-icon">🌟</span>
+                        </div>
+                    </div>
+
+                    <div class="nyxgotchi-mood" id="nyxgotchi-mood">${mood}</div>
+
                 </div>
 
-                <div class="nyxgotchi-buttons">
-                    <button class="nyxgotchi-button" data-action="draw" id="nyxgotchi-btn-draw"></button>
-                    <button class="nyxgotchi-button nyxgotchi-button--middle" data-action="queue" id="nyxgotchi-btn-queue"></button>
-                    <button class="nyxgotchi-button" data-action="poke" id="nyxgotchi-btn-poke"></button>
-                </div>
+                <!-- Shell image (z:2, on top, transparent glass shows screen) -->
+                <img class="nyxgotchi-shell-img"
+                     src="${shellSrc}"
+                     alt=""
+                     draggable="false" />
 
             </div>
         </div>
@@ -361,6 +356,7 @@ export function getTamaHTML() {
 
 // ============================================
 // POKE HANDLERS
+// (Whole shell is the tap target now)
 // ============================================
 
 function onPokeStart(e, callbacks) {
@@ -440,28 +436,16 @@ export function createTama(callbacks = {}) {
     applyPosition('nyxgotchi', 'tamaPosition');
     setupFabDrag('nyxgotchi', 'tama', 'tamaPosition');
 
-    // Draw button
-    $('#nyxgotchi-btn-draw').on('click', (e) => {
-        e.stopPropagation();
-        if (callbacks.onDraw) callbacks.onDraw();
-    });
-
-    // Queue button
-    $('#nyxgotchi-btn-queue').on('click', (e) => {
-        e.stopPropagation();
-        if (callbacks.onQueue) callbacks.onQueue();
-    });
-
-    // Poke button with long-press
-    const pokeBtn = document.getElementById('nyxgotchi-btn-poke');
-    if (pokeBtn) {
-        pokeBtn.addEventListener('mousedown', (e) => onPokeStart(e, callbacks));
-        pokeBtn.addEventListener('mouseup', (e) => onPokeEnd(e, callbacks));
-        pokeBtn.addEventListener('mouseleave', onPokeCancel);
+    // ── Poke on shell tap (replaces 3-button system) ──
+    const shell = document.getElementById('nyxgotchi-shell');
+    if (shell) {
+        shell.addEventListener('mousedown', (e) => onPokeStart(e, callbacks));
+        shell.addEventListener('mouseup', (e) => onPokeEnd(e, callbacks));
+        shell.addEventListener('mouseleave', onPokeCancel);
         
-        pokeBtn.addEventListener('touchstart', (e) => onPokeStart(e, callbacks), { passive: false });
-        pokeBtn.addEventListener('touchend', (e) => onPokeEnd(e, callbacks), { passive: false });
-        pokeBtn.addEventListener('touchcancel', onPokeCancel);
+        shell.addEventListener('touchstart', (e) => onPokeStart(e, callbacks), { passive: false });
+        shell.addEventListener('touchend', (e) => onPokeEnd(e, callbacks), { passive: false });
+        shell.addEventListener('touchcancel', onPokeCancel);
     }
 
     if (!extensionSettings.showTama) {
@@ -476,7 +460,7 @@ export function createTama(callbacks = {}) {
 
     startSpriteAnimation();
 
-    console.log(`[${extensionName}] Nyxgotchi created with voice system`);
+    console.log(`[${extensionName}] Nyxgotchi created (pixel shell)`);
 }
 
 // ============================================
