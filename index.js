@@ -12,6 +12,7 @@
  *   src/compact.js    — Crystal Star Brooch
  *   src/nyxgotchi.js  — Tama widget, sprites, speech, mood
  *   src/grimoire.js   — Tome panel + all tab subsystems
+ *   src/nyx/          — Voice system (generative + templates)
  */
 
 import {
@@ -23,16 +24,25 @@ import {
 import { createCompact } from './src/compact.js';
 
 import {
-    createTama, stopSpriteAnimation,
+    createTama, destroyTama, stopSpriteAnimation,
     showSpeech, updateNyxMood,
     updateSpriteDisplay,
-    playSpecialAnimation
+    playSpecialAnimation,
+    nyxSay
 } from './src/nyxgotchi.js';
 
 import {
     triggerTransformation, openGrimoire, closeGrimoire,
-    onDrawCard, onViewQueue, onPokeNyx
+    onDrawCard, onViewQueue
 } from './src/grimoire.js';
+
+// Nyx voice system
+import { 
+    nyxSpeak, 
+    isGenerativeMode, 
+    getConnectionStatus,
+    populateProfileDropdown 
+} from './src/nyx/index.js';
 
 // ============================================
 // CSS LOADING
@@ -84,6 +94,16 @@ function setTamaSize(size) {
 }
 
 // ============================================
+// KNUCKLEBONES (placeholder)
+// ============================================
+
+function onKnucklebonesChallenge() {
+    // TODO: Open knucklebones modal
+    console.log(`[${extensionName}] Knucklebones challenge triggered!`);
+    showSpeech("Knucklebones? ...Coming soon.", 3000);
+}
+
+// ============================================
 // CREATION HELPERS (wire callbacks)
 // ============================================
 
@@ -95,7 +115,8 @@ function initTama() {
     createTama({
         onDraw: onDrawCard,
         onQueue: onViewQueue,
-        onPoke: onPokeNyx,
+        onPoke: () => {}, // Handled internally by nyxgotchi now
+        onKnucklebones: onKnucklebonesChallenge, // Long-press poke
     });
 }
 
@@ -174,6 +195,32 @@ async function addExtensionSettings() {
                 </label>
 
                 <hr>
+                <h5>Nyx Voice</h5>
+
+                <label class="checkbox_label">
+                    <input type="checkbox" id="mg-nyx-generative" ${extensionSettings.nyx.generativeVoice ? 'checked' : ''}>
+                    <span>Use Generative Voice (API)</span>
+                </label>
+
+                <label for="mg-nyx-profile">Connection Profile:</label>
+                <select id="mg-nyx-profile" class="text_pole">
+                    <option value="current">Use Current Connection</option>
+                </select>
+                <small id="mg-nyx-connection-status" style="opacity: 0.7; display: block; margin-top: 4px;"></small>
+
+                <label class="checkbox_label">
+                    <input type="checkbox" id="mg-nyx-idle" ${extensionSettings.nyx.idleComments !== false ? 'checked' : ''}>
+                    <span>Nyx Speaks Unprompted</span>
+                </label>
+
+                <label for="mg-nyx-idle-freq">Idle Frequency:</label>
+                <select id="mg-nyx-idle-freq" class="text_pole">
+                    <option value="low" ${extensionSettings.nyx.idleFrequency === 'low' ? 'selected' : ''}>Low (8-15 min)</option>
+                    <option value="medium" ${extensionSettings.nyx.idleFrequency === 'medium' ? 'selected' : ''}>Medium (4-8 min)</option>
+                    <option value="high" ${extensionSettings.nyx.idleFrequency === 'high' ? 'selected' : ''}>High (2-5 min)</option>
+                </select>
+
+                <hr>
 
                 <div class="flex-container">
                     <span>Nyx Disposition: </span>
@@ -191,6 +238,10 @@ async function addExtensionSettings() {
 
     $('#extensions_settings2').append(html);
 
+    // Populate connection profile dropdown
+    populateProfileDropdown('#mg-nyx-profile', extensionSettings.nyx.connectionProfile);
+    updateConnectionStatus();
+
     // ---- Event handlers ----
 
     $('#mg-enabled').on('change', function () {
@@ -202,8 +253,7 @@ async function addExtensionSettings() {
             initTama();
         } else {
             $('#mg-compact').remove();
-            $('#nyxgotchi').remove();
-            stopSpriteAnimation();
+            destroyTama();
         }
     });
 
@@ -241,6 +291,29 @@ async function addExtensionSettings() {
         }
     });
 
+    // Nyx voice settings
+    $('#mg-nyx-generative').on('change', function () {
+        extensionSettings.nyx.generativeVoice = $(this).prop('checked');
+        saveSettings();
+        updateConnectionStatus();
+    });
+
+    $('#mg-nyx-profile').on('change', function () {
+        extensionSettings.nyx.connectionProfile = $(this).val();
+        saveSettings();
+        updateConnectionStatus();
+    });
+
+    $('#mg-nyx-idle').on('change', function () {
+        extensionSettings.nyx.idleComments = $(this).prop('checked');
+        saveSettings();
+    });
+
+    $('#mg-nyx-idle-freq').on('change', function () {
+        extensionSettings.nyx.idleFrequency = $(this).val();
+        saveSettings();
+    });
+
     $('#mg-reset-positions').on('click', function () {
         extensionSettings.compactPosition = { ...defaultSettings.compactPosition };
         extensionSettings.tamaPosition = { ...defaultSettings.tamaPosition };
@@ -253,6 +326,21 @@ async function addExtensionSettings() {
             toastr.info('Positions reset!');
         }
     });
+}
+
+function updateConnectionStatus() {
+    const status = getConnectionStatus();
+    const $status = $('#mg-nyx-connection-status');
+    
+    if (extensionSettings.nyx.generativeVoice) {
+        if (status.available) {
+            $status.text(`✓ ${status.profileName} ready`).css('color', '#4a4');
+        } else {
+            $status.text(`✗ ${status.status}`).css('color', '#a44');
+        }
+    } else {
+        $status.text('Using template responses').css('color', '');
+    }
 }
 
 // ============================================
@@ -276,6 +364,7 @@ jQuery(async () => {
         }
 
         console.log(`[${extensionName}] ✅ Loaded successfully`);
+        console.log(`[${extensionName}] Voice mode: ${isGenerativeMode() ? 'Generative' : 'Templates'}`);
 
     } catch (error) {
         console.error(`[${extensionName}] ❌ Critical failure:`, error);
@@ -300,5 +389,10 @@ window.PetitGrimoire = {
     playSpecialAnimation,
     triggerTransformation,
     openGrimoire,
-    closeGrimoire
+    closeGrimoire,
+    // Nyx voice system
+    nyxSpeak,
+    nyxSay,
+    isGenerativeMode,
+    getConnectionStatus,
 };
