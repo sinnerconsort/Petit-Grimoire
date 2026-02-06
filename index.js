@@ -27,6 +27,9 @@ import {
     onDrawCard, onViewQueue, onPokeNyx
 } from './src/grimoire.js';
 
+import { initNyxVoice, handlePoke, nyxSay } from './src/nyx-voice.js';
+
+
 // ============================================
 // CSS LOADING
 // ============================================
@@ -263,6 +266,7 @@ jQuery(async () => {
         if (extensionSettings.enabled) {
             initCompact();
             initTama();
+            initNyxVoice({ showSpeech: showSpeech });
         }
 
         console.log(`[${extensionName}] ✅ Loaded successfully`);
