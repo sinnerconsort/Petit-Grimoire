@@ -3,7 +3,7 @@
  * Connection profiles, Nyx configuration, theme settings
  */
 
-import { getContext } from '../../../extensions.js';
+import { getContext } from '../../../../extensions.js';
 import { extensionName, extensionSettings, saveSettings } from './state.js';
 import { nyxSay } from './nyxgotchi.js';
 

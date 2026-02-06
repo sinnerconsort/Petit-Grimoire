@@ -17,7 +17,7 @@
  *   await nyxSay('card_drawn', { cardName: 'The Tower' });
  */
 
-import { getContext } from '../../../extensions.js';
+import { getContext } from '../../../../extensions.js';
 import { extensionSettings, extensionName } from './state.js';
 
 // ============================================
