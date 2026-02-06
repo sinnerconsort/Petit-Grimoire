@@ -1,6 +1,6 @@
 /**
  * Petit Grimoire — Nyx-gotchi
- * Egg-shaped tamagotchi widget: HTML, pixel sprites, speech bubble, card flash, mood
+ * Egg-shaped tamagotchi widget with Nyx voice integration
  */
 
 import {
@@ -12,6 +12,15 @@ import {
 import { setupFabDrag, applyPosition } from './drag.js';
 import { getSpriteAnimation, hasSpriteSupport } from './sprites.js';
 
+// Import Nyx voice system - MATCHING ACTUAL EXPORTS
+import { 
+    initNyxVoice, 
+    startIdleMonitor, 
+    stopIdleMonitor, 
+    handlePoke, 
+    nyxSpeak 
+} from './nyx-voice.js';
+
 // ============================================
 // ANIMATION STATE
 // ============================================
@@ -19,6 +28,8 @@ import { getSpriteAnimation, hasSpriteSupport } from './sprites.js';
 let specialAnimMoodOverride = null;
 let specialAnimTimeout = null;
 let currentAnimData = null;
+let pokeHoldTimer = null;
+const LONG_PRESS_DURATION = 1500;
 
 const SPRITE_DISPLAY = 52;
 
@@ -218,6 +229,22 @@ export function showSpeech(text, duration = 4000) {
     }, duration));
 }
 
+/**
+ * Make Nyx speak with voice system and show in bubble
+ */
+export async function nyxSay(situation, context = {}, duration = 4000) {
+    try {
+        const line = await nyxSpeak(situation, context);
+        if (line) {
+            showSpeech(line, duration);
+        }
+        return line;
+    } catch (err) {
+        console.warn(`[${extensionName}] nyxSay error:`, err);
+        return null;
+    }
+}
+
 // ============================================
 // CARD FLASH
 // ============================================
@@ -333,6 +360,60 @@ export function getTamaHTML() {
 }
 
 // ============================================
+// POKE HANDLERS
+// ============================================
+
+function onPokeStart(e, callbacks) {
+    e.preventDefault();
+    
+    pokeHoldTimer = setTimeout(() => {
+        pokeHoldTimer = null;
+        if (callbacks.onKnucklebones) {
+            playSpecialAnimation('amused', 1);
+            callbacks.onKnucklebones();
+        }
+    }, LONG_PRESS_DURATION);
+}
+
+function onPokeEnd(e, callbacks) {
+    e.preventDefault();
+    
+    if (pokeHoldTimer) {
+        clearTimeout(pokeHoldTimer);
+        pokeHoldTimer = null;
+        onPokeClick(callbacks);
+    }
+}
+
+function onPokeCancel() {
+    if (pokeHoldTimer) {
+        clearTimeout(pokeHoldTimer);
+        pokeHoldTimer = null;
+    }
+}
+
+async function onPokeClick(callbacks) {
+    try {
+        // Use voice system's poke handler
+        const line = await handlePoke();
+        
+        if (line) {
+            showSpeech(line, 4000);
+        }
+        
+        // Play animation based on mood
+        const mood = getMoodText(extensionSettings.nyx.disposition);
+        playSpecialAnimation(mood === 'annoyed' ? 'annoyed' : 'neutral', 1.5);
+        
+        // Also call callback if provided
+        if (callbacks.onPoke) callbacks.onPoke();
+    } catch (err) {
+        console.warn(`[${extensionName}] Poke error:`, err);
+        showSpeech("...", 2000);
+    }
+}
+
+// ============================================
 // TAMA CREATION
 // ============================================
 
@@ -359,26 +440,51 @@ export function createTama(callbacks = {}) {
     applyPosition('nyxgotchi', 'tamaPosition');
     setupFabDrag('nyxgotchi', 'tama', 'tamaPosition');
 
+    // Draw button
     $('#nyxgotchi-btn-draw').on('click', (e) => {
         e.stopPropagation();
         if (callbacks.onDraw) callbacks.onDraw();
     });
 
+    // Queue button
     $('#nyxgotchi-btn-queue').on('click', (e) => {
         e.stopPropagation();
         if (callbacks.onQueue) callbacks.onQueue();
     });
 
-    $('#nyxgotchi-btn-poke').on('click', (e) => {
-        e.stopPropagation();
-        if (callbacks.onPoke) callbacks.onPoke();
-    });
+    // Poke button with long-press
+    const pokeBtn = document.getElementById('nyxgotchi-btn-poke');
+    if (pokeBtn) {
+        pokeBtn.addEventListener('mousedown', (e) => onPokeStart(e, callbacks));
+        pokeBtn.addEventListener('mouseup', (e) => onPokeEnd(e, callbacks));
+        pokeBtn.addEventListener('mouseleave', onPokeCancel);
+        
+        pokeBtn.addEventListener('touchstart', (e) => onPokeStart(e, callbacks), { passive: false });
+        pokeBtn.addEventListener('touchend', (e) => onPokeEnd(e, callbacks), { passive: false });
+        pokeBtn.addEventListener('touchcancel', onPokeCancel);
+    }
 
     if (!extensionSettings.showTama) {
         tamaEl.style.setProperty('display', 'none', 'important');
     }
 
+    // Initialize Nyx voice with speech callback
+    initNyxVoice({ showSpeech });
+    
+    // Start idle monitoring
+    startIdleMonitor();
+
     startSpriteAnimation();
 
-    console.log(`[${extensionName}] Nyxgotchi created`);
+    console.log(`[${extensionName}] Nyxgotchi created with voice system`);
+}
+
+// ============================================
+// CLEANUP
+// ============================================
+
+export function destroyTama() {
+    stopIdleMonitor();
+    stopSpriteAnimation();
+    $('#nyxgotchi').remove();
 }
