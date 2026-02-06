@@ -14,14 +14,15 @@
     display: flex;
     align-items: center;
     gap: 6px;
+    font-family: 'Palatino Linotype', 'Book Antiqua', Palatino, Georgia, serif;
+    letter-spacing: 0.5px;
 }
 
 .mg-settings-group-title::before {
-    content: '';
-    width: 3px;
-    height: 12px;
-    background: var(--mg-button-primary);
-    border-radius: 2px;
+    content: '✦';
+    font-size: 8px;
+    color: var(--mg-button-primary);
+    opacity: 0.6;
 }
 
 /* Settings row */
@@ -41,6 +42,7 @@
     font-size: 11px;
     color: var(--mg-text-primary);
     flex: 1;
+    font-family: 'Palatino Linotype', 'Book Antiqua', Palatino, Georgia, serif;
 }
 
 .mg-setting-desc {
@@ -253,6 +255,7 @@
     font-size: 11px;
     font-weight: 600;
     color: var(--mg-text-primary);
+    font-family: 'Palatino Linotype', 'Book Antiqua', Palatino, Georgia, serif;
 }
 
 .mg-voice-mode-desc {
@@ -287,11 +290,21 @@
     opacity: 0.6;
 }
 
-/* Divider */
+/* Ornamental divider */
 .mg-settings-divider {
-    height: 1px;
-    background: var(--mg-crt-divider, rgba(0, 0, 0, 0.08));
+    height: auto;
+    background: none;
     margin: 14px 0;
+    text-align: center;
+    font-size: 9px;
+    letter-spacing: 4px;
+    color: var(--mg-text-primary);
+    opacity: 0.15;
+    font-family: Georgia, serif;
+}
+
+.mg-settings-divider::before {
+    content: '· ✦ ·';
 }
 
 /* Reset button */

@@ -70,19 +70,19 @@
     pointer-events: none;
 }
 
-/* Corner gems */
+/* Corner gems — sit ON the gold border edges */
 .mg-tome-gem {
     position: absolute;
-    width: 7px;
-    height: 7px;
+    width: 9px;
+    height: 9px;
     background: var(--mg-gem-1);
-    box-shadow: 0 0 6px var(--mg-gem-1);
-    z-index: 2;
+    box-shadow: 0 0 8px var(--mg-gem-1), 0 0 3px rgba(0,0,0,0.3);
+    z-index: 10;
 }
-.mg-tome-gem--tl { top: 8px; left: 8px; border-radius: 50%; }
-.mg-tome-gem--tr { top: 8px; right: 8px; transform: rotate(45deg); border-radius: 1px; }
-.mg-tome-gem--bl { bottom: 8px; left: 8px; transform: rotate(45deg); border-radius: 1px; }
-.mg-tome-gem--br { bottom: 8px; right: 8px; border-radius: 50%; }
+.mg-tome-gem--tl { top: -4px; left: -4px; border-radius: 50%; }
+.mg-tome-gem--tr { top: -4px; right: -4px; transform: rotate(45deg); border-radius: 1px; }
+.mg-tome-gem--bl { bottom: -4px; left: -4px; transform: rotate(45deg); border-radius: 1px; }
+.mg-tome-gem--br { bottom: -4px; right: -4px; border-radius: 50%; }
 
 
 /* ══════════════════════════════════════════════
@@ -97,6 +97,42 @@
     min-height: 0;
     display: flex;
     flex-direction: column;
+    position: relative;
+}
+
+/* Aged page vignette — darkened edges like old parchment */
+.mg-tome-page::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 8px;
+    background: radial-gradient(
+        ellipse at 60% 50%,
+        transparent 50%,
+        rgba(0, 0, 0, 0.06) 85%,
+        rgba(0, 0, 0, 0.12) 100%
+    );
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* Spine shadow — dark edge where pages meet the binding */
+.mg-tome-page::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 40px;
+    background: linear-gradient(
+        to right,
+        rgba(0, 0, 0, 0.08) 0%,
+        rgba(0, 0, 0, 0.03) 40%,
+        transparent 100%
+    );
+    border-radius: 8px 0 0 8px;
+    pointer-events: none;
+    z-index: 1;
 }
 
 .mg-tome-layout {
@@ -117,6 +153,8 @@
     padding: 6px 0;
     flex-shrink: 0;
     border-right: 1px solid var(--mg-crt-divider, rgba(0, 0, 0, 0.08));
+    position: relative;
+    z-index: 2;
 }
 
 .mg-tome-tab {
@@ -136,6 +174,7 @@
     transition: all 0.15s ease;
     letter-spacing: 0.5px;
     position: relative;
+    font-family: 'Palatino Linotype', 'Book Antiqua', Palatino, Georgia, serif;
 }
 
 .mg-tome-tab:hover { opacity: 0.7; }
@@ -163,6 +202,18 @@
     padding: 12px 14px;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
+    position: relative;
+    z-index: 2;
+    /* Faint journal ruling lines */
+    background-image: repeating-linear-gradient(
+        to bottom,
+        transparent,
+        transparent 23px,
+        var(--mg-crt-divider, rgba(0, 0, 0, 0.04)) 23px,
+        var(--mg-crt-divider, rgba(0, 0, 0, 0.04)) 24px
+    );
+    background-size: 100% 24px;
+    background-attachment: local;
 }
 
 .mg-tome-panel {
@@ -170,24 +221,38 @@
 }
 .mg-tome-panel.active {
     display: block;
-    animation: mgPanelIn 0.2s ease-out;
+    animation: mgPanelIn 0.25s ease-out;
 }
 @keyframes mgPanelIn {
-    from { opacity: 0; transform: translateX(6px); }
+    from { opacity: 0; transform: translateX(8px); }
     to { opacity: 1; transform: translateX(0); }
+}
+
+/* Italic flavor text for empty/waiting states */
+.mg-tome-panel .mg-queue-empty,
+.mg-tome-panel .mg-ouija-waiting,
+.mg-tome-panel .mg-crystal-vision {
+    font-family: 'Palatino Linotype', 'Book Antiqua', Palatino, Georgia, serif;
 }
 
 
 /* ══════════════════════════════════════════════
-   TYPOGRAPHY (shared within tome)
+   TYPOGRAPHY — grimoire calligraphy
    ══════════════════════════════════════════════ */
 
 .mg-tome-heading {
-    font-size: 14px;
+    font-size: 15px;
     font-weight: 700;
     color: var(--mg-text-primary);
-    font-family: Georgia, serif;
+    font-family: 'Palatino Linotype', 'Book Antiqua', Palatino, Georgia, serif;
     margin-bottom: 4px;
+    letter-spacing: 0.5px;
+}
+
+/* Decorative drop-cap on first letter of headings */
+.mg-tome-heading::first-letter {
+    font-size: 1.3em;
+    float: none;
 }
 
 .mg-tome-flavor {
@@ -197,22 +262,38 @@
     font-style: italic;
     margin-bottom: 12px;
     line-height: 1.4;
+    font-family: 'Palatino Linotype', 'Book Antiqua', Palatino, Georgia, serif;
 }
 
+/* Ornamental section divider */
 .mg-tome-section {
     margin-top: 14px;
     padding-top: 10px;
-    border-top: 1px solid var(--mg-crt-divider, rgba(0, 0, 0, 0.08));
+    border-top: none;
+    position: relative;
+}
+
+.mg-tome-section::before {
+    content: '· ✦ ·';
+    display: block;
+    text-align: center;
+    font-size: 9px;
+    letter-spacing: 4px;
+    color: var(--mg-text-primary);
+    opacity: 0.2;
+    margin-bottom: 8px;
+    font-family: Georgia, serif;
 }
 
 .mg-tome-section-title {
-    font-size: 9px;
-    font-weight: 600;
+    font-size: 10px;
+    font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 1px;
+    letter-spacing: 1.5px;
     color: var(--mg-text-primary);
     opacity: 0.5;
     margin-bottom: 6px;
+    font-family: 'Palatino Linotype', 'Book Antiqua', Palatino, Georgia, serif;
 }
 
 /* Primary action button */
@@ -642,7 +723,7 @@
     font-size: 11px;
     font-weight: 700;
     color: var(--mg-text-primary);
-    font-family: Georgia, serif;
+    font-family: 'Palatino Linotype', 'Book Antiqua', Palatino, Georgia, serif;
 }
 
 .mg-spell-desc {
@@ -686,7 +767,7 @@
     margin: 8px 0;
     text-align: center;
     position: relative;
-    font-family: Georgia, serif;
+    font-family: 'Palatino Linotype', 'Book Antiqua', Palatino, Georgia, serif;
 }
 
 .mg-ouija-row {
@@ -798,7 +879,7 @@
 .mg-ouija-answer-text {
     font-size: 16px;
     font-weight: 700;
-    font-family: Georgia, serif;
+    font-family: 'Palatino Linotype', 'Book Antiqua', Palatino, Georgia, serif;
     color: var(--mg-gem-1);
     letter-spacing: 2px;
     margin-bottom: 2px;
