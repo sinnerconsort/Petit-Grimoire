@@ -75,42 +75,42 @@ function destroy() {
 function createCompact() {
     const theme = extensionSettings.shellTheme || 'guardian';
 
-    // Flat structure — proven to work in debug test
+    // === VERSION CHECK: If you see this toastr, this file loaded ===
+    toastr?.warning('v7-REDCIRCLE loaded', 'Grimoire', { timeOut: 10000 });
+
     const fab = document.createElement('div');
     fab.id = 'mg-compact';
     fab.setAttribute('data-mg-theme', theme);
     fab.textContent = '🌙';
 
+    // EXACT same style as the working red debug circle
     Object.assign(fab.style, {
         position: 'fixed',
-        bottom: '80px',
-        right: '16px',
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
         zIndex: '2147483647',
-        width: '64px',
-        height: '64px',
+        width: '100px',
+        height: '100px',
+        background: 'red',
         borderRadius: '50%',
-        background: 'rgba(100, 60, 120, 0.85)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        fontSize: '32px',
+        fontSize: '48px',
         cursor: 'pointer',
+        border: '5px solid yellow',
+        boxShadow: '0 0 40px 20px red',
         pointerEvents: 'auto',
-        boxShadow: '0 2px 12px rgba(120, 40, 140, 0.5)',
-        border: '2px solid rgba(200, 160, 255, 0.3)',
-        transition: 'transform 0.15s ease, box-shadow 0.15s ease',
-        userSelect: 'none',
-        WebkitTapHighlightColor: 'transparent',
     });
 
     document.body.appendChild(fab);
 
-    // Respect visibility setting
     if (extensionSettings.showCompact === false) {
         fab.style.display = 'none';
     }
 
-    console.log('[PetitGrimoire] Compact FAB created (flat)');
+    console.log('[PetitGrimoire] v7-REDCIRCLE FAB created');
 }
 
 // ══════════════════════════════════════════════
