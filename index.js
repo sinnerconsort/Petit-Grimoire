@@ -7,7 +7,7 @@
  */
 
 import {
-    extensionName,
+    extensionName, extensionFolderPath,
     extensionSettings, defaultSettings,
     loadSettings, saveSettings,
 } from './src/state.js';
@@ -17,6 +17,23 @@ import {
     closeGrimoire,
     updateCompactBadge,
 } from './src/grimoire.js';
+
+// ============================================
+// CSS LOADING (ST may not auto-load from subdirs)
+// ============================================
+
+function loadCSS() {
+    const cssId = 'petit-grimoire-css';
+    if (!document.getElementById(cssId)) {
+        const link = document.createElement('link');
+        link.id = cssId;
+        link.rel = 'stylesheet';
+        link.type = 'text/css';
+        link.href = `/${extensionFolderPath}/styles/main.css`;
+        document.head.appendChild(link);
+        console.log('[PetitGrimoire] CSS loaded:', link.href);
+    }
+}
 
 // ============================================
 // THEME SWITCHING
@@ -137,6 +154,9 @@ function destroyAll() {
 jQuery(async () => {
     try {
         console.log('[PetitGrimoire] Starting...');
+
+        // 0. Load CSS (ST may not auto-load from subdirs)
+        loadCSS();
 
         // 1. Load settings
         loadSettings();
