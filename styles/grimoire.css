@@ -3,10 +3,10 @@
  * Clean book with FontAwesome tab icons
  * Native sprite: 896×720
  * 
- * Page content areas measured from sprite:
- * - Left page:  x=172-420, y=120-560
- * - Right page: x=476-724, y=120-560
- * - Tabs: x=752-804, y varies by tab
+ * CORRECTED Page content areas measured from sprite:
+ * - Left page:  x=152-418, y=198-578
+ * - Right page: x=478-746, y=198-578
+ * - Tabs: 7 tabs starting at y=259
  */
 
 /* ══════════════════════════════════════════════
@@ -17,7 +17,6 @@
     /* Native book dimensions */
     --book-native-width: 896;
     --book-native-height: 720;
-    --book-aspect: 0.803; /* 720/896 = height/width ratio */
     
     /* 
      * Display size - HEIGHT based for better mobile experience
@@ -26,19 +25,19 @@
     --grimoire-height: 70vh;
     --grimoire-max-height: 85vh;
     
-    /* Page content areas (percentages of sprite canvas) */
-    /* Left page inner content */
-    --page-left-start: 19.2%;
-    --page-left-end: 46.9%;
-    /* Right page inner content */
-    --page-right-start: 53.1%;
-    --page-right-end: 80.8%;
-    /* Vertical bounds */
-    --page-top: 16.7%;
-    --page-bottom: 22.2%;  /* offset from bottom */
+    /* 
+     * Page content areas - CORRECTED percentages
+     * These position the content INSIDE the parchment pages
+     */
+    --page-left-start: 17%;
+    --page-left-end: 46.7%;
+    --page-right-start: 53.3%;
+    --page-right-end: 83.3%;
+    --page-top: 27.5%;
+    --page-bottom: 19.7%;
     
     /* Tab positions */
-    --tab-right: 87%;
+    --tab-right: 10%;  /* from right edge */
     --tab-width: 32px;
     --tab-height: 28px;
     
@@ -82,20 +81,17 @@
     
     /* 
      * Size using aspect-ratio for proper scaling
-     * Height-first approach: set height, let width follow aspect ratio
-     * This makes the book FILL vertical space on mobile
+     * Height-first approach: fills vertical space on mobile
      */
     aspect-ratio: 896 / 720;
-    
-    /* Height as primary constraint - fills available vertical space */
-    height: var(--grimoire-height, 70vh) !important;
+    height: var(--grimoire-height) !important;
     width: auto !important;
     
     /* Caps */
-    max-height: var(--grimoire-max-height, 85vh) !important;
+    max-height: var(--grimoire-max-height) !important;
     max-width: 95vw !important;
     
-    /* Center positioning (JS may override) */
+    /* Center positioning (JS may override for mobile) */
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
@@ -203,11 +199,11 @@
 
 .mg-grimoire-tab {
     position: absolute;
-    right: calc(100% - var(--tab-right));
+    right: var(--tab-right);
     width: var(--tab-width);
     height: var(--tab-height);
     
-    /* Transparent hitbox - remove debug styling */
+    /* Transparent hitbox */
     background: transparent;
     border: none;
     cursor: pointer;
@@ -247,16 +243,14 @@
     border-radius: 50%;
 }
 
-/* Tab positions - 7 tabs on right side */
-/* Measured from sprite: tabs at y = 188, 232, 276, 320, 364, 408, 452 */
-/* As percentages of 720px height */
-.mg-grimoire-tab--1 { top: 26.1%; }
-.mg-grimoire-tab--2 { top: 32.2%; }
-.mg-grimoire-tab--3 { top: 38.3%; }
-.mg-grimoire-tab--4 { top: 44.4%; }
-.mg-grimoire-tab--5 { top: 50.6%; }
-.mg-grimoire-tab--6 { top: 56.7%; }
-.mg-grimoire-tab--7 { top: 62.8%; }
+/* Tab positions - 7 tabs on right side (CORRECTED) */
+.mg-grimoire-tab--1 { top: 36.0%; }
+.mg-grimoire-tab--2 { top: 41.2%; }
+.mg-grimoire-tab--3 { top: 46.5%; }
+.mg-grimoire-tab--4 { top: 51.8%; }
+.mg-grimoire-tab--5 { top: 57.1%; }
+.mg-grimoire-tab--6 { top: 62.4%; }
+.mg-grimoire-tab--7 { top: 67.6%; }
 
 /* ══════════════════════════════════════════════
    PAGE CONTENT AREAS
@@ -264,10 +258,9 @@
 
 .mg-grimoire-pages {
     position: absolute;
-    /* Vertical bounds */
+    /* CORRECTED bounds - content now sits ON the parchment */
     top: var(--page-top);
     bottom: var(--page-bottom);
-    /* Horizontal: span from left page start to right page end */
     left: var(--page-left-start);
     right: calc(100% - var(--page-right-end));
     
@@ -284,28 +277,32 @@
     box-sizing: border-box;
 }
 
-/* Left page takes up its proportional width */
+/* Left page */
 .mg-grimoire-page--left {
-    /* Width from page-left-start to page-left-end as proportion of total pages width */
-    /* Total width = 80.8% - 19.2% = 61.6% */
-    /* Left page = 46.9% - 19.2% = 27.7% */
-    /* Right page = 80.8% - 53.1% = 27.7% */
-    /* Gap between = 53.1% - 46.9% = 6.2% (the spine) */
-    flex: 0 0 45%;  /* ~27.7 / 61.6 */
-    padding-right: 4%;
+    /* 
+     * Width calculation:
+     * Total span = 83.3% - 17% = 66.3%
+     * Left page = 46.7% - 17% = 29.7%
+     * Left proportion = 29.7 / 66.3 = 44.8%
+     */
+    flex: 0 0 44.8%;
+    padding-right: 2%;
 }
 
+/* Right page */
 .mg-grimoire-page--right {
-    flex: 0 0 45%;
-    padding-left: 4%;
-    margin-left: auto; /* Push to right, leaving spine gap */
+    /* Right page = 83.3% - 53.3% = 30% */
+    /* Right proportion = 30 / 66.3 = 45.2% */
+    flex: 0 0 45.2%;
+    padding-left: 2%;
+    margin-left: auto; /* Push right, leaving spine gap */
 }
 
 .mg-grimoire-page-content {
     flex: 1;
     overflow-y: auto;
     overflow-x: hidden;
-    padding: 8px;
+    padding: 6px;
     
     /* Subtle scrollbar */
     scrollbar-width: thin;
@@ -330,49 +327,49 @@
    ══════════════════════════════════════════════ */
 
 .mg-page-section {
-    margin-bottom: 12px;
+    margin-bottom: 10px;
 }
 
 .mg-page-title {
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 600;
     color: var(--grimoire-accent);
-    margin: 0 0 8px 0;
-    padding-bottom: 6px;
+    margin: 0 0 6px 0;
+    padding-bottom: 4px;
     border-bottom: 1px solid var(--grimoire-highlight);
     text-transform: uppercase;
     letter-spacing: 1px;
 }
 
 .mg-page-subtitle {
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 600;
     color: var(--grimoire-text);
-    margin: 10px 0 6px 0;
+    margin: 8px 0 4px 0;
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
 
 .mg-page-flavor {
-    font-size: 11px;
+    font-size: 10px;
     font-style: italic;
     color: var(--grimoire-text-dim);
-    margin: 0 0 10px 0;
+    margin: 0 0 8px 0;
     line-height: 1.4;
 }
 
 .mg-page-btn {
     display: block;
     width: 100%;
-    padding: 10px 14px;
-    margin: 10px 0;
+    padding: 8px 12px;
+    margin: 8px 0;
     
     background: linear-gradient(180deg, var(--grimoire-highlight), var(--grimoire-accent));
     border: 2px solid var(--grimoire-accent);
     border-radius: 4px;
     
     color: #fff;
-    font-size: 11px;
+    font-size: 10px;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 1px;
@@ -380,8 +377,6 @@
     
     cursor: pointer;
     transition: all 0.15s ease;
-    
-    image-rendering: pixelated;
 }
 
 .mg-page-btn:hover {
@@ -395,7 +390,7 @@
 
 .mg-text-dim {
     color: var(--grimoire-text-dim);
-    font-size: 11px;
+    font-size: 10px;
     font-style: italic;
 }
 
@@ -407,20 +402,20 @@
 .mg-card-spread {
     display: flex;
     justify-content: center;
-    gap: 6px;
-    margin: 10px 0;
+    gap: 4px;
+    margin: 8px 0;
 }
 
 .mg-card-slot {
-    width: 36px;
-    height: 52px;
+    width: 32px;
+    height: 46px;
     background: linear-gradient(135deg, rgba(139,90,43,0.2), rgba(212,165,116,0.1));
     border: 2px dashed var(--grimoire-accent);
-    border-radius: 4px;
+    border-radius: 3px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 14px;
+    font-size: 12px;
     color: var(--grimoire-accent);
     opacity: 0.6;
 }
@@ -429,27 +424,27 @@
 .mg-last-reading {
     display: flex;
     align-items: center;
-    gap: 8px;
-    padding: 6px;
+    gap: 6px;
+    padding: 4px;
     background: rgba(139,90,43,0.08);
     border-radius: 4px;
 }
 
 .mg-mini-card {
-    width: 24px;
-    height: 34px;
+    width: 20px;
+    height: 28px;
     background: var(--grimoire-accent);
-    border-radius: 3px;
+    border-radius: 2px;
     display: flex;
     align-items: center;
     justify-content: center;
     color: #fff;
-    font-size: 10px;
+    font-size: 9px;
 }
 
 .mg-last-reading-info {
     flex: 1;
-    font-size: 10px;
+    font-size: 9px;
 }
 
 /* Crystal ball */
@@ -457,20 +452,20 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin: 12px 0;
+    margin: 10px 0;
 }
 
 .mg-crystal-sphere {
-    width: 56px;
-    height: 56px;
+    width: 48px;
+    height: 48px;
     border-radius: 50%;
     background: radial-gradient(circle at 30% 30%, 
         rgba(200,180,255,0.9), 
         rgba(100,80,150,0.7), 
         rgba(50,30,80,0.9));
     box-shadow: 
-        0 0 20px rgba(150,100,200,0.4),
-        inset 0 0 15px rgba(255,255,255,0.2);
+        0 0 16px rgba(150,100,200,0.4),
+        inset 0 0 12px rgba(255,255,255,0.2);
     position: relative;
     overflow: hidden;
 }
@@ -496,45 +491,45 @@
 }
 
 .mg-crystal-base {
-    width: 26px;
-    height: 6px;
+    width: 22px;
+    height: 5px;
     background: linear-gradient(180deg, #5a4a3a, #3a2a1a);
-    border-radius: 0 0 4px 4px;
+    border-radius: 0 0 3px 3px;
     margin-top: -2px;
 }
 
 /* Ouija board mini */
 .mg-ouija-mini {
-    padding: 6px;
+    padding: 5px;
     background: linear-gradient(180deg, #3a2a1a, #2a1a0a);
-    border-radius: 6px;
+    border-radius: 5px;
     text-align: center;
-    margin: 6px 0;
+    margin: 5px 0;
 }
 
 .mg-ouija-letters {
-    font-size: 6px;
+    font-size: 5px;
     color: var(--grimoire-highlight);
-    letter-spacing: 2px;
-    margin-bottom: 4px;
+    letter-spacing: 1px;
+    margin-bottom: 3px;
 }
 
 .mg-ouija-yes-no {
     display: flex;
     justify-content: space-around;
-    font-size: 7px;
+    font-size: 6px;
     color: var(--grimoire-highlight);
-    margin-bottom: 4px;
+    margin-bottom: 3px;
 }
 
 .mg-ouija-input {
     width: 100%;
-    padding: 4px 6px;
+    padding: 3px 5px;
     background: rgba(255,255,255,0.1);
     border: 1px solid var(--grimoire-accent);
     border-radius: 3px;
     color: var(--grimoire-highlight);
-    font-size: 9px;
+    font-size: 8px;
     box-sizing: border-box;
 }
 
@@ -544,71 +539,71 @@
 
 /* Queue list */
 .mg-queue-list {
-    min-height: 50px;
+    min-height: 40px;
 }
 
 .mg-queue-empty {
     text-align: center;
-    padding: 12px 6px;
+    padding: 8px 4px;
     color: var(--grimoire-text-dim);
     font-style: italic;
-    font-size: 9px;
+    font-size: 8px;
 }
 
 .mg-queue-item {
     display: flex;
     align-items: center;
-    gap: 4px;
-    padding: 3px 5px;
-    margin-bottom: 3px;
+    gap: 3px;
+    padding: 2px 4px;
+    margin-bottom: 2px;
     background: rgba(139,90,43,0.1);
-    border-radius: 3px;
-    font-size: 9px;
+    border-radius: 2px;
+    font-size: 8px;
 }
 
 .mg-queue-footer {
     text-align: center;
-    font-size: 8px;
+    font-size: 7px;
     color: var(--grimoire-text-dim);
-    padding-top: 4px;
+    padding-top: 3px;
     border-top: 1px dashed var(--grimoire-highlight);
 }
 
 /* Vision/history logs */
 .mg-vision-log,
 .mg-ouija-history {
-    min-height: 60px;
-    max-height: 100px;
+    min-height: 50px;
+    max-height: 80px;
     overflow-y: auto;
 }
 
 /* Nyx page */
 .mg-nyx-portrait {
-    width: 50px;
-    height: 50px;
-    margin: 0 auto 8px;
+    width: 44px;
+    height: 44px;
+    margin: 0 auto 6px;
     border-radius: 50%;
     background: linear-gradient(135deg, #6b5b95, #4a3f6b);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 24px;
-    box-shadow: 0 2px 8px rgba(107,91,149,0.4);
+    font-size: 20px;
+    box-shadow: 0 2px 6px rgba(107,91,149,0.4);
 }
 
 .mg-nyx-mood {
     text-align: center;
-    font-size: 11px;
+    font-size: 10px;
     color: var(--grimoire-text);
-    margin-bottom: 8px;
+    margin-bottom: 6px;
 }
 
 .mg-nyx-disposition {
-    height: 6px;
+    height: 5px;
     background: rgba(139,90,43,0.2);
     border-radius: 3px;
     overflow: hidden;
-    margin: 8px 0;
+    margin: 6px 0;
 }
 
 .mg-nyx-disposition-fill {
@@ -619,15 +614,15 @@
 
 .mg-nyx-actions {
     display: flex;
-    gap: 4px;
-    margin-top: 8px;
+    gap: 3px;
+    margin-top: 6px;
 }
 
 .mg-nyx-btn {
     flex: 1;
-    padding: 5px 6px;
-    font-size: 9px;
-    border-radius: 4px;
+    padding: 4px 5px;
+    font-size: 8px;
+    border-radius: 3px;
     border: 1px solid var(--grimoire-accent);
     background: rgba(139,90,43,0.1);
     color: var(--grimoire-text);
@@ -647,80 +642,83 @@
 /* Mobile - BIG book filling vertical space */
 @media (max-width: 600px) {
     :root {
-        --grimoire-height: 65vh;      /* Fill most of screen height */
-        --grimoire-max-height: 70vh;
-        --tab-width: 40px;
-        --tab-height: 36px;
+        --grimoire-height: 58vh;
+        --grimoire-max-height: 65vh;
+        --tab-width: 36px;
+        --tab-height: 32px;
+        --tab-right: 8%;
     }
     
     .mg-grimoire-tab {
-        font-size: 16px;
+        font-size: 14px;
     }
     
     .mg-page-title {
-        font-size: 13px;
+        font-size: 12px;
     }
     
     .mg-page-flavor,
     .mg-text-dim {
-        font-size: 10px;
+        font-size: 9px;
     }
 }
 
 /* Tablet */
 @media (min-width: 601px) and (max-width: 900px) {
     :root {
-        --grimoire-height: 75vh;
-        --grimoire-max-height: 80vh;
-        --tab-width: 44px;
-        --tab-height: 40px;
+        --grimoire-height: 70vh;
+        --grimoire-max-height: 75vh;
+        --tab-width: 40px;
+        --tab-height: 36px;
+        --tab-right: 9%;
     }
     
     .mg-grimoire-tab {
-        font-size: 18px;
+        font-size: 16px;
     }
 }
 
 /* Desktop */
 @media (min-width: 901px) {
     :root {
-        --grimoire-height: 80vh;
-        --grimoire-max-height: 85vh;
-        --tab-width: 48px;
-        --tab-height: 44px;
+        --grimoire-height: 75vh;
+        --grimoire-max-height: 80vh;
+        --tab-width: 44px;
+        --tab-height: 40px;
+        --tab-right: 10%;
     }
     
     .mg-grimoire-tab {
-        font-size: 20px;
+        font-size: 18px;
     }
     
     .mg-page-title {
-        font-size: 16px;
+        font-size: 15px;
     }
     
     .mg-page-subtitle {
-        font-size: 14px;
+        font-size: 13px;
     }
     
     .mg-page-flavor {
-        font-size: 13px;
+        font-size: 12px;
     }
     
     .mg-page-btn {
-        padding: 12px 18px;
-        font-size: 13px;
+        padding: 10px 16px;
+        font-size: 12px;
     }
     
     .mg-text-dim {
-        font-size: 12px;
+        font-size: 11px;
     }
 }
 
 /* Large desktop */
 @media (min-width: 1200px) {
     :root {
-        --grimoire-height: 85vh;
-        --grimoire-max-height: 90vh;
+        --grimoire-height: 80vh;
+        --grimoire-max-height: 85vh;
     }
 }
 
