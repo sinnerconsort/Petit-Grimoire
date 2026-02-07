@@ -9,8 +9,17 @@ import {
     grimoireOpen, setGrimoireOpen,
     saveSettings
 } from './state.js';
-import { showSpeech, showCardFlash, updateNyxMood, getMoodText, playSpecialAnimation } from './nyxgotchi.js';
-import { getSettingsPanelHTML, initSettings } from './settings.js';
+import { showSpeech, updateNyxMood, playSpecialAnimation } from './nyxgotchi.js';
+
+// Helper - get mood text from disposition (fallback if not in nyxgotchi.js)
+function getMoodText(disposition) {
+    if (disposition >= 80) return '😊 Delighted';
+    if (disposition >= 60) return '😏 Amused';
+    if (disposition >= 40) return '😐 Neutral';
+    if (disposition >= 20) return '😒 Bored';
+    return '😾 Annoyed';
+}
+import { setCompactActive, playTransformFlash } from './compact.js';
 
 // ============================================
 // CONSTANTS
@@ -38,12 +47,13 @@ const ANIM_PAGE_TURN = 400; // Page flip
 
 let currentTab = 'tarot';
 let isAnimating = false;
+let grimoireInitialized = false;
 
 // ============================================
 // GRIMOIRE HTML
 // ============================================
 
-export function getGrimoireHTML() {
+function getGrimoireHTML() {
     return `
         <div class="mg-grimoire-overlay" id="mg-grimoire-overlay"></div>
         <div class="mg-grimoire" id="mg-grimoire" data-mg-theme="${extensionSettings.shellTheme || 'guardian'}">
@@ -349,7 +359,32 @@ function getSettingsPageContent() {
                 </div>
             </div>
         `,
-        right: getSettingsPanelHTML()
+        right: `
+            <div class="mg-page-section">
+                <h3 class="mg-page-title">Settings</h3>
+                <p class="mg-page-flavor">Configure your magical experience...</p>
+                
+                <div class="mg-settings-group">
+                    <label class="mg-checkbox-label">
+                        <input type="checkbox" id="mg-setting-particles" 
+                            ${extensionSettings.features?.particleEffects !== false ? 'checked' : ''}>
+                        <span>Particle Effects</span>
+                    </label>
+                    
+                    <label class="mg-checkbox-label">
+                        <input type="checkbox" id="mg-setting-sounds"
+                            ${extensionSettings.features?.soundEffects !== false ? 'checked' : ''}>
+                        <span>Sound Effects</span>
+                    </label>
+                    
+                    <label class="mg-checkbox-label">
+                        <input type="checkbox" id="mg-setting-nyx-comments"
+                            ${extensionSettings.features?.nyxUnsolicited !== false ? 'checked' : ''}>
+                        <span>Nyx Comments</span>
+                    </label>
+                </div>
+            </div>
+        `
     };
 }
 
@@ -365,14 +400,61 @@ const PAGE_CONTENT = {
 };
 
 // ============================================
-// GRIMOIRE CONTROLS
+// GRIMOIRE INITIALIZATION
 // ============================================
+
+function ensureGrimoireExists() {
+    if (document.getElementById('mg-grimoire')) return;
+    
+    $('body').append(getGrimoireHTML());
+    initGrimoireEvents();
+    grimoireInitialized = true;
+    console.log(`[${extensionName}] Grimoire DOM created`);
+}
+
+function initGrimoireEvents() {
+    // Tab click handlers
+    $(document).on('click', '.mg-grimoire-tab', function(e) {
+        const tabId = $(this).data('tab');
+        if (tabId) switchTab(tabId);
+    });
+    
+    // Overlay click to close
+    $(document).on('click', '#mg-grimoire-overlay', closeGrimoire);
+    
+    // Escape key to close
+    $(document).on('keydown', (e) => {
+        if (e.key === 'Escape' && grimoireOpen) {
+            closeGrimoire();
+        }
+    });
+}
+
+// ============================================
+// GRIMOIRE CONTROLS (EXPORTED)
+// ============================================
+
+/**
+ * Transformation sequence - called when compact is tapped
+ */
+export function triggerTransformation() {
+    // Play compact flash
+    playTransformFlash();
+    
+    // Open grimoire after brief delay
+    setTimeout(() => {
+        openGrimoire();
+    }, 200);
+}
 
 export function openGrimoire() {
     if (grimoireOpen || isAnimating) return;
     
+    ensureGrimoireExists();
+    
     isAnimating = true;
     setGrimoireOpen(true);
+    setCompactActive(true);
     
     const overlay = document.getElementById('mg-grimoire-overlay');
     const grimoire = document.getElementById('mg-grimoire');
@@ -430,6 +512,7 @@ export function closeGrimoire() {
         }, 300);
         
         setGrimoireOpen(false);
+        setCompactActive(false);
         isAnimating = false;
     }, ANIM_CLOSE);
 }
@@ -470,8 +553,8 @@ function switchTab(newTabId) {
     // Fade out current content
     const leftPage = document.getElementById('mg-page-left');
     const rightPage = document.getElementById('mg-page-right');
-    leftPage.style.opacity = '0';
-    rightPage.style.opacity = '0';
+    if (leftPage) leftPage.style.opacity = '0';
+    if (rightPage) rightPage.style.opacity = '0';
     
     setTimeout(() => {
         // Load new content
@@ -479,8 +562,8 @@ function switchTab(newTabId) {
         loadTabContent(newTabId);
         
         // Fade in new content
-        leftPage.style.opacity = '1';
-        rightPage.style.opacity = '1';
+        if (leftPage) leftPage.style.opacity = '1';
+        if (rightPage) rightPage.style.opacity = '1';
         
         animLayer.classList.remove(animClass);
         isAnimating = false;
@@ -524,7 +607,7 @@ function initTabFunctionality(tabId) {
             initRadioTab();
             break;
         case 'settings':
-            initSettings();
+            initSettingsTab();
             break;
     }
 }
@@ -536,7 +619,7 @@ function initTabFunctionality(tabId) {
 function initTarotTab() {
     const drawBtn = document.getElementById('mg-draw-card');
     if (drawBtn) {
-        drawBtn.addEventListener('click', onDrawCard);
+        drawBtn.addEventListener('click', handleDrawCard);
     }
     updateQueueDisplay();
 }
@@ -544,14 +627,14 @@ function initTarotTab() {
 function initCrystalTab() {
     const gazeBtn = document.getElementById('mg-crystal-gaze');
     if (gazeBtn) {
-        gazeBtn.addEventListener('click', onCrystalGaze);
+        gazeBtn.addEventListener('click', handleCrystalGaze);
     }
 }
 
 function initOuijaTab() {
     const askBtn = document.getElementById('mg-ouija-ask');
     if (askBtn) {
-        askBtn.addEventListener('click', onOuijaAsk);
+        askBtn.addEventListener('click', handleOuijaAsk);
     }
 }
 
@@ -559,7 +642,7 @@ function initNyxTab() {
     document.querySelectorAll('[data-nyx-action]').forEach(btn => {
         btn.addEventListener('click', (e) => {
             const action = e.currentTarget.dataset.nyxAction;
-            onNyxAction(action);
+            handleNyxAction(action);
         });
     });
     updateNyxPanel();
@@ -569,7 +652,7 @@ function initSpellsTab() {
     document.querySelectorAll('.mg-spell-card').forEach(card => {
         card.addEventListener('click', (e) => {
             const spell = e.currentTarget.dataset.spell;
-            onCastSpell(spell, $(e.currentTarget));
+            handleCastSpell(spell, $(e.currentTarget));
         });
     });
 }
@@ -578,11 +661,31 @@ function initRadioTab() {
     // TODO: Radio functionality
 }
 
+function initSettingsTab() {
+    $('#mg-setting-particles').on('change', function() {
+        if (!extensionSettings.features) extensionSettings.features = {};
+        extensionSettings.features.particleEffects = $(this).prop('checked');
+        saveSettings();
+    });
+    
+    $('#mg-setting-sounds').on('change', function() {
+        if (!extensionSettings.features) extensionSettings.features = {};
+        extensionSettings.features.soundEffects = $(this).prop('checked');
+        saveSettings();
+    });
+    
+    $('#mg-setting-nyx-comments').on('change', function() {
+        if (!extensionSettings.features) extensionSettings.features = {};
+        extensionSettings.features.nyxUnsolicited = $(this).prop('checked');
+        saveSettings();
+    });
+}
+
 // ============================================
-// EVENT HANDLERS
+// EVENT HANDLERS (Internal)
 // ============================================
 
-function onDrawCard() {
+function handleDrawCard() {
     // Placeholder - will integrate with tarot system
     const cards = ['The Fool', 'The Magician', 'High Priestess', 'The Tower', 'The Star', 'The Moon'];
     const card = cards[Math.floor(Math.random() * cards.length)];
@@ -595,11 +698,10 @@ function onDrawCard() {
     if (keywordsEl) keywordsEl.textContent = reversed ? 'Reversed meaning...' : 'Upright meaning...';
     
     showSpeech(`Drew ${card}${reversed ? ' (reversed)' : ''}`, 3000);
-    showCardFlash(card);
     playSpecialAnimation('amused', 2);
 }
 
-function onCrystalGaze() {
+function handleCrystalGaze() {
     const visions = [
         { text: "Shadows gather at the edge of perception.", type: 'ominous' },
         { text: "A path diverges. Both lead somewhere unexpected.", type: 'choice' },
@@ -629,7 +731,7 @@ function onCrystalGaze() {
     playSpecialAnimation('amused', 2);
 }
 
-function onOuijaAsk() {
+function handleOuijaAsk() {
     const responses = [
         { answer: 'YES', flavor: 'The planchette moves decisively.', mood: 'positive' },
         { answer: 'NO', flavor: 'The spirits pull firmly toward NO.', mood: 'negative' },
@@ -675,7 +777,7 @@ function onOuijaAsk() {
     showSpeech(response.flavor, 3000);
 }
 
-function onNyxAction(action) {
+function handleNyxAction(action) {
     const responses = {
         treat: [
             ['Nyx accepted the treat graciously.', 2, 'delighted'],
@@ -730,7 +832,7 @@ function onNyxAction(action) {
     updateNyxPanel();
 }
 
-function onCastSpell(spellName, $card) {
+function handleCastSpell(spellName, $card) {
     if ($card.hasClass('mg-spell-cooldown')) return;
     
     $card.addClass('mg-spell-cast');
@@ -781,7 +883,7 @@ function shiftDisposition(amount) {
     updateNyxMood();
 }
 
-export function updateNyxPanel() {
+function updateNyxPanel() {
     const d = extensionSettings.nyx?.disposition ?? 50;
     const scoreEl = document.getElementById('mg-nyx-score');
     const barEl = document.getElementById('mg-nyx-bar');
@@ -801,23 +903,46 @@ function updateQueueDisplay() {
 }
 
 // ============================================
-// INITIALIZATION
+// NYXGOTCHI BUTTON HANDLERS (EXPORTED)
+// These are called from index.js via nyxgotchi callbacks
 // ============================================
 
-export function initGrimoire() {
-    // Tab click handlers
-    $(document).on('click', '.mg-grimoire-tab', function(e) {
-        const tabId = $(this).data('tab');
-        if (tabId) switchTab(tabId);
-    });
+export function onDrawCard() {
+    // Quick draw from nyxgotchi - could open grimoire to tarot tab
+    if (!grimoireOpen) {
+        currentTab = 'tarot';
+        openGrimoire();
+    } else {
+        switchTab('tarot');
+    }
+}
+
+export function onViewQueue() {
+    // View queue - open grimoire to tarot tab
+    if (!grimoireOpen) {
+        currentTab = 'tarot';
+        openGrimoire();
+    } else {
+        switchTab('tarot');
+    }
+}
+
+export function onPokeNyx() {
+    // Poke nyx - show speech bubble
+    const pokes = [
+        "What.",
+        "Yes, I'm still here.",
+        "...was that supposed to do something?",
+        "*yawn*",
+        "Don't you have cards to draw?",
+        "I was napping.",
+    ];
+    const msg = pokes[Math.floor(Math.random() * pokes.length)];
+    showSpeech(msg, 3000);
     
-    // Overlay click to close
-    $(document).on('click', '#mg-grimoire-overlay', closeGrimoire);
-    
-    // Escape key to close
-    $(document).on('keydown', (e) => {
-        if (e.key === 'Escape' && grimoireOpen) {
-            closeGrimoire();
-        }
-    });
+    // Small chance to shift disposition
+    if (Math.random() < 0.3) {
+        const shift = Math.random() < 0.5 ? 1 : -1;
+        shiftDisposition(shift);
+    }
 }
