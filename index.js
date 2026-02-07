@@ -1,228 +1,201 @@
 /**
  * Petit Grimoire - A Magical Girl Fortune-Telling Extension
- * REBUILD - Simplified with debug output
+ * Using inline styles to diagnose CSS loading issues
  */
 
 import { getContext } from '../../../extensions.js';
-import { eventSource, event_types, saveSettingsDebounced } from '../../../../script.js';
-
-// =============================================================================
-// CONSTANTS
-// =============================================================================
+import { saveSettingsDebounced } from '../../../../script.js';
 
 const extensionName = 'third-party/Petit-Grimoire';
 const extensionFolderPath = `scripts/extensions/${extensionName}`;
 
-const ASSET_PATHS = {
-    grimoire: `${extensionFolderPath}/assets/grimoire`,
-    shells: `${extensionFolderPath}/assets/shells`,
-    sprites: `${extensionFolderPath}/assets/sprites`,
-};
-
 const THEMES = {
-    guardian: {
-        name: 'Guardian',
-        main: '#dc78aa',
-        secondary: '#f3aa1e',
-        bg: '#1a0a12',
-        cardBg: '#2a1020',
-        textLight: '#fce4ec',
-        fabIcon: 'fab-guardian.png',
-    },
-    umbra: {
-        name: 'Umbra',
-        main: '#940e8f',
-        secondary: '#d89520',
-        bg: '#0d0512',
-        cardBg: '#1a0825',
-        textLight: '#e8d5f5',
-        fabIcon: 'fab-umbra.png',
-    },
-    apothecary: {
-        name: 'Apothecary',
-        main: '#76482e',
-        secondary: '#4c6b20',
-        bg: '#1a150e',
-        cardBg: '#2a2015',
-        textLight: '#f0e6d8',
-        fabIcon: 'fab-apothecary.png',
-    },
-    moonstone: {
-        name: 'Moonstone',
-        main: '#d9c7fb',
-        secondary: '#bcf1fd',
-        bg: '#1a1525',
-        cardBg: '#251e35',
-        textLight: '#feebff',
-        fabIcon: 'fab-moonstone.png',
-    },
-    phosphor: {
-        name: 'Phosphor',
-        main: '#7375ca',
-        secondary: '#feffff',
-        bg: '#060018',
-        cardBg: '#0d0230',
-        textLight: '#e8e8ff',
-        fabIcon: 'fab-phosphor.png',
-    },
-    rosewood: {
-        name: 'Rosewood',
-        main: '#e4b0bc',
-        secondary: '#d8caca',
-        bg: '#1a1214',
-        cardBg: '#2a1e22',
-        textLight: '#f5eaed',
-        fabIcon: 'fab-rosewood.png',
-    },
-    celestial: {
-        name: 'Celestial',
-        main: '#002f86',
-        secondary: '#e3b35f',
-        bg: '#060d1a',
-        cardBg: '#0c1528',
-        textLight: '#fbe09c',
-        fabIcon: 'fab-celestial.png',
-    }
+    guardian: { name: 'Guardian', main: '#dc78aa', bg: '#1a0a12', cardBg: '#2a1020', textLight: '#fce4ec' },
+    umbra: { name: 'Umbra', main: '#940e8f', bg: '#0d0512', cardBg: '#1a0825', textLight: '#e8d5f5' },
+    moonstone: { name: 'Moonstone', main: '#d9c7fb', bg: '#1a1525', cardBg: '#251e35', textLight: '#feebff' },
+    celestial: { name: 'Celestial', main: '#002f86', bg: '#060d1a', cardBg: '#0c1528', textLight: '#fbe09c' },
 };
 
-// =============================================================================
-// STATE
-// =============================================================================
-
-let extensionSettings = {
+let settings = {
     enabled: true,
     theme: 'guardian',
     panelOpen: false,
     fabPosition: { right: 20, bottom: 100 }
 };
 
-// =============================================================================
-// SETTINGS
-// =============================================================================
-
+// Load/save
 function loadSettings() {
-    try {
-        const context = getContext();
-        const saved = context.extensionSettings?.[extensionName];
-        if (saved) {
-            Object.assign(extensionSettings, saved);
-        }
-        console.log('[PetitGrimoire] Settings loaded:', extensionSettings);
-    } catch (error) {
-        console.error('[PetitGrimoire] loadSettings error:', error);
-    }
+    const ctx = getContext();
+    const saved = ctx.extensionSettings?.[extensionName];
+    if (saved) Object.assign(settings, saved);
 }
 
 function saveSettings() {
-    try {
-        const context = getContext();
-        if (!context.extensionSettings) {
-            context.extensionSettings = {};
-        }
-        context.extensionSettings[extensionName] = extensionSettings;
-        saveSettingsDebounced();
-    } catch (error) {
-        console.error('[PetitGrimoire] saveSettings error:', error);
-    }
+    const ctx = getContext();
+    if (!ctx.extensionSettings) ctx.extensionSettings = {};
+    ctx.extensionSettings[extensionName] = settings;
+    saveSettingsDebounced();
 }
 
 // =============================================================================
-// UI CREATION
+// CREATE UI WITH INLINE STYLES
 // =============================================================================
 
 function createUI() {
-    console.log('[PetitGrimoire] createUI called');
-    
     // Remove existing
     $('#petit-grimoire-fab').remove();
     $('#petit-grimoire-panel').remove();
     
-    const theme = THEMES[extensionSettings.theme] || THEMES.guardian;
-    const fabSrc = `${ASSET_PATHS.sprites}/${theme.fabIcon}`;
+    const theme = THEMES[settings.theme] || THEMES.guardian;
     
-    console.log('[PetitGrimoire] FAB image src:', fabSrc);
+    // FAB - ALL INLINE STYLES
+    const fab = $('<div>', {
+        id: 'petit-grimoire-fab',
+        title: 'Open Petit Grimoire'
+    }).css({
+        'position': 'fixed',
+        'z-index': '999999',
+        'right': settings.fabPosition.right + 'px',
+        'bottom': settings.fabPosition.bottom + 'px',
+        'width': '56px',
+        'height': '56px',
+        'background': `linear-gradient(135deg, ${theme.cardBg}, ${theme.bg})`,
+        'border': `3px solid ${theme.main}`,
+        'border-radius': '50%',
+        'box-shadow': `0 4px 20px ${theme.main}80`,
+        'display': 'flex',
+        'align-items': 'center',
+        'justify-content': 'center',
+        'cursor': 'pointer',
+        'font-size': '24px',
+        'color': theme.main,
+        'user-select': 'none',
+        'touch-action': 'none'
+    }).html('✨');
     
-    // Create FAB - super simple
-    const fabHtml = `
-        <div id="petit-grimoire-fab" title="Open Grimoire">
-            <img src="${fabSrc}" alt="✨" draggable="false">
-        </div>
-    `;
-    
-    // Create Panel
-    const panelHtml = `
-        <div id="petit-grimoire-panel" class="${extensionSettings.panelOpen ? 'open' : ''}">
-            <div id="petit-grimoire-book">
-                <div class="pg-book-content">
-                    <div class="pg-header">✨ Petit Grimoire ✨</div>
-                    <div class="pg-body">
-                        <p>Theme: ${theme.name}</p>
-                        <p>Panel is working!</p>
-                        <button id="pg-test-close">Close Panel</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    `;
-    
-    // Append to body
-    $('body').append(fabHtml);
-    $('body').append(panelHtml);
-    
-    console.log('[PetitGrimoire] HTML appended');
-    
-    // Verify elements exist
-    const $fab = $('#petit-grimoire-fab');
-    const $panel = $('#petit-grimoire-panel');
-    
-    console.log('[PetitGrimoire] FAB exists:', $fab.length > 0);
-    console.log('[PetitGrimoire] Panel exists:', $panel.length > 0);
-    
-    if ($fab.length === 0) {
-        toastr.error('FAB element not created!', 'PetitGrimoire');
-        return;
-    }
-    
-    // Apply saved position
-    $fab.css({
-        right: extensionSettings.fabPosition.right + 'px',
-        bottom: extensionSettings.fabPosition.bottom + 'px'
+    // PANEL - ALL INLINE STYLES
+    const panel = $('<div>', {
+        id: 'petit-grimoire-panel'
+    }).css({
+        'position': 'fixed',
+        'top': '0',
+        'left': '0',
+        'right': '0',
+        'bottom': '0',
+        'z-index': '999998',
+        'background': 'rgba(0,0,0,0.8)',
+        'backdrop-filter': 'blur(4px)',
+        'display': 'flex',
+        'align-items': 'center',
+        'justify-content': 'center',
+        'opacity': '0',
+        'visibility': 'hidden',
+        'pointer-events': 'none',
+        'transition': 'opacity 0.3s ease'
     });
     
-    // FAB click handler
-    $fab.on('click', function(e) {
+    // BOOK inside panel
+    const book = $('<div>', {
+        id: 'petit-grimoire-book'
+    }).css({
+        'width': '300px',
+        'min-height': '400px',
+        'background': theme.cardBg,
+        'border': `3px solid ${theme.main}`,
+        'border-radius': '12px',
+        'box-shadow': `0 10px 40px rgba(0,0,0,0.5), 0 0 30px ${theme.main}50`,
+        'padding': '20px',
+        'color': theme.textLight
+    }).html(`
+        <h2 style="color: ${theme.main}; text-align: center; margin-bottom: 20px;">✨ Petit Grimoire ✨</h2>
+        <p style="text-align: center;">Theme: ${theme.name}</p>
+        <p style="text-align: center; margin-top: 20px; opacity: 0.7;">Panel is working!</p>
+        <button id="pg-close-test" style="
+            display: block;
+            margin: 30px auto 0;
+            padding: 10px 25px;
+            background: ${theme.main};
+            border: none;
+            border-radius: 8px;
+            color: ${theme.bg};
+            font-weight: bold;
+            cursor: pointer;
+        ">Close</button>
+    `);
+    
+    panel.append(book);
+    
+    // Add to body
+    $('body').append(fab);
+    $('body').append(panel);
+    
+    // FAB click
+    let isDragging = false;
+    let hasMoved = false;
+    let startX, startY, startRight, startBottom;
+    
+    fab.on('mousedown touchstart', function(e) {
+        isDragging = true;
+        hasMoved = false;
+        
+        const clientX = e.type === 'touchstart' ? e.touches[0].clientX : e.clientX;
+        const clientY = e.type === 'touchstart' ? e.touches[0].clientY : e.clientY;
+        
+        startX = clientX;
+        startY = clientY;
+        startRight = parseInt(fab.css('right'));
+        startBottom = parseInt(fab.css('bottom'));
+        
         e.preventDefault();
-        e.stopPropagation();
-        console.log('[PetitGrimoire] FAB clicked');
-        togglePanel();
     });
     
-    // Close button
-    $('#pg-test-close').on('click', function() {
-        closePanel();
+    $(document).on('mousemove touchmove', function(e) {
+        if (!isDragging) return;
+        
+        const clientX = e.type === 'touchmove' ? e.touches[0].clientX : e.clientX;
+        const clientY = e.type === 'touchmove' ? e.touches[0].clientY : e.clientY;
+        
+        const deltaX = startX - clientX;
+        const deltaY = startY - clientY;
+        
+        if (Math.abs(deltaX) > 5 || Math.abs(deltaY) > 5) {
+            hasMoved = true;
+        }
+        
+        const newRight = Math.max(5, Math.min(window.innerWidth - 60, startRight + deltaX));
+        const newBottom = Math.max(5, Math.min(window.innerHeight - 60, startBottom + deltaY));
+        
+        fab.css({ right: newRight + 'px', bottom: newBottom + 'px' });
     });
     
-    // Click outside panel to close
-    $panel.on('click', function(e) {
-        if (e.target === this) {
-            closePanel();
+    $(document).on('mouseup touchend', function() {
+        if (!isDragging) return;
+        isDragging = false;
+        
+        settings.fabPosition = {
+            right: parseInt(fab.css('right')),
+            bottom: parseInt(fab.css('bottom'))
+        };
+        saveSettings();
+        
+        if (!hasMoved) {
+            togglePanel();
         }
     });
     
-    toastr.success('UI Created! FAB should be visible.', 'PetitGrimoire');
+    // Close button
+    $(document).on('click', '#pg-close-test', closePanel);
+    
+    // Click backdrop
+    panel.on('click', function(e) {
+        if (e.target === this) closePanel();
+    });
+    
+    toastr.success('FAB created with inline styles!', 'Petit Grimoire');
 }
-
-function destroyUI() {
-    $('#petit-grimoire-fab').remove();
-    $('#petit-grimoire-panel').remove();
-}
-
-// =============================================================================
-// PANEL CONTROL
-// =============================================================================
 
 function togglePanel() {
-    if (extensionSettings.panelOpen) {
+    if (settings.panelOpen) {
         closePanel();
     } else {
         openPanel();
@@ -230,117 +203,81 @@ function togglePanel() {
 }
 
 function openPanel() {
-    console.log('[PetitGrimoire] Opening panel');
-    $('#petit-grimoire-panel').addClass('open');
-    extensionSettings.panelOpen = true;
+    $('#petit-grimoire-panel').css({
+        'opacity': '1',
+        'visibility': 'visible',
+        'pointer-events': 'auto'
+    });
+    settings.panelOpen = true;
     saveSettings();
 }
 
 function closePanel() {
-    console.log('[PetitGrimoire] Closing panel');
-    $('#petit-grimoire-panel').removeClass('open');
-    extensionSettings.panelOpen = false;
+    $('#petit-grimoire-panel').css({
+        'opacity': '0',
+        'visibility': 'hidden',
+        'pointer-events': 'none'
+    });
+    settings.panelOpen = false;
     saveSettings();
 }
 
-// =============================================================================
-// THEME
-// =============================================================================
-
-function applyTheme(themeKey) {
-    if (!THEMES[themeKey]) return;
-    
-    extensionSettings.theme = themeKey;
-    saveSettings();
-    
-    // Recreate UI with new theme
-    if (extensionSettings.enabled) {
-        createUI();
-    }
+function destroyUI() {
+    $('#petit-grimoire-fab').remove();
+    $('#petit-grimoire-panel').remove();
 }
 
-// =============================================================================
-// SETTINGS PANEL (in Extensions tab)
-// =============================================================================
-
-function addExtensionSettings() {
-    // Check if already added
-    if ($('#pg-settings-block').length > 0) return;
+// Settings panel in Extensions tab
+function addSettingsUI() {
+    if ($('#pg-settings').length) return;
     
-    const themeOptions = Object.entries(THEMES)
-        .map(([key, t]) => `<option value="${key}" ${extensionSettings.theme === key ? 'selected' : ''}>${t.name}</option>`)
+    const themeOpts = Object.entries(THEMES)
+        .map(([k, t]) => `<option value="${k}" ${settings.theme === k ? 'selected' : ''}>${t.name}</option>`)
         .join('');
     
-    const settingsHtml = `
-        <div id="pg-settings-block" class="inline-drawer">
+    const html = `
+        <div id="pg-settings" class="inline-drawer">
             <div class="inline-drawer-toggle inline-drawer-header">
                 <b>✨ Petit Grimoire</b>
                 <div class="inline-drawer-icon fa-solid fa-circle-chevron-down down"></div>
             </div>
             <div class="inline-drawer-content">
                 <label class="checkbox_label">
-                    <input type="checkbox" id="pg-enabled" ${extensionSettings.enabled ? 'checked' : ''}>
+                    <input type="checkbox" id="pg-enabled" ${settings.enabled ? 'checked' : ''}>
                     <span>Enable Extension</span>
                 </label>
                 <div style="margin-top: 10px;">
-                    <label style="margin-right: 10px;">Theme:</label>
-                    <select id="pg-theme-select">${themeOptions}</select>
-                </div>
-                <div style="margin-top: 10px;">
-                    <button id="pg-debug-btn" class="menu_button">Debug: Recreate UI</button>
+                    <label>Theme: </label>
+                    <select id="pg-theme">${themeOpts}</select>
                 </div>
             </div>
         </div>
     `;
     
-    $('#extensions_settings2').append(settingsHtml);
+    $('#extensions_settings2').append(html);
     
-    // Enable toggle
     $('#pg-enabled').on('change', function() {
-        extensionSettings.enabled = $(this).prop('checked');
+        settings.enabled = $(this).prop('checked');
         saveSettings();
-        
-        if (extensionSettings.enabled) {
-            createUI();
-        } else {
-            destroyUI();
-        }
+        if (settings.enabled) createUI();
+        else destroyUI();
     });
     
-    // Theme select
-    $('#pg-theme-select').on('change', function() {
-        applyTheme($(this).val());
-    });
-    
-    // Debug button
-    $('#pg-debug-btn').on('click', function() {
-        toastr.info('Recreating UI...', 'PetitGrimoire');
-        createUI();
+    $('#pg-theme').on('change', function() {
+        settings.theme = $(this).val();
+        saveSettings();
+        if (settings.enabled) createUI();
     });
 }
 
-// =============================================================================
-// INIT
-// =============================================================================
-
+// Init
 jQuery(async () => {
-    console.log('[PetitGrimoire] 🔮 Starting...');
+    console.log('[PetitGrimoire] Starting...');
+    loadSettings();
+    addSettingsUI();
     
-    try {
-        loadSettings();
-        addExtensionSettings();
-        
-        if (extensionSettings.enabled) {
-            // Small delay to ensure DOM is ready
-            setTimeout(() => {
-                createUI();
-            }, 500);
-        }
-        
-        console.log('[PetitGrimoire] ✨ Init complete');
-        
-    } catch (error) {
-        console.error('[PetitGrimoire] Init error:', error);
-        toastr.error('Failed to initialize: ' + error.message, 'PetitGrimoire');
+    if (settings.enabled) {
+        // Small delay for DOM
+        setTimeout(createUI, 300);
     }
 });
