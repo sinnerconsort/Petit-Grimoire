@@ -90,10 +90,9 @@ export function initGrimoire() {
 }
 
 function destroy() {
-    // Remove all namespaced event handlers
     $(document).off('.grimoire');
-    // Remove DOM elements
     $('#mg-compact').remove();
+    $('#mg-compact-test2').remove();
     $('#mg-grimoire').remove();
     $('#mg-grimoire-overlay').remove();
 }
@@ -105,47 +104,70 @@ function destroy() {
 function createCompact() {
     const theme = extensionSettings.shellTheme || 'guardian';
 
-    // Nuclear approach: create element directly, not via template string
+    // Nuclear debug: try multiple approaches
     const fab = document.createElement('div');
     fab.id = 'mg-compact';
     fab.className = 'mg-fab mg-compact';
     fab.setAttribute('data-mg-theme', theme);
+    fab.textContent = '🌙';
     
-    // Inline everything — no CSS dependency at all
     Object.assign(fab.style, {
         position: 'fixed',
-        bottom: '100px',
-        right: '20px',
-        zIndex: '999999',
-        width: '80px',
-        height: '80px',
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+        zIndex: '2147483647',   // max 32-bit int
+        width: '100px',
+        height: '100px',
         background: 'red',
         borderRadius: '50%',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        fontSize: '36px',
+        fontSize: '48px',
         cursor: 'pointer',
-        border: '3px solid yellow',
-        boxShadow: '0 0 20px red',
+        border: '5px solid yellow',
+        boxShadow: '0 0 40px 20px red',
+        pointerEvents: 'auto',
     });
-    fab.textContent = '🌙';
     
     document.body.appendChild(fab);
 
-    // Respect visibility setting
-    if (extensionSettings.showCompact === false) {
-        fab.style.display = 'none';
-    }
-
-    // Verification
-    const exists = document.getElementById('mg-compact');
-    const isVisible = exists ? getComputedStyle(exists).display !== 'none' : false;
-    console.log(`[PetitGrimoire] FAB created: exists=${!!exists}, visible=${isVisible}, parent=${exists?.parentElement?.tagName}`);
+    // If fixed doesn't work, also try a SECOND element inside #sheld (ST's main container)
+    const fab2 = document.createElement('div');
+    fab2.id = 'mg-compact-test2';
+    fab2.textContent = '⭐';
+    Object.assign(fab2.style, {
+        position: 'absolute',
+        top: '200px',
+        right: '10px',
+        zIndex: '2147483647',
+        width: '80px',
+        height: '80px',
+        background: 'lime',
+        borderRadius: '50%',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        fontSize: '40px',
+        border: '4px solid blue',
+        boxShadow: '0 0 30px 15px lime',
+        pointerEvents: 'auto',
+    });
     
-    if (typeof toastr !== 'undefined') {
-        toastr.success(`FAB: exists=${!!exists}, vis=${isVisible}`, 'Grimoire Debug', { timeOut: 5000 });
-    }
+    // Try appending to ST containers
+    const sheld = document.getElementById('sheld');
+    const form = document.getElementById('form_sheld');
+    const target = sheld || form || document.body;
+    target.appendChild(fab2);
+
+    console.log(`[PetitGrimoire] FAB1 parent: ${fab.parentElement?.tagName}#${fab.parentElement?.id}`);
+    console.log(`[PetitGrimoire] FAB2 parent: ${fab2.parentElement?.tagName}#${fab2.parentElement?.id}`);
+    
+    toastr?.success(
+        `RED=body/fixed, GREEN=${target.tagName}#${target.id}/absolute`,
+        'Debug: 2 FABs', { timeOut: 8000 }
+    );
 }
 
 // ══════════════════════════════════════════════
