@@ -1,7 +1,13 @@
 /**
  * Petit Grimoire — Grimoire Drawer (WithTabs Edition)
  * Portrait single-page spellbook with 6 tabbed sections
- * Opens/closes via compact FAB tap with CSS slide animations
+ * Opens/closes via compact FAB tap
+ *
+ * Follows ST's own panel pattern:
+ *   - Base state: hidden via CSS (opacity 0, pointer-events none)
+ *   - Open:  addClass('is-open')
+ *   - Close: removeClass('is-open'), addClass('is-closing')
+ *            → animationend removes 'is-closing'
  */
 
 import { setCompactActive, playTransformFlash } from './compact.js';
@@ -37,12 +43,12 @@ export function initGrimoire() {
     console.log('[Grimoire] Initializing drawer edition...');
 
     // Clean up any previous instance
-    document.getElementById('mg-grimoire-overlay')?.remove();
-    document.getElementById('mg-grimoire')?.remove();
+    $('#mg-grimoire-overlay').remove();
+    $('#mg-grimoire').remove();
 
     createGrimoireDOM();
     setupEventListeners();
-    console.log('[Grimoire] Ready!');
+    console.log('[Grimoire] Ready — element in DOM:', $('#mg-grimoire').length > 0);
 }
 
 // ══════════════════════════════════════════════
@@ -50,81 +56,70 @@ export function initGrimoire() {
 // ══════════════════════════════════════════════
 
 function createGrimoireDOM() {
-    // Overlay (dark backdrop, click to close)
-    const overlay = document.createElement('div');
-    overlay.className = 'mg-grimoire-overlay';
-    overlay.id = 'mg-grimoire-overlay';
-    document.body.appendChild(overlay);
+    // Overlay (dark backdrop)
+    $('body').append('<div class="mg-grimoire-overlay" id="mg-grimoire-overlay"></div>');
 
-    // Main container (hidden by default, CSS positions it)
-    const grimoire = document.createElement('div');
-    grimoire.className = 'mg-grimoire';
-    grimoire.id = 'mg-grimoire';
-    grimoire.style.display = 'none';
+    // Build tab buttons
+    const tabsHTML = GRIMOIRE_TABS.map((tab, i) => `
+        <button class="mg-grimoire-tab mg-grimoire-tab--${i + 1}"
+                data-tab="${tab.id}"
+                data-active="${tab.id === grimoireState.currentTab}"
+                title="${tab.label}">
+            <i class="fa-solid ${tab.icon}"></i>
+        </button>
+    `).join('');
 
-    grimoire.innerHTML = `
-        <div class="mg-grimoire-book">
-            <!-- Animation layer (CSS crossfade for tab switches) -->
-            <div class="mg-grimoire-anim" id="mg-grimoire-anim"></div>
+    // Main grimoire container (hidden by default via CSS — no .is-open class)
+    $('body').append(`
+        <div class="mg-grimoire" id="mg-grimoire">
+            <div class="mg-grimoire-book">
+                <div class="mg-grimoire-anim" id="mg-grimoire-anim"></div>
 
-            <!-- Tab icons — positioned over the 6 sprite tab shapes -->
-            <div class="mg-grimoire-tabs">
-                ${GRIMOIRE_TABS.map((tab, i) => `
-                    <button class="mg-grimoire-tab mg-grimoire-tab--${i + 1}"
-                            data-tab="${tab.id}"
-                            data-active="${tab.id === grimoireState.currentTab}"
-                            title="${tab.label}">
-                        <i class="fa-solid ${tab.icon}"></i>
-                    </button>
-                `).join('')}
-            </div>
+                <div class="mg-grimoire-tabs">
+                    ${tabsHTML}
+                </div>
 
-            <!-- Close button (top-right of parchment) -->
-            <div class="mg-grimoire-close" id="mg-grimoire-close">
-                <i class="fa-solid fa-xmark"></i>
-            </div>
+                <div class="mg-grimoire-close" id="mg-grimoire-close">
+                    <i class="fa-solid fa-xmark"></i>
+                </div>
 
-            <!-- Single scrollable page content -->
-            <div class="mg-grimoire-pages">
-                <div class="mg-grimoire-page-content" id="mg-page-content"></div>
+                <div class="mg-grimoire-pages">
+                    <div class="mg-grimoire-page-content" id="mg-page-content"></div>
+                </div>
             </div>
         </div>
-    `;
-
-    document.body.appendChild(grimoire);
+    `);
 
     // Load initial tab content
     loadPageContent(grimoireState.currentTab);
 }
 
 // ══════════════════════════════════════════════
-// EVENT LISTENERS
+// EVENT LISTENERS (delegated — survive DOM rebuilds)
 // ══════════════════════════════════════════════
 
 function setupEventListeners() {
     // Overlay click → close
-    document.getElementById('mg-grimoire-overlay')
-        ?.addEventListener('click', closeGrimoire);
+    $(document).on('click.grimoire', '#mg-grimoire-overlay', () => {
+        closeGrimoire();
+    });
 
     // Close button → close
-    document.getElementById('mg-grimoire-close')
-        ?.addEventListener('click', (e) => {
-            e.stopPropagation();
-            closeGrimoire();
-        });
+    $(document).on('click.grimoire', '#mg-grimoire-close', (e) => {
+        e.stopPropagation();
+        closeGrimoire();
+    });
 
     // Tab clicks
-    document.querySelectorAll('.mg-grimoire-tab').forEach(tab => {
-        tab.addEventListener('click', (e) => {
-            const tabId = e.currentTarget.dataset.tab;
-            if (tabId && tabId !== grimoireState.currentTab) {
-                switchTab(tabId);
-            }
-        });
+    $(document).on('click.grimoire', '.mg-grimoire-tab', (e) => {
+        const tabId = $(e.currentTarget).data('tab');
+        if (tabId && tabId !== grimoireState.currentTab) {
+            switchTab(tabId);
+        }
     });
 
     // Escape key → close
-    document.addEventListener('keydown', (e) => {
+    $(document).on('keydown.grimoire', (e) => {
         if (e.key === 'Escape' && grimoireState.isOpen) {
             closeGrimoire();
         }
@@ -133,29 +128,23 @@ function setupEventListeners() {
 
 // ══════════════════════════════════════════════
 // OPEN / CLOSE / TOGGLE
+// Follows ST pattern: addClass/removeClass + animationend
 // ══════════════════════════════════════════════
 
 export function openGrimoire() {
     if (grimoireState.isOpen || grimoireState.isAnimating) return;
 
-    const grimoire = document.getElementById('mg-grimoire');
-    const overlay = document.getElementById('mg-grimoire-overlay');
-    if (!grimoire || !overlay) return;
+    const $grimoire = $('#mg-grimoire');
+    const $overlay = $('#mg-grimoire-overlay');
+    if ($grimoire.length === 0) return;
 
     grimoireState.isAnimating = true;
 
-    // Show overlay with fade-in
-    overlay.style.display = 'block';
-    requestAnimationFrame(() => overlay.classList.add('visible'));
+    // Show overlay
+    $overlay.addClass('visible');
 
-    // Show grimoire with slide-in animation
-    grimoire.classList.remove('mg-grimoire-closing');
-    grimoire.classList.remove('mg-grimoire-opening');
-    grimoire.style.display = 'block';
-
-    // Force reflow so animation replays
-    void grimoire.offsetWidth;
-    grimoire.classList.add('mg-grimoire-opening');
+    // Open grimoire — CSS .is-open handles visibility + slide-in animation
+    $grimoire.removeClass('is-closing').addClass('is-open');
 
     // Compact FAB feedback
     playTransformFlash();
@@ -163,72 +152,69 @@ export function openGrimoire() {
 
     grimoireState.isOpen = true;
     grimoireState.isAnimating = false;
+
+    console.log('[Grimoire] Opened');
 }
 
 export function closeGrimoire() {
     if (!grimoireState.isOpen || grimoireState.isAnimating) return;
 
-    const grimoire = document.getElementById('mg-grimoire');
-    const overlay = document.getElementById('mg-grimoire-overlay');
-    if (!grimoire || !overlay) return;
+    const $grimoire = $('#mg-grimoire');
+    const $overlay = $('#mg-grimoire-overlay');
+    if ($grimoire.length === 0) return;
 
     grimoireState.isAnimating = true;
 
-    // Trigger CSS slide-out animation
-    grimoire.classList.remove('mg-grimoire-opening');
-    grimoire.classList.add('mg-grimoire-closing');
+    // Trigger close animation (ST pattern)
+    $grimoire.removeClass('is-open').addClass('is-closing');
+    $overlay.removeClass('visible');
 
-    // Fade out overlay
-    overlay.classList.remove('visible');
-
-    // After animation completes, actually hide elements
-    setTimeout(() => {
-        grimoire.style.display = 'none';
-        grimoire.classList.remove('mg-grimoire-closing');
-        overlay.style.display = 'none';
-
+    // Clean up after animation completes
+    $grimoire.one('animationend', () => {
+        $grimoire.removeClass('is-closing');
         setCompactActive(false);
         grimoireState.isOpen = false;
         grimoireState.isAnimating = false;
-    }, 250); // matches grimoire-slide-out duration in CSS
+        console.log('[Grimoire] Closed');
+    });
+
+    // Safety timeout if animationend doesn't fire
+    setTimeout(() => {
+        if (grimoireState.isAnimating) {
+            $grimoire.removeClass('is-closing');
+            setCompactActive(false);
+            grimoireState.isOpen = false;
+            grimoireState.isAnimating = false;
+            console.log('[Grimoire] Closed (timeout fallback)');
+        }
+    }, 500);
 }
 
 export function toggleGrimoire() {
-    if (grimoireState.isOpen) {
-        closeGrimoire();
-    } else {
-        openGrimoire();
-    }
+    grimoireState.isOpen ? closeGrimoire() : openGrimoire();
 }
 
 // ══════════════════════════════════════════════
-// TAB SWITCHING (CSS crossfade, no sprite anim)
+// TAB SWITCHING
 // ══════════════════════════════════════════════
 
 function switchTab(tabId) {
     if (grimoireState.isAnimating || tabId === grimoireState.currentTab) return;
 
-    grimoireState.isAnimating = true;
-
     // Update active states on tab buttons
-    document.querySelectorAll('.mg-grimoire-tab').forEach(tab => {
-        tab.dataset.active = tab.dataset.tab === tabId ? 'true' : 'false';
+    $('.mg-grimoire-tab').each(function () {
+        $(this).attr('data-active', $(this).data('tab') === tabId ? 'true' : 'false');
     });
 
-    // Play crossfade
-    const anim = document.getElementById('mg-grimoire-anim');
-    if (anim) {
-        anim.className = 'mg-grimoire-anim';
-        void anim.offsetWidth; // force reflow
-        anim.classList.add('mg-anim-page-fade');
-    }
+    // Quick crossfade on content
+    const $content = $('#mg-page-content');
+    $content.css('opacity', '0');
 
-    // Swap content after brief delay
     setTimeout(() => {
         grimoireState.currentTab = tabId;
         loadPageContent(tabId);
-        grimoireState.isAnimating = false;
-    }, 150);
+        $content.css('opacity', '1');
+    }, 120);
 }
 
 // ══════════════════════════════════════════════
@@ -236,15 +222,11 @@ function switchTab(tabId) {
 // ══════════════════════════════════════════════
 
 function loadPageContent(tabId) {
-    const container = document.getElementById('mg-page-content');
-    if (!container) return;
+    const $container = $('#mg-page-content');
+    if ($container.length === 0) return;
 
-    container.innerHTML = getPageContent(tabId);
-
-    // Scroll to top on tab switch
-    container.scrollTop = 0;
-
-    // Rebind interactive elements
+    $container.html(getPageContent(tabId));
+    $container.scrollTop(0);
     bindPageActions(tabId);
 }
 
@@ -255,18 +237,13 @@ function getPageContent(tabId) {
             <div class="mg-page-section">
                 <h3 class="mg-page-title">🎴 Tarot</h3>
                 <p class="mg-page-flavor">"The cards know what you refuse to see."</p>
-
                 <div class="mg-card-spread">
                     <div class="mg-card-slot">?</div>
                     <div class="mg-card-slot">?</div>
                     <div class="mg-card-slot">?</div>
                 </div>
-
-                <button class="mg-page-btn" id="mg-btn-draw-card">
-                    ✦ Draw a Card
-                </button>
+                <button class="mg-page-btn" id="mg-btn-draw-card">✦ Draw a Card</button>
             </div>
-
             <div class="mg-page-section">
                 <h4 class="mg-page-subtitle">Fate Queue</h4>
                 <div class="mg-queue-list" id="mg-fate-queue">
@@ -274,7 +251,6 @@ function getPageContent(tabId) {
                 </div>
                 <div class="mg-queue-footer">Cards trigger on story beats</div>
             </div>
-
             <div class="mg-page-section">
                 <h4 class="mg-page-subtitle">Last Reading</h4>
                 <div class="mg-last-reading">
@@ -291,7 +267,6 @@ function getPageContent(tabId) {
             <div class="mg-page-section">
                 <h3 class="mg-page-title">🔮 Crystal Ball</h3>
                 <p class="mg-page-flavor">"Fate is not a request line."</p>
-
                 <div class="mg-crystal-orb">
                     <div class="mg-crystal-sphere">
                         <div class="mg-crystal-mist"></div>
@@ -299,23 +274,17 @@ function getPageContent(tabId) {
                     </div>
                     <div class="mg-crystal-base"></div>
                 </div>
-
-                <button class="mg-page-btn" id="mg-btn-gaze">
-                    ✧ Gaze Into the Mist
-                </button>
-
+                <button class="mg-page-btn" id="mg-btn-gaze">✧ Gaze Into the Mist</button>
                 <p class="mg-text-dim" style="text-align:center; margin-top:8px;">
                     Wild magic. No control. No refunds.
                 </p>
             </div>
-
             <div class="mg-page-section">
                 <h4 class="mg-page-subtitle">Recent Visions</h4>
                 <div class="mg-vision-log" id="mg-vision-log">
                     <div class="mg-queue-empty">The mists are clear...</div>
                 </div>
             </div>
-
             <div class="mg-page-section">
                 <h4 class="mg-page-subtitle">Effect Pool</h4>
                 <p class="mg-text-dim">
@@ -330,31 +299,24 @@ function getPageContent(tabId) {
             <div class="mg-page-section">
                 <h3 class="mg-page-title">👻 Ouija</h3>
                 <p class="mg-page-flavor">"Ask, and fate shall answer. Then make it true."</p>
-
                 <div class="mg-ouija-mini">
                     <div class="mg-ouija-letters">A B C D E F G H I J K L M</div>
                     <div class="mg-ouija-letters">N O P Q R S T U V W X Y Z</div>
                     <div class="mg-ouija-yes-no">
-                        <span>YES</span>
-                        <span>NO</span>
+                        <span>YES</span><span>NO</span>
                     </div>
                     <input type="text" class="mg-ouija-input"
                            id="mg-ouija-question"
                            placeholder="Ask a yes/no question...">
                 </div>
-
-                <button class="mg-page-btn" id="mg-btn-ask-spirits">
-                    ✦ Consult the Spirits
-                </button>
+                <button class="mg-page-btn" id="mg-btn-ask-spirits">✦ Consult the Spirits</button>
             </div>
-
             <div class="mg-page-section">
                 <h4 class="mg-page-subtitle">Spirit Answers</h4>
                 <div class="mg-ouija-history" id="mg-ouija-history">
                     <div class="mg-queue-empty">The board is silent...</div>
                 </div>
             </div>
-
             <div class="mg-page-section">
                 <h4 class="mg-page-subtitle">How It Works</h4>
                 <p class="mg-text-dim">
@@ -368,35 +330,24 @@ function getPageContent(tabId) {
         nyx: `
             <div class="mg-page-section">
                 <h3 class="mg-page-title">🐱 Nyx</h3>
-
                 <div class="mg-nyx-portrait">😼</div>
-
                 <div class="mg-nyx-mood" id="mg-nyx-mood">
                     Mood: <strong>Neutral</strong>
                 </div>
-
                 <div class="mg-nyx-disposition">
                     <div class="mg-nyx-disposition-fill" id="mg-nyx-bar" style="width: 50%"></div>
                 </div>
-
                 <p class="mg-text-dim" style="text-align:center;">
                     "I'm watching. Always watching."
                 </p>
             </div>
-
             <div class="mg-page-section">
                 <h4 class="mg-page-subtitle">Familiar Actions</h4>
-
                 <div class="mg-nyx-actions">
-                    <button class="mg-nyx-btn" id="mg-btn-pet-nyx">
-                        🐾 Pet
-                    </button>
-                    <button class="mg-nyx-btn" id="mg-btn-treat-nyx">
-                        🍬 Treat
-                    </button>
+                    <button class="mg-nyx-btn" id="mg-btn-pet-nyx">🐾 Pet</button>
+                    <button class="mg-nyx-btn" id="mg-btn-treat-nyx">🍬 Treat</button>
                 </div>
             </div>
-
             <div class="mg-page-section">
                 <h4 class="mg-page-subtitle">Disposition Effects</h4>
                 <p class="mg-text-dim">
@@ -413,17 +364,12 @@ function getPageContent(tabId) {
             <div class="mg-page-section">
                 <h3 class="mg-page-title">✨ Spell Cards</h3>
                 <p class="mg-page-flavor">"Visual magic. No story impact—just vibes."</p>
-
                 <p class="mg-text-dim">
                     Spell cards trigger automatically when keywords
                     appear in the story. Pure atmosphere.
                 </p>
-
-                <button class="mg-page-btn" id="mg-btn-test-spell">
-                    ✦ Test Random Spell
-                </button>
+                <button class="mg-page-btn" id="mg-btn-test-spell">✦ Test Random Spell</button>
             </div>
-
             <div class="mg-page-section">
                 <h4 class="mg-page-subtitle">Active Spells</h4>
                 <p class="mg-text-dim">
@@ -441,14 +387,11 @@ function getPageContent(tabId) {
             <div class="mg-page-section">
                 <h3 class="mg-page-title">📻 Radio</h3>
                 <p class="mg-page-flavor">"Tune in to the cosmic frequencies."</p>
-
                 <p class="mg-text-dim">
                     Coming soon: Ambient soundscapes,
-                    mystical frequencies, and
-                    mood-reactive audio.
+                    mystical frequencies, and mood-reactive audio.
                 </p>
             </div>
-
             <div class="mg-page-section">
                 <h4 class="mg-page-subtitle">Stations</h4>
                 <p class="mg-text-dim">
@@ -469,83 +412,39 @@ function getPageContent(tabId) {
 // ══════════════════════════════════════════════
 
 function bindPageActions(tabId) {
-    // Tarot
-    document.getElementById('mg-btn-draw-card')
-        ?.addEventListener('click', () => {
-            console.log('[Grimoire] Draw card clicked');
-            // TODO: Implement card drawing
-        });
-
-    // Crystal Ball
-    document.getElementById('mg-btn-gaze')
-        ?.addEventListener('click', () => {
-            console.log('[Grimoire] Crystal ball gaze clicked');
-            // TODO: Implement crystal ball
-        });
-
-    // Ouija
-    document.getElementById('mg-btn-ask-spirits')
-        ?.addEventListener('click', () => {
-            const question = document.getElementById('mg-ouija-question')?.value;
-            console.log('[Grimoire] Ouija question:', question);
-            // TODO: Implement ouija
-        });
-
-    // Nyx
-    document.getElementById('mg-btn-pet-nyx')
-        ?.addEventListener('click', () => {
-            console.log('[Grimoire] Pet Nyx clicked');
-            // TODO: Implement nyx interaction
-        });
-
-    document.getElementById('mg-btn-treat-nyx')
-        ?.addEventListener('click', () => {
-            console.log('[Grimoire] Treat Nyx clicked');
-            // TODO: Implement nyx interaction
-        });
-
-    // Spells
-    document.getElementById('mg-btn-test-spell')
-        ?.addEventListener('click', () => {
-            console.log('[Grimoire] Test spell clicked');
-            // TODO: Implement spell test
-        });
+    $('#mg-btn-draw-card').on('click', () => console.log('[Grimoire] Draw card clicked'));
+    $('#mg-btn-gaze').on('click', () => console.log('[Grimoire] Crystal ball gaze clicked'));
+    $('#mg-btn-ask-spirits').on('click', () => {
+        console.log('[Grimoire] Ouija question:', $('#mg-ouija-question').val());
+    });
+    $('#mg-btn-pet-nyx').on('click', () => console.log('[Grimoire] Pet Nyx clicked'));
+    $('#mg-btn-treat-nyx').on('click', () => console.log('[Grimoire] Treat Nyx clicked'));
+    $('#mg-btn-test-spell').on('click', () => console.log('[Grimoire] Test spell clicked'));
 }
 
 // ══════════════════════════════════════════════
 // COMPACT FAB CALLBACKS
 // ══════════════════════════════════════════════
 
-/**
- * Called by compact FAB on tap — toggles the grimoire open/closed.
- */
+/** Called by compact FAB on tap — toggles the grimoire. */
 export function triggerTransformation() {
     toggleGrimoire();
 }
 
-/** Quick-draw a card from the nyxgotchi */
 export function onDrawCard() {
     console.log('[Grimoire] Draw card from Nyxgotchi');
-    // TODO: Quick draw a card
 }
 
-/** View the fate queue from the nyxgotchi */
 export function onViewQueue() {
     console.log('[Grimoire] View queue from Nyxgotchi');
-    // TODO: Show queue preview
 }
 
-/** Poke Nyx from the nyxgotchi */
 export function onPokeNyx() {
     console.log('[Grimoire] Poke Nyx from Nyxgotchi');
-    // TODO: Nyx reaction
 }
 
 // ══════════════════════════════════════════════
 // EXPORTS
 // ══════════════════════════════════════════════
 
-export {
-    grimoireState,
-    GRIMOIRE_TABS,
-};
+export { grimoireState, GRIMOIRE_TABS };
