@@ -1,10 +1,8 @@
 /**
  * Petit Grimoire - Magical Girl Fortune Extension
  * Entry point: settings panel + initialization
- *
- * Architecture (Simplified):
- *   - Grimoire = Compact + Drawer as ONE unit (no separate compact.js)
- *   - Nyx-gotchi = pet widget (independent)
+ * 
+ * v6 - Simplified, no compact.js dependency
  */
 
 import {
@@ -13,7 +11,7 @@ import {
     setCurrentSpriteFrame
 } from './src/state.js';
 
-// NOTE: compact.js is GONE - it's now part of grimoire.js
+// Grimoire now creates its own compact internally
 import {
     initGrimoire,
     closeGrimoire,
@@ -45,7 +43,7 @@ function loadCSS() {
 }
 
 // ============================================
-// THEME & VARIANT SWITCHING
+// THEME SWITCHING
 // ============================================
 
 function setTheme(themeName) {
@@ -76,31 +74,22 @@ function setTamaSize(size) {
 }
 
 // ============================================
-// CREATION HELPERS
+// TAMA INIT
 // ============================================
-
-// Compact is now created by initGrimoire() internally
-// No separate initCompact() needed!
 
 function initTama() {
     createTama({
         onDraw: () => {
-            console.log('[PetitGrimoire] Draw card from tama');
-            if (typeof toastr !== 'undefined') {
-                toastr.info('Card draw coming soon!', 'Tarot');
-            }
+            console.log('[PetitGrimoire] Draw from tama');
+            toastr?.info('Card draw coming soon!', 'Tarot');
         },
         onQueue: () => {
-            console.log('[PetitGrimoire] View queue from tama');
-            if (typeof toastr !== 'undefined') {
-                toastr.info('Fate queue coming soon!', 'Queue');
-            }
+            console.log('[PetitGrimoire] Queue from tama');
+            toastr?.info('Fate queue coming soon!', 'Queue');
         },
         onPoke: () => {
-            console.log('[PetitGrimoire] Poke Nyx from tama');
-            if (typeof toastr !== 'undefined') {
-                toastr.info('"...Was that supposed to be affectionate?"', 'Nyx');
-            }
+            console.log('[PetitGrimoire] Poke from tama');
+            toastr?.info('"...Was that supposed to be affectionate?"', 'Nyx');
         },
     });
 }
@@ -112,12 +101,12 @@ function initTama() {
 async function addExtensionSettings() {
     const themes = [
         { value: 'guardian',    label: '✦ Guardian (Star Prism)' },
-        { value: 'umbra',      label: '◆ Umbra (Grief Seeds)' },
-        { value: 'apothecary', label: '❀ Apothecary (Botanicals)' },
-        { value: 'moonstone',  label: '☽ Moonstone (Crystals)' },
-        { value: 'phosphor',   label: '△ Phosphor (Neon)' },
-        { value: 'rosewood',   label: '❀ Rosewood (Floral)' },
-        { value: 'celestial',  label: '✴ Celestial (Starbound)' },
+        { value: 'umbra',       label: '◆ Umbra (Grief Seeds)' },
+        { value: 'apothecary',  label: '❀ Apothecary (Botanicals)' },
+        { value: 'moonstone',   label: '☽ Moonstone (Crystals)' },
+        { value: 'phosphor',    label: '△ Phosphor (Neon)' },
+        { value: 'rosewood',    label: '❀ Rosewood (Floral)' },
+        { value: 'celestial',   label: '✴ Celestial (Starbound)' },
     ];
 
     const themeOptions = themes.map(t =>
@@ -144,13 +133,6 @@ async function addExtensionSettings() {
                     ${themeOptions}
                 </select>
 
-                <label for="mg-compact-size">Compact Size:</label>
-                <select id="mg-compact-size" class="text_pole">
-                    <option value="small" ${extensionSettings.compactSize === 'small' ? 'selected' : ''}>Small</option>
-                    <option value="medium" ${extensionSettings.compactSize === 'medium' ? 'selected' : ''}>Medium</option>
-                    <option value="large" ${extensionSettings.compactSize === 'large' ? 'selected' : ''}>Large</option>
-                </select>
-
                 <label class="checkbox_label">
                     <input type="checkbox" id="mg-show-compact" ${extensionSettings.showCompact !== false ? 'checked' : ''}>
                     <span>Show Compact</span>
@@ -162,16 +144,6 @@ async function addExtensionSettings() {
                 <label for="mg-familiar">Familiar Form:</label>
                 <select id="mg-familiar" class="text_pole">
                     <option value="cat" ${extensionSettings.familiarForm === 'cat' ? 'selected' : ''}>Cat</option>
-                    <option value="owl" ${extensionSettings.familiarForm === 'owl' ? 'selected' : ''}>Owl</option>
-                    <option value="fox" ${extensionSettings.familiarForm === 'fox' ? 'selected' : ''}>Fox</option>
-                    <option value="bunny" ${extensionSettings.familiarForm === 'bunny' ? 'selected' : ''}>Bunny</option>
-                </select>
-
-                <label for="mg-tama-size">Tama Size:</label>
-                <select id="mg-tama-size" class="text_pole">
-                    <option value="small" ${extensionSettings.tamaSize === 'small' ? 'selected' : ''}>Small</option>
-                    <option value="medium" ${extensionSettings.tamaSize === 'medium' ? 'selected' : ''}>Medium</option>
-                    <option value="large" ${extensionSettings.tamaSize === 'large' ? 'selected' : ''}>Large</option>
                 </select>
 
                 <label class="checkbox_label">
@@ -182,14 +154,7 @@ async function addExtensionSettings() {
                 <hr>
 
                 <div class="flex-container">
-                    <span>Nyx Disposition: </span>
-                    <span id="mg-disposition-display">${extensionSettings.nyx?.disposition || 50}</span>
-                </div>
-
-                <hr>
-
-                <div class="flex-container">
-                    <input type="button" id="mg-reset-positions" class="menu_button" value="Reset Positions">
+                    <input type="button" id="mg-reset-positions" class="menu_button" value="Reset All">
                 </div>
             </div>
         </div>
@@ -197,14 +162,13 @@ async function addExtensionSettings() {
 
     $('#extensions_settings2').append(html);
 
-    // ---- Event handlers ----
-
+    // Event handlers
     $('#mg-enabled').on('change', function () {
         extensionSettings.enabled = $(this).prop('checked');
         saveSettings();
 
         if (extensionSettings.enabled) {
-            initGrimoire();  // Creates BOTH compact and drawer
+            initGrimoire();
             initTama();
         } else {
             closeGrimoire();
@@ -220,48 +184,29 @@ async function addExtensionSettings() {
         setTheme($(this).val());
     });
 
-    $('#mg-compact-size').on('change', function () {
-        setCompactSize($(this).val());
-    });
-
-    $('#mg-familiar').on('change', function () {
-        setFamiliarForm($(this).val());
-    });
-
-    $('#mg-tama-size').on('change', function () {
-        setTamaSize($(this).val());
-    });
-
     $('#mg-show-compact').on('change', function () {
         extensionSettings.showCompact = $(this).prop('checked');
         saveSettings();
-        const el = document.getElementById('mg-compact');
-        if (el) {
-            el.style.setProperty('display', extensionSettings.showCompact ? 'flex' : 'none', 'important');
-        }
+        $('#mg-compact').toggle(extensionSettings.showCompact);
     });
 
     $('#mg-show-tama').on('change', function () {
         extensionSettings.showTama = $(this).prop('checked');
         saveSettings();
-        const el = document.getElementById('nyxgotchi');
-        if (el) {
-            el.style.setProperty('display', extensionSettings.showTama ? 'flex' : 'none', 'important');
-        }
+        $('#nyxgotchi').toggle(extensionSettings.showTama);
     });
 
     $('#mg-reset-positions').on('click', function () {
-        extensionSettings.compactPosition = { ...defaultSettings.compactPosition };
-        extensionSettings.tamaPosition = { ...defaultSettings.tamaPosition };
-        saveSettings();
-
-        // Re-init creates fresh elements at default positions
+        // Re-init everything
+        $('#mg-compact').remove();
+        $('#mg-grimoire').remove();
+        $('#mg-grimoire-overlay').remove();
+        $('#nyxgotchi').remove();
+        
         initGrimoire();
         initTama();
-
-        if (typeof toastr !== 'undefined') {
-            toastr.info('Positions reset!');
-        }
+        
+        toastr?.info('Reset complete!');
     });
 }
 
@@ -271,7 +216,7 @@ async function addExtensionSettings() {
 
 jQuery(async () => {
     try {
-        console.log(`[${extensionName}] Starting initialization...`);
+        console.log(`[${extensionName}] Starting...`);
 
         loadCSS();
         loadSettings();
@@ -279,32 +224,22 @@ jQuery(async () => {
         await addExtensionSettings();
 
         if (extensionSettings.enabled) {
-            initGrimoire();  // Creates compact + drawer
+            console.log(`[${extensionName}] Enabled, initializing UI...`);
+            initGrimoire();
             initTama();
         }
 
-        console.log(`[${extensionName}] ✅ Loaded successfully`);
+        console.log(`[${extensionName}] ✅ Ready`);
 
     } catch (error) {
-        console.error(`[${extensionName}] ❌ Critical failure:`, error);
-        if (typeof toastr !== 'undefined') {
-            toastr.error('Petit Grimoire failed to initialize.', 'Error', { timeOut: 10000 });
-        }
+        console.error(`[${extensionName}] ❌ Failed:`, error);
+        toastr?.error('Petit Grimoire failed: ' + error.message, 'Error', { timeOut: 10000 });
     }
 });
 
-// ============================================
-// EXPORTS (for debugging in console)
-// ============================================
-
+// Debug exports
 window.PetitGrimoire = {
     getSettings: () => extensionSettings,
     setTheme,
-    setFamiliarForm,
-    setCompactSize,
-    setTamaSize,
-    showSpeech,
-    updateNyxMood,
-    playSpecialAnimation,
     updateCompactBadge,
 };
