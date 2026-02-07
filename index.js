@@ -178,19 +178,17 @@ function createUI() {
     panel.id = 'pg-panel';
     Object.assign(panel.style, {
         position: 'fixed',
-        inset: '0',
+        top: '0',
+        left: '0',
+        right: '0',
+        bottom: '0',
         zIndex: '99998',
         background: 'rgba(0,0,0,0.85)',
         backdropFilter: 'blur(4px)',
         display: 'none',
-        alignItems: 'flex-start',
+        alignItems: 'center',
         justifyContent: 'center',
-        paddingTop: '15vh',
-        paddingBottom: '10vh',
-        paddingLeft: '10px',
-        paddingRight: '10px',
-        boxSizing: 'border-box',
-        overflowY: 'auto'
+        boxSizing: 'border-box'
     });
     
     // Book container
@@ -198,17 +196,17 @@ function createUI() {
     book.id = 'pg-book';
     Object.assign(book.style, {
         position: 'relative',
-        width: '320px',
-        maxWidth: '90vw',
-        height: '380px',
-        maxHeight: '55vh',
+        width: '90vw',
+        maxWidth: '360px',
+        height: '70vh',
+        maxHeight: '500px',
+        margin: 'auto',
         background: theme.cardBg,
         border: `3px solid ${theme.main}`,
         borderRadius: '12px',
         boxShadow: `0 10px 40px rgba(0,0,0,0.5), 0 0 30px ${theme.main}40`,
         display: 'flex',
-        overflow: 'hidden',
-        flexShrink: '0'
+        overflow: 'hidden'
     });
     
     // Tab sidebar
@@ -387,12 +385,18 @@ function destroyUI() {
 
 function openPanel() {
     const panel = document.getElementById('pg-panel');
-    if (panel) panel.style.display = 'flex';
+    if (panel) {
+        panel.style.display = 'flex';
+        panel.style.alignItems = 'center';
+        panel.style.justifyContent = 'center';
+    }
 }
 
 function closePanel() {
     const panel = document.getElementById('pg-panel');
-    if (panel) panel.style.display = 'none';
+    if (panel) {
+        panel.style.display = 'none';
+    }
 }
 
 function switchTab(tabId, theme) {
