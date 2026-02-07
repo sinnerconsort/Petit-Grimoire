@@ -20,7 +20,7 @@
     --book-aspect: 0.803; /* 720/896 = height/width ratio */
     
     /* Display size - fill most of viewport */
-    --grimoire-width: 96vw;
+    --grimoire-width: 100vw;
     --grimoire-max-width: 1000px;
     
     /* Page content areas (percentages of sprite canvas) */
