@@ -10,7 +10,7 @@
 
 :root {
     /* Native book dimensions */
-    --book-native-width: 896;
+    --book-native-width: 920/1096;
     --book-native-height: 720;
     --book-aspect: 0.803; /* 720/896 */
     
