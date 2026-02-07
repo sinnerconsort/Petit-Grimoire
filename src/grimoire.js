@@ -148,9 +148,14 @@ export function openGrimoire() {
     overlay.style.display = 'block';
     requestAnimationFrame(() => overlay.classList.add('visible'));
 
-    // Show grimoire — CSS slide-in animation plays automatically
+    // Show grimoire with slide-in animation
     grimoire.classList.remove('mg-grimoire-closing');
+    grimoire.classList.remove('mg-grimoire-opening');
     grimoire.style.display = 'block';
+
+    // Force reflow so animation replays
+    void grimoire.offsetWidth;
+    grimoire.classList.add('mg-grimoire-opening');
 
     // Compact FAB feedback
     playTransformFlash();
@@ -170,6 +175,7 @@ export function closeGrimoire() {
     grimoireState.isAnimating = true;
 
     // Trigger CSS slide-out animation
+    grimoire.classList.remove('mg-grimoire-opening');
     grimoire.classList.add('mg-grimoire-closing');
 
     // Fade out overlay
