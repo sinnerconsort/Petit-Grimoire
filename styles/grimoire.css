@@ -89,53 +89,64 @@
     inset: 0;
     background: rgba(0, 0, 0, 0.5);
     z-index: 99998;
-    display: none;
     opacity: 0;
-    transition: opacity 0.3s ease;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
     backdrop-filter: blur(2px);
 }
 
 .mg-grimoire-overlay.visible {
     opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
 }
 
 /* ══════════════════════════════════════════════
    GRIMOIRE CONTAINER — Bottom Drawer
+   Hidden by default via opacity + pointer-events.
+   Visible when .is-open is added. (ST pattern)
    ══════════════════════════════════════════════ */
 
 .mg-grimoire,
 #mg-grimoire {
     position: fixed;
     z-index: 99999;
-    display: none;
-    pointer-events: auto;
     box-sizing: border-box !important;
     overflow: hidden;
+    
+    /* Hidden by default — NO display:none */
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
     
     /* Portrait ratio from visible area: 363:416 */
     aspect-ratio: 363 / 416;
     width: var(--grimoire-width) !important;
     max-width: var(--grimoire-max-width) !important;
+    min-height: 200px;
+    max-height: 85vh;
     
-    /* Height via aspect-ratio, with calc fallback for older browsers */
-    height: calc(var(--grimoire-width) * 416 / 363);
-    max-height: min(calc(var(--grimoire-max-width) * 416 / 363), 85vh);
-    
-    /* Bottom-center drawer */
+    /* Bottom-center drawer, starts shifted down */
     bottom: 8px;
     left: 50%;
-    transform: translateX(-50%);
+    transform: translateX(-50%) translateY(40px);
     
-    /* Slide-in — uses .mg-grimoire-opening class so it replays on each open */
+    transition: none;
 }
 
-/* Opening animation — applied by JS on each open */
-.mg-grimoire.mg-grimoire-opening {
+/* ── OPEN STATE ── */
+.mg-grimoire.is-open {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
     animation: grimoire-slide-in 0.3s ease-out forwards;
 }
 
-/* Closing animation — applied by JS before hiding */
-.mg-grimoire.mg-grimoire-closing {
+/* ── CLOSING STATE ── */
+.mg-grimoire.is-closing {
+    visibility: visible;
+    pointer-events: none;
     animation: grimoire-slide-out 0.25s ease-in forwards;
 }
 
@@ -760,7 +771,7 @@
         bottom: 20px;
         left: auto;
         right: 20px;
-        transform: none;
+        transform: translateY(40px);
     }
     
     @keyframes grimoire-slide-in {
