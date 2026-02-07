@@ -23,7 +23,7 @@ import {
 } from './src/nyxgotchi.js';
 
 import {
-    initGrimoire, triggerTransformation,
+    initGrimoire, triggerTransformation, toggleGrimoire,
     openGrimoire, closeGrimoire,
     onDrawCard, onViewQueue, onPokeNyx
 } from './src/grimoire.js';
@@ -81,7 +81,7 @@ function setTamaSize(size) {
 // ============================================
 
 function initCompact() {
-    createCompact(() => triggerTransformation());
+    createCompact(() => toggleGrimoire());
 }
 
 function initTama() {
