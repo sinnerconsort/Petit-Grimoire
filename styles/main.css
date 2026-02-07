@@ -1,16 +1,577 @@
 /* ============================================
-   PETIT GRIMOIRE - Main Stylesheet Hub
-   Rebuild v2 — Clean Shell
+   PETIT GRIMOIRE - Combined Stylesheet
+   Rebuild v2 — All styles in one file
    ============================================ */
 
-@import url('variables.css');
-@import url('compact.css');
-@import url('grimoire.css');
+/* ============================================
+   PETIT GRIMOIRE - THEME VARIABLES
+   7 Themed Decks: Guardian, Umbra, Apothecary,
+   Moonstone, Phosphor, Rosewood, Celestial
+
+   Sources merged:
+   - Tama shell/screen/button/deco/text → themes.css
+   - Screen frame → nyxgotchi.css
+   - Compact brooch → main.css
+   - CRT effects + speech → main.css
+   ============================================ */
+
+
+/* ----------------------------------------
+   DEFAULT THEME (Guardian - Star Prism)
+   Main: #dc78aa  Secondary: #f3aa1e
+   Accents: #e71720, #26508a
+   ---------------------------------------- */
+:root,
+[data-mg-theme="guardian"] {
+    /* ── Tama Shell ── */
+    --mg-shell-primary: #dc78aa;
+    --mg-shell-secondary: #e89ac0;
+    --mg-shell-accent: #f3aa1e;
+    --mg-shell-border: #b85a8a;
+    --mg-shell-shadow: rgba(220, 120, 170, 0.4);
+
+    /* ── Tama Screen ── */
+    --mg-screen-bg: linear-gradient(135deg, #fce4ec, #f8bbd0);
+    --mg-screen-border: #dc78aa;
+    --mg-screen-pixel: #4a1530;
+    --mg-screen-frame-bg: #c8609a;
+    --mg-screen-frame-shadow: rgba(220, 120, 170, 0.3);
+
+    /* ── Tama Buttons ── */
+    --mg-button-primary: #dc78aa;
+    --mg-button-secondary: #c5608f;
+    --mg-button-border: #a04872;
+    --mg-button-shadow: rgba(220, 120, 170, 0.35);
+
+    /* ── Decorations ── */
+    --mg-decoration-1: #f3aa1e;
+    --mg-decoration-2: #e71720;
+    --mg-decoration-3: #26508a;
+
+    /* ── Text ── */
+    --mg-text-primary: #4a1530;
+    --mg-text-secondary: #dc78aa;
+    --mg-text-mood: #e71720;
+
+    /* ── Compact Brooch ── */
+    --mg-ring: linear-gradient(145deg, #f3aa1e, #d89520);
+    --mg-ring-border: #b8860b;
+    --mg-glow: rgba(243, 170, 30, 0.5);
+    --mg-face: linear-gradient(145deg, #e89ac0, #dc78aa);
+    --mg-face-border: #c5608f;
+    --mg-face-alt: linear-gradient(145deg, #fce4ec, #f8bbd0);
+    --mg-star: #f3aa1e;
+    --mg-sparkle: #f3aa1e;
+    --mg-gem-1: #e71720;
+    --mg-gem-2: #26508a;
+    --mg-gem-3: #dc78aa;
+    --mg-gem-4: #f3aa1e;
+    --mg-accent: #f3aa1e;
+    --mg-accent-border: #b8860b;
+
+    /* ── Speech Bubble ── */
+    --mg-speech-bg: #dc78aa;
+    --mg-speech-border: #b85a8a;
+    --mg-speech-text: #4a1530;
+
+    /* ── CRT Effects ── */
+    --mg-crt-glow: rgba(220, 120, 170, 0.15);
+    --mg-crt-scanline: rgba(74, 21, 48, 0.05);
+    --mg-crt-divider: rgba(220, 120, 170, 0.12);
+    --mg-crt-flash: rgba(243, 170, 30, 0.85);
+
+    /* ── Radio ── */
+    --mg-radio-body: #dc78aa;
+    --mg-radio-body-mid: #c5608f;
+    --mg-radio-body-dark: #a04872;
+    --mg-radio-needle: #f3aa1e;
+    --mg-radio-needle-dark: #d89520;
+    --mg-radio-needle-glow: rgba(243, 170, 30, 0.4);
+    --mg-radio-display-text: #fce4ec;
+    --mg-radio-display-glow: rgba(252, 228, 236, 0.3);
+    --mg-radio-playing: #4ade80;
+    --mg-radio-playing-dim: #166534;
+    --mg-radio-playing-glow: rgba(74, 222, 128, 0.3);
+    --mg-radio-font: 'Courier New', monospace;
+}
+
+
+/* ----------------------------------------
+   UMBRA (Shadow / Grief Seeds)
+   Main: #940e8f  Secondary: #d89520
+   Accents: #5d0971, #c8b1f7
+   ---------------------------------------- */
+[data-mg-theme="umbra"] {
+    /* ── Tama Shell ── */
+    --mg-shell-primary: #2d0835;
+    --mg-shell-secondary: #40104a;
+    --mg-shell-accent: #940e8f;
+    --mg-shell-border: #1a0420;
+    --mg-shell-shadow: rgba(148, 14, 143, 0.5);
+
+    /* ── Tama Screen ── */
+    --mg-screen-bg: linear-gradient(135deg, #1a0825, #2d1040);
+    --mg-screen-border: #940e8f;
+    --mg-screen-pixel: #e0d0f0;
+    --mg-screen-frame-bg: #5d0971;
+    --mg-screen-frame-shadow: rgba(148, 14, 143, 0.4);
+
+    /* ── Tama Buttons ── */
+    --mg-button-primary: #940e8f;
+    --mg-button-secondary: #750a70;
+    --mg-button-border: #5d0971;
+    --mg-button-shadow: rgba(93, 9, 113, 0.5);
+
+    /* ── Decorations ── */
+    --mg-decoration-1: #d89520;
+    --mg-decoration-2: #940e8f;
+    --mg-decoration-3: #c8b1f7;
+
+    /* ── Text ── */
+    --mg-text-primary: #e8d5f5;
+    --mg-text-secondary: #c8b1f7;
+    --mg-text-mood: #d89520;
+
+    /* ── Compact Brooch ── */
+    --mg-ring: linear-gradient(145deg, #40104a, #2d0835);
+    --mg-ring-border: #1a0420;
+    --mg-glow: rgba(148, 14, 143, 0.6);
+    --mg-face: linear-gradient(145deg, #b030a8, #940e8f);
+    --mg-face-border: #5d0971;
+    --mg-face-alt: linear-gradient(145deg, #2d0835, #1a0420);
+    --mg-star: #d89520;
+    --mg-sparkle: #c8b1f7;
+    --mg-gem-1: #d89520;
+    --mg-gem-2: #940e8f;
+    --mg-gem-3: #5d0971;
+    --mg-gem-4: #c8b1f7;
+    --mg-accent: #d89520;
+    --mg-accent-border: #a07018;
+
+    /* ── Speech Bubble ── */
+    --mg-speech-bg: #2d0835;
+    --mg-speech-border: #940e8f;
+    --mg-speech-text: #c8b1f7;
+
+    /* ── CRT Effects ── */
+    --mg-crt-glow: rgba(148, 14, 143, 0.2);
+    --mg-crt-scanline: rgba(93, 9, 113, 0.08);
+    --mg-crt-divider: rgba(148, 14, 143, 0.15);
+    --mg-crt-flash: rgba(216, 149, 32, 0.85);
+
+    /* ── Radio ── */
+    --mg-radio-body: #2d0835;
+    --mg-radio-body-mid: #40104a;
+    --mg-radio-body-dark: #1a0420;
+    --mg-radio-needle: #d89520;
+    --mg-radio-needle-dark: #a07018;
+    --mg-radio-needle-glow: rgba(216, 149, 32, 0.4);
+    --mg-radio-display-text: #c8b1f7;
+    --mg-radio-display-glow: rgba(200, 177, 247, 0.3);
+    --mg-radio-playing: #4ade80;
+    --mg-radio-playing-dim: #166534;
+    --mg-radio-playing-glow: rgba(74, 222, 128, 0.3);
+    --mg-radio-font: 'Courier New', monospace;
+}
+
+
+/* ----------------------------------------
+   APOTHECARY (Herbs & Botanicals)
+   Main: #76482e  Secondary: #4c6b20
+   Accents: #bdbf46, #e9ae75
+   ---------------------------------------- */
+[data-mg-theme="apothecary"] {
+    /* ── Tama Shell ── */
+    --mg-shell-primary: #76482e;
+    --mg-shell-secondary: #8d5c3a;
+    --mg-shell-accent: #4c6b20;
+    --mg-shell-border: #5a3420;
+    --mg-shell-shadow: rgba(76, 107, 32, 0.3);
+
+    /* ── Tama Screen ── */
+    --mg-screen-bg: linear-gradient(135deg, #f5ecd5, #e8dcc0);
+    --mg-screen-border: #76482e;
+    --mg-screen-pixel: #3a2a18;
+    --mg-screen-frame-bg: #5a3a20;
+    --mg-screen-frame-shadow: rgba(76, 107, 32, 0.25);
+
+    /* ── Tama Buttons ── */
+    --mg-button-primary: #4c6b20;
+    --mg-button-secondary: #3d5618;
+    --mg-button-border: #2e4010;
+    --mg-button-shadow: rgba(76, 107, 32, 0.4);
+
+    /* ── Decorations ── */
+    --mg-decoration-1: #bdbf46;
+    --mg-decoration-2: #4c6b20;
+    --mg-decoration-3: #e9ae75;
+
+    /* ── Text ── */
+    --mg-text-primary: #3a2a18;
+    --mg-text-secondary: #76482e;
+    --mg-text-mood: #bdbf46;
+
+    /* ── Compact Brooch ── */
+    --mg-ring: linear-gradient(145deg, #8d5c3a, #76482e);
+    --mg-ring-border: #5a3420;
+    --mg-glow: rgba(76, 107, 32, 0.4);
+    --mg-face: linear-gradient(145deg, #5a7a28, #4c6b20);
+    --mg-face-border: #3d5618;
+    --mg-face-alt: linear-gradient(135deg, #f5ecd5, #e8dcc0);
+    --mg-star: #bdbf46;
+    --mg-sparkle: #e9ae75;
+    --mg-gem-1: #bdbf46;
+    --mg-gem-2: #4c6b20;
+    --mg-gem-3: #e9ae75;
+    --mg-gem-4: #76482e;
+    --mg-accent: #76482e;
+    --mg-accent-border: #5a3420;
+
+    /* ── Speech Bubble ── */
+    --mg-speech-bg: #76482e;
+    --mg-speech-border: #4c6b20;
+    --mg-speech-text: #f5ecd5;
+
+    /* ── CRT Effects ── */
+    --mg-crt-glow: rgba(76, 107, 32, 0.15);
+    --mg-crt-scanline: rgba(58, 42, 24, 0.06);
+    --mg-crt-divider: rgba(76, 107, 32, 0.12);
+    --mg-crt-flash: rgba(189, 191, 70, 0.85);
+
+    /* ── Radio ── */
+    --mg-radio-body: #76482e;
+    --mg-radio-body-mid: #5a3420;
+    --mg-radio-body-dark: #3a2010;
+    --mg-radio-needle: #bdbf46;
+    --mg-radio-needle-dark: #8a8c30;
+    --mg-radio-needle-glow: rgba(189, 191, 70, 0.4);
+    --mg-radio-display-text: #f5ecd5;
+    --mg-radio-display-glow: rgba(245, 236, 213, 0.3);
+    --mg-radio-playing: #4ade80;
+    --mg-radio-playing-dim: #166534;
+    --mg-radio-playing-glow: rgba(74, 222, 128, 0.3);
+    --mg-radio-font: 'Courier New', monospace;
+}
+
+
+/* ----------------------------------------
+   MOONSTONE (Crystals & Moon Phases)
+   Main: #d9c7fb  Secondary: #bcf1fd
+   Accents: #feebff, #d692ff
+   ---------------------------------------- */
+[data-mg-theme="moonstone"] {
+    /* ── Tama Shell ── */
+    --mg-shell-primary: #d9c7fb;
+    --mg-shell-secondary: #e8dcff;
+    --mg-shell-accent: #bcf1fd;
+    --mg-shell-border: #b8a0e0;
+    --mg-shell-shadow: rgba(214, 146, 255, 0.4);
+
+    /* ── Tama Screen ── */
+    --mg-screen-bg: linear-gradient(135deg, #2a2040, #1e1535);
+    --mg-screen-border: #d692ff;
+    --mg-screen-pixel: #feebff;
+    --mg-screen-frame-bg: #a060d0;
+    --mg-screen-frame-shadow: rgba(214, 146, 255, 0.35);
+
+    /* ── Tama Buttons ── */
+    --mg-button-primary: #d692ff;
+    --mg-button-secondary: #c070ee;
+    --mg-button-border: #a050d0;
+    --mg-button-shadow: rgba(214, 146, 255, 0.4);
+
+    /* ── Decorations ── */
+    --mg-decoration-1: #bcf1fd;
+    --mg-decoration-2: #d692ff;
+    --mg-decoration-3: #feebff;
+
+    /* ── Text ── */
+    --mg-text-primary: #2a1540;
+    --mg-text-secondary: #b8a0e0;
+    --mg-text-mood: #d692ff;
+
+    /* ── Compact Brooch ── */
+    --mg-ring: linear-gradient(145deg, #e8dcff, #d9c7fb);
+    --mg-ring-border: #b8a0e0;
+    --mg-glow: rgba(214, 146, 255, 0.5);
+    --mg-face: linear-gradient(145deg, #feebff, #d9c7fb);
+    --mg-face-border: #d692ff;
+    --mg-face-alt: linear-gradient(145deg, #feebff, #e8dcff);
+    --mg-star: #d692ff;
+    --mg-sparkle: #bcf1fd;
+    --mg-gem-1: #d692ff;
+    --mg-gem-2: #bcf1fd;
+    --mg-gem-3: #d692ff;
+    --mg-gem-4: #bcf1fd;
+    --mg-accent: #bcf1fd;
+    --mg-accent-border: #90d0e0;
+
+    /* ── Speech Bubble ── */
+    --mg-speech-bg: #e8dcff;
+    --mg-speech-border: #d692ff;
+    --mg-speech-text: #3a2050;
+
+    /* ── CRT Effects ── */
+    --mg-crt-glow: rgba(214, 146, 255, 0.2);
+    --mg-crt-scanline: rgba(42, 32, 64, 0.08);
+    --mg-crt-divider: rgba(214, 146, 255, 0.15);
+    --mg-crt-flash: rgba(188, 241, 253, 0.85);
+
+    /* ── Radio ── */
+    --mg-radio-body: #d9c7fb;
+    --mg-radio-body-mid: #c0a8e8;
+    --mg-radio-body-dark: #a890d0;
+    --mg-radio-needle: #bcf1fd;
+    --mg-radio-needle-dark: #90d0e0;
+    --mg-radio-needle-glow: rgba(188, 241, 253, 0.4);
+    --mg-radio-display-text: #feebff;
+    --mg-radio-display-glow: rgba(254, 235, 255, 0.3);
+    --mg-radio-playing: #4ade80;
+    --mg-radio-playing-dim: #166534;
+    --mg-radio-playing-glow: rgba(74, 222, 128, 0.3);
+    --mg-radio-font: 'Courier New', monospace;
+}
+
+
+/* ----------------------------------------
+   PHOSPHOR (Neon / Vaporwave)
+   Main: #7375ca  Secondary: #feffff
+   Accents: #f990f6, #120147
+   ---------------------------------------- */
+[data-mg-theme="phosphor"] {
+    /* ── Tama Shell ── */
+    --mg-shell-primary: #120147;
+    --mg-shell-secondary: #1e0860;
+    --mg-shell-accent: #7375ca;
+    --mg-shell-border: #0a0030;
+    --mg-shell-shadow: rgba(115, 117, 202, 0.5);
+
+    /* ── Tama Screen ── */
+    --mg-screen-bg: linear-gradient(135deg, #0a0030, #150650);
+    --mg-screen-border: #f990f6;
+    --mg-screen-pixel: #feffff;
+    --mg-screen-frame-bg: #3a2080;
+    --mg-screen-frame-shadow: rgba(249, 144, 246, 0.4);
+
+    /* ── Tama Buttons ── */
+    --mg-button-primary: #f990f6;
+    --mg-button-secondary: #d070d0;
+    --mg-button-border: #7375ca;
+    --mg-button-shadow: rgba(249, 144, 246, 0.4);
+
+    /* ── Decorations ── */
+    --mg-decoration-1: #7375ca;
+    --mg-decoration-2: #f990f6;
+    --mg-decoration-3: #feffff;
+
+    /* ── Text ── */
+    --mg-text-primary: #feffff;
+    --mg-text-secondary: #7375ca;
+    --mg-text-mood: #f990f6;
+
+    /* ── Compact Brooch ── */
+    --mg-ring: linear-gradient(145deg, #7375ca, #4a4c90, #f990f6);
+    --mg-ring-border: #120147;
+    --mg-glow: rgba(249, 144, 246, 0.5);
+    --mg-face: linear-gradient(145deg, #1e0860, #120147);
+    --mg-face-border: #f990f6;
+    --mg-face-alt: linear-gradient(145deg, #150650, #0a0030);
+    --mg-star: #f990f6;
+    --mg-sparkle: #7375ca;
+    --mg-gem-1: #f990f6;
+    --mg-gem-2: #7375ca;
+    --mg-gem-3: #f990f6;
+    --mg-gem-4: #feffff;
+    --mg-accent: #7375ca;
+    --mg-accent-border: #4a4c90;
+
+    /* ── Speech Bubble ── */
+    --mg-speech-bg: #120147;
+    --mg-speech-border: #f990f6;
+    --mg-speech-text: #feffff;
+
+    /* ── CRT Effects ── */
+    --mg-crt-glow: rgba(249, 144, 246, 0.2);
+    --mg-crt-scanline: rgba(18, 1, 71, 0.1);
+    --mg-crt-divider: rgba(115, 117, 202, 0.15);
+    --mg-crt-flash: rgba(249, 144, 246, 0.85);
+
+    /* ── Radio ── */
+    --mg-radio-body: #120147;
+    --mg-radio-body-mid: #1e0860;
+    --mg-radio-body-dark: #0a0030;
+    --mg-radio-needle: #f990f6;
+    --mg-radio-needle-dark: #d070d0;
+    --mg-radio-needle-glow: rgba(249, 144, 246, 0.5);
+    --mg-radio-display-text: #feffff;
+    --mg-radio-display-glow: rgba(254, 255, 255, 0.3);
+    --mg-radio-playing: #f990f6;
+    --mg-radio-playing-dim: #7375ca;
+    --mg-radio-playing-glow: rgba(249, 144, 246, 0.4);
+    --mg-radio-font: 'Courier New', monospace;
+}
+
+
+/* ----------------------------------------
+   ROSEWOOD (Floral / Dream Parlour)
+   Main: #e4b0bc  Secondary: #d8caca
+   Accents: #83b6ac, #177656
+   ---------------------------------------- */
+[data-mg-theme="rosewood"] {
+    /* ── Tama Shell ── */
+    --mg-shell-primary: #e4b0bc;
+    --mg-shell-secondary: #edc5cf;
+    --mg-shell-accent: #83b6ac;
+    --mg-shell-border: #c8909e;
+    --mg-shell-shadow: rgba(228, 176, 188, 0.4);
+
+    /* ── Tama Screen ── */
+    --mg-screen-bg: linear-gradient(135deg, #faf0f2, #f0e0e5);
+    --mg-screen-border: #c8909e;
+    --mg-screen-pixel: #4a2030;
+    --mg-screen-frame-bg: #b08090;
+    --mg-screen-frame-shadow: rgba(131, 182, 172, 0.25);
+
+    /* ── Tama Buttons ── */
+    --mg-button-primary: #83b6ac;
+    --mg-button-secondary: #177656;
+    --mg-button-border: #105040;
+    --mg-button-shadow: rgba(131, 182, 172, 0.4);
+
+    /* ── Decorations ── */
+    --mg-decoration-1: #e4b0bc;
+    --mg-decoration-2: #83b6ac;
+    --mg-decoration-3: #177656;
+
+    /* ── Text ── */
+    --mg-text-primary: #4a2030;
+    --mg-text-secondary: #c8909e;
+    --mg-text-mood: #177656;
+
+    /* ── Compact Brooch ── */
+    --mg-ring: linear-gradient(145deg, #edc5cf, #e4b0bc);
+    --mg-ring-border: #c8909e;
+    --mg-glow: rgba(228, 176, 188, 0.5);
+    --mg-face: linear-gradient(145deg, #faf0f2, #f0e0e5);
+    --mg-face-border: #c8909e;
+    --mg-face-alt: linear-gradient(145deg, #faf5f6, #f0e8ea);
+    --mg-star: #177656;
+    --mg-sparkle: #83b6ac;
+    --mg-gem-1: #83b6ac;
+    --mg-gem-2: #177656;
+    --mg-gem-3: #e4b0bc;
+    --mg-gem-4: #83b6ac;
+    --mg-accent: #83b6ac;
+    --mg-accent-border: #5a9080;
+
+    /* ── Speech Bubble ── */
+    --mg-speech-bg: #f0e0e5;
+    --mg-speech-border: #c8909e;
+    --mg-speech-text: #4a2030;
+
+    /* ── CRT Effects ── */
+    --mg-crt-glow: rgba(131, 182, 172, 0.15);
+    --mg-crt-scanline: rgba(74, 32, 48, 0.04);
+    --mg-crt-divider: rgba(200, 144, 158, 0.12);
+    --mg-crt-flash: rgba(131, 182, 172, 0.85);
+
+    /* ── Radio ── */
+    --mg-radio-body: #e4b0bc;
+    --mg-radio-body-mid: #d0909e;
+    --mg-radio-body-dark: #b87888;
+    --mg-radio-needle: #83b6ac;
+    --mg-radio-needle-dark: #5a9080;
+    --mg-radio-needle-glow: rgba(131, 182, 172, 0.4);
+    --mg-radio-display-text: #faf0f2;
+    --mg-radio-display-glow: rgba(250, 240, 242, 0.3);
+    --mg-radio-playing: #4ade80;
+    --mg-radio-playing-dim: #166534;
+    --mg-radio-playing-glow: rgba(74, 222, 128, 0.3);
+    --mg-radio-font: 'Courier New', monospace;
+}
+
+
+/* ----------------------------------------
+   CELESTIAL (Starbound Grimoire)
+   Main: #002f86  Secondary: #e3b35f
+   Accents: #132040, #fbe09c
+   ---------------------------------------- */
+[data-mg-theme="celestial"] {
+    /* ── Tama Shell ── */
+    --mg-shell-primary: #002f86;
+    --mg-shell-secondary: #0a3d9a;
+    --mg-shell-accent: #e3b35f;
+    --mg-shell-border: #001a50;
+    --mg-shell-shadow: rgba(0, 47, 134, 0.5);
+
+    /* ── Tama Screen ── */
+    --mg-screen-bg: linear-gradient(135deg, #0a1525, #132040);
+    --mg-screen-border: #e3b35f;
+    --mg-screen-pixel: #fbe09c;
+    --mg-screen-frame-bg: #1a3070;
+    --mg-screen-frame-shadow: rgba(227, 179, 95, 0.3);
+
+    /* ── Tama Buttons ── */
+    --mg-button-primary: #e3b35f;
+    --mg-button-secondary: #c89840;
+    --mg-button-border: #9a7528;
+    --mg-button-shadow: rgba(227, 179, 95, 0.4);
+
+    /* ── Decorations ── */
+    --mg-decoration-1: #e3b35f;
+    --mg-decoration-2: #fbe09c;
+    --mg-decoration-3: #002f86;
+
+    /* ── Text ── */
+    --mg-text-primary: #fbe09c;
+    --mg-text-secondary: #e3b35f;
+    --mg-text-mood: #fbe09c;
+
+    /* ── Compact Brooch ── */
+    --mg-ring: linear-gradient(145deg, #e3b35f, #c89840);
+    --mg-ring-border: #9a7528;
+    --mg-glow: rgba(227, 179, 95, 0.5);
+    --mg-face: linear-gradient(145deg, #0a3d9a, #002f86);
+    --mg-face-border: #e3b35f;
+    --mg-face-alt: linear-gradient(145deg, #132040, #0a1525);
+    --mg-star: #fbe09c;
+    --mg-sparkle: #e3b35f;
+    --mg-gem-1: #e3b35f;
+    --mg-gem-2: #fbe09c;
+    --mg-gem-3: #002f86;
+    --mg-gem-4: #e3b35f;
+    --mg-accent: #e3b35f;
+    --mg-accent-border: #9a7528;
+
+    /* ── Speech Bubble ── */
+    --mg-speech-bg: #132040;
+    --mg-speech-border: #e3b35f;
+    --mg-speech-text: #fbe09c;
+
+    /* ── CRT Effects ── */
+    --mg-crt-glow: rgba(227, 179, 95, 0.15);
+    --mg-crt-scanline: rgba(19, 32, 64, 0.08);
+    --mg-crt-divider: rgba(227, 179, 95, 0.12);
+    --mg-crt-flash: rgba(251, 224, 156, 0.85);
+
+    /* ── Radio ── */
+    --mg-radio-body: #002f86;
+    --mg-radio-body-mid: #001a60;
+    --mg-radio-body-dark: #001040;
+    --mg-radio-needle: #e3b35f;
+    --mg-radio-needle-dark: #c89840;
+    --mg-radio-needle-glow: rgba(227, 179, 95, 0.4);
+    --mg-radio-display-text: #fbe09c;
+    --mg-radio-display-glow: rgba(251, 224, 156, 0.3);
+    --mg-radio-playing: #4ade80;
+    --mg-radio-playing-dim: #166534;
+    --mg-radio-playing-glow: rgba(74, 222, 128, 0.3);
+    --mg-radio-font: 'Courier New', monospace;
+}
 
 
 /* ============================================
    SHARED FAB BASE
-   Fixed positioning for compact (and future nyxgotchi)
    ============================================ */
 
 .mg-fab {
@@ -30,4 +591,987 @@
     opacity: 0.7;
     transition: none !important;
     cursor: grabbing !important;
+}
+
+
+/* ============================================
+   PETIT GRIMOIRE - Compact FAB (Pixel Art)
+   Theme-switched crescent moon sprites
+   ============================================ */
+
+/* --- Compact Container --- */
+.mg-compact {
+    bottom: 80px;
+    right: 16px;
+    width: 72px;
+    height: 72px;
+    align-items: center;
+    justify-content: center;
+}
+
+/* --- Compact Body (tap target + sprite host) --- */
+.mg-compact-body {
+    position: relative;
+    width: 64px;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    background: rgba(100, 60, 120, 0.6);
+    border-radius: 50%;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* --- Moon Sprite (the actual pixel art) --- */
+.mg-compact-icon {
+    width: 72px;
+    height: 72px;
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    background-position: center;
+    image-rendering: pixelated;
+    image-rendering: -moz-crisp-edges;
+    image-rendering: crisp-edges;
+    transition: transform 0.3s ease, filter 0.5s ease;
+    position: relative;
+    z-index: 2;
+    /* Fallback: visible even without sprites */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    line-height: 1;
+}
+
+/* Emoji fallback — hidden when sprite loads */
+.mg-compact-icon::after {
+    content: '🌙';
+    display: block;
+}
+
+/* Hide emoji when sprite is loaded (sprite covers it) */
+[data-mg-theme] .mg-compact-icon::after {
+    /* Sprites set background-image; if it loads, text is behind it */
+    color: transparent;
+}
+
+/* Hover/active feedback */
+.mg-compact-body:hover .mg-compact-icon {
+    transform: scale(1.08);
+    filter: brightness(1.15);
+}
+
+.mg-compact-body:active .mg-compact-icon {
+    transform: scale(0.95);
+}
+
+/* --- Theme Sprite Switching --- */
+[data-mg-theme="guardian"] .mg-compact-icon {
+    background-image: url('../assets/sprites/fab-guardian.png');
+}
+
+[data-mg-theme="umbra"] .mg-compact-icon {
+    background-image: url('../assets/sprites/fab-umbra.png');
+}
+
+[data-mg-theme="rosewood"] .mg-compact-icon {
+    background-image: url('../assets/sprites/fab-rosewood.png');
+}
+
+[data-mg-theme="phosphor"] .mg-compact-icon {
+    background-image: url('../assets/sprites/fab-phosphor.png');
+}
+
+[data-mg-theme="moonstone"] .mg-compact-icon {
+    background-image: url('../assets/sprites/fab-moonstone.png');
+}
+
+[data-mg-theme="celestial"] .mg-compact-icon {
+    background-image: url('../assets/sprites/fab-celestial.png');
+}
+
+[data-mg-theme="apothecary"] .mg-compact-icon {
+    background-image: url('../assets/sprites/fab-apothecary.png');
+}
+
+
+/* ============================================
+   SPARKLE PARTICLES
+   4 tiny dots that orbit/twinkle around
+   the moon sprite on a staggered loop
+   ============================================ */
+
+.mg-compact-sparkles {
+    position: absolute;
+    inset: -8px;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.mg-compact-sparkle {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: var(--mg-main, #dc78aa);
+    opacity: 0;
+    animation: mgSparkle 3s ease-in-out infinite;
+}
+
+/* Stagger the 4 sparkles */
+.mg-compact-sparkle:nth-child(1) {
+    top: 6px; left: 50%;
+    animation-delay: 0s;
+}
+.mg-compact-sparkle:nth-child(2) {
+    top: 50%; right: 2px;
+    animation-delay: 0.75s;
+}
+.mg-compact-sparkle:nth-child(3) {
+    bottom: 6px; left: 50%;
+    animation-delay: 1.5s;
+}
+.mg-compact-sparkle:nth-child(4) {
+    top: 50%; left: 2px;
+    animation-delay: 2.25s;
+}
+
+@keyframes mgSparkle {
+    0%, 100% {
+        opacity: 0;
+        transform: scale(0.5) translate(0, 0);
+    }
+    15% {
+        opacity: 1;
+        transform: scale(1.2) translate(2px, -3px);
+    }
+    40% {
+        opacity: 0.6;
+        transform: scale(0.8) translate(-1px, 2px);
+    }
+    60% {
+        opacity: 0;
+        transform: scale(0.3) translate(3px, 1px);
+    }
+}
+
+/* Sparkle color follows theme */
+[data-mg-theme="guardian"] .mg-compact-sparkle   { background: #f3aa1e; }
+[data-mg-theme="umbra"] .mg-compact-sparkle      { background: #c8b1f7; }
+[data-mg-theme="rosewood"] .mg-compact-sparkle   { background: #e4b0bc; }
+[data-mg-theme="phosphor"] .mg-compact-sparkle   { background: #f990f6; }
+[data-mg-theme="moonstone"] .mg-compact-sparkle  { background: #bcf1fd; }
+[data-mg-theme="celestial"] .mg-compact-sparkle  { background: #e3b35f; }
+[data-mg-theme="apothecary"] .mg-compact-sparkle { background: #bdbf46; }
+
+
+/* ============================================
+   GLOW RING
+   Soft radial glow behind the sprite
+   ============================================ */
+
+.mg-compact-glow {
+    position: absolute;
+    inset: -4px;
+    border-radius: 50%;
+    background: radial-gradient(circle, var(--mg-main, #dc78aa)20, transparent 65%);
+    z-index: 0;
+    opacity: 0.5;
+    animation: mgFabGlow 4s ease-in-out infinite alternate;
+    pointer-events: none;
+}
+
+@keyframes mgFabGlow {
+    0%   { opacity: 0.3; transform: scale(0.95); }
+    100% { opacity: 0.6; transform: scale(1.1); }
+}
+
+
+/* ============================================
+   TRANSFORMATION FLASH
+   Quick pulse when opening grimoire
+   ============================================ */
+
+.mg-compact.transforming .mg-compact-icon {
+    animation: mgFabTransform 0.25s ease-out;
+}
+
+@keyframes mgFabTransform {
+    0%   { transform: scale(1) rotate(0deg); filter: brightness(1); }
+    40%  { transform: scale(1.3) rotate(15deg); filter: brightness(1.8); }
+    100% { transform: scale(0.9) rotate(0deg); filter: brightness(1); }
+}
+
+.mg-compact.transforming .mg-compact-sparkle {
+    animation: mgSparkleFlash 0.3s ease-out !important;
+    opacity: 1 !important;
+}
+
+@keyframes mgSparkleFlash {
+    0%   { opacity: 1; transform: scale(2); }
+    100% { opacity: 0; transform: scale(0.5) translate(8px, -8px); }
+}
+
+
+/* ============================================
+   ACTIVE STATE (grimoire is open)
+   ============================================ */
+
+.mg-compact.active .mg-compact-icon {
+    filter: brightness(1.2) drop-shadow(0 0 6px var(--mg-main, #dc78aa));
+}
+
+.mg-compact.active .mg-compact-sparkle {
+    animation-duration: 1.8s; /* faster sparkles when open */
+}
+
+
+/* ============================================
+   QUEUE BADGE
+   Tiny number badge showing fate queue count
+   ============================================ */
+
+.mg-compact-badge {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    min-width: 16px;
+    height: 16px;
+    border-radius: 8px;
+    background: var(--mg-accent1, #e71720);
+    color: #fff;
+    font-size: 9px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    padding: 0 3px;
+    opacity: 0;
+    transform: scale(0.5);
+    transition: opacity 0.2s, transform 0.2s;
+    pointer-events: none;
+    font-family: system-ui, sans-serif;
+}
+
+.mg-compact-badge.visible {
+    opacity: 1;
+    transform: scale(1);
+}
+
+
+/* ============================================
+   MOBILE
+   ============================================ */
+
+@media (max-width: 768px) {
+    .mg-compact {
+        bottom: 72px;
+        right: 10px;
+        width: 64px;
+        height: 64px;
+    }
+
+    .mg-compact-body {
+        width: 56px;
+        height: 56px;
+    }
+
+    .mg-compact-icon {
+        width: 64px;
+        height: 64px;
+    }
+}
+
+
+/* ============================================
+   PETIT GRIMOIRE - Grimoire Drawer
+   Right-slide panel with vertical tabstrip
+   
+   Z-INDEX STACK:
+   - Compact brooch:   99990  (main.css .mg-fab)
+   - Grimoire overlay: 99998
+   - Grimoire drawer:  99999
+   ============================================ */
+
+
+/* ══════════════════════════════════════════════
+   OVERLAY
+   ══════════════════════════════════════════════ */
+
+.mg-grimoire-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    z-index: 99998;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+.mg-grimoire-overlay.visible {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+
+/* ══════════════════════════════════════════════
+   DRAWER CONTAINER
+   ══════════════════════════════════════════════ */
+
+.mg-grimoire {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 99999;
+    width: 380px;
+    max-width: 95vw;
+
+    /* Slide in from right */
+    transform: translateX(100%);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+    /* Parchment background */
+    background:
+        repeating-linear-gradient(
+            0deg,
+            transparent,
+            transparent 28px,
+            rgba(139, 90, 43, 0.03) 28px,
+            rgba(139, 90, 43, 0.03) 29px
+        ),
+        linear-gradient(135deg, #f5e6d3 0%, #e8d5bc 50%, #f5e6d3 100%);
+
+    /* Leather binding edge */
+    border-left: 5px solid #6b3a1f;
+    box-shadow:
+        -4px 0 20px rgba(0, 0, 0, 0.3),
+        inset 4px 0 8px rgba(139, 90, 43, 0.1);
+
+    font-family: 'Georgia', 'Times New Roman', serif;
+    color: #4a3728;
+    overflow: hidden;
+}
+
+.mg-grimoire.open {
+    transform: translateX(0);
+}
+
+
+/* ══════════════════════════════════════════════
+   INNER LAYOUT — tabstrip + page side by side
+   ══════════════════════════════════════════════ */
+
+.mg-grimoire-inner {
+    display: flex;
+    height: 100%;
+    overflow: hidden;
+}
+
+
+/* ══════════════════════════════════════════════
+   VERTICAL TABSTRIP
+   ══════════════════════════════════════════════ */
+
+.mg-grimoire-tabstrip {
+    width: 44px;
+    min-width: 44px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 8px 0;
+    gap: 4px;
+    background:
+        linear-gradient(180deg,
+            #d4b896 0%,
+            #c8a882 50%,
+            #d4b896 100%
+        );
+    border-right: 2px solid #b8956a;
+    box-shadow: inset -2px 0 4px rgba(0, 0, 0, 0.08);
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-width: none;
+}
+
+.mg-grimoire-tabstrip::-webkit-scrollbar { display: none; }
+
+.mg-grimoire-tab {
+    width: 34px;
+    height: 34px;
+    border-radius: 6px;
+    border: 1px solid transparent;
+    background: transparent;
+    color: #7a6858;
+    font-size: 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+    padding: 0;
+}
+
+.mg-grimoire-tab:hover {
+    background: rgba(139, 90, 43, 0.12);
+    color: #4a3728;
+}
+
+.mg-grimoire-tab[data-active="true"] {
+    background: #f5e6d3;
+    color: #6b3a1f;
+    border-color: #b8956a;
+    box-shadow:
+        0 1px 3px rgba(0, 0, 0, 0.1),
+        inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    font-weight: 600;
+}
+
+/* Spacer pushes close button to bottom */
+.mg-grimoire-tab-spacer {
+    flex: 1;
+}
+
+.mg-grimoire-tab--close {
+    color: #a08070;
+    margin-top: auto;
+}
+
+.mg-grimoire-tab--close:hover {
+    background: rgba(180, 60, 60, 0.15);
+    color: #8b3a3a;
+}
+
+
+/* ══════════════════════════════════════════════
+   PAGE AREA
+   ══════════════════════════════════════════════ */
+
+.mg-grimoire-page {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 0;
+    scrollbar-width: thin;
+    scrollbar-color: #c8a882 transparent;
+}
+
+.mg-grimoire-page::-webkit-scrollbar { width: 6px; }
+.mg-grimoire-page::-webkit-scrollbar-thumb {
+    background: #c8a882;
+    border-radius: 3px;
+}
+
+.mg-grimoire-page-content {
+    padding: 16px;
+    transition: opacity 0.15s ease;
+}
+
+
+/* ══════════════════════════════════════════════
+   CORNER FLOURISHES (decorative)
+   ══════════════════════════════════════════════ */
+
+.mg-grimoire-corner {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    pointer-events: none;
+    opacity: 0.3;
+}
+
+.mg-grimoire-corner::before,
+.mg-grimoire-corner::after {
+    content: '';
+    position: absolute;
+    background: #8b5a2b;
+}
+
+.mg-grimoire-corner--tl { top: 4px; left: 50px; }
+.mg-grimoire-corner--tr { top: 4px; right: 4px; }
+.mg-grimoire-corner--bl { bottom: 4px; left: 50px; }
+.mg-grimoire-corner--br { bottom: 4px; right: 4px; }
+
+.mg-grimoire-corner--tl::before,
+.mg-grimoire-corner--tr::before { width: 16px; height: 2px; top: 0; }
+.mg-grimoire-corner--tl::after,
+.mg-grimoire-corner--bl::after { width: 2px; height: 16px; left: 0; }
+
+.mg-grimoire-corner--tl::before { left: 0; }
+.mg-grimoire-corner--tr::before { right: 0; }
+.mg-grimoire-corner--tr::after { width: 2px; height: 16px; right: 0; top: 0; }
+.mg-grimoire-corner--bl::before { width: 16px; height: 2px; bottom: 0; left: 0; }
+.mg-grimoire-corner--br::before { width: 16px; height: 2px; bottom: 0; right: 0; }
+.mg-grimoire-corner--br::after { width: 2px; height: 16px; right: 0; bottom: 0; }
+
+
+/* ══════════════════════════════════════════════
+   PAGE ELEMENTS — shared
+   ══════════════════════════════════════════════ */
+
+.mg-page-section {
+    margin-bottom: 12px;
+}
+
+.mg-page-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #4a3728;
+    margin: 0 0 6px;
+    letter-spacing: 0.5px;
+}
+
+.mg-page-subtitle {
+    font-size: 13px;
+    font-weight: 600;
+    color: #6b5040;
+    margin: 0 0 8px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.mg-page-flavor {
+    font-style: italic;
+    color: #8a7568;
+    font-size: 12px;
+    margin: 0 0 14px;
+    line-height: 1.4;
+}
+
+.mg-text-dim {
+    color: #8a7568;
+    font-size: 11px;
+}
+
+.mg-page-divider {
+    height: 1px;
+    background: linear-gradient(to right, transparent, #b8956a44, transparent);
+    margin: 16px 0;
+}
+
+.mg-empty-state {
+    text-align: center;
+    color: #a09080;
+    font-style: italic;
+    font-size: 12px;
+    padding: 16px 8px;
+}
+
+
+/* ══════════════════════════════════════════════
+   BUTTONS
+   ══════════════════════════════════════════════ */
+
+.mg-btn-row {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.mg-page-btn {
+    display: block;
+    width: 100%;
+    padding: 10px 16px;
+    margin-top: 10px;
+    border-radius: 6px;
+    border: 1px solid #b8956a;
+    background: linear-gradient(135deg, #d4a574, #c8956a);
+    color: #fff;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.mg-page-btn:hover {
+    background: linear-gradient(135deg, #c89860, #b88550);
+    box-shadow: 0 2px 8px rgba(139, 90, 43, 0.3);
+}
+
+.mg-page-btn:active {
+    transform: translateY(1px);
+}
+
+.mg-page-btn--secondary {
+    background: transparent;
+    color: #8b5a2b;
+    border: 1px solid #c8a882;
+    text-shadow: none;
+}
+
+.mg-page-btn--secondary:hover {
+    background: rgba(139, 90, 43, 0.08);
+}
+
+
+/* ══════════════════════════════════════════════
+   TAROT PAGE
+   ══════════════════════════════════════════════ */
+
+.mg-card-spread {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+}
+
+.mg-card-slot {
+    width: 80px;
+    height: 120px;
+    border-radius: 8px;
+    border: 2px dashed #b8956a88;
+    background: rgba(139, 90, 43, 0.05);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    color: #b8956a;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.mg-card-slot:hover {
+    border-color: #8b5a2b;
+    background: rgba(139, 90, 43, 0.1);
+}
+
+.mg-spread-labels {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 6px;
+}
+
+.mg-spread-labels span {
+    width: 80px;
+    text-align: center;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: #a09080;
+}
+
+
+/* ══════════════════════════════════════════════
+   CRYSTAL BALL PAGE
+   ══════════════════════════════════════════════ */
+
+.mg-crystal-orb {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 16px 0;
+}
+
+.mg-crystal-sphere {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%,
+        rgba(200, 180, 255, 0.4),
+        rgba(100, 60, 160, 0.15) 50%,
+        rgba(40, 20, 60, 0.2) 100%
+    );
+    border: 2px solid rgba(139, 90, 43, 0.3);
+    position: relative;
+    overflow: hidden;
+    box-shadow:
+        0 0 30px rgba(150, 100, 200, 0.15),
+        inset 0 0 20px rgba(200, 180, 255, 0.1);
+}
+
+.mg-crystal-mist {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: radial-gradient(circle at 50% 50%, rgba(200, 180, 255, 0.2), transparent 70%);
+    animation: mgMistSwirl 6s ease-in-out infinite;
+}
+
+.mg-crystal-mist--2 {
+    animation-delay: -3s;
+    animation-direction: reverse;
+    background: radial-gradient(circle at 60% 40%, rgba(180, 160, 230, 0.15), transparent 60%);
+}
+
+@keyframes mgMistSwirl {
+    0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.6; }
+    33%      { transform: translate(8px, -5px) scale(1.1); opacity: 0.9; }
+    66%      { transform: translate(-6px, 4px) scale(0.95); opacity: 0.5; }
+}
+
+.mg-crystal-base {
+    width: 60px;
+    height: 14px;
+    background: linear-gradient(to bottom, #8b6a4a, #6b4a2a);
+    border-radius: 0 0 8px 8px;
+    margin-top: -2px;
+}
+
+
+/* ══════════════════════════════════════════════
+   OUIJA PAGE
+   ══════════════════════════════════════════════ */
+
+.mg-ouija-board {
+    background: linear-gradient(135deg, #f0e0c8, #e0d0b8);
+    border: 2px solid #8b6a4a;
+    border-radius: 10px;
+    padding: 14px 10px;
+    text-align: center;
+    position: relative;
+    margin-bottom: 12px;
+    box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.05);
+}
+
+.mg-ouija-letters {
+    font-family: 'Georgia', serif;
+    font-size: 14px;
+    letter-spacing: 6px;
+    color: #4a3728;
+    margin: 6px 0;
+    line-height: 1.8;
+}
+
+.mg-ouija-yes-no {
+    display: flex;
+    justify-content: space-around;
+    font-size: 13px;
+    font-weight: 700;
+    color: #6b4a2a;
+    margin: 10px 0;
+    letter-spacing: 2px;
+}
+
+.mg-ouija-numbers {
+    font-size: 12px;
+    letter-spacing: 5px;
+    color: #7a6858;
+    margin: 8px 0;
+}
+
+.mg-ouija-planchette {
+    display: inline-block;
+    font-size: 22px;
+    color: #6b3a1f;
+    margin: 10px 0;
+    transition: transform 0.8s ease-in-out;
+    filter: drop-shadow(0 0 4px rgba(139, 90, 43, 0.3));
+}
+
+.mg-ouija-goodbye {
+    font-size: 11px;
+    letter-spacing: 4px;
+    color: #a09080;
+    margin-top: 6px;
+    text-transform: uppercase;
+}
+
+.mg-ouija-input {
+    display: block;
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #c8a882;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.6);
+    color: #4a3728;
+    font-family: inherit;
+    font-size: 13px;
+    margin-bottom: 4px;
+    box-sizing: border-box;
+}
+
+.mg-ouija-input:focus {
+    outline: none;
+    border-color: #8b5a2b;
+    box-shadow: 0 0 0 2px rgba(139, 90, 43, 0.15);
+}
+
+.mg-ouija-input::placeholder {
+    color: #b0a090;
+    font-style: italic;
+}
+
+
+/* ══════════════════════════════════════════════
+   NYX PAGE
+   ══════════════════════════════════════════════ */
+
+.mg-nyx-portrait {
+    width: 80px;
+    height: 80px;
+    margin: 8px auto;
+    border-radius: 50%;
+    background: rgba(139, 90, 43, 0.08);
+    border: 2px solid #c8a882;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 36px;
+}
+
+.mg-nyx-mood {
+    text-align: center;
+    font-size: 13px;
+    color: #6b5040;
+    margin: 8px 0 4px;
+}
+
+.mg-nyx-disposition-bar {
+    width: 100%;
+    height: 8px;
+    background: rgba(139, 90, 43, 0.12);
+    border-radius: 4px;
+    overflow: hidden;
+    margin: 6px 0 12px;
+}
+
+.mg-nyx-disposition-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #c8656a, #d4a574, #7ab88a);
+    border-radius: 4px;
+    transition: width 0.5s ease;
+}
+
+.mg-nyx-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    margin-top: 12px;
+}
+
+.mg-nyx-btn {
+    padding: 8px 14px;
+    border-radius: 6px;
+    border: 1px solid #c8a882;
+    background: rgba(139, 90, 43, 0.06);
+    color: #6b5040;
+    font-family: inherit;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.mg-nyx-btn:hover {
+    background: rgba(139, 90, 43, 0.14);
+    border-color: #8b5a2b;
+}
+
+.mg-nyx-btn:active {
+    transform: scale(0.95);
+}
+
+
+/* ══════════════════════════════════════════════
+   SPELLS PAGE
+   ══════════════════════════════════════════════ */
+
+.mg-spell-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    margin: 10px 0;
+}
+
+.mg-spell-card {
+    aspect-ratio: 1;
+    border-radius: 8px;
+    border: 1px solid #c8a88266;
+    background: rgba(139, 90, 43, 0.04);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    color: #6b5040;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: center;
+    line-height: 1.3;
+    padding: 4px;
+}
+
+.mg-spell-card:hover {
+    background: rgba(139, 90, 43, 0.12);
+    border-color: #8b5a2b;
+    transform: translateY(-2px);
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+}
+
+.mg-spell-card--flash {
+    animation: mgSpellFlash 0.3s ease-out;
+}
+
+@keyframes mgSpellFlash {
+    0%   { background: rgba(255, 200, 100, 0.5); transform: scale(1.05); }
+    100% { background: rgba(139, 90, 43, 0.04); transform: scale(1); }
+}
+
+
+/* ══════════════════════════════════════════════
+   CHECKBOX LABELS
+   ══════════════════════════════════════════════ */
+
+.mg-checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: #6b5040;
+    margin: 6px 0;
+    cursor: pointer;
+}
+
+
+/* ══════════════════════════════════════════════
+   RESPONSIVE
+   ══════════════════════════════════════════════ */
+
+@media (max-width: 420px) {
+    .mg-grimoire {
+        width: 100vw;
+        max-width: 100vw;
+    }
+
+    .mg-grimoire-tabstrip {
+        width: 40px;
+        min-width: 40px;
+    }
+
+    .mg-grimoire-tab {
+        width: 30px;
+        height: 30px;
+        font-size: 12px;
+    }
+
+    .mg-spell-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .mg-card-slot {
+        width: 65px;
+        height: 100px;
+    }
+
+    .mg-spread-labels span {
+        width: 65px;
+    }
+}
+
+@media (min-width: 421px) and (max-width: 600px) {
+    .mg-grimoire {
+        width: 88vw;
+    }
+}
+
+@media (min-width: 1000px) {
+    .mg-grimoire {
+        width: 440px;
+    }
 }
