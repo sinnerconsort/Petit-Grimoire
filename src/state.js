@@ -3,8 +3,8 @@
  * Single source of truth for extension settings.
  */
 
-import { getContext } from '../../../extensions.js';
-import { saveSettingsDebounced } from '../../../../script.js';
+import { getContext } from '../../../../extensions.js';
+import { saveSettingsDebounced } from '../../../../../script.js';
 
 // ══════════════════════════════════════════════
 // EXTENSION IDENTITY
