@@ -1,10 +1,11 @@
 /**
- * Petit Grimoire — Grimoire Panel
- * Tome HTML, open/close, tab switching, all subsystem actions
+ * Petit Grimoire — Pixel Art Grimoire
+ * Spellbook UI using Franuka's RPG UI Pack assets (2x)
+ * 7 tabs: Tarot, Crystal, Ouija, Nyx, Spells, Radio, Settings
  */
 
 import {
-    extensionName, extensionSettings,
+    extensionName, extensionFolderPath, extensionSettings,
     grimoireOpen, setGrimoireOpen,
     saveSettings
 } from './state.js';
@@ -12,776 +13,811 @@ import { showSpeech, showCardFlash, updateNyxMood, getMoodText, playSpecialAnima
 import { getSettingsPanelHTML, initSettings } from './settings.js';
 
 // ============================================
+// CONSTANTS
+// ============================================
+
+// Tab configuration - matches ribbon positions on Spellbook_WithTabs.png
+const TABS = [
+    { id: 'tarot',    name: 'Tarot',   color: 'red',    position: 'right-1' },
+    { id: 'crystal',  name: 'Crystal', color: 'teal',   position: 'right-2' },
+    { id: 'ouija',    name: 'Ouija',   color: 'orange', position: 'right-3' },
+    { id: 'nyx',      name: 'Nyx',     color: 'yellow', position: 'right-4' },
+    { id: 'spells',   name: 'Spells',  color: 'green',  position: 'bottom-right' },
+    { id: 'radio',    name: 'Radio',   color: 'gold',   position: 'bottom-left-2' },
+    { id: 'settings', name: 'Config',  color: 'pink',   position: 'bottom-left' },
+];
+
+// Animation durations (ms)
+const ANIM_OPEN = 600;      // Book opening
+const ANIM_CLOSE = 600;     // Book closing  
+const ANIM_PAGE_TURN = 400; // Page flip
+
+// ============================================
+// STATE
+// ============================================
+
+let currentTab = 'tarot';
+let isAnimating = false;
+
+// ============================================
 // GRIMOIRE HTML
 // ============================================
 
 export function getGrimoireHTML() {
     return `
-        <div class="mg-overlay" id="mg-overlay"></div>
-        <div class="mg-grimoire mg-fab" id="mg-grimoire" data-mg-theme="${extensionSettings.shellTheme}">
-            <div class="mg-tome">
-                <span class="mg-tome-gem mg-tome-gem--tl"></span>
-                <span class="mg-tome-gem mg-tome-gem--tr"></span>
-                <span class="mg-tome-gem mg-tome-gem--bl"></span>
-                <span class="mg-tome-gem mg-tome-gem--br"></span>
-                <div class="mg-tome-border"></div>
-
-                <div class="mg-tome-page">
-                    <div class="mg-tome-layout">
-                        <div class="mg-tome-tabs">
-                            <button class="mg-tome-tab active" data-mg-tab="cards">
-                                <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="1" width="10" height="14" rx="1.5"/><path d="M6 5.5l-1 2.5h3l-1 2.5"/></svg>
-                                <span>Cards</span>
-                            </button>
-                            <button class="mg-tome-tab" data-mg-tab="crystal">
-                                <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="5"/><ellipse cx="8" cy="13" rx="4" ry="1.5"/></svg>
-                                <span>Crystal</span>
-                            </button>
-                            <button class="mg-tome-tab" data-mg-tab="spells">
-                                <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 1l1 3h3l-2.5 2 1 3L8 7.5 5.5 9l1-3L4 4h3z"/></svg>
-                                <span>Spells</span>
-                            </button>
-                            <button class="mg-tome-tab" data-mg-tab="queue">
-                                <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="4" y1="3" x2="13" y2="3"/><line x1="4" y1="8" x2="13" y2="8"/><line x1="4" y1="13" x2="13" y2="13"/></svg>
-                                <span>Queue</span>
-                            </button>
-                            <button class="mg-tome-tab" data-mg-tab="ouija">
-                                <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><ellipse cx="8" cy="8" rx="7" ry="5.5"/><circle cx="8" cy="7" r="2" opacity="0.5"/></svg>
-                                <span>Ouija</span>
-                            </button>
-                            <button class="mg-tome-tab" data-mg-tab="nyx">
-                                <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor"><path d="M8 14s-5.5-4.5-6.5-7C.5 4.5 2 2 4.5 2 6 2 7.5 3.5 8 4.5 8.5 3.5 10 2 11.5 2 14 2 15.5 4.5 14.5 7 13.5 9.5 8 14 8 14z"/></svg>
-                                <span>Nyx</span>
-                            </button>
-                            <button class="mg-tome-tab" data-mg-tab="radio">
-                                <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="5" width="12" height="9" rx="2"/><line x1="11" y1="2" x2="11" y2="5"/><circle cx="11" cy="2" r="1"/><circle cx="6" cy="10" r="2.5"/></svg>
-                                <span>Radio</span>
-                            </button>
-                            <button class="mg-tome-tab" data-mg-tab="settings">
-                                <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="2"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M2.9 2.9l1.4 1.4M11.7 11.7l1.4 1.4M2.9 13.1l1.4-1.4M11.7 4.3l1.4-1.4"/></svg>
-                                <span>Config</span>
-                            </button>
-                        </div>
-
-                        <div class="mg-tome-content">
-                            <!-- Cards Tab -->
-                            <div class="mg-tome-panel active" data-mg-panel="cards">
-                                <div class="mg-tome-heading">Draw from the Deck</div>
-                                <div class="mg-tome-flavor">The cards whisper of what is to come...</div>
-                                <div class="mg-card-spread">
-                                    <div class="mg-card-slot" style="transform:rotate(-5deg)"><span class="mg-card-symbol">✦</span></div>
-                                    <div class="mg-card-slot"><span class="mg-card-symbol">✦</span></div>
-                                    <div class="mg-card-slot" style="transform:rotate(5deg)"><span class="mg-card-symbol">✦</span></div>
-                                </div>
-                                <button class="mg-tome-btn mg-draw-btn" id="mg-grimoire-draw">
-                                    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="1" width="10" height="14" rx="1.5"/><path d="M6 5.5l-1 2.5h3l-1 2.5"/></svg>
-                                    Draw a Card
-                                </button>
-                                <div class="mg-tome-section">
-                                    <div class="mg-tome-section-title">Last Reading</div>
-                                    <div class="mg-last-reading">
-                                        <div class="mg-mini-card">—</div>
-                                        <div class="mg-last-reading-info">
-                                            <div class="mg-last-reading-name" id="mg-last-card-name">No cards drawn yet</div>
-                                            <div class="mg-last-reading-keywords" id="mg-last-card-keywords">Draw to reveal your fate</div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Queue Tab -->
-                            <div class="mg-tome-panel" data-mg-panel="queue">
-                                <div class="mg-tome-heading">Card Queue</div>
-                                <div class="mg-tome-flavor">Cards drawn, awaiting their moment</div>
-                                <div class="mg-queue-list" id="mg-queue-list">
-                                    <div class="mg-queue-empty">The queue is empty. Draw some cards!</div>
-                                </div>
-                                <div class="mg-queue-footer" id="mg-queue-footer">0 of 5 slots filled</div>
-                            </div>
-
-                            <!-- Crystal Ball Tab -->
-                            <div class="mg-tome-panel" data-mg-panel="crystal">
-                                <div class="mg-tome-heading">Crystal Ball</div>
-                                <div class="mg-tome-flavor">Wild magic swirls within...</div>
-                                <div class="mg-crystal-orb">
-                                    <div class="mg-crystal-sphere">
-                                        <div class="mg-crystal-mist"></div>
-                                        <div class="mg-crystal-mist mg-crystal-mist--2"></div>
-                                        <div class="mg-crystal-glint"></div>
-                                    </div>
-                                    <div class="mg-crystal-base"></div>
-                                </div>
-                                <button class="mg-tome-btn mg-crystal-gaze-btn" id="mg-crystal-gaze">
-                                    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="5"/></svg>
-                                    Gaze into the Mist
-                                </button>
-                                <div class="mg-tome-section">
-                                    <div class="mg-tome-section-title">Last Vision</div>
-                                    <div class="mg-crystal-vision" id="mg-crystal-vision">The mists have not yet parted...</div>
-                                </div>
-                            </div>
-
-                            <!-- Spells Tab -->
-                            <div class="mg-tome-panel" data-mg-panel="spells">
-                                <div class="mg-tome-heading">Spell Cards</div>
-                                <div class="mg-tome-flavor">Active enchantments shimmer around you</div>
-                                <div class="mg-spells-grid" id="mg-spells-grid">
-                                    <div class="mg-spell-card" data-spell="shield">
-                                        <div class="mg-spell-icon">🛡️</div>
-                                        <div class="mg-spell-name">Aegis</div>
-                                        <div class="mg-spell-desc">Deflects negative outcomes</div>
-                                        <div class="mg-spell-status">Ready</div>
-                                    </div>
-                                    <div class="mg-spell-card" data-spell="charm">
-                                        <div class="mg-spell-icon">💖</div>
-                                        <div class="mg-spell-name">Charm</div>
-                                        <div class="mg-spell-desc">Amplifies social interactions</div>
-                                        <div class="mg-spell-status">Ready</div>
-                                    </div>
-                                    <div class="mg-spell-card" data-spell="insight">
-                                        <div class="mg-spell-icon">👁️</div>
-                                        <div class="mg-spell-name">Insight</div>
-                                        <div class="mg-spell-desc">Reveals hidden details</div>
-                                        <div class="mg-spell-status">Ready</div>
-                                    </div>
-                                    <div class="mg-spell-card" data-spell="chaos">
-                                        <div class="mg-spell-icon">🌀</div>
-                                        <div class="mg-spell-name">Chaos</div>
-                                        <div class="mg-spell-desc">Wildcard narrative twist</div>
-                                        <div class="mg-spell-status">Ready</div>
-                                    </div>
-                                </div>
-                                <div class="mg-tome-section">
-                                    <div class="mg-tome-section-title">Spell Log</div>
-                                    <div class="mg-spell-log" id="mg-spell-log">
-                                        <div class="mg-spell-log-entry">No spells cast yet</div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Ouija Tab -->
-                            <div class="mg-tome-panel" data-mg-panel="ouija">
-                                <div class="mg-tome-heading">Spirit Board</div>
-                                <div class="mg-tome-flavor">Ask the spirits a yes or no question...</div>
-                                <div class="mg-ouija-board">
-                                    <div class="mg-ouija-row mg-ouija-answers">
-                                        <span class="mg-ouija-answer">YES</span>
-                                        <span class="mg-ouija-sun">☀</span>
-                                        <span class="mg-ouija-answer">NO</span>
-                                    </div>
-                                    <div class="mg-ouija-letters">
-                                        <div class="mg-ouija-row">ABCDEFGHIJKLM</div>
-                                        <div class="mg-ouija-row">NOPQRSTUVWXYZ</div>
-                                    </div>
-                                    <div class="mg-ouija-row mg-ouija-numbers">1234567890</div>
-                                    <div class="mg-ouija-farewell">GOODBYE</div>
-                                </div>
-                                <div class="mg-ouija-planchette" id="mg-ouija-planchette"><div class="mg-ouija-lens"></div></div>
-                                <button class="mg-tome-btn mg-ouija-ask-btn" id="mg-ouija-ask">Ask the Spirits</button>
-                                <div class="mg-tome-section">
-                                    <div class="mg-tome-section-title">The Spirits Say</div>
-                                    <div class="mg-ouija-response" id="mg-ouija-response">
-                                        <span class="mg-ouija-waiting">Waiting for a question...</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Nyx Tab -->
-                            <div class="mg-tome-panel" data-mg-panel="nyx">
-                                <div class="mg-tome-heading">Nyx</div>
-                                <div class="mg-nyx-stats">
-                                    <div class="mg-nyx-stats-header">
-                                        <span>Disposition</span>
-                                        <span class="mg-nyx-score" id="mg-nyx-score">${extensionSettings.nyx?.disposition ?? 50}</span>
-                                    </div>
-                                    <div class="mg-nyx-bar">
-                                        <div class="mg-nyx-bar-fill" id="mg-nyx-bar" style="width:${extensionSettings.nyx?.disposition ?? 50}%"></div>
-                                    </div>
-                                    <div class="mg-nyx-bar-labels"><span>hostile</span><span>neutral</span><span>devoted</span></div>
-                                </div>
-                                <div class="mg-nyx-mood" id="mg-nyx-mood-text">Currently: <b>${getMoodText(extensionSettings.nyx?.disposition ?? 50)}</b></div>
-                                <div class="mg-nyx-actions">
-                                    <button class="mg-nyx-action-btn" data-action="treat">Offer Treat</button>
-                                    <button class="mg-nyx-action-btn" data-action="advice">Ask Advice</button>
-                                    <button class="mg-nyx-action-btn" data-action="pet">Pet</button>
-                                    <button class="mg-nyx-action-btn" data-action="tease">Tease</button>
-                                </div>
-                                <div class="mg-tome-section">
-                                    <div class="mg-tome-section-title">Recent</div>
-                                    <div class="mg-nyx-log" id="mg-nyx-log">
-                                        <div class="mg-nyx-log-entry">Nyx watches you curiously...</div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Radio Tab -->
-                            <div class="mg-tome-panel" data-mg-panel="radio">
-                                <div class="mg-tome-heading">Witch's Weather Radio</div>
-                                <div class="mg-tome-flavor">Tune in to the frequencies between worlds...</div>
-
-                                <div class="mg-radio" id="mg-radio">
-                                    <!-- Antenna -->
-                                    <div class="mg-radio-antenna"></div>
-                                    <div class="mg-radio-signal">
-                                        <div class="mg-radio-signal-wave"></div>
-                                        <div class="mg-radio-signal-wave"></div>
-                                        <div class="mg-radio-signal-wave"></div>
-                                    </div>
-
-                                    <!-- Wrist Strap -->
-                                    <div class="mg-radio-strap">
-                                        <div class="mg-radio-strap-loop"></div>
-                                        <div class="mg-radio-strap-band"></div>
-                                    </div>
-
-                                    <!-- Knobs (poke above body) -->
-                                    <div class="mg-radio-knobs">
-                                        <div class="mg-radio-knob mg-radio-knob--vol" title="Volume">
-                                            <div class="mg-radio-knob-indicator"></div>
-                                        </div>
-                                        <div class="mg-radio-knob mg-radio-knob--tune" title="Tune">
-                                            <div class="mg-radio-knob-indicator"></div>
-                                        </div>
-                                        <div class="mg-radio-knob mg-radio-knob--ch" id="mg-radio-ch-knob" title="Channel">
-                                            <div class="mg-radio-knob-indicator"></div>
-                                        </div>
-                                    </div>
-
-                                    <!-- ═══ SCREEN — one unified CRT ═══ -->
-                                    <div class="mg-radio-screen" id="mg-radio-screen">
-                                        <div class="mg-radio-screen-scanlines"></div>
-                                        <div class="mg-radio-screen-glow"></div>
-
-                                        <!-- CH 0: TUNER — the classic FM dial -->
-                                        <div class="mg-radio-channel active" data-mg-ch="0">
-                                            <div class="mg-radio-tuner">
-                                                <div class="mg-radio-bands">
-                                                    <span class="mg-radio-band active">FM</span>
-                                                    <span class="mg-radio-band">AM</span>
-                                                </div>
-                                                <div class="mg-radio-freq-row">
-                                                    <span class="mg-radio-freq-mark">88</span>
-                                                    <span class="mg-radio-freq-mark">92</span>
-                                                    <span class="mg-radio-freq-mark">96</span>
-                                                    <span class="mg-radio-freq-mark">100</span>
-                                                    <span class="mg-radio-freq-mark">104</span>
-                                                    <span class="mg-radio-freq-mark">108</span>
-                                                </div>
-                                                <div class="mg-radio-ticks" id="mg-radio-ticks"></div>
-                                                <div class="mg-radio-slider">
-                                                    <div class="mg-radio-slider-track"></div>
-                                                    <div class="mg-radio-needle" id="mg-radio-needle" style="left:42%"></div>
-                                                </div>
-                                                <div class="mg-radio-station-readout">
-                                                    <div class="mg-radio-station-name" id="mg-radio-station-name">RAINFALL</div>
-                                                    <div class="mg-radio-station-freq" id="mg-radio-station-freq">91.7 MHz</div>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <!-- CH 1: STATIONS — clickable list -->
-                                        <div class="mg-radio-channel" data-mg-ch="1">
-                                            <div class="mg-radio-stations" id="mg-radio-stations">
-                                                <button class="mg-radio-station active" data-station="witchfm" data-freq="96.6" data-needle="55">
-                                                    <span class="mg-radio-station-dial">96.6</span>
-                                                    <span class="mg-radio-station-label">WITCH FM</span>
-                                                    <span class="mg-radio-station-type">MAIN</span>
-                                                </button>
-                                                <button class="mg-radio-station" data-station="rain" data-freq="91.7" data-needle="30">
-                                                    <span class="mg-radio-station-dial">91.7</span>
-                                                    <span class="mg-radio-station-label">RAINFALL</span>
-                                                    <span class="mg-radio-station-type">AMBIENT</span>
-                                                </button>
-                                                <button class="mg-radio-station" data-station="night" data-freq="97.5" data-needle="60">
-                                                    <span class="mg-radio-station-dial">97.5</span>
-                                                    <span class="mg-radio-station-label">NIGHTSIDE</span>
-                                                    <span class="mg-radio-station-type">AMBIENT</span>
-                                                </button>
-                                                <button class="mg-radio-station" data-station="storm" data-freq="93.3" data-needle="38">
-                                                    <span class="mg-radio-station-dial">93.3</span>
-                                                    <span class="mg-radio-station-label">TEMPEST</span>
-                                                    <span class="mg-radio-station-type">WEATHER</span>
-                                                </button>
-                                                <button class="mg-radio-station" data-station="static" data-freq="87.5" data-needle="5">
-                                                    <span class="mg-radio-station-dial">87.5</span>
-                                                    <span class="mg-radio-station-label">THE VOID</span>
-                                                    <span class="mg-radio-station-type">???</span>
-                                                </button>
-                                            </div>
-                                        </div>
-
-                                        <!-- CH 2: WEATHER -->
-                                        <div class="mg-radio-channel" data-mg-ch="2">
-                                            <div class="mg-radio-weather" id="mg-radio-weather">
-                                                <div class="mg-radio-weather-header">
-                                                    <span class="mg-radio-weather-title">Current Conditions</span>
-                                                    <span class="mg-radio-weather-source">Open-Meteo</span>
-                                                </div>
-                                                <div class="mg-radio-weather-current">
-                                                    <div class="mg-radio-weather-icon" id="mg-radio-weather-icon">🌙</div>
-                                                    <div>
-                                                        <div class="mg-radio-weather-temp" id="mg-radio-weather-temp">--°</div>
-                                                        <div class="mg-radio-weather-desc" id="mg-radio-weather-desc">Awaiting signal...</div>
-                                                    </div>
-                                                </div>
-                                                <div class="mg-radio-weather-grid">
-                                                    <div class="mg-radio-weather-stat"><span>Humidity</span><span class="mg-radio-weather-stat-value" id="mg-weather-humidity">--%</span></div>
-                                                    <div class="mg-radio-weather-stat"><span>Wind</span><span class="mg-radio-weather-stat-value" id="mg-weather-wind">-- km/h</span></div>
-                                                    <div class="mg-radio-weather-stat"><span>Pressure</span><span class="mg-radio-weather-stat-value" id="mg-weather-pressure">-- hPa</span></div>
-                                                    <div class="mg-radio-weather-stat"><span>Cloud Cover</span><span class="mg-radio-weather-stat-value" id="mg-weather-cloud">--%</span></div>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <!-- CH 3: MOON -->
-                                        <div class="mg-radio-channel" data-mg-ch="3">
-                                            <div class="mg-radio-moon" id="mg-radio-moon">
-                                                <div class="mg-radio-moon-phase" id="mg-radio-moon-phase">🌙</div>
-                                                <div class="mg-radio-moon-name" id="mg-radio-moon-name">Moon Phase</div>
-                                                <div class="mg-radio-moon-detail" id="mg-radio-moon-detail">Loading...</div>
-                                                <div class="mg-radio-moon-strip">
-                                                    <span class="mg-radio-moon-pip" title="New Moon">🌑</span>
-                                                    <span class="mg-radio-moon-pip" title="Waxing Crescent">🌒</span>
-                                                    <span class="mg-radio-moon-pip" title="First Quarter">🌓</span>
-                                                    <span class="mg-radio-moon-pip" title="Waxing Gibbous">🌔</span>
-                                                    <span class="mg-radio-moon-pip" title="Full Moon">🌕</span>
-                                                    <span class="mg-radio-moon-pip" title="Waning Gibbous">🌖</span>
-                                                    <span class="mg-radio-moon-pip" title="Last Quarter">🌗</span>
-                                                    <span class="mg-radio-moon-pip active" title="Waning Crescent">🌘</span>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <!-- CH 4: NYX-CAM — lo-fi familiar surveillance -->
-                                        <div class="mg-radio-channel" data-mg-ch="4">
-                                            <div class="mg-radio-nyxcam" id="mg-radio-nyxcam">
-                                                <div class="mg-radio-nyxcam-header">
-                                                    <span class="mg-radio-nyxcam-rec">● REC</span>
-                                                    <span class="mg-radio-nyxcam-label">NYX-CAM</span>
-                                                </div>
-                                                <div class="mg-radio-nyxcam-viewport">
-                                                    <div class="mg-radio-nyxcam-sprite" id="mg-radio-nyxcam-sprite">🐱‍👤</div>
-                                                </div>
-                                                <div class="mg-radio-nyxcam-footer">
-                                                    <span class="mg-radio-nyxcam-mood" id="mg-radio-nyxcam-mood">mood: watching</span>
-                                                    <span class="mg-radio-nyxcam-disp" id="mg-radio-nyxcam-disp">♡ 50</span>
-                                                </div>
-                                                <div class="mg-radio-nyxcam-quip" id="mg-radio-nyxcam-quip">"You're listening to this? On purpose?"</div>
-                                            </div>
-                                        </div>
-
-                                        <!-- CH 5: BROADCAST — in-story fiction -->
-                                        <div class="mg-radio-channel" data-mg-ch="5">
-                                            <div class="mg-radio-fiction" id="mg-radio-fiction">
-                                                <div class="mg-radio-fiction-header">📡 In-Story Broadcast</div>
-                                                <div class="mg-radio-fiction-broadcast" id="mg-radio-fiction-text">No broadcast detected yet. The static hums quietly...</div>
-                                            </div>
-                                        </div>
-
-                                        <!-- EQ overlay — floats on top of any channel when playing -->
-                                        <div class="mg-radio-eq" id="mg-radio-eq">
-                                            ${Array(12).fill('<div class="mg-radio-eq-bar"></div>').join('')}
-                                        </div>
-                                    </div>
-
-                                    <!-- Bottom Bar -->
-                                    <div class="mg-radio-bottom">
-                                        <div class="mg-radio-on-air">
-                                            <div class="mg-radio-on-air-light"></div>
-                                            <span class="mg-radio-on-air-text">ON AIR</span>
-                                        </div>
-                                        <div class="mg-radio-ch-bar">
-                                            <button class="mg-radio-ch-dot active" data-ch="0" title="Tuner"></button>
-                                            <button class="mg-radio-ch-dot" data-ch="1" title="Stations"></button>
-                                            <button class="mg-radio-ch-dot" data-ch="2" title="Weather"></button>
-                                            <button class="mg-radio-ch-dot" data-ch="3" title="Moon"></button>
-                                            <button class="mg-radio-ch-dot" data-ch="4" title="Nyx"></button>
-                                            <button class="mg-radio-ch-dot" data-ch="5" title="Broadcast"></button>
-                                        </div>
-                                        <div class="mg-radio-ch-label" id="mg-radio-ch-label">Tuner</div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Settings Tab -->
-                            <div class="mg-tome-panel" data-mg-panel="settings">
-                                ${getSettingsPanelHTML()}
-                            </div>
+        <div class="mg-grimoire-overlay" id="mg-grimoire-overlay"></div>
+        <div class="mg-grimoire" id="mg-grimoire" data-mg-theme="${extensionSettings.shellTheme || 'guardian'}">
+            
+            <!-- Animation layer for open/close/page-turn -->
+            <div class="mg-grimoire-anim" id="mg-grimoire-anim"></div>
+            
+            <!-- Main book container -->
+            <div class="mg-grimoire-book" id="mg-grimoire-book">
+                
+                <!-- Tab ribbons (clickable hotspots) -->
+                <div class="mg-grimoire-tabs">
+                    ${TABS.map(tab => `
+                        <button class="mg-grimoire-tab mg-grimoire-tab--${tab.position}" 
+                                data-tab="${tab.id}"
+                                data-color="${tab.color}"
+                                title="${tab.name}"
+                                ${tab.id === 'tarot' ? 'data-active="true"' : ''}>
+                            <span class="mg-grimoire-tab-label">${tab.name}</span>
+                        </button>
+                    `).join('')}
+                </div>
+                
+                <!-- Page content area (sits on parchment) -->
+                <div class="mg-grimoire-pages">
+                    
+                    <!-- LEFT PAGE: Usually decorative or secondary info -->
+                    <div class="mg-grimoire-page mg-grimoire-page--left">
+                        <div class="mg-grimoire-page-content" id="mg-page-left">
+                            <!-- Dynamic content based on active tab -->
                         </div>
                     </div>
+                    
+                    <!-- RIGHT PAGE: Main interaction area -->
+                    <div class="mg-grimoire-page mg-grimoire-page--right">
+                        <div class="mg-grimoire-page-content" id="mg-page-right">
+                            <!-- Dynamic content based on active tab -->
+                        </div>
+                    </div>
+                    
                 </div>
-
-                <div class="mg-tome-clasp" id="mg-grimoire-close"><div class="mg-tome-clasp-dot"></div></div>
             </div>
         </div>
     `;
 }
 
 // ============================================
-// OPEN / CLOSE - FASTER & MORE RELIABLE
+// PAGE CONTENT GENERATORS
 // ============================================
 
-let transformLock = false;
-
-export function triggerTransformation() {
-    if (transformLock) return;
-    
-    if (grimoireOpen) {
-        closeGrimoire();
-        return;
-    }
-
-    transformLock = true;
-    const $compact = $('#mg-compact');
-    $compact.addClass('transforming');
-
-    // FASTER: 250ms instead of 600ms
-    setTimeout(() => {
-        $compact.removeClass('transforming');
-        openGrimoire();
-        setTimeout(() => { transformLock = false; }, 100);
-    }, 250);
+function getTarotPageContent() {
+    return {
+        left: `
+            <div class="mg-page-section">
+                <h3 class="mg-page-title">Fate Queue</h3>
+                <div class="mg-queue-list" id="mg-queue-list">
+                    <div class="mg-queue-empty">No cards drawn yet...</div>
+                </div>
+                <div class="mg-queue-footer" id="mg-queue-footer">0 of 5 slots</div>
+            </div>
+        `,
+        right: `
+            <div class="mg-page-section">
+                <h3 class="mg-page-title">Draw from the Deck</h3>
+                <p class="mg-page-flavor">The cards whisper of what is to come...</p>
+                
+                <div class="mg-card-spread">
+                    <div class="mg-card-slot" style="transform:rotate(-5deg)"><span>✦</span></div>
+                    <div class="mg-card-slot"><span>✦</span></div>
+                    <div class="mg-card-slot" style="transform:rotate(5deg)"><span>✦</span></div>
+                </div>
+                
+                <button class="mg-page-btn" id="mg-draw-card">
+                    Draw a Card
+                </button>
+                
+                <div class="mg-page-subsection">
+                    <h4 class="mg-page-subtitle">Last Reading</h4>
+                    <div class="mg-last-reading">
+                        <div class="mg-mini-card">—</div>
+                        <div class="mg-last-reading-info">
+                            <div id="mg-last-card-name">None yet</div>
+                            <div id="mg-last-card-keywords" class="mg-text-dim">Draw to reveal your fate</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `
+    };
 }
 
+function getCrystalPageContent() {
+    return {
+        left: `
+            <div class="mg-page-section">
+                <h3 class="mg-page-title">Visions Past</h3>
+                <div class="mg-vision-log" id="mg-vision-log">
+                    <div class="mg-text-dim">The mists hold no memories...</div>
+                </div>
+            </div>
+        `,
+        right: `
+            <div class="mg-page-section">
+                <h3 class="mg-page-title">Crystal Ball</h3>
+                <p class="mg-page-flavor">Wild magic swirls within...</p>
+                
+                <div class="mg-crystal-orb">
+                    <div class="mg-crystal-sphere">
+                        <div class="mg-crystal-mist"></div>
+                        <div class="mg-crystal-mist mg-crystal-mist--2"></div>
+                        <div class="mg-crystal-glint"></div>
+                    </div>
+                    <div class="mg-crystal-base"></div>
+                </div>
+                
+                <button class="mg-page-btn" id="mg-crystal-gaze">
+                    Gaze into the Mist
+                </button>
+                
+                <div class="mg-page-subsection">
+                    <h4 class="mg-page-subtitle">Last Vision</h4>
+                    <div class="mg-crystal-vision" id="mg-crystal-vision">
+                        The mists have not yet parted...
+                    </div>
+                </div>
+            </div>
+        `
+    };
+}
+
+function getOuijaPageContent() {
+    return {
+        left: `
+            <div class="mg-page-section">
+                <h3 class="mg-page-title">Spirit Answers</h3>
+                <div class="mg-ouija-history" id="mg-ouija-history">
+                    <div class="mg-text-dim">The spirits await your questions...</div>
+                </div>
+            </div>
+        `,
+        right: `
+            <div class="mg-page-section">
+                <h3 class="mg-page-title">Ouija Board</h3>
+                <p class="mg-page-flavor">Ask the spirits a question...</p>
+                
+                <div class="mg-ouija-board">
+                    <div class="mg-ouija-row mg-ouija-answers">
+                        <span class="mg-ouija-answer">YES</span>
+                        <span class="mg-ouija-sun">☀</span>
+                        <span class="mg-ouija-answer">NO</span>
+                    </div>
+                    <div class="mg-ouija-letters">
+                        <div class="mg-ouija-row">A B C D E F G H I J K L M</div>
+                        <div class="mg-ouija-row">N O P Q R S T U V W X Y Z</div>
+                    </div>
+                    <div class="mg-ouija-planchette" id="mg-ouija-planchette">
+                        <div class="mg-ouija-lens"></div>
+                    </div>
+                    <div class="mg-ouija-numbers">
+                        <span>1 2 3 4 5 6 7 8 9 0</span>
+                    </div>
+                    <div class="mg-ouija-farewell">GOODBYE</div>
+                </div>
+                
+                <button class="mg-page-btn" id="mg-ouija-ask">
+                    Consult the Spirits
+                </button>
+                
+                <div class="mg-ouija-response" id="mg-ouija-response">
+                    <div class="mg-ouija-waiting">Awaiting your question...</div>
+                </div>
+            </div>
+        `
+    };
+}
+
+function getNyxPageContent() {
+    const disposition = extensionSettings.nyx?.disposition ?? 50;
+    return {
+        left: `
+            <div class="mg-page-section">
+                <h3 class="mg-page-title">Activity Log</h3>
+                <div class="mg-nyx-log" id="mg-nyx-log">
+                    <div class="mg-text-dim">Nyx watches silently...</div>
+                </div>
+            </div>
+        `,
+        right: `
+            <div class="mg-page-section">
+                <h3 class="mg-page-title">Nyx</h3>
+                <p class="mg-page-flavor">Your familiar observes with ancient eyes...</p>
+                
+                <div class="mg-nyx-portrait">
+                    <div class="mg-nyx-mood-indicator" id="mg-nyx-mood-indicator">
+                        ${getMoodText(disposition)}
+                    </div>
+                </div>
+                
+                <div class="mg-nyx-disposition">
+                    <div class="mg-nyx-bar-track">
+                        <div class="mg-nyx-bar-fill" id="mg-nyx-bar" style="width: ${disposition}%"></div>
+                    </div>
+                    <div class="mg-nyx-score">
+                        <span id="mg-nyx-score">${disposition}</span> / 100
+                    </div>
+                </div>
+                
+                <div class="mg-nyx-actions">
+                    <button class="mg-page-btn mg-page-btn--small" data-nyx-action="treat">🍬 Treat</button>
+                    <button class="mg-page-btn mg-page-btn--small" data-nyx-action="pet">✋ Pet</button>
+                    <button class="mg-page-btn mg-page-btn--small" data-nyx-action="advice">💭 Advice</button>
+                    <button class="mg-page-btn mg-page-btn--small" data-nyx-action="tease">😼 Tease</button>
+                </div>
+            </div>
+        `
+    };
+}
+
+function getSpellsPageContent() {
+    return {
+        left: `
+            <div class="mg-page-section">
+                <h3 class="mg-page-title">Spell Log</h3>
+                <div class="mg-spell-log" id="mg-spell-log">
+                    <div class="mg-text-dim">No spells cast yet...</div>
+                </div>
+            </div>
+        `,
+        right: `
+            <div class="mg-page-section">
+                <h3 class="mg-page-title">Spell Cards</h3>
+                <p class="mg-page-flavor">Active enchantments shimmer around you...</p>
+                
+                <div class="mg-spells-grid" id="mg-spells-grid">
+                    <div class="mg-spell-card" data-spell="shield">
+                        <div class="mg-spell-icon">🛡️</div>
+                        <div class="mg-spell-name">Aegis</div>
+                        <div class="mg-spell-status">Ready</div>
+                    </div>
+                    <div class="mg-spell-card" data-spell="charm">
+                        <div class="mg-spell-icon">💖</div>
+                        <div class="mg-spell-name">Charm</div>
+                        <div class="mg-spell-status">Ready</div>
+                    </div>
+                    <div class="mg-spell-card" data-spell="insight">
+                        <div class="mg-spell-icon">👁️</div>
+                        <div class="mg-spell-name">Insight</div>
+                        <div class="mg-spell-status">Ready</div>
+                    </div>
+                    <div class="mg-spell-card" data-spell="chaos">
+                        <div class="mg-spell-icon">🌀</div>
+                        <div class="mg-spell-name">Chaos</div>
+                        <div class="mg-spell-status">Ready</div>
+                    </div>
+                </div>
+            </div>
+        `
+    };
+}
+
+function getRadioPageContent() {
+    return {
+        left: `
+            <div class="mg-page-section">
+                <h3 class="mg-page-title">Now Playing</h3>
+                <div class="mg-radio-now" id="mg-radio-now">
+                    <div class="mg-text-dim">Silence...</div>
+                </div>
+            </div>
+        `,
+        right: `
+            <div class="mg-page-section">
+                <h3 class="mg-page-title">Magical Radio</h3>
+                <p class="mg-page-flavor">Tune into the ethereal wavelengths...</p>
+                
+                <div class="mg-radio-dial">
+                    <div class="mg-radio-display" id="mg-radio-display">OFF</div>
+                </div>
+                
+                <div class="mg-radio-controls">
+                    <button class="mg-page-btn mg-page-btn--small" id="mg-radio-prev">◀◀</button>
+                    <button class="mg-page-btn" id="mg-radio-toggle">▶ Play</button>
+                    <button class="mg-page-btn mg-page-btn--small" id="mg-radio-next">▶▶</button>
+                </div>
+                
+                <div class="mg-radio-stations" id="mg-radio-stations">
+                    <div class="mg-text-dim">Loading stations...</div>
+                </div>
+            </div>
+        `
+    };
+}
+
+function getSettingsPageContent() {
+    return {
+        left: `
+            <div class="mg-page-section">
+                <h3 class="mg-page-title">About</h3>
+                <div class="mg-settings-about">
+                    <p><strong>Petit Grimoire</strong></p>
+                    <p class="mg-text-dim">Your magical companion</p>
+                    <p class="mg-text-dim mg-text-small">v1.0.0</p>
+                </div>
+            </div>
+        `,
+        right: getSettingsPanelHTML()
+    };
+}
+
+// Map tab IDs to content generators
+const PAGE_CONTENT = {
+    tarot: getTarotPageContent,
+    crystal: getCrystalPageContent,
+    ouija: getOuijaPageContent,
+    nyx: getNyxPageContent,
+    spells: getSpellsPageContent,
+    radio: getRadioPageContent,
+    settings: getSettingsPageContent,
+};
+
+// ============================================
+// GRIMOIRE CONTROLS
+// ============================================
+
 export function openGrimoire() {
-    try {
-        if (grimoireOpen) return;
-        setGrimoireOpen(true);
-
-        $('#mg-grimoire, #mg-overlay').remove();
-        $('body').append(getGrimoireHTML());
-
-        const grimoire = document.getElementById('mg-grimoire');
-        const overlay = document.getElementById('mg-overlay');
-
-        if (!grimoire || !overlay) {
-            setGrimoireOpen(false);
-            transformLock = false;
-            return;
-        }
-
-        const vpW = window.innerWidth;
-        const vpH = window.innerHeight;
-        const gW = Math.min(300, vpW - 32);
-        const gLeft = (vpW - gW) / 2;
-        const gTop = Math.max(40, vpH * 0.12);
-        const gMaxH = vpH - gTop - 16;
-
-        grimoire.style.setProperty('width', gW + 'px', 'important');
-        grimoire.style.setProperty('left', gLeft + 'px', 'important');
-        grimoire.style.setProperty('top', gTop + 'px', 'important');
-        grimoire.style.setProperty('max-height', gMaxH + 'px', 'important');
-        grimoire.style.setProperty('display', 'block', 'important');
-        overlay.style.setProperty('display', 'block', 'important');
-
-        requestAnimationFrame(() => {
-            requestAnimationFrame(() => {
-                grimoire.classList.add('visible');
-                overlay.classList.add('visible');
-            });
-        });
-
-        setupGrimoireEvents();
-        $('#mg-compact').addClass('active');
-        console.log(`[${extensionName}] Grimoire opened`);
-    } catch (err) {
-        console.error(`[${extensionName}] openGrimoire error:`, err);
-        setGrimoireOpen(false);
-        transformLock = false;
-    }
+    if (grimoireOpen || isAnimating) return;
+    
+    isAnimating = true;
+    setGrimoireOpen(true);
+    
+    const overlay = document.getElementById('mg-grimoire-overlay');
+    const grimoire = document.getElementById('mg-grimoire');
+    const animLayer = document.getElementById('mg-grimoire-anim');
+    const book = document.getElementById('mg-grimoire-book');
+    
+    if (!grimoire) return;
+    
+    // Show overlay
+    overlay.style.display = 'block';
+    requestAnimationFrame(() => overlay.classList.add('visible'));
+    
+    // Show grimoire container
+    grimoire.style.display = 'flex';
+    
+    // Play opening animation
+    animLayer.classList.add('mg-anim-opening');
+    book.style.opacity = '0';
+    
+    setTimeout(() => {
+        animLayer.classList.remove('mg-anim-opening');
+        book.style.opacity = '1';
+        grimoire.classList.add('visible');
+        isAnimating = false;
+        
+        // Load initial tab content
+        loadTabContent(currentTab);
+    }, ANIM_OPEN);
 }
 
 export function closeGrimoire() {
-    if (!grimoireOpen) return;
-    setGrimoireOpen(false);
-    transformLock = false;
-
-    const grimoire = document.getElementById('mg-grimoire');
-    const overlay = document.getElementById('mg-overlay');
-
-    if (grimoire) grimoire.classList.remove('visible');
-    if (overlay) overlay.classList.remove('visible');
-
-    setTimeout(() => { $('#mg-grimoire, #mg-overlay').remove(); }, 300);
-    $('#mg-compact').removeClass('active transforming');
-    console.log(`[${extensionName}] Grimoire closed`);
-}
-
-// ============================================
-// EVENT WIRING
-// ============================================
-
-function setupGrimoireEvents() {
-    $('#mg-overlay').on('click', closeGrimoire);
-    $('#mg-grimoire-close').on('click', closeGrimoire);
-
-    $('.mg-tome-tab').on('click', function () {
-        const tabName = $(this).data('mg-tab');
-        $('.mg-tome-tab').removeClass('active');
-        $(this).addClass('active');
-        $('.mg-tome-panel').removeClass('active');
-        $(`.mg-tome-panel[data-mg-panel="${tabName}"]`).addClass('active');
-    });
-
-    $('#mg-grimoire-draw').on('click', onDrawCard);
-    $('#mg-crystal-gaze').on('click', onCrystalGaze);
-    $('.mg-spell-card').on('click', function () { onCastSpell($(this).data('spell'), $(this)); });
-    $('#mg-ouija-ask').on('click', onOuijaAsk);
-    $('.mg-nyx-action-btn').on('click', function () { onNyxAction($(this).data('action')); });
+    if (!grimoireOpen || isAnimating) return;
     
-    initSettings();
-    initRadioPanel();
+    isAnimating = true;
+    
+    const overlay = document.getElementById('mg-grimoire-overlay');
+    const grimoire = document.getElementById('mg-grimoire');
+    const animLayer = document.getElementById('mg-grimoire-anim');
+    const book = document.getElementById('mg-grimoire-book');
+    
+    if (!grimoire) return;
+    
+    // Play closing animation
+    book.style.opacity = '0';
+    animLayer.classList.add('mg-anim-closing');
+    
+    setTimeout(() => {
+        animLayer.classList.remove('mg-anim-closing');
+        grimoire.classList.remove('visible');
+        grimoire.style.display = 'none';
+        overlay.classList.remove('visible');
+        
+        setTimeout(() => {
+            overlay.style.display = 'none';
+        }, 300);
+        
+        setGrimoireOpen(false);
+        isAnimating = false;
+    }, ANIM_CLOSE);
+}
+
+export function toggleGrimoire() {
+    if (grimoireOpen) {
+        closeGrimoire();
+    } else {
+        openGrimoire();
+    }
 }
 
 // ============================================
-// RADIO PANEL INIT
+// TAB SWITCHING
 // ============================================
 
-function initRadioPanel() {
-    const CH_NAMES = ['Tuner', 'Stations', 'Weather', 'Moon', 'Nyx', 'Broadcast'];
-    let currentCh = 0;
+function switchTab(newTabId) {
+    if (newTabId === currentTab || isAnimating) return;
+    
+    const oldIndex = TABS.findIndex(t => t.id === currentTab);
+    const newIndex = TABS.findIndex(t => t.id === newTabId);
+    const goingForward = newIndex < oldIndex; // Lower index = "front" of book
+    
+    isAnimating = true;
+    
+    const animLayer = document.getElementById('mg-grimoire-anim');
+    
+    // Update tab active states
+    document.querySelectorAll('.mg-grimoire-tab').forEach(tab => {
+        tab.removeAttribute('data-active');
+    });
+    document.querySelector(`.mg-grimoire-tab[data-tab="${newTabId}"]`)?.setAttribute('data-active', 'true');
+    
+    // Play page turn animation
+    const animClass = goingForward ? 'mg-anim-page-next' : 'mg-anim-page-prev';
+    animLayer.classList.add(animClass);
+    
+    // Fade out current content
+    const leftPage = document.getElementById('mg-page-left');
+    const rightPage = document.getElementById('mg-page-right');
+    leftPage.style.opacity = '0';
+    rightPage.style.opacity = '0';
+    
+    setTimeout(() => {
+        // Load new content
+        currentTab = newTabId;
+        loadTabContent(newTabId);
+        
+        // Fade in new content
+        leftPage.style.opacity = '1';
+        rightPage.style.opacity = '1';
+        
+        animLayer.classList.remove(animClass);
+        isAnimating = false;
+    }, ANIM_PAGE_TURN);
+}
 
-    // Generate tick marks
-    const ticksEl = document.getElementById('mg-radio-ticks');
-    if (ticksEl) {
-        let ticksHTML = '';
-        for (let i = 0; i <= 20; i++) {
-            const left = (i / 20) * 100;
-            const isMajor = i % 5 === 0;
-            ticksHTML += `<div class="mg-radio-tick ${isMajor ? 'mg-radio-tick--major' : 'mg-radio-tick--minor'}" style="left:${left}%"></div>`;
-        }
-        ticksEl.innerHTML = ticksHTML;
+function loadTabContent(tabId) {
+    const contentGenerator = PAGE_CONTENT[tabId];
+    if (!contentGenerator) return;
+    
+    const content = contentGenerator();
+    
+    const leftPage = document.getElementById('mg-page-left');
+    const rightPage = document.getElementById('mg-page-right');
+    
+    if (leftPage) leftPage.innerHTML = content.left;
+    if (rightPage) rightPage.innerHTML = content.right;
+    
+    // Initialize tab-specific functionality
+    initTabFunctionality(tabId);
+}
+
+function initTabFunctionality(tabId) {
+    switch (tabId) {
+        case 'tarot':
+            initTarotTab();
+            break;
+        case 'crystal':
+            initCrystalTab();
+            break;
+        case 'ouija':
+            initOuijaTab();
+            break;
+        case 'nyx':
+            initNyxTab();
+            break;
+        case 'spells':
+            initSpellsTab();
+            break;
+        case 'radio':
+            initRadioTab();
+            break;
+        case 'settings':
+            initSettings();
+            break;
     }
-
-    // Station click handlers — select station + flip to tuner
-    $('.mg-radio-station').on('click', function () {
-        $('.mg-radio-station').removeClass('active');
-        $(this).addClass('active');
-        const freq = $(this).data('freq') || $(this).find('.mg-radio-station-dial').text();
-        const name = $(this).find('.mg-radio-station-label').text();
-        $('#mg-radio-station-name').text(name);
-        $('#mg-radio-station-freq').text(freq + ' MHz');
-
-        // Move needle
-        const freqNum = parseFloat(freq);
-        const pct = ((freqNum - 87.5) / (108 - 87.5)) * 90 + 5;
-        $('#mg-radio-needle').css('left', pct + '%');
-
-        // Flip to tuner channel after short delay (feels like tuning in)
-        setTimeout(() => switchChannel(0), 250);
-    });
-
-    // Channel switching — knob click cycles forward
-    function switchChannel(ch) {
-        currentCh = ch;
-        $('.mg-radio-channel').removeClass('active');
-        $(`.mg-radio-channel[data-mg-ch="${ch}"]`).addClass('active');
-        $('.mg-radio-ch-dot').removeClass('active');
-        $(`.mg-radio-ch-dot[data-ch="${ch}"]`).addClass('active');
-        $('#mg-radio-ch-label').text(CH_NAMES[ch] || '');
-
-        // Rotate knob indicator to match channel position
-        const knob = document.querySelector('.mg-radio-knob--ch .mg-radio-knob-indicator');
-        if (knob) {
-            const angle = -90 + (ch / (CH_NAMES.length - 1)) * 180;
-            knob.style.transform = `rotate(${angle}deg)`;
-        }
-    }
-
-    // Third knob click — cycle channels
-    $('#mg-radio-ch-knob').on('click', function () {
-        switchChannel((currentCh + 1) % CH_NAMES.length);
-    });
-
-    // Dot click — jump to channel
-    $('.mg-radio-ch-dot').on('click', function () {
-        switchChannel(parseInt($(this).data('ch')));
-    });
 }
 
 // ============================================
-// CARD DRAW
+// TAB INITIALIZERS
 // ============================================
 
-export function onDrawCard() {
-    showCardFlash();
-    showSpeech('A card? Very well. Let\'s see what fate has in store...');
+function initTarotTab() {
+    const drawBtn = document.getElementById('mg-draw-card');
+    if (drawBtn) {
+        drawBtn.addEventListener('click', onDrawCard);
+    }
+    updateQueueDisplay();
+}
+
+function initCrystalTab() {
+    const gazeBtn = document.getElementById('mg-crystal-gaze');
+    if (gazeBtn) {
+        gazeBtn.addEventListener('click', onCrystalGaze);
+    }
+}
+
+function initOuijaTab() {
+    const askBtn = document.getElementById('mg-ouija-ask');
+    if (askBtn) {
+        askBtn.addEventListener('click', onOuijaAsk);
+    }
+}
+
+function initNyxTab() {
+    document.querySelectorAll('[data-nyx-action]').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const action = e.currentTarget.dataset.nyxAction;
+            onNyxAction(action);
+        });
+    });
+    updateNyxPanel();
+}
+
+function initSpellsTab() {
+    document.querySelectorAll('.mg-spell-card').forEach(card => {
+        card.addEventListener('click', (e) => {
+            const spell = e.currentTarget.dataset.spell;
+            onCastSpell(spell, $(e.currentTarget));
+        });
+    });
+}
+
+function initRadioTab() {
+    // TODO: Radio functionality
+}
+
+// ============================================
+// EVENT HANDLERS
+// ============================================
+
+function onDrawCard() {
+    // Placeholder - will integrate with tarot system
+    const cards = ['The Fool', 'The Magician', 'High Priestess', 'The Tower', 'The Star', 'The Moon'];
+    const card = cards[Math.floor(Math.random() * cards.length)];
+    const reversed = Math.random() < 0.5;
+    
+    const nameEl = document.getElementById('mg-last-card-name');
+    const keywordsEl = document.getElementById('mg-last-card-keywords');
+    
+    if (nameEl) nameEl.textContent = card + (reversed ? ' ⟲' : '');
+    if (keywordsEl) keywordsEl.textContent = reversed ? 'Reversed meaning...' : 'Upright meaning...';
+    
+    showSpeech(`Drew ${card}${reversed ? ' (reversed)' : ''}`, 3000);
+    showCardFlash(card);
     playSpecialAnimation('amused', 2);
-    const currentQueue = parseInt($('#mg-tama-queue').text()) || 0;
-    $('#mg-tama-queue').text(Math.min(currentQueue + 1, 5));
 }
-
-export function onViewQueue() {
-    const queueCount = parseInt($('#mg-tama-queue').text()) || 0;
-    showSpeech(queueCount === 0 ? 'The queue is empty. Draw something.' : `${queueCount} card${queueCount > 1 ? 's' : ''} await their moment.`);
-}
-
-export function onPokeNyx() {
-    const responses = [
-        { text: "*swats your hand away* Don't.", anim: 'annoyed' },
-        { text: "...what do you want?", anim: 'bored' },
-        { text: "*stretches* I was napping.", anim: 'bored' },
-        { text: "Touch me again and I'll curse you.", anim: 'annoyed' },
-        { text: "Oh, you're still here.", anim: 'bored' },
-        { text: "I've lived a thousand years for THIS?", anim: 'annoyed' },
-    ];
-    const response = responses[Math.floor(Math.random() * responses.length)];
-    showSpeech(response.text);
-    if (Math.random() < 0.3) shiftDisposition(-1);
-    playSpecialAnimation(response.anim, 1.5);
-}
-
-// ============================================
-// CRYSTAL BALL
-// ============================================
 
 function onCrystalGaze() {
-    const sphere = document.querySelector('.mg-crystal-sphere');
-    if (sphere) {
-        sphere.classList.add('mg-crystal-active');
-        setTimeout(() => sphere.classList.remove('mg-crystal-active'), 3000);
-    }
-
     const visions = [
-        { text: "Shadows gather at the edges of your path...", type: 'warning' },
-        { text: "A door opens where none stood before.", type: 'opportunity' },
-        { text: "Someone watches from the darkness.", type: 'mystery' },
-        { text: "The threads of fate twist unexpectedly.", type: 'change' },
-        { text: "A forgotten truth stirs in the depths.", type: 'revelation' },
-        { text: "Light breaks through gathering clouds.", type: 'hope' },
+        { text: "Shadows gather at the edge of perception.", type: 'ominous' },
+        { text: "A path diverges. Both lead somewhere unexpected.", type: 'choice' },
+        { text: "Someone's thoughts turn to you, unbidden.", type: 'connection' },
+        { text: "What was lost will find its way back.", type: 'hope' },
         { text: "The crystal shows only swirling mist...", type: 'unclear' },
-        { text: "A choice approaches. Both paths have thorns.", type: 'choice' },
     ];
-
+    
     const vision = visions[Math.floor(Math.random() * visions.length)];
     const el = document.getElementById('mg-crystal-vision');
     if (el) el.textContent = vision.text;
+    
+    // Add to log
+    const log = document.getElementById('mg-vision-log');
+    if (log && log.querySelector('.mg-text-dim')) {
+        log.innerHTML = '';
+    }
+    if (log) {
+        const entry = document.createElement('div');
+        entry.className = 'mg-vision-entry';
+        entry.textContent = `✦ ${vision.text}`;
+        log.prepend(entry);
+        while (log.children.length > 5) log.removeChild(log.lastChild);
+    }
+    
     showSpeech(vision.text, 4000);
     playSpecialAnimation('amused', 2);
 }
 
-// ============================================
-// SPELLS
-// ============================================
-
-function onCastSpell(spellName, $card) {
-    if ($card.hasClass('mg-spell-cooldown')) return;
-
-    $card.addClass('mg-spell-cast');
-    setTimeout(() => $card.removeClass('mg-spell-cast'), 500);
-
-    $card.addClass('mg-spell-cooldown');
-    $card.find('.mg-spell-status').text('Cooling...');
-    setTimeout(() => {
-        $card.removeClass('mg-spell-cooldown');
-        $card.find('.mg-spell-status').text('Ready');
-    }, 10000);
-
-    const effects = {
-        shield: ["Aegis shimmers around you, deflecting misfortune.", "A protective ward rises, invisible but present."],
-        charm: ["Charm weaves through your words, honeying them.", "A subtle enchantment makes you more... likeable."],
-        insight: ["Your perception sharpens. Hidden things reveal themselves.", "The veil thins—you see what others miss."],
-        chaos: ["Chaos unleashed! The narrative twists wildly!", "Wild magic surges—anything could happen!"],
-    };
-
-    const pool = effects[spellName] || ["The spell fizzles."];
-    const result = pool[Math.floor(Math.random() * pool.length)];
-
-    const log = document.getElementById('mg-spell-log');
-    if (log) {
-        const entry = document.createElement('div');
-        entry.className = 'mg-spell-log-entry';
-        entry.textContent = `✦ ${result}`;
-        if (log.firstChild?.textContent === 'No spells cast yet') log.innerHTML = '';
-        log.prepend(entry);
-        while (log.children.length > 4) log.removeChild(log.lastChild);
-    }
-
-    showSpeech(result, 3000);
-    playSpecialAnimation(spellName === 'chaos' ? 'delighted' : 'amused', 2);
-}
-
-// ============================================
-// OUIJA BOARD
-// ============================================
-
 function onOuijaAsk() {
     const responses = [
-        { answer: 'YES', flavor: 'The planchette moves decisively to YES.', mood: 'positive' },
+        { answer: 'YES', flavor: 'The planchette moves decisively.', mood: 'positive' },
         { answer: 'NO', flavor: 'The spirits pull firmly toward NO.', mood: 'negative' },
-        { answer: 'MAYBE', flavor: 'The planchette trembles between answers...', mood: 'uncertain' },
-        { answer: 'BEWARE', flavor: 'The board spells out: B-E-W-A-R-E...', mood: 'warning' },
-        { answer: 'SOON', flavor: 'The planchette circles, then settles: SOON.', mood: 'cryptic' },
-        { answer: 'NEVER', flavor: 'A cold wind. The spirits say: NEVER.', mood: 'negative' },
-        { answer: 'GOODBYE', flavor: 'The spirits wish to end the session...', mood: 'cryptic' },
+        { answer: 'MAYBE', flavor: 'The planchette trembles...', mood: 'uncertain' },
+        { answer: 'BEWARE', flavor: 'B-E-W-A-R-E...', mood: 'warning' },
+        { answer: 'SOON', flavor: 'The spirits say: SOON.', mood: 'cryptic' },
+        { answer: 'GOODBYE', flavor: 'The spirits end the session.', mood: 'cryptic' },
     ];
-
+    
     const response = responses[Math.floor(Math.random() * responses.length)];
-
+    
+    // Animate planchette
     const planchette = document.getElementById('mg-ouija-planchette');
     if (planchette) {
         planchette.classList.add('mg-ouija-moving');
         setTimeout(() => planchette.classList.remove('mg-ouija-moving'), 1500);
     }
-
+    
+    // Show response
     const el = document.getElementById('mg-ouija-response');
     if (el) {
-        el.innerHTML = `<div class="mg-ouija-result mg-ouija-mood-${response.mood}">
-            <div class="mg-ouija-answer-text">${response.answer}</div>
-            <div class="mg-ouija-flavor-text">${response.flavor}</div>
-        </div>`;
+        el.innerHTML = `
+            <div class="mg-ouija-result mg-ouija-mood-${response.mood}">
+                <div class="mg-ouija-answer-text">${response.answer}</div>
+                <div class="mg-ouija-flavor-text">${response.flavor}</div>
+            </div>
+        `;
     }
-
+    
+    // Add to history
+    const history = document.getElementById('mg-ouija-history');
+    if (history && history.querySelector('.mg-text-dim')) {
+        history.innerHTML = '';
+    }
+    if (history) {
+        const entry = document.createElement('div');
+        entry.className = 'mg-ouija-history-entry';
+        entry.textContent = `› ${response.answer}`;
+        history.prepend(entry);
+        while (history.children.length > 5) history.removeChild(history.lastChild);
+    }
+    
     showSpeech(response.flavor, 3000);
-    const ouijaAnim = { positive: 'amused', negative: 'annoyed', warning: 'annoyed', cryptic: 'bored', uncertain: 'bored' };
-    playSpecialAnimation(ouijaAnim[response.mood] || 'bored', 2);
-}
-
-// ============================================
-// NYX HELPERS
-// ============================================
-
-export function updateNyxPanel() {
-    const d = extensionSettings.nyx?.disposition ?? 50;
-    $('#mg-nyx-score').text(d);
-    $('#mg-nyx-bar').css('width', d + '%');
-    $('#mg-nyx-mood-text').html(`Currently: <b>${getMoodText(d)}</b>`);
-}
-
-export function shiftDisposition(amount) {
-    if (!extensionSettings.nyx) extensionSettings.nyx = { disposition: 50 };
-    extensionSettings.nyx.disposition = Math.max(0, Math.min(100, extensionSettings.nyx.disposition + amount));
-    saveSettings();
-    updateNyxMood();
-    updateNyxPanel();
 }
 
 function onNyxAction(action) {
     const responses = {
-        treat: [['Nyx accepted the treat graciously.', 2, 'delighted'], ['Nyx sniffed it and looked unimpressed.', 0, 'bored'], ['Nyx devoured it instantly!', 3, 'delighted']],
-        advice: [["Nyx says: 'Trust the next card drawn.'", 0, null], ["Nyx says: 'Patience is a virtue you lack.'", 0, 'annoyed'], ['Nyx stares at you in eloquent silence.', 0, 'bored']],
-        pet: [['Nyx purrs contentedly.', 1, 'amused'], ['Nyx tolerates this. Barely.', 0, 'bored'], ['Nyx leans into your hand.', 2, 'delighted']],
-        tease: [['Nyx narrows her eyes.', -1, 'annoyed'], ['Nyx swats at you dismissively.', -2, 'annoyed'], ['Nyx pretends not to care. She cares.', 0, 'bored']],
+        treat: [
+            ['Nyx accepted the treat graciously.', 2, 'delighted'],
+            ['Nyx sniffed it and looked unimpressed.', 0, 'bored'],
+            ['Nyx devoured it instantly!', 3, 'delighted']
+        ],
+        advice: [
+            ["Nyx says: 'Trust the next card drawn.'", 0, null],
+            ["Nyx says: 'Patience is a virtue you lack.'", 0, 'annoyed'],
+            ['Nyx stares at you in eloquent silence.', 0, 'bored']
+        ],
+        pet: [
+            ['Nyx purrs contentedly.', 1, 'amused'],
+            ['Nyx tolerates this. Barely.', 0, 'bored'],
+            ['Nyx leans into your hand.', 2, 'delighted']
+        ],
+        tease: [
+            ['Nyx narrows her eyes.', -1, 'annoyed'],
+            ['Nyx swats at you dismissively.', -2, 'annoyed'],
+            ['Nyx pretends not to care. She cares.', 0, 'bored']
+        ],
     };
-
+    
     const options = responses[action] || [['Nyx ignores you.', 0, null]];
     const [text, shift, anim] = options[Math.floor(Math.random() * options.length)];
-
-    let displayText = '› ' + text;
-    if (shift > 0) displayText += ` +${shift}`;
-    else if (shift < 0) displayText += ` ${shift}`;
-
-    if (shift !== 0) shiftDisposition(shift);
-    if (anim) playSpecialAnimation(anim, 2);
-
+    
+    if (shift !== 0) {
+        shiftDisposition(shift);
+    }
+    if (anim) {
+        playSpecialAnimation(anim, 2);
+    }
+    
+    // Add to log
     const log = document.getElementById('mg-nyx-log');
+    if (log && log.querySelector('.mg-text-dim')) {
+        log.innerHTML = '';
+    }
     if (log) {
+        let displayText = `› ${text}`;
+        if (shift > 0) displayText += ` +${shift}`;
+        else if (shift < 0) displayText += ` ${shift}`;
+        
         const entry = document.createElement('div');
         entry.className = 'mg-nyx-log-entry';
         entry.textContent = displayText;
         log.prepend(entry);
         while (log.children.length > 5) log.removeChild(log.lastChild);
     }
-
+    
     showSpeech(text, 3000);
+    updateNyxPanel();
+}
+
+function onCastSpell(spellName, $card) {
+    if ($card.hasClass('mg-spell-cooldown')) return;
+    
+    $card.addClass('mg-spell-cast');
+    setTimeout(() => $card.removeClass('mg-spell-cast'), 500);
+    
+    $card.addClass('mg-spell-cooldown');
+    $card.find('.mg-spell-status').text('Cooling...');
+    setTimeout(() => {
+        $card.removeClass('mg-spell-cooldown');
+        $card.find('.mg-spell-status').text('Ready');
+    }, 10000);
+    
+    const effects = {
+        shield: ["Aegis shimmers around you.", "A protective ward rises."],
+        charm: ["Charm weaves through your words.", "A subtle enchantment takes hold."],
+        insight: ["Your perception sharpens.", "The veil thins—you see clearly."],
+        chaos: ["Chaos unleashed!", "Wild magic surges!"],
+    };
+    
+    const pool = effects[spellName] || ["The spell fizzles."];
+    const result = pool[Math.floor(Math.random() * pool.length)];
+    
+    // Add to log
+    const log = document.getElementById('mg-spell-log');
+    if (log && log.querySelector('.mg-text-dim')) {
+        log.innerHTML = '';
+    }
+    if (log) {
+        const entry = document.createElement('div');
+        entry.className = 'mg-spell-log-entry';
+        entry.textContent = `✦ ${result}`;
+        log.prepend(entry);
+        while (log.children.length > 4) log.removeChild(log.lastChild);
+    }
+    
+    showSpeech(result, 3000);
+    playSpecialAnimation(spellName === 'chaos' ? 'delighted' : 'amused', 2);
+}
+
+// ============================================
+// HELPERS
+// ============================================
+
+function shiftDisposition(amount) {
+    if (!extensionSettings.nyx) extensionSettings.nyx = { disposition: 50 };
+    extensionSettings.nyx.disposition = Math.max(0, Math.min(100, extensionSettings.nyx.disposition + amount));
+    saveSettings();
+    updateNyxMood();
+}
+
+export function updateNyxPanel() {
+    const d = extensionSettings.nyx?.disposition ?? 50;
+    const scoreEl = document.getElementById('mg-nyx-score');
+    const barEl = document.getElementById('mg-nyx-bar');
+    const moodEl = document.getElementById('mg-nyx-mood-indicator');
+    
+    if (scoreEl) scoreEl.textContent = d;
+    if (barEl) barEl.style.width = d + '%';
+    if (moodEl) moodEl.textContent = getMoodText(d);
+}
+
+function updateQueueDisplay() {
+    // TODO: Integrate with actual fate queue
+    const list = document.getElementById('mg-queue-list');
+    const footer = document.getElementById('mg-queue-footer');
+    
+    if (footer) footer.textContent = '0 of 5 slots';
+}
+
+// ============================================
+// INITIALIZATION
+// ============================================
+
+export function initGrimoire() {
+    // Tab click handlers
+    $(document).on('click', '.mg-grimoire-tab', function(e) {
+        const tabId = $(this).data('tab');
+        if (tabId) switchTab(tabId);
+    });
+    
+    // Overlay click to close
+    $(document).on('click', '#mg-grimoire-overlay', closeGrimoire);
+    
+    // Escape key to close
+    $(document).on('keydown', (e) => {
+        if (e.key === 'Escape' && grimoireOpen) {
+            closeGrimoire();
+        }
+    });
 }
