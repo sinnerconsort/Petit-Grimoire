@@ -28,6 +28,7 @@ import {
 } from './src/grimoire.js';
 
 import { initGrimoire, toggleGrimoire } from './src/grimoire.js'; 
+import { setCompactActive, playTransformFlash } from './compact.js';
 
 // ============================================
 // CSS LOADING
