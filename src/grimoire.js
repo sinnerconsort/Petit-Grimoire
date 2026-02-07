@@ -50,17 +50,43 @@ export function initGrimoire() {
 
     try {
         destroy();
-        createCompact();
-        createDrawer();
-        bindEvents();
-        loadPageContent(currentTab);
-        console.log('[Grimoire] ✅ Init complete');
-    } catch (err) {
-        console.error('[Grimoire] ❌ Init failed:', err);
-        if (typeof toastr !== 'undefined') {
-            toastr.error('Grimoire init failed: ' + err.message, 'Petit Grimoire');
-        }
+        console.log('[Grimoire] destroy done');
+    } catch (e) {
+        console.error('[Grimoire] destroy failed:', e);
     }
+
+    try {
+        createCompact();
+        console.log('[Grimoire] createCompact done');
+    } catch (e) {
+        console.error('[Grimoire] createCompact failed:', e);
+        toastr?.error('createCompact failed: ' + e.message, 'Grimoire');
+    }
+
+    try {
+        createDrawer();
+        console.log('[Grimoire] createDrawer done');
+    } catch (e) {
+        console.error('[Grimoire] createDrawer failed:', e);
+        toastr?.error('createDrawer failed: ' + e.message, 'Grimoire');
+    }
+
+    try {
+        bindEvents();
+        console.log('[Grimoire] bindEvents done');
+    } catch (e) {
+        console.error('[Grimoire] bindEvents failed:', e);
+        toastr?.error('bindEvents failed: ' + e.message, 'Grimoire');
+    }
+
+    try {
+        loadPageContent(currentTab);
+        console.log('[Grimoire] loadPageContent done');
+    } catch (e) {
+        console.error('[Grimoire] loadPageContent failed:', e);
+    }
+
+    console.log('[Grimoire] ✅ Init complete');
 }
 
 function destroy() {
@@ -79,30 +105,47 @@ function destroy() {
 function createCompact() {
     const theme = extensionSettings.shellTheme || 'guardian';
 
-    $('body').append(`
-        <div class="mg-fab mg-compact" id="mg-compact" data-mg-theme="${theme}"
-             style="position:fixed; bottom:80px; right:16px; z-index:99990; display:flex; align-items:center; justify-content:center; width:72px; height:72px; cursor:pointer;">
-            <div class="mg-compact-body"
-                 style="width:64px; height:64px; border-radius:50%; background:rgba(100,60,120,0.7); display:flex; align-items:center; justify-content:center; position:relative;">
-                <div class="mg-compact-glow"></div>
-                <div class="mg-compact-icon" style="font-size:32px; line-height:1;">🌙</div>
-                <div class="mg-compact-sparkles">
-                    <span class="mg-compact-sparkle"></span>
-                    <span class="mg-compact-sparkle"></span>
-                    <span class="mg-compact-sparkle"></span>
-                    <span class="mg-compact-sparkle"></span>
-                </div>
-                <div class="mg-compact-badge" id="mg-compact-badge"></div>
-            </div>
-        </div>
-    `);
+    // Nuclear approach: create element directly, not via template string
+    const fab = document.createElement('div');
+    fab.id = 'mg-compact';
+    fab.className = 'mg-fab mg-compact';
+    fab.setAttribute('data-mg-theme', theme);
+    
+    // Inline everything — no CSS dependency at all
+    Object.assign(fab.style, {
+        position: 'fixed',
+        bottom: '100px',
+        right: '20px',
+        zIndex: '999999',
+        width: '80px',
+        height: '80px',
+        background: 'red',
+        borderRadius: '50%',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        fontSize: '36px',
+        cursor: 'pointer',
+        border: '3px solid yellow',
+        boxShadow: '0 0 20px red',
+    });
+    fab.textContent = '🌙';
+    
+    document.body.appendChild(fab);
 
     // Respect visibility setting
     if (extensionSettings.showCompact === false) {
-        $('#mg-compact').hide();
+        fab.style.display = 'none';
     }
 
-    console.log('[PetitGrimoire] FAB created, visible:', $('#mg-compact').is(':visible'));
+    // Verification
+    const exists = document.getElementById('mg-compact');
+    const isVisible = exists ? getComputedStyle(exists).display !== 'none' : false;
+    console.log(`[PetitGrimoire] FAB created: exists=${!!exists}, visible=${isVisible}, parent=${exists?.parentElement?.tagName}`);
+    
+    if (typeof toastr !== 'undefined') {
+        toastr.success(`FAB: exists=${!!exists}, vis=${isVisible}`, 'Grimoire Debug', { timeOut: 5000 });
+    }
 }
 
 // ══════════════════════════════════════════════
