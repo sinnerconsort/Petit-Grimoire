@@ -115,16 +115,23 @@
     /* Portrait ratio from visible area: 363:416 */
     aspect-ratio: 363 / 416;
     width: var(--grimoire-width) !important;
-    height: auto !important;
     max-width: var(--grimoire-max-width) !important;
+    
+    /* Height via aspect-ratio, with calc fallback for older browsers */
+    height: calc(var(--grimoire-width) * 416 / 363);
+    max-height: min(calc(var(--grimoire-max-width) * 416 / 363), 85vh);
     
     /* Bottom-center drawer */
     bottom: 8px;
     left: 50%;
     transform: translateX(-50%);
     
-    /* Slide-in */
-    animation: grimoire-slide-in 0.3s ease-out;
+    /* Slide-in — uses .mg-grimoire-opening class so it replays on each open */
+}
+
+/* Opening animation — applied by JS on each open */
+.mg-grimoire.mg-grimoire-opening {
+    animation: grimoire-slide-in 0.3s ease-out forwards;
 }
 
 /* Closing animation — applied by JS before hiding */
