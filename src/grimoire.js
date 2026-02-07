@@ -463,12 +463,35 @@ export function openGrimoire() {
     
     if (!grimoire) return;
     
+    // ─────────────────────────────────────────────────────────
+    // INVESTIGATION-STYLE POSITIONING
+    // ─────────────────────────────────────────────────────────
+    const isMobile = window.innerWidth <= 1000;
+    
+    if (isMobile) {
+        // Mobile: centered horizontally, below top bar
+        const topBar = document.getElementById('top-settings-holder');
+        const topBarHeight = topBar ? topBar.offsetHeight : 60;
+        const topPosition = topBarHeight + 10;
+        
+        grimoire.style.top = topPosition + 'px';
+        grimoire.style.left = '50%';
+        grimoire.style.transform = 'translateX(-50%)';
+        grimoire.style.maxWidth = '94vw';
+    } else {
+        // Desktop: centered both ways
+        grimoire.style.top = '50%';
+        grimoire.style.left = '50%';
+        grimoire.style.transform = 'translate(-50%, -50%)';
+        grimoire.style.maxWidth = 'none';
+    }
+    
     // Show overlay
     overlay.style.display = 'block';
     requestAnimationFrame(() => overlay.classList.add('visible'));
     
     // Show grimoire container
-    grimoire.style.display = 'flex';
+    grimoire.style.display = 'block';
     
     // Play opening animation
     animLayer.classList.add('mg-anim-opening');
