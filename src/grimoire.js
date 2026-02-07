@@ -1,21 +1,16 @@
 /**
- * Petit Grimoire — Drawer Edition
+ * Petit Grimoire — Drawer Edition v3
  * Right-side sliding panel matching ST's native drawer pattern.
  * Parchment-themed with vertical tab strip on left edge.
- * 
- * Layout (open):
- * ┌─────┬────────────────────────┐
- * │ 🎴  │  Page Title            │
- * │ 🔮  │  ─────────             │
- * │ 👻  │  Content area          │
- * │ 🐱  │  (scrollable)          │
- * │ ✨  │                        │
- * │ 📻  │                        │
- * │ ⚙️  │                        │
- * │     │                   [×]  │
- * └─────┴────────────────────────┘
- *                        ← slides in from right
+ *
+ * FIX v3:
+ *   - Self-loads its own CSS (no dependency on main.css @import chain)
+ *   - Force-clears isAnimating on every open/close (never gets stuck)
+ *   - Verifies DOM before class manipulation, recreates if missing
+ *   - Restores compact if anything goes wrong
  */
+
+import { extensionFolderPath } from './state.js';
 
 // ══════════════════════════════════════════════
 // TAB CONFIGURATION
@@ -42,22 +37,50 @@ let grimoireState = {
 };
 
 // ══════════════════════════════════════════════
+// CSS SELF-LOADING
+// Ensures grimoire.css is loaded even if
+// main.css @import chain breaks.
+// ══════════════════════════════════════════════
+
+function ensureCSS() {
+    const id = 'petit-grimoire-drawer-css';
+    if (document.getElementById(id)) return;
+
+    const link = document.createElement('link');
+    link.id = id;
+    link.rel = 'stylesheet';
+    link.type = 'text/css';
+    link.href = `${extensionFolderPath}/styles/grimoire.css`;
+    document.head.appendChild(link);
+    console.log('[Grimoire] Self-loaded grimoire.css');
+}
+
+// ══════════════════════════════════════════════
 // INITIALIZATION
 // ══════════════════════════════════════════════
 
 export function initGrimoire() {
-    console.log('[Grimoire] Initializing drawer edition...');
-    createGrimoireDOM();
-    setupEventListeners();
-    console.log('[Grimoire] Ready!');
+    console.log('[Grimoire] Initializing drawer edition v3...');
+
+    try {
+        ensureCSS();
+        createGrimoireDOM();
+        setupEventListeners();
+        console.log('[Grimoire] ✅ Ready');
+    } catch (err) {
+        console.error('[Grimoire] Init failed:', err);
+        if (typeof toastr !== 'undefined') {
+            toastr.error('Grimoire init failed: ' + err.message, 'Petit Grimoire');
+        }
+    }
 }
 
 // ══════════════════════════════════════════════
-// DOM CREATION (with duplicate guard)
+// DOM CREATION
 // ══════════════════════════════════════════════
 
 function createGrimoireDOM() {
-    // Duplicate guard
+    // Remove stale copies
     document.getElementById('mg-grimoire')?.remove();
     document.getElementById('mg-grimoire-overlay')?.remove();
 
@@ -74,7 +97,7 @@ function createGrimoireDOM() {
 
     drawer.innerHTML = `
         <div class="mg-grimoire-inner">
-            <!-- Vertical tab strip (left edge) -->
+            <!-- Vertical tab strip -->
             <div class="mg-grimoire-tabstrip">
                 ${GRIMOIRE_TABS.map(tab => `
                     <button class="mg-grimoire-tab"
@@ -84,22 +107,21 @@ function createGrimoireDOM() {
                         <i class="fa-solid ${tab.icon}"></i>
                     </button>
                 `).join('')}
-                
-                <!-- Close button at bottom of strip -->
+
                 <button class="mg-grimoire-tab mg-grimoire-tab--close"
                         id="mg-grimoire-close"
                         title="Close Grimoire">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
-            
+
             <!-- Scrollable page content -->
             <div class="mg-grimoire-page" id="mg-grimoire-page">
                 <div class="mg-grimoire-page-content" id="mg-page-content"></div>
             </div>
         </div>
-        
-        <!-- Decorative corner flourishes -->
+
+        <!-- Corner flourishes -->
         <div class="mg-grimoire-corner mg-grimoire-corner--tl"></div>
         <div class="mg-grimoire-corner mg-grimoire-corner--tr"></div>
         <div class="mg-grimoire-corner mg-grimoire-corner--bl"></div>
@@ -107,6 +129,11 @@ function createGrimoireDOM() {
     `;
 
     document.body.appendChild(drawer);
+
+    // Verify
+    if (!document.getElementById('mg-grimoire')) {
+        console.error('[Grimoire] DOM creation failed!');
+    }
 
     // Load initial page
     loadPageContent(grimoireState.currentTab);
@@ -138,7 +165,7 @@ function setupEventListeners() {
         });
     });
 
-    // Escape key (cleanup old handler first)
+    // Escape key
     if (_escapeHandler) document.removeEventListener('keydown', _escapeHandler);
     _escapeHandler = (e) => {
         if (e.key === 'Escape' && grimoireState.isOpen) closeGrimoire();
@@ -167,41 +194,86 @@ function showCompact() {
 }
 
 // ══════════════════════════════════════════════
-// OPEN / CLOSE (drawer slide)
+// OPEN / CLOSE
+//
+// CRITICAL: Force-clears isAnimating every time.
+// Never gets stuck. Always restores compact on failure.
 // ══════════════════════════════════════════════
 
 export function openGrimoire() {
-    if (grimoireState.isOpen || grimoireState.isAnimating) return;
+    console.log('[Grimoire] openGrimoire() — isOpen:', grimoireState.isOpen);
 
-    const drawer = document.getElementById('mg-grimoire');
-    const overlay = document.getElementById('mg-grimoire-overlay');
+    // ALWAYS force-clear — never trust this flag
+    grimoireState.isAnimating = false;
+
+    if (grimoireState.isOpen) {
+        console.log('[Grimoire] Already open, skipping');
+        return;
+    }
+
+    let drawer = document.getElementById('mg-grimoire');
+    let overlay = document.getElementById('mg-grimoire-overlay');
+
+    // Recreate if missing
     if (!drawer || !overlay) {
-        console.warn('[Grimoire] DOM missing — reinitializing');
+        console.warn('[Grimoire] DOM missing — recreating');
         createGrimoireDOM();
         setupEventListeners();
-        return openGrimoire();
+        drawer = document.getElementById('mg-grimoire');
+        overlay = document.getElementById('mg-grimoire-overlay');
+    }
+
+    // Final check — if still missing, bail and restore compact
+    if (!drawer || !overlay) {
+        console.error('[Grimoire] Cannot create DOM!');
+        showCompact();
+        return;
     }
 
     grimoireState.isAnimating = true;
     hideCompact();
 
-    // Show overlay + slide drawer in via CSS class
+    // Ensure CSS is loaded
+    ensureCSS();
+
+    // Force display
+    drawer.style.removeProperty('display');
+
+    // Show overlay + slide drawer in
     overlay.classList.add('visible');
     drawer.classList.add('open');
 
+    console.log('[Grimoire] .open class added. classList:', drawer.className);
+
+    // setTimeout — always fires, never gets stuck like animationend
     setTimeout(() => {
         grimoireState.isOpen = true;
         grimoireState.isAnimating = false;
-        console.log('[Grimoire] Opened (drawer)');
-    }, 350);
+        console.log('[Grimoire] ✅ Opened');
+    }, 400);
 }
 
 export function closeGrimoire() {
-    if (!grimoireState.isOpen || grimoireState.isAnimating) return;
+    console.log('[Grimoire] closeGrimoire() — isOpen:', grimoireState.isOpen);
+
+    // ALWAYS force-clear
+    grimoireState.isAnimating = false;
+
+    if (!grimoireState.isOpen) {
+        // Even if state says closed, force DOM to match
+        document.getElementById('mg-grimoire')?.classList.remove('open');
+        document.getElementById('mg-grimoire-overlay')?.classList.remove('visible');
+        showCompact();
+        return;
+    }
 
     const drawer = document.getElementById('mg-grimoire');
     const overlay = document.getElementById('mg-grimoire-overlay');
-    if (!drawer || !overlay) return;
+    if (!drawer || !overlay) {
+        grimoireState.isOpen = false;
+        showCompact();
+        return;
+    }
 
     grimoireState.isAnimating = true;
 
@@ -212,8 +284,8 @@ export function closeGrimoire() {
         grimoireState.isOpen = false;
         grimoireState.isAnimating = false;
         showCompact();
-        console.log('[Grimoire] Closed (drawer)');
-    }, 350);
+        console.log('[Grimoire] ✅ Closed');
+    }, 400);
 }
 
 export function toggleGrimoire() {
@@ -225,14 +297,12 @@ export function toggleGrimoire() {
 // ══════════════════════════════════════════════
 
 function switchTab(tabId) {
-    if (grimoireState.isAnimating || tabId === grimoireState.currentTab) return;
+    if (tabId === grimoireState.currentTab) return;
 
-    // Update active states
     document.querySelectorAll('.mg-grimoire-tab').forEach(tab => {
         tab.dataset.active = tab.dataset.tab === tabId ? 'true' : 'false';
     });
 
-    // Fade content swap
     const page = document.getElementById('mg-page-content');
     if (page) {
         page.style.opacity = '0';
@@ -254,7 +324,6 @@ function switchTab(tabId) {
 function loadPageContent(tabId) {
     const container = document.getElementById('mg-page-content');
     if (!container) return;
-
     container.innerHTML = getPageContent(tabId);
     container.scrollTop = 0;
     bindPageActions(tabId);
@@ -503,16 +572,7 @@ function getPageContent(tabId) {
             <div class="mg-page-section">
                 <h4 class="mg-page-subtitle">About</h4>
                 <p class="mg-text-dim">
-                    Petit Grimoire v0.1 — Drawer Edition
-                </p>
-            </div>
-
-            <div class="mg-page-divider"></div>
-
-            <div class="mg-page-section">
-                <h4 class="mg-page-subtitle">Credits</h4>
-                <p class="mg-text-dim">
-                    Book assets: Franuka (itch.io)
+                    Petit Grimoire v0.3 — Drawer Edition
                 </p>
             </div>
         `,
