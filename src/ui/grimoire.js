@@ -45,16 +45,29 @@ export function createGrimoire() {
     });
     
     // =========== BOOK CONTAINER ===========
-    // Uses sprite as background, fills most of the screen
+    // Uses sprite as background, sized to fill mobile screen
     const book = document.createElement('div');
     book.id = 'pg-book';
+    
+    // Calculate size based on viewport - book sprite is 896x720 (wider than tall)
+    // On mobile, height is the constraint, so size based on that
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+    
+    // Use 60% of viewport height, calculate width from aspect ratio
+    let bookHeight = vh * 0.6;
+    let bookWidth = bookHeight * (896 / 720); // Maintain aspect ratio
+    
+    // If too wide for screen, constrain by width instead
+    if (bookWidth > vw * 0.95) {
+        bookWidth = vw * 0.95;
+        bookHeight = bookWidth * (720 / 896);
+    }
+    
     Object.assign(book.style, {
         position: 'relative',
-        // Fill most of the viewport - book is wider than tall (896:720)
-        width: '95vw',
-        maxWidth: '600px',
-        // Height based on aspect ratio
-        aspectRatio: '896 / 720',
+        width: `${bookWidth}px`,
+        height: `${bookHeight}px`,
         margin: 'auto',
         // Sprite background
         backgroundImage: `url('${ASSET_PATHS.grimoire}/Grimoire_WithTabs.png')`,
@@ -62,7 +75,6 @@ export function createGrimoire() {
         backgroundRepeat: 'no-repeat',
         backgroundPosition: 'center',
         imageRendering: 'pixelated',
-        // Transparent - sprite has its own visuals
         backgroundColor: 'transparent',
         borderRadius: '0',
         boxShadow: 'none',
