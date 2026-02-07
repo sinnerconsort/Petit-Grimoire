@@ -19,9 +19,12 @@
     --book-native-height: 720;
     --book-aspect: 0.803; /* 720/896 = height/width ratio */
     
-    /* Display size - fill most of viewport */
-    --grimoire-width: 100vw;
-    --grimoire-max-width: 1000px;
+    /* 
+     * Display size - HEIGHT based for better mobile experience
+     * Adjust --grimoire-height to make book bigger/smaller
+     */
+    --grimoire-height: 70vh;
+    --grimoire-max-height: 85vh;
     
     /* Page content areas (percentages of sprite canvas) */
     /* Left page inner content */
@@ -77,13 +80,20 @@
     pointer-events: auto;
     box-sizing: border-box !important;
     
-    /* Size - 96% viewport width, height maintains aspect ratio */
-    width: var(--grimoire-width) !important;
-    height: calc(var(--grimoire-width) * var(--book-aspect)) !important;
-    max-width: var(--grimoire-max-width) !important;
-    max-height: calc(var(--grimoire-max-width) * var(--book-aspect)) !important;
-    min-width: 300px !important;
-    min-height: calc(300px * var(--book-aspect)) !important;
+    /* 
+     * Size using aspect-ratio for proper scaling
+     * Height-first approach: set height, let width follow aspect ratio
+     * This makes the book FILL vertical space on mobile
+     */
+    aspect-ratio: 896 / 720;
+    
+    /* Height as primary constraint - fills available vertical space */
+    height: var(--grimoire-height, 70vh) !important;
+    width: auto !important;
+    
+    /* Caps */
+    max-height: var(--grimoire-max-height, 85vh) !important;
+    max-width: 95vw !important;
     
     /* Center positioning (JS may override) */
     top: 50%;
@@ -634,10 +644,11 @@
    RESPONSIVE SCALING
    ══════════════════════════════════════════════ */
 
-/* Mobile - full width, larger touch targets */
+/* Mobile - BIG book filling vertical space */
 @media (max-width: 600px) {
     :root {
-        --grimoire-width: 98vw;
+        --grimoire-height: 65vh;      /* Fill most of screen height */
+        --grimoire-max-height: 70vh;
         --tab-width: 40px;
         --tab-height: 36px;
     }
@@ -659,8 +670,8 @@
 /* Tablet */
 @media (min-width: 601px) and (max-width: 900px) {
     :root {
-        --grimoire-width: 94vw;
-        --grimoire-max-width: 800px;
+        --grimoire-height: 75vh;
+        --grimoire-max-height: 80vh;
         --tab-width: 44px;
         --tab-height: 40px;
     }
@@ -673,8 +684,8 @@
 /* Desktop */
 @media (min-width: 901px) {
     :root {
-        --grimoire-width: 90vw;
-        --grimoire-max-width: 1000px;
+        --grimoire-height: 80vh;
+        --grimoire-max-height: 85vh;
         --tab-width: 48px;
         --tab-height: 44px;
     }
@@ -708,7 +719,8 @@
 /* Large desktop */
 @media (min-width: 1200px) {
     :root {
-        --grimoire-max-width: 1100px;
+        --grimoire-height: 85vh;
+        --grimoire-max-height: 90vh;
     }
 }
 
