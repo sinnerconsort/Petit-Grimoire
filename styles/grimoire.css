@@ -4,29 +4,26 @@
    ============================================ */
 
 /* ══════════════════════════════════════════════
-   ASSET PATHS
-   Path is relative from styles/ folder
+   CSS VARIABLES
    ══════════════════════════════════════════════ */
 
 :root {
-    --grimoire-assets: ../assets/grimoire;
-    
-    /* Book dimensions - 2x scale from Franuka pack */
-    /* Adjust these once you check actual pixel dimensions */
-    --grimoire-width: 408px;
-    --grimoire-height: 340px;
-    --grimoire-scale: 1;
+    /* Book base dimensions - adjust to match your 2x PNG */
+    --grimoire-base-width: 350px;
+    --grimoire-base-height: 280px;
     
     /* Animation spritesheets are 8 frames horizontal */
     --grimoire-frames: 8;
     
-    /* Page content area (where text goes on parchment) */
-    --page-left-x: 8%;
-    --page-left-width: 40%;
-    --page-right-x: 52%;
-    --page-right-width: 40%;
-    --page-top: 10%;
-    --page-height: 70%;
+    /* Page content area - positioned over the parchment
+       These percentages are relative to the book container
+       ADJUST after viewing actual book image! */
+    --page-top: 14%;
+    --page-bottom: 16%;
+    --page-left-start: 8%;
+    --page-left-end: 46%;
+    --page-right-start: 54%;
+    --page-right-end: 92%;
     
     /* Parchment text colors */
     --parchment-text: #4a3728;
@@ -42,14 +39,17 @@
 
 .mg-grimoire-overlay {
     position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.6);
-    z-index: 2147483640;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 99998;
     display: none;
     opacity: 0;
     transition: opacity 0.3s ease;
-    -webkit-backdrop-filter: blur(3px);
-    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(4px);
+    backdrop-filter: blur(4px);
 }
 
 .mg-grimoire-overlay.visible {
@@ -58,26 +58,28 @@
 
 
 /* ══════════════════════════════════════════════
-   GRIMOIRE CONTAINER
+   GRIMOIRE CONTAINER - CENTERED ON SCREEN
    ══════════════════════════════════════════════ */
 
 .mg-grimoire {
     position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 2147483645;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 99999;
     display: none;
+    
+    /* Flexbox centering */
     align-items: center;
     justify-content: center;
     
-    /* Size based on book asset */
-    width: calc(var(--grimoire-width) * var(--grimoire-scale));
-    height: calc(var(--grimoire-height) * var(--grimoire-scale));
+    /* Prevent interaction when hidden */
+    pointer-events: none;
 }
 
 .mg-grimoire.visible {
-    opacity: 1;
+    pointer-events: auto;
 }
 
 
@@ -87,12 +89,15 @@
 
 .mg-grimoire-anim {
     position: absolute;
-    inset: 0;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
     z-index: 10;
     pointer-events: none;
     
     /* Spritesheet setup - 8 frames laid horizontally */
-    background-size: calc(100% * var(--grimoire-frames)) 100%;
+    background-size: 800% 100%;
     background-repeat: no-repeat;
     background-position: 0% center;
     
@@ -132,19 +137,26 @@
 
 
 /* ══════════════════════════════════════════════
-   BOOK CONTAINER
+   BOOK CONTAINER - THE ACTUAL SPELLBOOK
    ══════════════════════════════════════════════ */
 
 .mg-grimoire-book {
     position: relative;
-    width: 100%;
-    height: 100%;
+    width: var(--grimoire-base-width);
+    height: var(--grimoire-base-height);
+    max-width: 90vw;
+    max-height: 70vh;
+    
+    /* The book image */
     background-image: url('../assets/grimoire/Spellbook_WithTabs.png');
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center;
+    
+    /* Pixel art crisp rendering */
     image-rendering: pixelated;
     image-rendering: crisp-edges;
+    
     transition: opacity 0.2s ease;
 }
 
@@ -154,12 +166,14 @@
    
    These are invisible hitboxes positioned over
    the ribbon tabs in Spellbook_WithTabs.png
-   Adjust positions based on actual asset!
    ══════════════════════════════════════════════ */
 
 .mg-grimoire-tabs {
     position: absolute;
-    inset: 0;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
     pointer-events: none;
 }
 
@@ -172,9 +186,9 @@
     padding: 0;
     
     /* Debug: uncomment to see hitboxes */
-    /* background: rgba(255, 0, 0, 0.3); */
+    /* background: rgba(255, 0, 0, 0.3) !important; */
     
-    /* Hide the text label visually but keep for accessibility */
+    /* Hide the text label visually */
     font-size: 0;
     color: transparent;
     
@@ -183,7 +197,7 @@
 }
 
 .mg-grimoire-tab:hover {
-    transform: scale(1.05);
+    transform: scale(1.08);
     filter: brightness(1.2);
 }
 
@@ -191,17 +205,17 @@
     filter: brightness(1.3) saturate(1.2);
 }
 
-/* Tab label tooltip (shown on hover) */
+/* Tab label tooltip */
 .mg-grimoire-tab-label {
     position: absolute;
-    right: calc(100% + 8px);
+    right: calc(100% + 6px);
     top: 50%;
     transform: translateY(-50%);
-    background: rgba(0, 0, 0, 0.85);
+    background: rgba(0, 0, 0, 0.9);
     color: #fff;
-    font-size: 11px;
-    padding: 4px 10px;
-    border-radius: 4px;
+    font-size: 10px;
+    padding: 3px 8px;
+    border-radius: 3px;
     white-space: nowrap;
     opacity: 0;
     pointer-events: none;
@@ -212,96 +226,93 @@
     opacity: 1;
 }
 
-/* Bottom tabs - label shows above */
+/* ---- Right-side tabs (top to bottom) ---- */
+
+.mg-grimoire-tab--right-1 {
+    right: 0;
+    top: 12%;
+    width: 24px;
+    height: 28px;
+}
+
+.mg-grimoire-tab--right-2 {
+    right: 0;
+    top: 26%;
+    width: 24px;
+    height: 28px;
+}
+
+.mg-grimoire-tab--right-3 {
+    right: 0;
+    top: 40%;
+    width: 24px;
+    height: 28px;
+}
+
+.mg-grimoire-tab--right-4 {
+    right: 0;
+    top: 54%;
+    width: 24px;
+    height: 28px;
+}
+
+/* ---- Bottom tabs ---- */
+
+.mg-grimoire-tab--bottom-left {
+    bottom: 0;
+    left: 18%;
+    width: 24px;
+    height: 24px;
+}
+
 .mg-grimoire-tab--bottom-left .mg-grimoire-tab-label,
 .mg-grimoire-tab--bottom-left-2 .mg-grimoire-tab-label,
 .mg-grimoire-tab--bottom-right .mg-grimoire-tab-label {
     right: auto;
     left: 50%;
     top: auto;
-    bottom: calc(100% + 8px);
+    bottom: calc(100% + 6px);
     transform: translateX(-50%);
 }
 
-/* ---- Right-side tabs (top to bottom: 1-4) ---- */
-/* ADJUST THESE % VALUES based on actual Spellbook_WithTabs.png */
-
-.mg-grimoire-tab--right-1 {
-    /* Red tab - Tarot */
-    right: 0;
-    top: 14%;
-    width: 30px;
-    height: 36px;
-}
-
-.mg-grimoire-tab--right-2 {
-    /* Teal tab - Crystal */
-    right: 0;
-    top: 28%;
-    width: 30px;
-    height: 36px;
-}
-
-.mg-grimoire-tab--right-3 {
-    /* Orange tab - Ouija */
-    right: 0;
-    top: 42%;
-    width: 30px;
-    height: 36px;
-}
-
-.mg-grimoire-tab--right-4 {
-    /* Yellow tab - Nyx */
-    right: 0;
-    top: 56%;
-    width: 30px;
-    height: 36px;
-}
-
-/* ---- Bottom tabs (left to right) ---- */
-
-.mg-grimoire-tab--bottom-left {
-    /* Pink tab - Settings */
-    bottom: 2%;
-    left: 20%;
-    width: 28px;
-    height: 32px;
-}
-
 .mg-grimoire-tab--bottom-left-2 {
-    /* Gold tab - Radio */
-    bottom: 2%;
+    bottom: 0;
     left: 32%;
-    width: 28px;
-    height: 32px;
+    width: 24px;
+    height: 24px;
 }
 
 .mg-grimoire-tab--bottom-right {
-    /* Green tab - Spells */
-    bottom: 2%;
-    right: 20%;
-    width: 28px;
-    height: 32px;
+    bottom: 0;
+    right: 18%;
+    width: 24px;
+    height: 24px;
 }
 
 
 /* ══════════════════════════════════════════════
-   PAGE CONTENT AREA
+   PAGE CONTENT AREAS
+   
+   Two pages side by side, positioned over the
+   parchment areas in the book image
    ══════════════════════════════════════════════ */
 
 .mg-grimoire-pages {
     position: absolute;
     top: var(--page-top);
-    left: var(--page-left-x);
-    right: calc(100% - var(--page-right-x) - var(--page-right-width));
-    height: var(--page-height);
+    bottom: var(--page-bottom);
+    left: var(--page-left-start);
+    right: calc(100% - var(--page-right-end));
+    
     display: flex;
-    gap: 4%;
+    gap: 8%;
+    
     pointer-events: none;
 }
 
 .mg-grimoire-page {
     flex: 1;
+    min-width: 0;
     overflow: hidden;
     pointer-events: auto;
 }
@@ -309,16 +320,17 @@
 .mg-grimoire-page-content {
     height: 100%;
     overflow-y: auto;
-    padding: 8px 12px;
+    overflow-x: hidden;
+    padding: 6px 8px;
     transition: opacity 0.2s ease;
     
-    /* Scrollbar styling */
+    /* Hide scrollbar but allow scroll */
     scrollbar-width: thin;
     scrollbar-color: var(--parchment-accent) transparent;
 }
 
 .mg-grimoire-page-content::-webkit-scrollbar {
-    width: 4px;
+    width: 3px;
 }
 
 .mg-grimoire-page-content::-webkit-scrollbar-track {
@@ -338,16 +350,16 @@
 .mg-grimoire-page {
     font-family: 'Palatino Linotype', 'Book Antiqua', Palatino, Georgia, serif;
     color: var(--parchment-text);
-    font-size: 11px;
-    line-height: 1.4;
+    font-size: 10px;
+    line-height: 1.35;
 }
 
 .mg-page-section {
-    margin-bottom: 12px;
+    margin-bottom: 8px;
 }
 
 .mg-page-title {
-    font-size: 14px;
+    font-size: 12px;
     font-weight: 700;
     color: var(--parchment-accent);
     margin: 0 0 4px 0;
@@ -355,24 +367,24 @@
 }
 
 .mg-page-subtitle {
-    font-size: 10px;
+    font-size: 9px;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 1px;
     color: var(--parchment-text-dim);
-    margin: 8px 0 4px 0;
+    margin: 6px 0 3px 0;
 }
 
 .mg-page-flavor {
     font-style: italic;
     color: var(--parchment-text-dim);
-    font-size: 10px;
-    margin-bottom: 8px;
+    font-size: 9px;
+    margin-bottom: 6px;
 }
 
 .mg-page-subsection {
-    margin-top: 12px;
-    padding-top: 8px;
+    margin-top: 8px;
+    padding-top: 6px;
     border-top: 1px dashed var(--parchment-text-dim);
 }
 
@@ -382,30 +394,30 @@
 }
 
 .mg-text-small {
-    font-size: 9px;
+    font-size: 8px;
 }
 
 
 /* ══════════════════════════════════════════════
-   PAGE BUTTON
+   BUTTONS
    ══════════════════════════════════════════════ */
 
 .mg-page-btn {
     display: block;
     width: 100%;
-    padding: 8px 12px;
-    margin: 8px 0;
+    padding: 6px 8px;
+    margin: 6px 0;
     
     background: linear-gradient(180deg, 
         var(--parchment-highlight) 0%, 
         var(--parchment-accent) 100%
     );
-    border: 2px solid var(--parchment-accent);
+    border: 1px solid var(--parchment-accent);
     border-radius: 4px;
     
     color: #fff;
     font-family: inherit;
-    font-size: 11px;
+    font-size: 10px;
     font-weight: 600;
     text-shadow: 0 1px 1px rgba(0,0,0,0.3);
     
@@ -419,15 +431,29 @@
 }
 
 .mg-page-btn:active {
-    transform: translateY(1px);
+    transform: translateY(0);
     filter: brightness(0.95);
 }
 
 .mg-page-btn--small {
-    display: inline-block;
-    width: auto;
-    padding: 6px 10px;
+    padding: 4px 6px;
+    font-size: 9px;
+}
+
+/* Checkbox styling */
+.mg-checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 4px 0;
+    cursor: pointer;
     font-size: 10px;
+}
+
+.mg-checkbox-label input[type="checkbox"] {
+    width: 14px;
+    height: 14px;
+    accent-color: var(--parchment-accent);
 }
 
 
@@ -438,7 +464,7 @@
 .mg-card-spread {
     display: flex;
     justify-content: center;
-    gap: 4px;
+    gap: 8px;
     margin: 8px 0;
 }
 
@@ -451,8 +477,8 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 14px;
     color: var(--parchment-text-dim);
+    font-size: 12px;
 }
 
 .mg-last-reading {
@@ -464,36 +490,37 @@
 .mg-mini-card {
     width: 28px;
     height: 40px;
-    background: var(--parchment-accent);
+    background: linear-gradient(135deg, #f5e6d3, #e8d5c4);
+    border: 1px solid var(--parchment-text-dim);
     border-radius: 3px;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #fff;
-    font-size: 12px;
+    font-size: 10px;
+    color: var(--parchment-text-dim);
+    flex-shrink: 0;
 }
 
 .mg-last-reading-info {
-    flex: 1;
-    font-size: 10px;
+    min-width: 0;
 }
 
 .mg-queue-list {
-    min-height: 60px;
+    min-height: 50px;
 }
 
 .mg-queue-empty {
     color: var(--parchment-text-dim);
     font-style: italic;
     text-align: center;
-    padding: 16px 0;
+    padding: 12px 0;
 }
 
 .mg-queue-footer {
-    font-size: 9px;
+    font-size: 8px;
     color: var(--parchment-text-dim);
     text-align: center;
-    margin-top: 8px;
+    margin-top: 4px;
 }
 
 
@@ -512,73 +539,71 @@
     width: 48px;
     height: 48px;
     border-radius: 50%;
-    background: radial-gradient(circle at 35% 35%,
-        rgba(255, 255, 255, 0.4),
-        #9b7ed9 40%,
-        #4a2c7a 100%
+    background: radial-gradient(circle at 30% 30%, 
+        rgba(200, 180, 255, 0.9),
+        rgba(120, 100, 180, 0.7),
+        rgba(60, 40, 100, 0.8)
     );
+    box-shadow: 
+        0 0 12px rgba(150, 130, 200, 0.4),
+        inset 0 0 15px rgba(255, 255, 255, 0.2);
     position: relative;
     overflow: hidden;
-    box-shadow:
-        0 0 16px rgba(155, 126, 217, 0.5),
-        inset 0 -3px 8px rgba(0, 0, 0, 0.3);
 }
 
 .mg-crystal-mist {
     position: absolute;
     inset: 0;
-    border-radius: 50%;
-    background: radial-gradient(circle,
-        transparent 20%,
-        rgba(255, 255, 255, 0.1) 50%,
-        transparent 80%
+    background: radial-gradient(circle, 
+        rgba(255, 255, 255, 0.3), 
+        transparent 60%
     );
-    animation: crystal-mist 6s ease-in-out infinite;
+    animation: crystal-mist 4s ease-in-out infinite;
 }
 
 .mg-crystal-mist--2 {
-    animation: crystal-mist 8s ease-in-out infinite reverse;
-    opacity: 0.6;
+    animation-delay: -2s;
+    animation-direction: reverse;
 }
 
 @keyframes crystal-mist {
     0%, 100% { transform: rotate(0deg) scale(1); opacity: 0.4; }
-    50% { transform: rotate(180deg) scale(1.1); opacity: 0.8; }
+    50% { transform: rotate(180deg) scale(1.1); opacity: 0.7; }
 }
 
 .mg-crystal-glint {
     position: absolute;
-    top: 10px;
-    left: 14px;
-    width: 6px;
+    top: 8px;
+    left: 12px;
+    width: 5px;
     height: 3px;
-    background: rgba(255, 255, 255, 0.7);
+    background: rgba(255, 255, 255, 0.8);
     border-radius: 50%;
     filter: blur(1px);
 }
 
 .mg-crystal-base {
-    width: 32px;
-    height: 8px;
+    width: 28px;
+    height: 6px;
     background: linear-gradient(180deg, #8b7355, #5c4a3a);
-    border-radius: 0 0 6px 6px;
+    border-radius: 0 0 5px 5px;
     margin-top: -2px;
 }
 
 .mg-crystal-vision {
     font-style: italic;
-    color: var(--parchment-text);
+    font-size: 9px;
     padding: 4px 0;
 }
 
 .mg-vision-log {
-    min-height: 60px;
+    min-height: 50px;
 }
 
 .mg-vision-entry {
-    font-size: 10px;
-    margin-bottom: 4px;
-    padding-left: 8px;
+    font-size: 9px;
+    margin-bottom: 3px;
+    padding-left: 6px;
 }
 
 
@@ -589,9 +614,9 @@
 .mg-ouija-board {
     background: rgba(74, 55, 40, 0.1);
     border: 1px solid var(--parchment-text-dim);
-    border-radius: 6px;
-    padding: 8px 6px;
-    margin: 8px 0;
+    border-radius: 4px;
+    padding: 6px 4px;
+    margin: 6px 0;
     text-align: center;
 }
 
@@ -599,36 +624,37 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 4px;
+    margin-bottom: 3px;
+    padding: 0 8px;
 }
 
 .mg-ouija-answer {
-    font-size: 10px;
+    font-size: 9px;
     font-weight: 700;
     color: var(--parchment-accent);
     letter-spacing: 1px;
 }
 
 .mg-ouija-sun {
-    font-size: 12px;
+    font-size: 10px;
     opacity: 0.5;
 }
 
 .mg-ouija-letters {
-    margin: 4px 0;
+    margin: 3px 0;
 }
 
 .mg-ouija-row {
-    font-size: 9px;
-    letter-spacing: 2px;
+    font-size: 8px;
+    letter-spacing: 1.5px;
     color: var(--parchment-text);
     opacity: 0.8;
 }
 
 .mg-ouija-planchette {
-    width: 24px;
-    height: 24px;
-    margin: 4px auto;
+    width: 20px;
+    height: 20px;
+    margin: 3px auto;
     position: relative;
     transition: transform 0.3s ease;
 }
@@ -649,40 +675,41 @@
 
 .mg-ouija-planchette.mg-ouija-moving .mg-ouija-lens {
     opacity: 1;
-    box-shadow: 0 0 8px var(--parchment-accent);
+    box-shadow: 0 0 6px var(--parchment-accent);
 }
 
 @keyframes planchette-move {
     0% { transform: translateX(0); }
-    25% { transform: translateX(-12px) rotate(-5deg); }
-    50% { transform: translateX(12px) rotate(5deg); }
-    75% { transform: translateX(-6px) rotate(-2deg); }
+    25% { transform: translateX(-10px) rotate(-5deg); }
+    50% { transform: translateX(10px) rotate(5deg); }
+    75% { transform: translateX(-5px) rotate(-2deg); }
     100% { transform: translateX(0); }
 }
 
 .mg-ouija-numbers {
-    font-size: 8px;
-    letter-spacing: 2px;
+    font-size: 7px;
+    letter-spacing: 1.5px;
     color: var(--parchment-text-dim);
 }
 
 .mg-ouija-farewell {
-    font-size: 9px;
-    letter-spacing: 3px;
+    font-size: 8px;
+    letter-spacing: 2px;
     color: var(--parchment-text-dim);
-    margin-top: 4px;
+    margin-top: 3px;
     font-weight: 700;
 }
 
 .mg-ouija-response {
-    min-height: 32px;
-    margin-top: 8px;
+    min-height: 28px;
+    margin-top: 6px;
 }
 
 .mg-ouija-waiting {
     color: var(--parchment-text-dim);
     font-style: italic;
     text-align: center;
+    font-size: 9px;
 }
 
 .mg-ouija-result {
@@ -690,7 +717,7 @@
 }
 
 .mg-ouija-answer-text {
-    font-size: 14px;
+    font-size: 12px;
     font-weight: 700;
     color: var(--parchment-accent);
     letter-spacing: 2px;
@@ -700,18 +727,18 @@
 .mg-ouija-mood-cryptic .mg-ouija-answer-text { opacity: 0.7; }
 
 .mg-ouija-flavor-text {
-    font-size: 9px;
+    font-size: 8px;
     color: var(--parchment-text-dim);
     font-style: italic;
 }
 
 .mg-ouija-history {
-    min-height: 60px;
+    min-height: 50px;
 }
 
 .mg-ouija-history-entry {
-    font-size: 10px;
-    margin-bottom: 4px;
+    font-size: 9px;
+    margin-bottom: 3px;
 }
 
 
@@ -721,23 +748,23 @@
 
 .mg-nyx-portrait {
     text-align: center;
-    padding: 8px 0;
+    padding: 6px 0;
 }
 
 .mg-nyx-mood-indicator {
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 600;
     color: var(--parchment-accent);
 }
 
 .mg-nyx-disposition {
-    margin: 8px 0;
+    margin: 6px 0;
 }
 
 .mg-nyx-bar-track {
-    height: 8px;
+    height: 6px;
     background: rgba(74, 55, 40, 0.2);
-    border-radius: 4px;
+    border-radius: 3px;
     overflow: hidden;
     border: 1px solid var(--parchment-text-dim);
 }
@@ -752,26 +779,26 @@
 }
 
 .mg-nyx-score {
-    font-size: 9px;
+    font-size: 8px;
     color: var(--parchment-text-dim);
     text-align: center;
-    margin-top: 4px;
+    margin-top: 3px;
 }
 
 .mg-nyx-actions {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 4px;
-    margin-top: 8px;
+    gap: 3px;
+    margin-top: 6px;
 }
 
 .mg-nyx-log {
-    min-height: 60px;
+    min-height: 50px;
 }
 
 .mg-nyx-log-entry {
-    font-size: 10px;
-    margin-bottom: 4px;
+    font-size: 9px;
+    margin-bottom: 3px;
 }
 
 
@@ -782,14 +809,14 @@
 .mg-spells-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 4px;
+    gap: 3px;
 }
 
 .mg-spell-card {
     background: rgba(74, 55, 40, 0.1);
     border: 1px solid var(--parchment-text-dim);
-    border-radius: 4px;
-    padding: 6px;
+    border-radius: 3px;
+    padding: 4px;
     text-align: center;
     cursor: pointer;
     transition: all 0.2s ease;
@@ -813,28 +840,27 @@
 }
 
 .mg-spell-icon {
-    font-size: 16px;
+    font-size: 14px;
 }
 
 .mg-spell-name {
-    font-size: 10px;
+    font-size: 9px;
     font-weight: 600;
-    color: var(--parchment-text);
 }
 
 .mg-spell-status {
-    font-size: 8px;
+    font-size: 7px;
     color: var(--parchment-accent);
     text-transform: uppercase;
 }
 
 .mg-spell-log {
-    min-height: 60px;
+    min-height: 50px;
 }
 
 .mg-spell-log-entry {
-    font-size: 10px;
-    margin-bottom: 4px;
+    font-size: 9px;
+    margin-bottom: 3px;
 }
 
 
@@ -845,15 +871,15 @@
 .mg-radio-dial {
     background: rgba(74, 55, 40, 0.15);
     border: 1px solid var(--parchment-text-dim);
-    border-radius: 6px;
-    padding: 12px;
+    border-radius: 4px;
+    padding: 8px;
     text-align: center;
-    margin: 8px 0;
+    margin: 6px 0;
 }
 
 .mg-radio-display {
     font-family: monospace;
-    font-size: 14px;
+    font-size: 12px;
     color: var(--parchment-accent);
     letter-spacing: 2px;
 }
@@ -861,16 +887,16 @@
 .mg-radio-controls {
     display: flex;
     justify-content: center;
-    gap: 4px;
-    margin: 8px 0;
+    gap: 3px;
+    margin: 6px 0;
 }
 
 .mg-radio-stations {
-    min-height: 40px;
+    min-height: 30px;
 }
 
 .mg-radio-now {
-    min-height: 40px;
+    min-height: 30px;
 }
 
 
@@ -880,11 +906,15 @@
 
 .mg-settings-about {
     text-align: center;
-    padding: 12px 0;
+    padding: 8px 0;
 }
 
 .mg-settings-about p {
-    margin: 4px 0;
+    margin: 3px 0;
+}
+
+.mg-settings-group {
+    margin-top: 8px;
 }
 
 
@@ -892,37 +922,46 @@
    RESPONSIVE SCALING
    ══════════════════════════════════════════════ */
 
-/* Mobile: Scale down the book */
-@media (max-width: 480px) {
-    .mg-grimoire {
-        --grimoire-scale: 0.85;
+/* Mobile - scale down */
+@media (max-width: 420px) {
+    .mg-grimoire-book {
+        --grimoire-base-width: 300px;
+        --grimoire-base-height: 240px;
     }
     
     .mg-grimoire-page {
-        font-size: 10px;
+        font-size: 9px;
     }
     
     .mg-page-title {
-        font-size: 12px;
+        font-size: 11px;
     }
 }
 
 /* Very small screens */
-@media (max-width: 380px) {
-    .mg-grimoire {
-        --grimoire-scale: 0.75;
+@media (max-width: 340px) {
+    .mg-grimoire-book {
+        --grimoire-base-width: 260px;
+        --grimoire-base-height: 210px;
     }
 }
 
-/* Larger screens: Can scale up slightly */
-@media (min-width: 768px) {
-    .mg-grimoire {
-        --grimoire-scale: 1.1;
+/* Tablets and larger */
+@media (min-width: 600px) {
+    .mg-grimoire-book {
+        --grimoire-base-width: 400px;
+        --grimoire-base-height: 320px;
+    }
+    
+    .mg-grimoire-page {
+        font-size: 11px;
     }
 }
 
-@media (min-width: 1024px) {
-    .mg-grimoire {
-        --grimoire-scale: 1.2;
+/* Desktop */
+@media (min-width: 900px) {
+    .mg-grimoire-book {
+        --grimoire-base-width: 450px;
+        --grimoire-base-height: 360px;
     }
 }
