@@ -9,6 +9,10 @@ import { settings, updateSetting } from '../core/state.js';
 let panelElement = null;
 let isOpen = false;
 
+// Book dimensions - native sprite is 896×720
+// We scale to fit mobile while maintaining aspect ratio
+const BOOK_ASPECT = 896 / 720; // ~1.244 (wider than tall)
+
 /**
  * Create the grimoire panel
  */
@@ -41,28 +45,39 @@ export function createGrimoire() {
     });
     
     // =========== BOOK CONTAINER ===========
+    // Uses sprite as background, responsive sizing
     const book = document.createElement('div');
     book.id = 'pg-book';
     Object.assign(book.style, {
         position: 'relative',
-        width: '90vw',
-        maxWidth: '360px',
-        height: '70vh',
-        maxHeight: '500px',
+        // Responsive sizing - 85% of viewport width, max 400px
+        width: 'min(85vw, 400px)',
+        // Height calculated from aspect ratio (896:720 = 1.244:1)
+        aspectRatio: '896 / 720',
+        maxHeight: '70vh',
         margin: 'auto',
-        background: theme.cardBg,
-        border: `3px solid ${theme.main}`,
-        borderRadius: '12px',
-        boxShadow: `0 10px 40px rgba(0,0,0,0.5), 0 0 30px ${theme.main}40`,
+        // Sprite background
+        backgroundImage: `url('${ASSET_PATHS.grimoire}/Grimoire_WithTabs.png')`,
+        backgroundSize: 'contain',
+        backgroundRepeat: 'no-repeat',
+        backgroundPosition: 'center',
+        imageRendering: 'pixelated',
+        // Fallback if sprite fails
+        backgroundColor: theme.cardBg,
+        // No border - sprite has its own frame
+        borderRadius: '0',
+        boxShadow: `0 10px 40px rgba(0,0,0,0.5), 0 0 30px ${theme.main}30`,
         display: 'flex',
-        overflow: 'hidden'
+        overflow: 'visible'
     });
     
     // =========== TAB SIDEBAR ===========
+    // Positioned absolutely over the sprite's visual tabs
     const sidebar = createSidebar(theme);
     book.appendChild(sidebar);
     
     // =========== CONTENT AREA ===========
+    // Positioned inside the book's "page" area
     const content = createContent(theme);
     book.appendChild(content);
     
@@ -72,23 +87,27 @@ export function createGrimoire() {
     closeBtn.title = 'Close';
     Object.assign(closeBtn.style, {
         position: 'absolute',
-        top: '10px',
-        right: '10px',
-        width: '32px',
-        height: '32px',
+        top: '8%',
+        right: '8%',
+        width: '24px',
+        height: '24px',
         background: theme.main,
         border: 'none',
         borderRadius: '50%',
         color: theme.bg,
-        fontSize: '20px',
+        fontSize: '16px',
         fontWeight: 'bold',
         lineHeight: '1',
         cursor: 'pointer',
         zIndex: '10',
         display: 'flex',
         alignItems: 'center',
-        justifyContent: 'center'
+        justifyContent: 'center',
+        opacity: '0.8',
+        transition: 'opacity 0.2s'
     });
+    closeBtn.addEventListener('mouseenter', () => closeBtn.style.opacity = '1');
+    closeBtn.addEventListener('mouseleave', () => closeBtn.style.opacity = '0.8');
     closeBtn.addEventListener('click', closeGrimoire);
     book.appendChild(closeBtn);
     
@@ -100,24 +119,27 @@ export function createGrimoire() {
 }
 
 /**
- * Create the tab sidebar
+ * Create the tab sidebar - positioned over sprite's visual tabs
+ * Tabs are absolutely positioned on the left edge
  */
 function createSidebar(theme) {
     const sidebar = document.createElement('div');
     sidebar.id = 'pg-sidebar';
     Object.assign(sidebar.style, {
-        width: '50px',
-        background: theme.bg,
-        borderRight: `1px solid ${theme.main}33`,
-        padding: '10px 5px',
+        position: 'absolute',
+        left: '0',
+        top: '15%',
+        bottom: '15%',
+        width: '12%',
         display: 'flex',
         flexDirection: 'column',
-        gap: '6px',
-        overflowY: 'auto',
-        flexShrink: '0'
+        justifyContent: 'space-around',
+        alignItems: 'center',
+        padding: '5% 0',
+        zIndex: '5'
     });
     
-    TABS.forEach(tab => {
+    TABS.forEach((tab, index) => {
         const btn = document.createElement('button');
         btn.className = 'pg-tab-btn';
         btn.dataset.tab = tab.id;
@@ -126,23 +148,35 @@ function createSidebar(theme) {
         
         const isActive = tab.id === settings.activeTab;
         Object.assign(btn.style, {
-            width: '38px',
-            height: '38px',
-            minHeight: '38px',
+            width: '28px',
+            height: '28px',
             background: isActive ? theme.main : 'transparent',
-            border: `1px solid ${theme.main}`,
-            borderRadius: '8px',
+            border: `2px solid ${isActive ? theme.main : theme.main + '60'}`,
+            borderRadius: '6px',
             color: isActive ? theme.bg : theme.main,
-            fontSize: '14px',
+            fontSize: '12px',
             cursor: 'pointer',
             transition: 'all 0.2s ease',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            flexShrink: '0'
+            opacity: isActive ? '1' : '0.7'
         });
         
         btn.addEventListener('click', () => switchTab(tab.id));
+        btn.addEventListener('mouseenter', () => {
+            if (btn.dataset.tab !== settings.activeTab) {
+                btn.style.opacity = '1';
+                btn.style.borderColor = theme.main;
+            }
+        });
+        btn.addEventListener('mouseleave', () => {
+            if (btn.dataset.tab !== settings.activeTab) {
+                btn.style.opacity = '0.7';
+                btn.style.borderColor = theme.main + '60';
+            }
+        });
+        
         sidebar.appendChild(btn);
     });
     
@@ -150,18 +184,27 @@ function createSidebar(theme) {
 }
 
 /**
- * Create the content area with pages
+ * Create the content area - positioned inside the book's page
  */
 function createContent(theme) {
     const content = document.createElement('div');
     content.id = 'pg-content';
     Object.assign(content.style, {
-        flex: '1',
-        padding: '20px',
+        position: 'absolute',
+        // Position inside the "page" area of the sprite
+        // Adjust these percentages based on your sprite's layout
+        left: '15%',
+        right: '8%',
+        top: '12%',
+        bottom: '12%',
+        padding: '10px',
         overflowY: 'auto',
         color: theme.textLight,
         display: 'flex',
-        flexDirection: 'column'
+        flexDirection: 'column',
+        // Subtle scrollbar
+        scrollbarWidth: 'thin',
+        scrollbarColor: `${theme.main}40 transparent`
     });
     
     TABS.forEach(tab => {
@@ -181,10 +224,10 @@ function createContent(theme) {
         
         // Placeholder content (will be replaced by feature modules)
         page.innerHTML = `
-            <h2 style="color: ${theme.main}; margin-bottom: 15px; font-size: 20px; letter-spacing: 2px;">
+            <h2 style="color: ${theme.main}; margin-bottom: 10px; font-size: 16px; letter-spacing: 2px; text-shadow: 0 0 10px ${theme.main}40;">
                 ✨ ${tab.name} ✨
             </h2>
-            <p style="opacity: 0.6; font-style: italic; margin-top: 10px;">
+            <p style="opacity: 0.6; font-style: italic; font-size: 12px;">
                 Coming soon...
             </p>
         `;
@@ -261,7 +304,9 @@ export function switchTab(tabId) {
     document.querySelectorAll('.pg-tab-btn').forEach(btn => {
         const isActive = btn.dataset.tab === tabId;
         btn.style.background = isActive ? theme.main : 'transparent';
+        btn.style.border = `2px solid ${isActive ? theme.main : theme.main + '60'}`;
         btn.style.color = isActive ? theme.bg : theme.main;
+        btn.style.opacity = isActive ? '1' : '0.7';
     });
     
     // Show/hide pages
@@ -281,38 +326,39 @@ export function updateGrimoireTheme() {
     
     const theme = getTheme(settings.theme);
     const book = document.getElementById('pg-book');
-    const sidebar = document.getElementById('pg-sidebar');
     const content = document.getElementById('pg-content');
     
     if (book) {
-        book.style.background = theme.cardBg;
-        book.style.border = `3px solid ${theme.main}`;
-        book.style.boxShadow = `0 10px 40px rgba(0,0,0,0.5), 0 0 30px ${theme.main}40`;
-    }
-    
-    if (sidebar) {
-        sidebar.style.background = theme.bg;
-        sidebar.style.borderRight = `1px solid ${theme.main}33`;
+        book.style.boxShadow = `0 10px 40px rgba(0,0,0,0.5), 0 0 30px ${theme.main}30`;
+        book.style.backgroundColor = theme.cardBg; // Fallback color
     }
     
     if (content) {
         content.style.color = theme.textLight;
+        content.style.scrollbarColor = `${theme.main}40 transparent`;
     }
     
     // Update tab buttons
     document.querySelectorAll('.pg-tab-btn').forEach(btn => {
         const isActive = btn.dataset.tab === settings.activeTab;
         btn.style.background = isActive ? theme.main : 'transparent';
-        btn.style.border = `1px solid ${theme.main}`;
+        btn.style.border = `2px solid ${isActive ? theme.main : theme.main + '60'}`;
         btn.style.color = isActive ? theme.bg : theme.main;
+        btn.style.opacity = isActive ? '1' : '0.7';
     });
     
     // Update close button
-    const closeBtn = book?.querySelector('button:last-of-type');
+    const closeBtn = book?.querySelector('button[title="Close"]');
     if (closeBtn) {
         closeBtn.style.background = theme.main;
         closeBtn.style.color = theme.bg;
     }
+    
+    // Update page titles
+    document.querySelectorAll('.pg-page h2').forEach(h2 => {
+        h2.style.color = theme.main;
+        h2.style.textShadow = `0 0 10px ${theme.main}40`;
+    });
 }
 
 /**
