@@ -75,64 +75,33 @@ function destroy() {
 function createCompact() {
     const theme = extensionSettings.shellTheme || 'guardian';
 
+    // Flat structure — proven to work in debug test
     const fab = document.createElement('div');
     fab.id = 'mg-compact';
-    fab.className = 'mg-fab mg-compact';
     fab.setAttribute('data-mg-theme', theme);
+    fab.textContent = '🌙';
 
-    fab.innerHTML = `
-        <div class="mg-compact-body">
-            <div class="mg-compact-glow"></div>
-            <div class="mg-compact-icon"></div>
-            <div class="mg-compact-sparkles">
-                <span class="mg-compact-sparkle"></span>
-                <span class="mg-compact-sparkle"></span>
-                <span class="mg-compact-sparkle"></span>
-                <span class="mg-compact-sparkle"></span>
-            </div>
-            <div class="mg-compact-badge" id="mg-compact-badge"></div>
-        </div>
-    `;
-
-    // Inline failsafe — guarantees visibility regardless of CSS load
     Object.assign(fab.style, {
         position: 'fixed',
         bottom: '80px',
         right: '16px',
         zIndex: '2147483647',
-        width: '72px',
-        height: '72px',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        cursor: 'pointer',
-        pointerEvents: 'auto',
-    });
-
-    const body = fab.querySelector('.mg-compact-body');
-    Object.assign(body.style, {
         width: '64px',
         height: '64px',
         borderRadius: '50%',
-        background: 'rgba(100, 60, 120, 0.7)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        position: 'relative',
-        cursor: 'pointer',
-    });
-
-    const icon = fab.querySelector('.mg-compact-icon');
-    Object.assign(icon.style, {
-        width: '72px',
-        height: '72px',
+        background: 'rgba(100, 60, 120, 0.85)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         fontSize: '32px',
-        lineHeight: '1',
+        cursor: 'pointer',
+        pointerEvents: 'auto',
+        boxShadow: '0 2px 12px rgba(120, 40, 140, 0.5)',
+        border: '2px solid rgba(200, 160, 255, 0.3)',
+        transition: 'transform 0.15s ease, box-shadow 0.15s ease',
+        userSelect: 'none',
+        WebkitTapHighlightColor: 'transparent',
     });
-    icon.textContent = '🌙';
 
     document.body.appendChild(fab);
 
@@ -141,7 +110,7 @@ function createCompact() {
         fab.style.display = 'none';
     }
 
-    console.log('[PetitGrimoire] Compact FAB created');
+    console.log('[PetitGrimoire] Compact FAB created (flat)');
 }
 
 // ══════════════════════════════════════════════
