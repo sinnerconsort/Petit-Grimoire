@@ -1,64 +1,64 @@
-/* ============================================
-   PETIT GRIMOIRE — Pixel Art Spellbook
-   Uses Franuka's RPG UI Pack assets (2x scale)
-   ============================================ */
+/**
+ * Petit Grimoire — Inventory Book Edition
+ * Clean book with FontAwesome tab icons
+ * Native: 896×720, displayed scaled
+ */
 
 /* ══════════════════════════════════════════════
    CSS VARIABLES
    ══════════════════════════════════════════════ */
 
 :root {
-    /* Book base dimensions - adjust to match your 2x PNG */
-    --grimoire-base-width: 350px;
-    --grimoire-base-height: 280px;
+    /* Native book dimensions */
+    --book-native-width: 896;
+    --book-native-height: 720;
+    --book-aspect: calc(720 / 896); /* 0.803 */
     
-    /* Animation spritesheets are 8 frames horizontal */
-    --grimoire-frames: 8;
+    /* Display size (will be scaled) */
+    --grimoire-width: 380px;
+    --grimoire-height: calc(var(--grimoire-width) * var(--book-aspect));
     
-    /* Page content area - positioned over the parchment
-       These percentages are relative to the book container
-       ADJUST after viewing actual book image! */
-    --page-top: 14%;
-    --page-bottom: 16%;
-    --page-left-start: 8%;
-    --page-left-end: 46%;
-    --page-right-start: 54%;
-    --page-right-end: 92%;
+    /* Page content areas (percentages of book) */
+    --page-top: 8%;
+    --page-bottom: 6%;
+    --page-left-start: 13%;
+    --page-left-end: 47%;
+    --page-right-start: 53%;
+    --page-right-end: 87%;
     
-    /* Parchment text colors */
-    --parchment-text: #4a3728;
-    --parchment-text-dim: #7a6a5a;
-    --parchment-accent: #8b4513;
-    --parchment-highlight: #d4a574;
+    /* Tab positions (right side of book) */
+    --tab-right-offset: 97%;
+    --tab-width: 28px;
+    --tab-height: 24px;
+    
+    /* Colors */
+    --grimoire-text: #4a3728;
+    --grimoire-text-dim: #7a6858;
+    --grimoire-accent: #8b5a2b;
+    --grimoire-highlight: #d4a574;
 }
 
-
 /* ══════════════════════════════════════════════
-   BACKDROP OVERLAY
+   OVERLAY
    ══════════════════════════════════════════════ */
 
 .mg-grimoire-overlay {
     position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.7);
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
     z-index: 99998;
     display: none;
     opacity: 0;
     transition: opacity 0.3s ease;
-    -webkit-backdrop-filter: blur(4px);
-    backdrop-filter: blur(4px);
+    backdrop-filter: blur(2px);
 }
 
 .mg-grimoire-overlay.visible {
     opacity: 1;
 }
 
-
 /* ══════════════════════════════════════════════
-   GRIMOIRE CONTAINER - Investigation-style positioning
+   GRIMOIRE CONTAINER
    ══════════════════════════════════════════════ */
 
 .mg-grimoire {
@@ -67,24 +67,40 @@
     display: none;
     pointer-events: auto;
     
-    /* Will be positioned by JS, but defaults for safety */
+    /* Size */
+    width: var(--grimoire-width);
+    height: var(--grimoire-height);
+    
+    /* Will be positioned by JS */
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
 }
 
-/* Mobile: centered horizontally, positioned below top bar */
-@media (max-width: 1000px) {
-    .mg-grimoire {
-        left: 50% !important;
-        transform: translateX(-50%) !important;
-        max-width: 94vw !important;
-    }
+/* ══════════════════════════════════════════════
+   BOOK CONTAINER
+   ══════════════════════════════════════════════ */
+
+.mg-grimoire-book {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    
+    /* Book with tabs as background */
+    background-image: url('../assets/grimoire/Grimoire_WithTabs.png');
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    background-position: center;
+    
+    /* Pixel art crisp */
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+    
+    transition: opacity 0.15s ease;
 }
 
-
 /* ══════════════════════════════════════════════
-   ANIMATION LAYER (PNG Spritesheets)
+   ANIMATION LAYER
    ══════════════════════════════════════════════ */
 
 .mg-grimoire-anim {
@@ -95,9 +111,8 @@
     height: 100%;
     z-index: 10;
     pointer-events: none;
+    opacity: 0;
     
-    /* Spritesheet setup - 8 frames laid horizontally */
-    background-size: 800% 100%;
     background-repeat: no-repeat;
     background-position: 0% center;
     
@@ -105,67 +120,50 @@
     image-rendering: crisp-edges;
 }
 
-/* Opening animation - 8 frames */
+/* Opening animation - 5 frames */
 .mg-grimoire-anim.mg-anim-opening {
-    background-image: url('../assets/grimoire/Spellbook_Opening.png');
-    animation: grimoire-spritesheet 600ms steps(7) forwards;
+    opacity: 1;
+    background-image: url('../assets/grimoire/Grimoire_Opening.png');
+    background-size: 500% 100%;
+    animation: grimoire-sprite-5 500ms steps(4) forwards;
 }
 
-/* Closing animation - 8 frames */
+/* Closing animation - 5 frames */
 .mg-grimoire-anim.mg-anim-closing {
-    background-image: url('../assets/grimoire/Spellbook_Closing.png');
-    animation: grimoire-spritesheet 600ms steps(7) forwards;
+    opacity: 1;
+    background-image: url('../assets/grimoire/Grimoire_Closing.png');
+    background-size: 500% 100%;
+    animation: grimoire-sprite-5 500ms steps(4) forwards;
 }
 
-/* Page turn next - 8 frames */
+/* Page turn next - 9 frames */
 .mg-grimoire-anim.mg-anim-page-next {
-    background-image: url('../assets/grimoire/Spellbook_NextPage.png');
-    animation: grimoire-spritesheet 400ms steps(7) forwards;
+    opacity: 1;
+    background-image: url('../assets/grimoire/Grimoire_PageNext.png');
+    background-size: 900% 100%;
+    animation: grimoire-sprite-9 400ms steps(8) forwards;
 }
 
-/* Page turn prev - 8 frames */
+/* Page turn prev - 9 frames */
 .mg-grimoire-anim.mg-anim-page-prev {
-    background-image: url('../assets/grimoire/Spellbook_PreviousPage.png');
-    animation: grimoire-spritesheet 400ms steps(7) forwards;
+    opacity: 1;
+    background-image: url('../assets/grimoire/Grimoire_PagePrev.png');
+    background-size: 900% 100%;
+    animation: grimoire-sprite-9 400ms steps(8) forwards;
 }
 
-/* Spritesheet animation - moves through 8 frames */
-@keyframes grimoire-spritesheet {
+@keyframes grimoire-sprite-5 {
     from { background-position: 0% center; }
     to { background-position: 100% center; }
 }
 
-
-/* ══════════════════════════════════════════════
-   BOOK CONTAINER - THE ACTUAL SPELLBOOK
-   ══════════════════════════════════════════════ */
-
-.mg-grimoire-book {
-    position: relative;
-    width: var(--grimoire-base-width);
-    height: var(--grimoire-base-height);
-    max-width: 90vw;
-    max-height: 70vh;
-    
-    /* The book image - FILL exactly */
-    background-image: url('../assets/grimoire/Spellbook_WithTabs.png');
-    background-size: 100% 100%;
-    background-repeat: no-repeat;
-    background-position: center;
-    
-    /* Pixel art crisp rendering */
-    image-rendering: pixelated;
-    image-rendering: crisp-edges;
-    
-    transition: opacity 0.2s ease;
+@keyframes grimoire-sprite-9 {
+    from { background-position: 0% center; }
+    to { background-position: 100% center; }
 }
 
-
 /* ══════════════════════════════════════════════
-   TAB RIBBONS (Clickable Hotspots)
-   
-   These are invisible hitboxes positioned over
-   the ribbon tabs in Spellbook_WithTabs.png
+   TAB ICONS (FontAwesome over blank tabs)
    ══════════════════════════════════════════════ */
 
 .mg-grimoire-tabs {
@@ -175,126 +173,67 @@
     right: 0;
     bottom: 0;
     pointer-events: none;
+    z-index: 5;
 }
 
 .mg-grimoire-tab {
     position: absolute;
+    right: 0;
+    width: var(--tab-width);
+    height: var(--tab-height);
+    
+    /* Hitbox styling */
     background: transparent;
     border: none;
     cursor: pointer;
     pointer-events: auto;
     padding: 0;
     
-    /* Debug: uncomment to see hitboxes */
-    /* background: rgba(255, 0, 0, 0.3) !important; */
+    /* Center the icon */
+    display: flex;
+    align-items: center;
+    justify-content: center;
     
-    /* Hide the text label visually */
-    font-size: 0;
-    color: transparent;
+    /* Icon styling */
+    color: var(--grimoire-text);
+    font-size: 12px;
     
-    /* Hover effect */
-    transition: transform 0.15s ease, filter 0.15s ease;
+    transition: transform 0.15s ease, color 0.15s ease;
 }
 
 .mg-grimoire-tab:hover {
-    transform: scale(1.08);
-    filter: brightness(1.2);
+    transform: scale(1.15);
+    color: var(--grimoire-accent);
 }
 
 .mg-grimoire-tab[data-active="true"] {
-    filter: brightness(1.3) saturate(1.2);
+    color: var(--grimoire-highlight);
 }
 
-/* Tab label tooltip */
-.mg-grimoire-tab-label {
+.mg-grimoire-tab[data-active="true"]::after {
+    content: '';
     position: absolute;
-    right: calc(100% + 6px);
+    left: 2px;
     top: 50%;
     transform: translateY(-50%);
-    background: rgba(0, 0, 0, 0.9);
-    color: #fff;
-    font-size: 10px;
-    padding: 3px 8px;
-    border-radius: 3px;
-    white-space: nowrap;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.2s ease;
+    width: 3px;
+    height: 3px;
+    background: var(--grimoire-highlight);
+    border-radius: 50%;
 }
 
-.mg-grimoire-tab:hover .mg-grimoire-tab-label {
-    opacity: 1;
-}
-
-/* ---- Right-side tabs (top to bottom) ---- */
-
-.mg-grimoire-tab--right-1 {
-    right: 0;
-    top: 12%;
-    width: 24px;
-    height: 28px;
-}
-
-.mg-grimoire-tab--right-2 {
-    right: 0;
-    top: 26%;
-    width: 24px;
-    height: 28px;
-}
-
-.mg-grimoire-tab--right-3 {
-    right: 0;
-    top: 40%;
-    width: 24px;
-    height: 28px;
-}
-
-.mg-grimoire-tab--right-4 {
-    right: 0;
-    top: 54%;
-    width: 24px;
-    height: 28px;
-}
-
-/* ---- Bottom tabs ---- */
-
-.mg-grimoire-tab--bottom-left {
-    bottom: 0;
-    left: 18%;
-    width: 24px;
-    height: 24px;
-}
-
-.mg-grimoire-tab--bottom-left .mg-grimoire-tab-label,
-.mg-grimoire-tab--bottom-left-2 .mg-grimoire-tab-label,
-.mg-grimoire-tab--bottom-right .mg-grimoire-tab-label {
-    right: auto;
-    left: 50%;
-    top: auto;
-    bottom: calc(100% + 6px);
-    transform: translateX(-50%);
-}
-
-.mg-grimoire-tab--bottom-left-2 {
-    bottom: 0;
-    left: 32%;
-    width: 24px;
-    height: 24px;
-}
-
-.mg-grimoire-tab--bottom-right {
-    bottom: 0;
-    right: 18%;
-    width: 24px;
-    height: 24px;
-}
-
+/* Tab positions - 7 tabs on right side */
+/* These percentages position icons in the center of each tab notch */
+.mg-grimoire-tab--1 { top: 14%; }
+.mg-grimoire-tab--2 { top: 23%; }
+.mg-grimoire-tab--3 { top: 32%; }
+.mg-grimoire-tab--4 { top: 41%; }
+.mg-grimoire-tab--5 { top: 50%; }
+.mg-grimoire-tab--6 { top: 59%; }
+.mg-grimoire-tab--7 { top: 68%; }
 
 /* ══════════════════════════════════════════════
    PAGE CONTENT AREAS
-   
-   Two pages side by side, positioned over the
-   parchment areas in the book image
    ══════════════════════════════════════════════ */
 
 .mg-grimoire-pages {
@@ -305,32 +244,38 @@
     right: calc(100% - var(--page-right-end));
     
     display: flex;
-    gap: 8%;
-    
-    pointer-events: none;
+    pointer-events: auto;
+    z-index: 2;
 }
 
 .mg-grimoire-page {
     flex: 1;
-    min-width: 0;
+    display: flex;
+    flex-direction: column;
     overflow: hidden;
-    pointer-events: auto;
+}
+
+.mg-grimoire-page--left {
+    padding-right: 3%;
+}
+
+.mg-grimoire-page--right {
+    padding-left: 3%;
 }
 
 .mg-grimoire-page-content {
-    height: 100%;
+    flex: 1;
     overflow-y: auto;
     overflow-x: hidden;
-    padding: 6px 8px;
-    transition: opacity 0.2s ease;
+    padding: 8px;
     
-    /* Hide scrollbar but allow scroll */
+    /* Subtle scrollbar */
     scrollbar-width: thin;
-    scrollbar-color: var(--parchment-accent) transparent;
+    scrollbar-color: var(--grimoire-accent) transparent;
 }
 
 .mg-grimoire-page-content::-webkit-scrollbar {
-    width: 3px;
+    width: 4px;
 }
 
 .mg-grimoire-page-content::-webkit-scrollbar-track {
@@ -338,215 +283,156 @@
 }
 
 .mg-grimoire-page-content::-webkit-scrollbar-thumb {
-    background: var(--parchment-accent);
+    background: var(--grimoire-accent);
     border-radius: 2px;
 }
 
-
 /* ══════════════════════════════════════════════
-   PAGE TYPOGRAPHY
+   PAGE CONTENT STYLES
    ══════════════════════════════════════════════ */
 
-.mg-grimoire-page {
-    font-family: 'Palatino Linotype', 'Book Antiqua', Palatino, Georgia, serif;
-    color: var(--parchment-text);
-    font-size: 10px;
-    line-height: 1.35;
-}
-
 .mg-page-section {
-    margin-bottom: 8px;
+    margin-bottom: 12px;
 }
 
 .mg-page-title {
-    font-size: 12px;
-    font-weight: 700;
-    color: var(--parchment-accent);
-    margin: 0 0 4px 0;
-    letter-spacing: 0.5px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--grimoire-accent);
+    margin: 0 0 6px 0;
+    padding-bottom: 4px;
+    border-bottom: 1px solid var(--grimoire-highlight);
+    text-transform: uppercase;
+    letter-spacing: 1px;
 }
 
 .mg-page-subtitle {
     font-size: 9px;
-    font-weight: 700;
+    font-weight: 600;
+    color: var(--grimoire-text);
+    margin: 8px 0 4px 0;
     text-transform: uppercase;
-    letter-spacing: 1px;
-    color: var(--parchment-text-dim);
-    margin: 6px 0 3px 0;
+    letter-spacing: 0.5px;
 }
 
 .mg-page-flavor {
-    font-style: italic;
-    color: var(--parchment-text-dim);
     font-size: 9px;
-    margin-bottom: 6px;
-}
-
-.mg-page-subsection {
-    margin-top: 8px;
-    padding-top: 6px;
-    border-top: 1px dashed var(--parchment-text-dim);
-}
-
-.mg-text-dim {
-    color: var(--parchment-text-dim);
     font-style: italic;
+    color: var(--grimoire-text-dim);
+    margin: 0 0 8px 0;
+    line-height: 1.4;
 }
-
-.mg-text-small {
-    font-size: 8px;
-}
-
-
-/* ══════════════════════════════════════════════
-   BUTTONS
-   ══════════════════════════════════════════════ */
 
 .mg-page-btn {
     display: block;
     width: 100%;
-    padding: 6px 8px;
-    margin: 6px 0;
+    padding: 8px 12px;
+    margin: 8px 0;
     
-    background: linear-gradient(180deg, 
-        var(--parchment-highlight) 0%, 
-        var(--parchment-accent) 100%
-    );
-    border: 1px solid var(--parchment-accent);
+    background: linear-gradient(180deg, var(--grimoire-highlight), var(--grimoire-accent));
+    border: 2px solid var(--grimoire-accent);
     border-radius: 4px;
     
     color: #fff;
-    font-family: inherit;
     font-size: 10px;
     font-weight: 600;
-    text-shadow: 0 1px 1px rgba(0,0,0,0.3);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    text-shadow: 1px 1px 0 rgba(0,0,0,0.3);
     
     cursor: pointer;
     transition: all 0.15s ease;
+    
+    image-rendering: pixelated;
 }
 
 .mg-page-btn:hover {
-    filter: brightness(1.1);
     transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
 
 .mg-page-btn:active {
-    transform: translateY(0);
-    filter: brightness(0.95);
+    transform: translateY(1px);
 }
 
-.mg-page-btn--small {
-    padding: 4px 6px;
-    font-size: 9px;
+.mg-text-dim {
+    color: var(--grimoire-text-dim);
+    font-size: 8px;
+    font-style: italic;
 }
-
-/* Checkbox styling */
-.mg-checkbox-label {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    margin: 4px 0;
-    cursor: pointer;
-    font-size: 10px;
-}
-
-.mg-checkbox-label input[type="checkbox"] {
-    width: 14px;
-    height: 14px;
-    accent-color: var(--parchment-accent);
-}
-
 
 /* ══════════════════════════════════════════════
-   TAROT TAB STYLES
+   SPECIFIC PAGE ELEMENTS
    ══════════════════════════════════════════════ */
 
+/* Tarot card spread */
 .mg-card-spread {
     display: flex;
     justify-content: center;
-    gap: 8px;
-    margin: 8px 0;
+    gap: 6px;
+    margin: 10px 0;
 }
 
 .mg-card-slot {
     width: 36px;
     height: 52px;
-    background: rgba(74, 55, 40, 0.15);
-    border: 1px dashed var(--parchment-text-dim);
+    background: linear-gradient(135deg, rgba(139,90,43,0.2), rgba(212,165,116,0.1));
+    border: 2px dashed var(--grimoire-accent);
     border-radius: 4px;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: var(--parchment-text-dim);
-    font-size: 12px;
+    font-size: 16px;
+    color: var(--grimoire-accent);
+    opacity: 0.6;
 }
 
+/* Last reading display */
 .mg-last-reading {
     display: flex;
     align-items: center;
     gap: 8px;
+    padding: 6px;
+    background: rgba(139,90,43,0.08);
+    border-radius: 4px;
 }
 
 .mg-mini-card {
-    width: 28px;
-    height: 40px;
-    background: linear-gradient(135deg, #f5e6d3, #e8d5c4);
-    border: 1px solid var(--parchment-text-dim);
-    border-radius: 3px;
+    width: 24px;
+    height: 34px;
+    background: var(--grimoire-accent);
+    border-radius: 2px;
     display: flex;
     align-items: center;
     justify-content: center;
+    color: #fff;
     font-size: 10px;
-    color: var(--parchment-text-dim);
-    flex-shrink: 0;
 }
 
 .mg-last-reading-info {
-    min-width: 0;
+    flex: 1;
+    font-size: 9px;
 }
 
-.mg-queue-list {
-    min-height: 50px;
-}
-
-.mg-queue-empty {
-    color: var(--parchment-text-dim);
-    font-style: italic;
-    text-align: center;
-    padding: 12px 0;
-}
-
-.mg-queue-footer {
-    font-size: 8px;
-    color: var(--parchment-text-dim);
-    text-align: center;
-    margin-top: 4px;
-}
-
-
-/* ══════════════════════════════════════════════
-   CRYSTAL BALL TAB STYLES
-   ══════════════════════════════════════════════ */
-
+/* Crystal ball */
 .mg-crystal-orb {
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin: 8px 0;
+    margin: 12px 0;
 }
 
 .mg-crystal-sphere {
-    width: 48px;
-    height: 48px;
+    width: 50px;
+    height: 50px;
     border-radius: 50%;
     background: radial-gradient(circle at 30% 30%, 
-        rgba(200, 180, 255, 0.9),
-        rgba(120, 100, 180, 0.7),
-        rgba(60, 40, 100, 0.8)
-    );
+        rgba(200,180,255,0.9), 
+        rgba(100,80,150,0.7), 
+        rgba(50,30,80,0.9));
     box-shadow: 
-        0 0 12px rgba(150, 130, 200, 0.4),
-        inset 0 0 15px rgba(255, 255, 255, 0.2);
+        0 0 20px rgba(150,100,200,0.4),
+        inset 0 0 15px rgba(255,255,255,0.2);
     position: relative;
     overflow: hidden;
 }
@@ -554,11 +440,11 @@
 .mg-crystal-mist {
     position: absolute;
     inset: 0;
-    background: radial-gradient(circle, 
-        rgba(255, 255, 255, 0.3), 
-        transparent 60%
-    );
-    animation: crystal-mist 4s ease-in-out infinite;
+    background: radial-gradient(circle at 50% 50%, 
+        transparent 0%, 
+        rgba(200,180,255,0.3) 50%,
+        transparent 70%);
+    animation: crystal-swirl 4s ease-in-out infinite;
 }
 
 .mg-crystal-mist--2 {
@@ -566,402 +452,239 @@
     animation-direction: reverse;
 }
 
-@keyframes crystal-mist {
-    0%, 100% { transform: rotate(0deg) scale(1); opacity: 0.4; }
-    50% { transform: rotate(180deg) scale(1.1); opacity: 0.7; }
-}
-
-.mg-crystal-glint {
-    position: absolute;
-    top: 8px;
-    left: 12px;
-    width: 5px;
-    height: 3px;
-    background: rgba(255, 255, 255, 0.8);
-    border-radius: 50%;
-    filter: blur(1px);
+@keyframes crystal-swirl {
+    0%, 100% { transform: rotate(0deg) scale(1); opacity: 0.5; }
+    50% { transform: rotate(180deg) scale(1.1); opacity: 0.8; }
 }
 
 .mg-crystal-base {
-    width: 28px;
-    height: 6px;
-    background: linear-gradient(180deg, #8b7355, #5c4a3a);
-    border-radius: 0 0 5px 5px;
+    width: 30px;
+    height: 8px;
+    background: linear-gradient(180deg, #5a4a3a, #3a2a1a);
+    border-radius: 0 0 4px 4px;
     margin-top: -2px;
 }
 
-.mg-crystal-vision {
-    font-style: italic;
-    font-size: 9px;
-    padding: 4px 0;
-}
-
-.mg-vision-log {
-    min-height: 50px;
-}
-
-.mg-vision-entry {
-    font-size: 9px;
-    margin-bottom: 3px;
-    padding-left: 6px;
-}
-
-
-/* ══════════════════════════════════════════════
-   OUIJA TAB STYLES
-   ══════════════════════════════════════════════ */
-
-.mg-ouija-board {
-    background: rgba(74, 55, 40, 0.1);
-    border: 1px solid var(--parchment-text-dim);
-    border-radius: 4px;
-    padding: 6px 4px;
-    margin: 6px 0;
+/* Ouija board mini */
+.mg-ouija-mini {
+    padding: 8px;
+    background: linear-gradient(180deg, #3a2a1a, #2a1a0a);
+    border-radius: 6px;
     text-align: center;
-}
-
-.mg-ouija-answers {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 3px;
-    padding: 0 8px;
-}
-
-.mg-ouija-answer {
-    font-size: 9px;
-    font-weight: 700;
-    color: var(--parchment-accent);
-    letter-spacing: 1px;
-}
-
-.mg-ouija-sun {
-    font-size: 10px;
-    opacity: 0.5;
+    margin: 8px 0;
 }
 
 .mg-ouija-letters {
-    margin: 3px 0;
-}
-
-.mg-ouija-row {
-    font-size: 8px;
-    letter-spacing: 1.5px;
-    color: var(--parchment-text);
-    opacity: 0.8;
-}
-
-.mg-ouija-planchette {
-    width: 20px;
-    height: 20px;
-    margin: 3px auto;
-    position: relative;
-    transition: transform 0.3s ease;
-}
-
-.mg-ouija-lens {
-    width: 100%;
-    height: 100%;
-    border: 2px solid var(--parchment-accent);
-    border-radius: 50% 50% 50% 0;
-    transform: rotate(-45deg);
-    opacity: 0.5;
-    transition: all 0.3s ease;
-}
-
-.mg-ouija-planchette.mg-ouija-moving {
-    animation: planchette-move 1.5s ease-in-out;
-}
-
-.mg-ouija-planchette.mg-ouija-moving .mg-ouija-lens {
-    opacity: 1;
-    box-shadow: 0 0 6px var(--parchment-accent);
-}
-
-@keyframes planchette-move {
-    0% { transform: translateX(0); }
-    25% { transform: translateX(-10px) rotate(-5deg); }
-    50% { transform: translateX(10px) rotate(5deg); }
-    75% { transform: translateX(-5px) rotate(-2deg); }
-    100% { transform: translateX(0); }
-}
-
-.mg-ouija-numbers {
     font-size: 7px;
-    letter-spacing: 1.5px;
-    color: var(--parchment-text-dim);
-}
-
-.mg-ouija-farewell {
-    font-size: 8px;
+    color: var(--grimoire-highlight);
     letter-spacing: 2px;
-    color: var(--parchment-text-dim);
-    margin-top: 3px;
-    font-weight: 700;
+    margin-bottom: 4px;
 }
 
-.mg-ouija-response {
-    min-height: 28px;
-    margin-top: 6px;
+.mg-ouija-yes-no {
+    display: flex;
+    justify-content: space-around;
+    font-size: 8px;
+    color: var(--grimoire-highlight);
+    margin-bottom: 6px;
 }
 
-.mg-ouija-waiting {
-    color: var(--parchment-text-dim);
-    font-style: italic;
+.mg-ouija-input {
+    width: 100%;
+    padding: 4px 6px;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid var(--grimoire-accent);
+    border-radius: 3px;
+    color: var(--grimoire-highlight);
+    font-size: 8px;
+}
+
+.mg-ouija-input::placeholder {
+    color: rgba(212,165,116,0.5);
+}
+
+/* Queue list */
+.mg-queue-list {
+    min-height: 60px;
+}
+
+.mg-queue-empty {
     text-align: center;
+    padding: 16px 8px;
+    color: var(--grimoire-text-dim);
+    font-style: italic;
     font-size: 9px;
 }
 
-.mg-ouija-result {
-    text-align: center;
-}
-
-.mg-ouija-answer-text {
-    font-size: 12px;
-    font-weight: 700;
-    color: var(--parchment-accent);
-    letter-spacing: 2px;
-}
-
-.mg-ouija-mood-warning .mg-ouija-answer-text { color: #c0392b; }
-.mg-ouija-mood-cryptic .mg-ouija-answer-text { opacity: 0.7; }
-
-.mg-ouija-flavor-text {
+.mg-queue-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 6px;
+    margin-bottom: 4px;
+    background: rgba(139,90,43,0.1);
+    border-radius: 3px;
     font-size: 8px;
-    color: var(--parchment-text-dim);
-    font-style: italic;
 }
 
+.mg-queue-footer {
+    text-align: center;
+    font-size: 8px;
+    color: var(--grimoire-text-dim);
+    padding-top: 6px;
+    border-top: 1px dashed var(--grimoire-highlight);
+}
+
+/* Vision/history logs */
+.mg-vision-log,
 .mg-ouija-history {
-    min-height: 50px;
+    min-height: 80px;
+    max-height: 120px;
+    overflow-y: auto;
 }
 
-.mg-ouija-history-entry {
-    font-size: 9px;
-    margin-bottom: 3px;
-}
-
-
-/* ══════════════════════════════════════════════
-   NYX TAB STYLES
-   ══════════════════════════════════════════════ */
-
+/* Nyx page */
 .mg-nyx-portrait {
-    text-align: center;
-    padding: 6px 0;
+    width: 48px;
+    height: 48px;
+    margin: 0 auto 8px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #6b5b95, #4a3f6b);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    box-shadow: 0 2px 8px rgba(107,91,149,0.4);
 }
 
-.mg-nyx-mood-indicator {
-    font-size: 11px;
-    font-weight: 600;
-    color: var(--parchment-accent);
+.mg-nyx-mood {
+    text-align: center;
+    font-size: 10px;
+    color: var(--grimoire-text);
+    margin-bottom: 8px;
 }
 
 .mg-nyx-disposition {
-    margin: 6px 0;
-}
-
-.mg-nyx-bar-track {
     height: 6px;
-    background: rgba(74, 55, 40, 0.2);
+    background: rgba(139,90,43,0.2);
     border-radius: 3px;
     overflow: hidden;
-    border: 1px solid var(--parchment-text-dim);
+    margin: 8px 0;
 }
 
-.mg-nyx-bar-fill {
+.mg-nyx-disposition-fill {
     height: 100%;
-    background: linear-gradient(90deg, 
-        var(--parchment-accent),
-        var(--parchment-highlight)
-    );
+    background: linear-gradient(90deg, #d4a574, #8b5a2b);
     transition: width 0.3s ease;
 }
 
-.mg-nyx-score {
-    font-size: 8px;
-    color: var(--parchment-text-dim);
-    text-align: center;
-    margin-top: 3px;
-}
-
 .mg-nyx-actions {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 3px;
-    margin-top: 6px;
-}
-
-.mg-nyx-log {
-    min-height: 50px;
-}
-
-.mg-nyx-log-entry {
-    font-size: 9px;
-    margin-bottom: 3px;
-}
-
-
-/* ══════════════════════════════════════════════
-   SPELLS TAB STYLES
-   ══════════════════════════════════════════════ */
-
-.mg-spells-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 3px;
-}
-
-.mg-spell-card {
-    background: rgba(74, 55, 40, 0.1);
-    border: 1px solid var(--parchment-text-dim);
-    border-radius: 3px;
-    padding: 4px;
-    text-align: center;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.mg-spell-card:hover {
-    background: rgba(74, 55, 40, 0.2);
-}
-
-.mg-spell-card:active {
-    transform: scale(0.95);
-}
-
-.mg-spell-card.mg-spell-cooldown {
-    opacity: 0.5;
-    pointer-events: none;
-}
-
-.mg-spell-card.mg-spell-cast {
-    background: rgba(139, 69, 19, 0.3);
-}
-
-.mg-spell-icon {
-    font-size: 14px;
-}
-
-.mg-spell-name {
-    font-size: 9px;
-    font-weight: 600;
-}
-
-.mg-spell-status {
-    font-size: 7px;
-    color: var(--parchment-accent);
-    text-transform: uppercase;
-}
-
-.mg-spell-log {
-    min-height: 50px;
-}
-
-.mg-spell-log-entry {
-    font-size: 9px;
-    margin-bottom: 3px;
-}
-
-
-/* ══════════════════════════════════════════════
-   RADIO TAB STYLES
-   ══════════════════════════════════════════════ */
-
-.mg-radio-dial {
-    background: rgba(74, 55, 40, 0.15);
-    border: 1px solid var(--parchment-text-dim);
-    border-radius: 4px;
-    padding: 8px;
-    text-align: center;
-    margin: 6px 0;
-}
-
-.mg-radio-display {
-    font-family: monospace;
-    font-size: 12px;
-    color: var(--parchment-accent);
-    letter-spacing: 2px;
-}
-
-.mg-radio-controls {
     display: flex;
-    justify-content: center;
-    gap: 3px;
-    margin: 6px 0;
+    gap: 6px;
+    margin-top: 10px;
 }
 
-.mg-radio-stations {
-    min-height: 30px;
+.mg-nyx-btn {
+    flex: 1;
+    padding: 6px 8px;
+    font-size: 9px;
+    border-radius: 4px;
+    border: 1px solid var(--grimoire-accent);
+    background: rgba(139,90,43,0.1);
+    color: var(--grimoire-text);
+    cursor: pointer;
+    transition: all 0.15s ease;
 }
 
-.mg-radio-now {
-    min-height: 30px;
+.mg-nyx-btn:hover {
+    background: var(--grimoire-accent);
+    color: #fff;
 }
-
-
-/* ══════════════════════════════════════════════
-   SETTINGS TAB STYLES
-   ══════════════════════════════════════════════ */
-
-.mg-settings-about {
-    text-align: center;
-    padding: 8px 0;
-}
-
-.mg-settings-about p {
-    margin: 3px 0;
-}
-
-.mg-settings-group {
-    margin-top: 8px;
-}
-
 
 /* ══════════════════════════════════════════════
    RESPONSIVE SCALING
    ══════════════════════════════════════════════ */
 
-/* Mobile - scale down */
-@media (max-width: 420px) {
-    .mg-grimoire-book {
-        --grimoire-base-width: 300px;
-        --grimoire-base-height: 240px;
+@media (max-width: 480px) {
+    :root {
+        --grimoire-width: 320px;
+        --tab-width: 24px;
+        --tab-height: 20px;
     }
     
-    .mg-grimoire-page {
-        font-size: 9px;
+    .mg-grimoire-tab {
+        font-size: 10px;
     }
     
     .mg-page-title {
-        font-size: 11px;
-    }
-}
-
-/* Very small screens */
-@media (max-width: 340px) {
-    .mg-grimoire-book {
-        --grimoire-base-width: 260px;
-        --grimoire-base-height: 210px;
-    }
-}
-
-/* Tablets and larger */
-@media (min-width: 600px) {
-    .mg-grimoire-book {
-        --grimoire-base-width: 400px;
-        --grimoire-base-height: 320px;
+        font-size: 10px;
     }
     
-    .mg-grimoire-page {
-        font-size: 11px;
+    .mg-page-btn {
+        padding: 6px 10px;
+        font-size: 9px;
     }
 }
 
-/* Desktop */
-@media (min-width: 900px) {
-    .mg-grimoire-book {
-        --grimoire-base-width: 450px;
-        --grimoire-base-height: 360px;
+@media (max-width: 360px) {
+    :root {
+        --grimoire-width: 280px;
+        --tab-width: 20px;
+        --tab-height: 18px;
+    }
+    
+    .mg-grimoire-tab {
+        font-size: 9px;
     }
 }
+
+@media (min-width: 600px) {
+    :root {
+        --grimoire-width: 440px;
+        --tab-width: 32px;
+        --tab-height: 28px;
+    }
+    
+    .mg-grimoire-tab {
+        font-size: 14px;
+    }
+}
+
+@media (min-width: 900px) {
+    :root {
+        --grimoire-width: 520px;
+        --tab-width: 36px;
+        --tab-height: 32px;
+    }
+    
+    .mg-grimoire-tab {
+        font-size: 16px;
+    }
+    
+    .mg-page-title {
+        font-size: 13px;
+    }
+    
+    .mg-page-btn {
+        padding: 10px 16px;
+        font-size: 12px;
+    }
+}
+
+/* ══════════════════════════════════════════════
+   DEBUG MODE (uncomment to see hitboxes)
+   ══════════════════════════════════════════════ */
+
+/*
+.mg-grimoire-tab {
+    background: rgba(255, 0, 0, 0.3) !important;
+}
+
+.mg-grimoire-pages {
+    background: rgba(0, 255, 0, 0.2) !important;
+}
+
+.mg-grimoire-page {
+    background: rgba(0, 0, 255, 0.2) !important;
+}
+*/
