@@ -50,49 +50,20 @@ export function initGrimoire() {
 
     try {
         destroy();
-        console.log('[Grimoire] destroy done');
-    } catch (e) {
-        console.error('[Grimoire] destroy failed:', e);
-    }
-
-    try {
         createCompact();
-        console.log('[Grimoire] createCompact done');
-    } catch (e) {
-        console.error('[Grimoire] createCompact failed:', e);
-        toastr?.error('createCompact failed: ' + e.message, 'Grimoire');
-    }
-
-    try {
         createDrawer();
-        console.log('[Grimoire] createDrawer done');
-    } catch (e) {
-        console.error('[Grimoire] createDrawer failed:', e);
-        toastr?.error('createDrawer failed: ' + e.message, 'Grimoire');
-    }
-
-    try {
         bindEvents();
-        console.log('[Grimoire] bindEvents done');
-    } catch (e) {
-        console.error('[Grimoire] bindEvents failed:', e);
-        toastr?.error('bindEvents failed: ' + e.message, 'Grimoire');
-    }
-
-    try {
         loadPageContent(currentTab);
-        console.log('[Grimoire] loadPageContent done');
-    } catch (e) {
-        console.error('[Grimoire] loadPageContent failed:', e);
+        console.log('[Grimoire] ✅ Init complete');
+    } catch (err) {
+        console.error('[Grimoire] ❌ Init failed:', err);
+        toastr?.error('Grimoire init failed: ' + err.message, 'Petit Grimoire');
     }
-
-    console.log('[Grimoire] ✅ Init complete');
 }
 
 function destroy() {
     $(document).off('.grimoire');
     $('#mg-compact').remove();
-    $('#mg-compact-test2').remove();
     $('#mg-grimoire').remove();
     $('#mg-grimoire-overlay').remove();
 }
@@ -104,70 +75,73 @@ function destroy() {
 function createCompact() {
     const theme = extensionSettings.shellTheme || 'guardian';
 
-    // Nuclear debug: try multiple approaches
     const fab = document.createElement('div');
     fab.id = 'mg-compact';
     fab.className = 'mg-fab mg-compact';
     fab.setAttribute('data-mg-theme', theme);
-    fab.textContent = '🌙';
-    
+
+    fab.innerHTML = `
+        <div class="mg-compact-body">
+            <div class="mg-compact-glow"></div>
+            <div class="mg-compact-icon"></div>
+            <div class="mg-compact-sparkles">
+                <span class="mg-compact-sparkle"></span>
+                <span class="mg-compact-sparkle"></span>
+                <span class="mg-compact-sparkle"></span>
+                <span class="mg-compact-sparkle"></span>
+            </div>
+            <div class="mg-compact-badge" id="mg-compact-badge"></div>
+        </div>
+    `;
+
+    // Inline failsafe — guarantees visibility regardless of CSS load
     Object.assign(fab.style, {
         position: 'fixed',
-        top: '50%',
-        left: '50%',
-        transform: 'translate(-50%, -50%)',
-        zIndex: '2147483647',   // max 32-bit int
-        width: '100px',
-        height: '100px',
-        background: 'red',
-        borderRadius: '50%',
+        bottom: '80px',
+        right: '16px',
+        zIndex: '2147483647',
+        width: '72px',
+        height: '72px',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        fontSize: '48px',
         cursor: 'pointer',
-        border: '5px solid yellow',
-        boxShadow: '0 0 40px 20px red',
         pointerEvents: 'auto',
     });
-    
+
+    const body = fab.querySelector('.mg-compact-body');
+    Object.assign(body.style, {
+        width: '64px',
+        height: '64px',
+        borderRadius: '50%',
+        background: 'rgba(100, 60, 120, 0.7)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        position: 'relative',
+        cursor: 'pointer',
+    });
+
+    const icon = fab.querySelector('.mg-compact-icon');
+    Object.assign(icon.style, {
+        width: '72px',
+        height: '72px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        fontSize: '32px',
+        lineHeight: '1',
+    });
+    icon.textContent = '🌙';
+
     document.body.appendChild(fab);
 
-    // If fixed doesn't work, also try a SECOND element inside #sheld (ST's main container)
-    const fab2 = document.createElement('div');
-    fab2.id = 'mg-compact-test2';
-    fab2.textContent = '⭐';
-    Object.assign(fab2.style, {
-        position: 'absolute',
-        top: '200px',
-        right: '10px',
-        zIndex: '2147483647',
-        width: '80px',
-        height: '80px',
-        background: 'lime',
-        borderRadius: '50%',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        fontSize: '40px',
-        border: '4px solid blue',
-        boxShadow: '0 0 30px 15px lime',
-        pointerEvents: 'auto',
-    });
-    
-    // Try appending to ST containers
-    const sheld = document.getElementById('sheld');
-    const form = document.getElementById('form_sheld');
-    const target = sheld || form || document.body;
-    target.appendChild(fab2);
+    // Respect visibility setting
+    if (extensionSettings.showCompact === false) {
+        fab.style.display = 'none';
+    }
 
-    console.log(`[PetitGrimoire] FAB1 parent: ${fab.parentElement?.tagName}#${fab.parentElement?.id}`);
-    console.log(`[PetitGrimoire] FAB2 parent: ${fab2.parentElement?.tagName}#${fab2.parentElement?.id}`);
-    
-    toastr?.success(
-        `RED=body/fixed, GREEN=${target.tagName}#${target.id}/absolute`,
-        'Debug: 2 FABs', { timeOut: 8000 }
-    );
+    console.log('[PetitGrimoire] Compact FAB created');
 }
 
 // ══════════════════════════════════════════════
