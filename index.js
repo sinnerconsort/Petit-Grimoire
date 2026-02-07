@@ -3,7 +3,7 @@
  * Entry point: settings panel + initialization
  *
  * Architecture: Two independent FABs
- *   - Compact Brooch (main FAB → opens Grimoire)
+ *   - Compact Brooch (main FAB → toggles Grimoire)
  *   - Nyx-gotchi (pet widget, independent)
  */
 
@@ -23,12 +23,10 @@ import {
 } from './src/nyxgotchi.js';
 
 import {
-    triggerTransformation, openGrimoire, closeGrimoire,
+    initGrimoire, triggerTransformation,
+    openGrimoire, closeGrimoire,
     onDrawCard, onViewQueue, onPokeNyx
 } from './src/grimoire.js';
-
-import { initGrimoire, toggleGrimoire } from './src/grimoire.js'; 
-import { setCompactActive, playTransformFlash } from './compact.js';
 
 // ============================================
 // CSS LOADING
@@ -193,12 +191,15 @@ async function addExtensionSettings() {
         saveSettings();
 
         if (extensionSettings.enabled) {
-    initCompact();
-    initTama();
-    initGrimoire();
+            initCompact();
+            initTama();
+            initGrimoire();
         } else {
+            closeGrimoire();
             $('#mg-compact').remove();
             $('#nyxgotchi').remove();
+            $('#mg-grimoire').remove();
+            $('#mg-grimoire-overlay').remove();
             stopSpriteAnimation();
         }
     });
@@ -265,10 +266,10 @@ jQuery(async () => {
         await addExtensionSettings();
 
         if (extensionSettings.enabled) {
-    initCompact();
-    initTama();
-    initGrimoire();
-}
+            initCompact();
+            initTama();
+            initGrimoire();
+        }
 
         console.log(`[${extensionName}] ✅ Loaded successfully`);
 
@@ -295,5 +296,5 @@ window.PetitGrimoire = {
     playSpecialAnimation,
     triggerTransformation,
     openGrimoire,
-    closeGrimoire
+    closeGrimoire,
 };
