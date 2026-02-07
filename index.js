@@ -2,9 +2,9 @@
  * Petit Grimoire - Magical Girl Fortune Extension
  * Entry point: settings panel + initialization
  *
- * Architecture: Two independent FABs
- *   - Compact Brooch (main FAB → toggles Grimoire)
- *   - Nyx-gotchi (pet widget, independent)
+ * Architecture (Simplified):
+ *   - Grimoire = Compact + Drawer as ONE unit (no separate compact.js)
+ *   - Nyx-gotchi = pet widget (independent)
  */
 
 import {
@@ -13,7 +13,12 @@ import {
     setCurrentSpriteFrame
 } from './src/state.js';
 
-import { createCompact } from './src/compact.js';
+// NOTE: compact.js is GONE - it's now part of grimoire.js
+import {
+    initGrimoire,
+    closeGrimoire,
+    updateCompactBadge
+} from './src/grimoire.js';
 
 import {
     createTama, stopSpriteAnimation,
@@ -21,12 +26,6 @@ import {
     updateSpriteDisplay,
     playSpecialAnimation
 } from './src/nyxgotchi.js';
-
-import {
-    initGrimoire, triggerTransformation, toggleGrimoire,
-    openGrimoire, closeGrimoire,
-    onDrawCard, onViewQueue, onPokeNyx
-} from './src/grimoire.js';
 
 // ============================================
 // CSS LOADING
@@ -77,18 +76,32 @@ function setTamaSize(size) {
 }
 
 // ============================================
-// CREATION HELPERS (wire callbacks)
+// CREATION HELPERS
 // ============================================
 
-function initCompact() {
-    createCompact(() => toggleGrimoire());
-}
+// Compact is now created by initGrimoire() internally
+// No separate initCompact() needed!
 
 function initTama() {
     createTama({
-        onDraw: onDrawCard,
-        onQueue: onViewQueue,
-        onPoke: onPokeNyx,
+        onDraw: () => {
+            console.log('[PetitGrimoire] Draw card from tama');
+            if (typeof toastr !== 'undefined') {
+                toastr.info('Card draw coming soon!', 'Tarot');
+            }
+        },
+        onQueue: () => {
+            console.log('[PetitGrimoire] View queue from tama');
+            if (typeof toastr !== 'undefined') {
+                toastr.info('Fate queue coming soon!', 'Queue');
+            }
+        },
+        onPoke: () => {
+            console.log('[PetitGrimoire] Poke Nyx from tama');
+            if (typeof toastr !== 'undefined') {
+                toastr.info('"...Was that supposed to be affectionate?"', 'Nyx');
+            }
+        },
     });
 }
 
@@ -170,7 +183,7 @@ async function addExtensionSettings() {
 
                 <div class="flex-container">
                     <span>Nyx Disposition: </span>
-                    <span id="mg-disposition-display">${extensionSettings.nyx.disposition}</span>
+                    <span id="mg-disposition-display">${extensionSettings.nyx?.disposition || 50}</span>
                 </div>
 
                 <hr>
@@ -191,9 +204,8 @@ async function addExtensionSettings() {
         saveSettings();
 
         if (extensionSettings.enabled) {
-            initCompact();
+            initGrimoire();  // Creates BOTH compact and drawer
             initTama();
-            initGrimoire();
         } else {
             closeGrimoire();
             $('#mg-compact').remove();
@@ -243,7 +255,8 @@ async function addExtensionSettings() {
         extensionSettings.tamaPosition = { ...defaultSettings.tamaPosition };
         saveSettings();
 
-        initCompact();
+        // Re-init creates fresh elements at default positions
+        initGrimoire();
         initTama();
 
         if (typeof toastr !== 'undefined') {
@@ -266,9 +279,8 @@ jQuery(async () => {
         await addExtensionSettings();
 
         if (extensionSettings.enabled) {
-            initCompact();
+            initGrimoire();  // Creates compact + drawer
             initTama();
-            initGrimoire();
         }
 
         console.log(`[${extensionName}] ✅ Loaded successfully`);
@@ -282,7 +294,7 @@ jQuery(async () => {
 });
 
 // ============================================
-// EXPORTS (for debugging)
+// EXPORTS (for debugging in console)
 // ============================================
 
 window.PetitGrimoire = {
@@ -294,7 +306,5 @@ window.PetitGrimoire = {
     showSpeech,
     updateNyxMood,
     playSpecialAnimation,
-    triggerTransformation,
-    openGrimoire,
-    closeGrimoire,
+    updateCompactBadge,
 };
