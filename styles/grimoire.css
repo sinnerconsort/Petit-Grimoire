@@ -222,7 +222,7 @@
     left: var(--tab-center-x);
     width: var(--tab-width);
     height: var(--tab-height);
-    transform: translateX(-50%);
+    transform: translate(-50%, -50%);
     
     /* Transparent hitbox over sprite tab */
     background: transparent;
@@ -244,7 +244,7 @@
 }
 
 .mg-grimoire-tab:hover {
-    transform: translateX(-50%) scale(1.15);
+    transform: translate(-50%, -50%) scale(1.15);
     color: var(--grimoire-accent);
 }
 
