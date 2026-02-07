@@ -1,0 +1,518 @@
+/**
+ * Petit Grimoire - Main Stylesheet
+ * 
+ * Sprite Configuration:
+ * - Book frames: 896x720 each
+ * - Opening/Closing: 5 frames horizontal strip
+ * - Page turns: 448x360, 9 frames
+ * - FAB moons: 36x36 individual files
+ */
+
+/* =============================================================================
+   CSS CUSTOM PROPERTIES (Defaults - overridden by theme)
+   ============================================================================= */
+
+#petit-grimoire-container {
+    /* Theme colors - set by JS */
+    --pg-main: #dc78aa;
+    --pg-secondary: #f3aa1e;
+    --pg-accent1: #e71720;
+    --pg-accent2: #26508a;
+    --pg-bg: #1a0a12;
+    --pg-card-bg: #2a1020;
+    --pg-text-light: #fce4ec;
+    --pg-text-dim: #dc78aa99;
+    
+    /* Sprite dimensions (raw) */
+    --sprite-frame-width: 896px;
+    --sprite-frame-height: 720px;
+    --page-frame-width: 448px;
+    --page-frame-height: 360px;
+    
+    /* Display size (scaled down for UI) */
+    --book-width: 320px;
+    --book-height: calc(var(--book-width) * (720 / 896));
+    --book-scale: calc(var(--book-width) / 896);
+    
+    /* Animation timing */
+    --anim-duration: 0.4s;
+    
+    /* Z-index layers */
+    --z-fab: 9990;
+    --z-panel: 9991;
+    --z-book: 9992;
+    --z-page-turn: 9993;
+}
+
+/* =============================================================================
+   FAB (Floating Action Button)
+   ============================================================================= */
+
+#petit-grimoire-fab {
+    position: fixed;
+    z-index: var(--z-fab);
+    
+    /* Size */
+    width: 54px;
+    height: 54px;
+    padding: 0;
+    
+    /* Style */
+    background: radial-gradient(
+        ellipse at 30% 30%,
+        var(--pg-card-bg) 0%,
+        var(--pg-bg) 100%
+    );
+    border: 2px solid var(--pg-main);
+    border-radius: 50%;
+    box-shadow: 
+        0 4px 12px rgba(0, 0, 0, 0.4),
+        0 0 20px color-mix(in srgb, var(--pg-main) 30%, transparent),
+        inset 0 1px 0 color-mix(in srgb, var(--pg-main) 20%, transparent);
+    
+    /* Interaction */
+    cursor: pointer;
+    user-select: none;
+    touch-action: none;
+    
+    /* Transitions */
+    transition: 
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+#petit-grimoire-fab:hover {
+    transform: scale(1.05);
+    box-shadow: 
+        0 6px 16px rgba(0, 0, 0, 0.5),
+        0 0 30px color-mix(in srgb, var(--pg-main) 50%, transparent),
+        inset 0 1px 0 color-mix(in srgb, var(--pg-main) 30%, transparent);
+}
+
+#petit-grimoire-fab:active,
+#petit-grimoire-fab.dragging {
+    transform: scale(0.95);
+}
+
+#petit-grimoire-fab img {
+    width: 36px;
+    height: 36px;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+    pointer-events: none;
+}
+
+/* =============================================================================
+   PANEL (Overlay/Backdrop)
+   ============================================================================= */
+
+#petit-grimoire-panel {
+    position: fixed;
+    inset: 0;
+    z-index: var(--z-panel);
+    
+    /* Backdrop */
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    
+    /* Layout */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    /* Hidden by default */
+    opacity: 0;
+    visibility: hidden;
+    transition: 
+        opacity var(--anim-duration) ease,
+        visibility var(--anim-duration) ease;
+}
+
+#petit-grimoire-panel.visible {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Close button */
+#pg-close-btn {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    
+    background: var(--pg-card-bg);
+    border: 1px solid var(--pg-main);
+    border-radius: 50%;
+    color: var(--pg-text-light);
+    font-size: 18px;
+    
+    cursor: pointer;
+    opacity: 0.7;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+#pg-close-btn:hover {
+    opacity: 1;
+    transform: scale(1.1);
+}
+
+/* =============================================================================
+   GRIMOIRE BOOK
+   ============================================================================= */
+
+#petit-grimoire-book {
+    position: relative;
+    z-index: var(--z-book);
+    
+    /* Display size */
+    width: var(--book-width);
+    height: var(--book-height);
+    
+    /* Sprite background */
+    background-image: url('./assets/sprites/Grimoire_WithTabs.png');
+    background-size: var(--book-width) var(--book-height);
+    background-position: 0 0;
+    background-repeat: no-repeat;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+    
+    /* For positioning children */
+    overflow: visible;
+}
+
+/* Opening animation frames */
+#petit-grimoire-book[data-animation="opening"] {
+    background-image: url('./assets/sprites/Grimoire_Opening.png');
+    /* 5 frames, total width = 5 * 896 = 4480, scaled */
+    background-size: calc(var(--book-width) * 5) var(--book-height);
+}
+
+#petit-grimoire-book[data-animation="opening"][data-frame="0"] { background-position: 0 0; }
+#petit-grimoire-book[data-animation="opening"][data-frame="1"] { background-position: calc(var(--book-width) * -1) 0; }
+#petit-grimoire-book[data-animation="opening"][data-frame="2"] { background-position: calc(var(--book-width) * -2) 0; }
+#petit-grimoire-book[data-animation="opening"][data-frame="3"] { background-position: calc(var(--book-width) * -3) 0; }
+#petit-grimoire-book[data-animation="opening"][data-frame="4"] { background-position: calc(var(--book-width) * -4) 0; }
+
+/* Closing animation frames */
+#petit-grimoire-book[data-animation="closing"] {
+    background-image: url('./assets/sprites/Grimoire_Closing.png');
+    background-size: calc(var(--book-width) * 5) var(--book-height);
+}
+
+#petit-grimoire-book[data-animation="closing"][data-frame="0"] { background-position: 0 0; }
+#petit-grimoire-book[data-animation="closing"][data-frame="1"] { background-position: calc(var(--book-width) * -1) 0; }
+#petit-grimoire-book[data-animation="closing"][data-frame="2"] { background-position: calc(var(--book-width) * -2) 0; }
+#petit-grimoire-book[data-animation="closing"][data-frame="3"] { background-position: calc(var(--book-width) * -3) 0; }
+#petit-grimoire-book[data-animation="closing"][data-frame="4"] { background-position: calc(var(--book-width) * -4) 0; }
+
+/* Open state (with tabs) */
+#petit-grimoire-book[data-animation="open"],
+#petit-grimoire-book.open {
+    background-image: url('./assets/sprites/Grimoire_WithTabs.png');
+    background-size: var(--book-width) var(--book-height);
+    background-position: 0 0;
+}
+
+/* Closed state (just use first frame of opening) */
+#petit-grimoire-book[data-animation="closed"],
+#petit-grimoire-book.closed {
+    background-image: url('./assets/sprites/Grimoire_Opening.png');
+    background-size: calc(var(--book-width) * 5) var(--book-height);
+    background-position: 0 0;
+}
+
+/* Hide content when animating or closed */
+#petit-grimoire-book.animating #pg-tab-buttons,
+#petit-grimoire-book.animating #pg-page-content,
+#petit-grimoire-book.closed #pg-tab-buttons,
+#petit-grimoire-book.closed #pg-page-content {
+    opacity: 0;
+    pointer-events: none;
+}
+
+#petit-grimoire-book.open #pg-tab-buttons,
+#petit-grimoire-book.open #pg-page-content {
+    opacity: 1;
+    pointer-events: auto;
+    transition: opacity 0.2s ease 0.1s;
+}
+
+/* =============================================================================
+   TAB BUTTONS (Positioned over book's tab sprites)
+   ============================================================================= */
+
+#pg-tab-buttons {
+    position: absolute;
+    
+    /* Position on left edge where tabs are drawn in sprite */
+    left: 0;
+    top: 10%;
+    transform: translateX(-85%);
+    
+    /* Layout */
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    
+    /* Match the tab strip height */
+    height: 70%;
+    justify-content: space-evenly;
+}
+
+.pg-tab-btn {
+    /* Size to match sprite tabs */
+    width: 36px;
+    height: calc((var(--book-height) * 0.7) / 6 - 2px);
+    min-height: 28px;
+    max-height: 40px;
+    
+    /* Style */
+    background: transparent;
+    border: none;
+    border-radius: 4px 0 0 4px;
+    color: var(--pg-text-dim);
+    font-size: 14px;
+    
+    cursor: pointer;
+    transition: 
+        color 0.2s ease,
+        background 0.2s ease,
+        transform 0.15s ease;
+}
+
+.pg-tab-btn:hover {
+    color: var(--pg-text-light);
+    background: color-mix(in srgb, var(--pg-main) 20%, transparent);
+    transform: translateX(3px);
+}
+
+.pg-tab-btn.active {
+    color: var(--pg-secondary);
+    background: color-mix(in srgb, var(--pg-main) 10%, transparent);
+}
+
+.pg-tab-btn i {
+    display: block;
+}
+
+/* =============================================================================
+   PAGE CONTENT AREA
+   ============================================================================= */
+
+#pg-page-content {
+    position: absolute;
+    
+    /* Inset from book edges (matching the decorative border in sprite) */
+    top: 8%;
+    left: 12%;
+    right: 6%;
+    bottom: 10%;
+    
+    /* Scrollable content */
+    overflow-y: auto;
+    overflow-x: hidden;
+    
+    /* Hide scrollbar but keep functional */
+    scrollbar-width: thin;
+    scrollbar-color: var(--pg-main) transparent;
+}
+
+#pg-page-content::-webkit-scrollbar {
+    width: 6px;
+}
+
+#pg-page-content::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+#pg-page-content::-webkit-scrollbar-thumb {
+    background: var(--pg-main);
+    border-radius: 3px;
+}
+
+/* Tab content panels */
+.pg-tab-content {
+    display: none;
+    padding: 8px;
+    height: 100%;
+    box-sizing: border-box;
+}
+
+.pg-tab-content.active {
+    display: block;
+}
+
+/* Page header */
+.pg-page-header {
+    font-family: serif;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--pg-main);
+    text-align: center;
+    margin-bottom: 12px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+
+/* Page body */
+.pg-page-body {
+    color: var(--pg-text-light);
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+/* Placeholder text */
+.pg-placeholder {
+    text-align: center;
+    color: var(--pg-text-dim);
+    font-style: italic;
+    padding: 20px;
+}
+
+/* =============================================================================
+   PAGE TURN OVERLAY
+   ============================================================================= */
+
+#petit-grimoire-page-turn {
+    position: absolute;
+    inset: 0;
+    z-index: var(--z-page-turn);
+    
+    /* Hidden by default */
+    opacity: 0;
+    pointer-events: none;
+    
+    /* Page turn sprites (scaled) */
+    --page-width: calc(var(--book-width) * (448 / 896));
+    --page-height: calc(var(--book-height) * (360 / 720));
+    
+    background-size: calc(var(--page-width) * 9) var(--page-height);
+    background-repeat: no-repeat;
+    background-position: center;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+}
+
+#petit-grimoire-page-turn.active {
+    opacity: 1;
+}
+
+/* Page next animation */
+#petit-grimoire-page-turn[data-direction="next"] {
+    background-image: url('./assets/sprites/Grimoire_PageNext.webp');
+}
+
+#petit-grimoire-page-turn[data-direction="next"][data-frame="0"] { background-position: 0 center; }
+#petit-grimoire-page-turn[data-direction="next"][data-frame="1"] { background-position: calc(var(--page-width) * -1) center; }
+#petit-grimoire-page-turn[data-direction="next"][data-frame="2"] { background-position: calc(var(--page-width) * -2) center; }
+#petit-grimoire-page-turn[data-direction="next"][data-frame="3"] { background-position: calc(var(--page-width) * -3) center; }
+#petit-grimoire-page-turn[data-direction="next"][data-frame="4"] { background-position: calc(var(--page-width) * -4) center; }
+#petit-grimoire-page-turn[data-direction="next"][data-frame="5"] { background-position: calc(var(--page-width) * -5) center; }
+#petit-grimoire-page-turn[data-direction="next"][data-frame="6"] { background-position: calc(var(--page-width) * -6) center; }
+#petit-grimoire-page-turn[data-direction="next"][data-frame="7"] { background-position: calc(var(--page-width) * -7) center; }
+#petit-grimoire-page-turn[data-direction="next"][data-frame="8"] { background-position: calc(var(--page-width) * -8) center; }
+
+/* Page prev animation */
+#petit-grimoire-page-turn[data-direction="prev"] {
+    background-image: url('./assets/sprites/Grimoire_PagePrev.webp');
+}
+
+#petit-grimoire-page-turn[data-direction="prev"][data-frame="0"] { background-position: 0 center; }
+#petit-grimoire-page-turn[data-direction="prev"][data-frame="1"] { background-position: calc(var(--page-width) * -1) center; }
+#petit-grimoire-page-turn[data-direction="prev"][data-frame="2"] { background-position: calc(var(--page-width) * -2) center; }
+#petit-grimoire-page-turn[data-direction="prev"][data-frame="3"] { background-position: calc(var(--page-width) * -3) center; }
+#petit-grimoire-page-turn[data-direction="prev"][data-frame="4"] { background-position: calc(var(--page-width) * -4) center; }
+#petit-grimoire-page-turn[data-direction="prev"][data-frame="5"] { background-position: calc(var(--page-width) * -5) center; }
+#petit-grimoire-page-turn[data-direction="prev"][data-frame="6"] { background-position: calc(var(--page-width) * -6) center; }
+#petit-grimoire-page-turn[data-direction="prev"][data-frame="7"] { background-position: calc(var(--page-width) * -7) center; }
+#petit-grimoire-page-turn[data-direction="prev"][data-frame="8"] { background-position: calc(var(--page-width) * -8) center; }
+
+/* =============================================================================
+   SETTINGS PANEL (in Extensions tab)
+   ============================================================================= */
+
+.pg-settings-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.pg-settings-row label {
+    flex: 0 0 80px;
+}
+
+.pg-settings-row select {
+    flex: 1;
+}
+
+/* =============================================================================
+   RESPONSIVE / MOBILE
+   ============================================================================= */
+
+@media (max-width: 600px) {
+    #petit-grimoire-container {
+        --book-width: 280px;
+    }
+    
+    #pg-tab-buttons {
+        transform: translateX(-80%);
+    }
+    
+    .pg-tab-btn {
+        width: 32px;
+        font-size: 12px;
+    }
+}
+
+@media (max-width: 400px) {
+    #petit-grimoire-container {
+        --book-width: 240px;
+    }
+}
+
+/* =============================================================================
+   ANIMATIONS
+   ============================================================================= */
+
+@keyframes sparkle {
+    0%, 100% { opacity: 0; transform: scale(0.5); }
+    50% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-5px); }
+}
+
+/* FAB idle animation */
+#petit-grimoire-fab {
+    animation: float 3s ease-in-out infinite;
+}
+
+#petit-grimoire-fab:hover,
+#petit-grimoire-fab.dragging {
+    animation: none;
+}
+
+/* =============================================================================
+   UTILITY CLASSES
+   ============================================================================= */
+
+.pg-hidden {
+    display: none !important;
+}
+
+.pg-invisible {
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+/* Pixelated rendering for all sprite elements */
+.pg-pixelated {
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+}
