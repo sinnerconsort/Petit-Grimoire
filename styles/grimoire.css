@@ -19,11 +19,12 @@
     --book-native-height: 720;
     
     /* 
-     * Display size - HEIGHT based for better mobile experience
-     * Adjust --grimoire-height to make book bigger/smaller
+     * Display size - WIDTH based
+     * Book is landscape, phone is portrait, so width is the constraint
+     * Adjust --grimoire-width to make book bigger/smaller
      */
-    --grimoire-height: 70vh;
-    --grimoire-max-height: 85vh;
+    --grimoire-width: 96vw;
+    --grimoire-max-width: 1000px;
     
     /* 
      * Page content areas - CORRECTED percentages
@@ -81,15 +82,16 @@
     
     /* 
      * Size using aspect-ratio for proper scaling
-     * Height-first approach: fills vertical space on mobile
+     * Book is landscape (896:720 = 1.244:1)
+     * Phone is portrait, so WIDTH is the constraint
      */
     aspect-ratio: 896 / 720;
-    height: var(--grimoire-height) !important;
-    width: auto !important;
+    width: var(--grimoire-width, 96vw) !important;
+    height: auto !important;
     
     /* Caps */
-    max-height: var(--grimoire-max-height) !important;
-    max-width: 95vw !important;
+    max-width: var(--grimoire-max-width, 1000px) !important;
+    max-height: 90vh !important;
     
     /* Center positioning (JS may override for mobile) */
     top: 50%;
@@ -639,11 +641,11 @@
    RESPONSIVE SCALING
    ══════════════════════════════════════════════ */
 
-/* Mobile - BIG book filling vertical space */
+/* Mobile - FILL the width since phones are portrait */
 @media (max-width: 600px) {
     :root {
-        --grimoire-height: 58vh;
-        --grimoire-max-height: 65vh;
+        --grimoire-width: 98vw;       /* Nearly full width! */
+        --grimoire-max-width: 100vw;
         --tab-width: 36px;
         --tab-height: 32px;
         --tab-right: 8%;
@@ -666,8 +668,8 @@
 /* Tablet */
 @media (min-width: 601px) and (max-width: 900px) {
     :root {
-        --grimoire-height: 70vh;
-        --grimoire-max-height: 75vh;
+        --grimoire-width: 95vw;
+        --grimoire-max-width: 800px;
         --tab-width: 40px;
         --tab-height: 36px;
         --tab-right: 9%;
@@ -681,8 +683,8 @@
 /* Desktop */
 @media (min-width: 901px) {
     :root {
-        --grimoire-height: 75vh;
-        --grimoire-max-height: 80vh;
+        --grimoire-width: 85vw;
+        --grimoire-max-width: 1000px;
         --tab-width: 44px;
         --tab-height: 40px;
         --tab-right: 10%;
@@ -717,8 +719,8 @@
 /* Large desktop */
 @media (min-width: 1200px) {
     :root {
-        --grimoire-height: 80vh;
-        --grimoire-max-height: 85vh;
+        --grimoire-width: 80vw;
+        --grimoire-max-width: 1100px;
     }
 }
 
