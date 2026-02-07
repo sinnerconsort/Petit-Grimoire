@@ -1,0 +1,33 @@
+/* ============================================
+   PETIT GRIMOIRE - Main Stylesheet Hub
+   Rebuild v2 — Clean Shell
+   ============================================ */
+
+@import url('variables.css');
+@import url('compact.css');
+@import url('grimoire.css');
+
+
+/* ============================================
+   SHARED FAB BASE
+   Fixed positioning for compact (and future nyxgotchi)
+   ============================================ */
+
+.mg-fab {
+    position: fixed;
+    z-index: 99990;
+    display: flex;
+    visibility: visible;
+    opacity: 1;
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+    touch-action: none;
+    user-select: none;
+    pointer-events: auto;
+}
+
+.mg-fab.dragging {
+    opacity: 0.7;
+    transition: none !important;
+    cursor: grabbing !important;
+}
