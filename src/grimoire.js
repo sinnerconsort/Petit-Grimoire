@@ -589,6 +589,31 @@ function bindPageActions(tabId) {
 }
 
 // ══════════════════════════════════════════════
+// CALLBACK STUBS (for index.js compatibility)
+// ══════════════════════════════════════════════
+
+export function triggerTransformation() {
+    console.log('[Grimoire] Transformation triggered!');
+    // Play sparkle effect, then open grimoire
+    openGrimoire();
+}
+
+export function onDrawCard() {
+    console.log('[Grimoire] Draw card from Nyxgotchi');
+    // TODO: Quick draw a card
+}
+
+export function onViewQueue() {
+    console.log('[Grimoire] View queue from Nyxgotchi');
+    // TODO: Show queue preview
+}
+
+export function onPokeNyx() {
+    console.log('[Grimoire] Poke Nyx from Nyxgotchi');
+    // TODO: Nyx reaction
+}
+
+// ══════════════════════════════════════════════
 // EXPORTS
 // ══════════════════════════════════════════════
 
