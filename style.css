@@ -172,7 +172,7 @@
     height: var(--book-height);
     
     /* Sprite background */
-    background-image: url('./assets/sprites/Grimoire_WithTabs.png');
+    background-image: url('./assets/grimoire/Grimoire_WithTabs.png');
     background-size: var(--book-width) var(--book-height);
     background-position: 0 0;
     background-repeat: no-repeat;
@@ -185,7 +185,7 @@
 
 /* Opening animation frames */
 #petit-grimoire-book[data-animation="opening"] {
-    background-image: url('./assets/sprites/Grimoire_Opening.png');
+    background-image: url('./assets/grimoire/Grimoire_Opening.png');
     /* 5 frames, total width = 5 * 896 = 4480, scaled */
     background-size: calc(var(--book-width) * 5) var(--book-height);
 }
@@ -198,7 +198,7 @@
 
 /* Closing animation frames */
 #petit-grimoire-book[data-animation="closing"] {
-    background-image: url('./assets/sprites/Grimoire_Closing.png');
+    background-image: url('./assets/grimoire/Grimoire_Closing.png');
     background-size: calc(var(--book-width) * 5) var(--book-height);
 }
 
@@ -211,7 +211,7 @@
 /* Open state (with tabs) */
 #petit-grimoire-book[data-animation="open"],
 #petit-grimoire-book.open {
-    background-image: url('./assets/sprites/Grimoire_WithTabs.png');
+    background-image: url('./assets/grimoire/Grimoire_WithTabs.png');
     background-size: var(--book-width) var(--book-height);
     background-position: 0 0;
 }
@@ -219,7 +219,7 @@
 /* Closed state (just use first frame of opening) */
 #petit-grimoire-book[data-animation="closed"],
 #petit-grimoire-book.closed {
-    background-image: url('./assets/sprites/Grimoire_Opening.png');
+    background-image: url('./assets/grimoire/Grimoire_Opening.png');
     background-size: calc(var(--book-width) * 5) var(--book-height);
     background-position: 0 0;
 }
@@ -402,7 +402,7 @@
 
 /* Page next animation */
 #petit-grimoire-page-turn[data-direction="next"] {
-    background-image: url('./assets/sprites/Grimoire_PageNext.webp');
+    background-image: url('./assets/grimoire/Grimoire_PageNext.png');
 }
 
 #petit-grimoire-page-turn[data-direction="next"][data-frame="0"] { background-position: 0 center; }
@@ -417,7 +417,7 @@
 
 /* Page prev animation */
 #petit-grimoire-page-turn[data-direction="prev"] {
-    background-image: url('./assets/sprites/Grimoire_PagePrev.webp');
+    background-image: url('./assets/grimoire/Grimoire_PagePrev.png');
 }
 
 #petit-grimoire-page-turn[data-direction="prev"][data-frame="0"] { background-position: 0 center; }

@@ -11,8 +11,18 @@ import { eventSource, event_types, saveSettingsDebounced } from '../../../../scr
 // CONSTANTS & CONFIGURATION
 // =============================================================================
 
-const extensionName = 'third-party/petit-grimoire';
+const extensionName = 'third-party/Petit-Grimoire';
 const extensionFolderPath = `scripts/extensions/${extensionName}`;
+
+/**
+ * Asset paths - matching repo structure
+ */
+const ASSET_PATHS = {
+    grimoire: `${extensionFolderPath}/assets/grimoire`,
+    shells: `${extensionFolderPath}/assets/shells`,
+    sprites: `${extensionFolderPath}/assets/sprites`,
+    wizardCat: `${extensionFolderPath}/assets/sprites/wizard-cat`
+};
 
 /**
  * Theme definitions - each theme has colors and a matching FAB moon
@@ -29,7 +39,8 @@ const THEMES = {
         cardBg: '#2a1020',
         textLight: '#fce4ec',
         textDim: '#dc78aa99',
-        fabIcon: 'fab-guardian.png'
+        fabIcon: 'fab-guardian.png',
+        shell: 'guardian-shell.png'
     },
     umbra: {
         name: 'Umbra',
@@ -42,7 +53,8 @@ const THEMES = {
         cardBg: '#1a0825',
         textLight: '#e8d5f5',
         textDim: '#c8b1f788',
-        fabIcon: 'fab-umbra.png'
+        fabIcon: 'fab-umbra.png',
+        shell: 'umbra-shell.png'
     },
     apothecary: {
         name: 'Apothecary',
@@ -55,7 +67,8 @@ const THEMES = {
         cardBg: '#2a2015',
         textLight: '#f0e6d8',
         textDim: '#e9ae7588',
-        fabIcon: 'fab-apothecary.png'
+        fabIcon: 'fab-apothecary.png',
+        shell: 'apothecary-shell.png'
     },
     moonstone: {
         name: 'Moonstone',
@@ -68,7 +81,8 @@ const THEMES = {
         cardBg: '#251e35',
         textLight: '#feebff',
         textDim: '#d9c7fb88',
-        fabIcon: 'fab-moonstone.png'
+        fabIcon: 'fab-moonstone.png',
+        shell: 'moonstone-shell.png'
     },
     phosphor: {
         name: 'Phosphor',
@@ -81,7 +95,8 @@ const THEMES = {
         cardBg: '#0d0230',
         textLight: '#e8e8ff',
         textDim: '#7375ca88',
-        fabIcon: 'fab-phosphor.png'
+        fabIcon: 'fab-phosphor.png',
+        shell: 'phosphor-shell.png'
     },
     rosewood: {
         name: 'Rosewood',
@@ -94,7 +109,8 @@ const THEMES = {
         cardBg: '#2a1e22',
         textLight: '#f5eaed',
         textDim: '#e4b0bc88',
-        fabIcon: 'fab-rosewood.png'
+        fabIcon: 'fab-rosewood.png',
+        shell: 'rosewood-shell.png'
     },
     celestial: {
         name: 'Celestial',
@@ -107,7 +123,8 @@ const THEMES = {
         cardBg: '#0c1528',
         textLight: '#fbe09c',
         textDim: '#e3b35f88',
-        fabIcon: 'fab-celestial.png'
+        fabIcon: 'fab-celestial.png',
+        shell: 'celestial-shell.png'
     }
 };
 
@@ -221,7 +238,7 @@ function applyTheme(themeKey) {
     // Update FAB icon
     const fab = document.querySelector('#petit-grimoire-fab img');
     if (fab) {
-        fab.src = `${extensionFolderPath}/assets/sprites/${theme.fabIcon}`;
+        fab.src = `${ASSET_PATHS.sprites}/${theme.fabIcon}`;
     }
     
     // Update data attribute for CSS selectors
@@ -549,7 +566,7 @@ function createUI() {
             <!-- FAB Button -->
             <button id="petit-grimoire-fab" 
                     style="right: ${extensionSettings.fabPosition.right}px; bottom: ${extensionSettings.fabPosition.bottom}px;">
-                <img src="${extensionFolderPath}/assets/sprites/${theme.fabIcon}" 
+                <img src="${ASSET_PATHS.sprites}/${theme.fabIcon}" 
                      alt="Open Grimoire" 
                      draggable="false">
             </button>
@@ -705,6 +722,7 @@ export {
     THEMES,
     SPRITES,
     TABS,
+    ASSET_PATHS,
     extensionSettings,
     extensionFolderPath,
     saveSettings,
