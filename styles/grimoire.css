@@ -77,8 +77,8 @@
     min-width: 320px !important;
     min-height: 257px !important;
     
-    /* Debug border - shows container size */
-    outline: 3px solid magenta;
+    /* Debug border - pink tabs show position */
+    outline: 2px solid magenta;
     
     /* Will be positioned by JS */
     top: 50%;
@@ -95,9 +95,6 @@
     width: 100% !important;
     height: 100% !important;
     box-sizing: border-box !important;
-    
-    /* Debug - shows book size */
-    outline: 2px solid cyan;
     
     /* Book with tabs as background */
     background-image: url('../assets/grimoire/Grimoire_WithTabs.png');
@@ -191,12 +188,12 @@
 
 .mg-grimoire-tab {
     position: absolute;
-    right: 0;
+    right: 3%;  /* Position ON the book's tab shapes, not at edge */
     width: var(--tab-width);
     height: var(--tab-height);
     
     /* Hitbox styling */
-    background: transparent;
+    background: rgba(255, 0, 255, 0.3);  /* DEBUG - pink tint to show position */
     border: none;
     cursor: pointer;
     pointer-events: auto;
@@ -209,7 +206,7 @@
     
     /* Icon styling */
     color: var(--grimoire-text);
-    font-size: 12px;
+    font-size: 14px;
     
     transition: transform 0.15s ease, color 0.15s ease;
 }
@@ -237,12 +234,12 @@
 
 /* Tab positions - 7 tabs on right side */
 /* These percentages position icons in the center of each tab notch */
-.mg-grimoire-tab--1 { top: 14%; }
-.mg-grimoire-tab--2 { top: 23%; }
-.mg-grimoire-tab--3 { top: 32%; }
-.mg-grimoire-tab--4 { top: 41%; }
-.mg-grimoire-tab--5 { top: 50%; }
-.mg-grimoire-tab--6 { top: 59%; }
+.mg-grimoire-tab--1 { top: 20%; }
+.mg-grimoire-tab--2 { top: 28%; }
+.mg-grimoire-tab--3 { top: 36%; }
+.mg-grimoire-tab--4 { top: 44%; }
+.mg-grimoire-tab--5 { top: 52%; }
+.mg-grimoire-tab--6 { top: 60%; }
 .mg-grimoire-tab--7 { top: 68%; }
 
 /* ══════════════════════════════════════════════
