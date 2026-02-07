@@ -3,15 +3,11 @@
  * The magical book UI with tabs
  */
 
-import { TABS, ASSET_PATHS, GRIMOIRE_SPRITES, getTheme } from '../core/config.js';
+import { TABS, ASSET_PATHS, getTheme } from '../core/config.js';
 import { settings, updateSetting } from '../core/state.js';
 
 let panelElement = null;
 let isOpen = false;
-
-// Book dimensions - native sprite is 896×720
-// We scale to fit mobile while maintaining aspect ratio
-const BOOK_ASPECT = 896 / 720; // ~1.244 (wider than tall)
 
 /**
  * Create the grimoire panel
@@ -45,29 +41,17 @@ export function createGrimoire() {
     });
     
     // =========== BOOK CONTAINER ===========
-    // Uses sprite as background, sized to fill mobile screen
+    // Uses sprite as background - simple viewport sizing
     const book = document.createElement('div');
     book.id = 'pg-book';
     
-    // Calculate size based on viewport - book sprite is 896x720 (wider than tall)
-    // On mobile, height is the constraint, so size based on that
-    const vw = window.innerWidth;
-    const vh = window.innerHeight;
-    
-    // Use 60% of viewport height, calculate width from aspect ratio
-    let bookHeight = vh * 0.6;
-    let bookWidth = bookHeight * (896 / 720); // Maintain aspect ratio
-    
-    // If too wide for screen, constrain by width instead
-    if (bookWidth > vw * 0.95) {
-        bookWidth = vw * 0.95;
-        bookHeight = bookWidth * (720 / 896);
-    }
-    
     Object.assign(book.style, {
         position: 'relative',
-        width: `${bookWidth}px`,
-        height: `${bookHeight}px`,
+        // Simple approach: use viewport height as the driver
+        // Book sprite is wider than tall (896:720 = 1.244:1)
+        height: '60vh',
+        width: 'calc(60vh * 1.244)',
+        maxWidth: '95vw',
         margin: 'auto',
         // Sprite background
         backgroundImage: `url('${ASSET_PATHS.grimoire}/Grimoire_WithTabs.png')`,
@@ -76,8 +60,6 @@ export function createGrimoire() {
         backgroundPosition: 'center',
         imageRendering: 'pixelated',
         backgroundColor: 'transparent',
-        borderRadius: '0',
-        boxShadow: 'none',
         overflow: 'visible'
     });
     
