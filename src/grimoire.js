@@ -1,353 +1,50 @@
 /**
- * Petit Grimoire — Drawer Edition v4 (Nuclear)
+ * Petit Grimoire — Grimoire + Compact (Merged)
+ * v5 - Single file, no cross-module state issues
  * 
- * ZERO IMPORTS. Injects its own critical CSS inline.
- * The drawer WILL appear even if every external CSS file fails.
- *
- * Changes from v3:
- *   - Removed all imports (was breaking module loading)
- *   - Injects critical CSS as <style> tag (no file dependencies)
- *   - toastr debug breadcrumbs for mobile debugging
- *   - Force-clears isAnimating on every open/close
- *   - Restores compact if anything goes wrong
+ * The compact IS the grimoire's toggle button - they're one unit.
+ * 
+ * Exports:
+ *   - initGrimoire()      → creates both compact + drawer
+ *   - openGrimoire()      → slide drawer in
+ *   - closeGrimoire()     → slide drawer out
+ *   - toggleGrimoire()    → open if closed, close if open
+ *   - updateCompactBadge(n) → set fate queue count
  */
+
+import { extensionName, extensionSettings } from './state.js';
+import { setupFabDrag, applyPosition } from './drag.js';
+
+// ══════════════════════════════════════════════
+// STATE (all in one place, no sync issues)
+// ══════════════════════════════════════════════
+
+let isOpen = false;
+let currentTab = 'tarot';
 
 // ══════════════════════════════════════════════
 // TAB CONFIGURATION
 // ══════════════════════════════════════════════
 
-const GRIMOIRE_TABS = [
+const TABS = [
     { id: 'tarot',    icon: 'fa-layer-group',     label: 'Tarot' },
     { id: 'crystal',  icon: 'fa-circle',          label: 'Crystal Ball' },
     { id: 'ouija',    icon: 'fa-ghost',           label: 'Ouija' },
     { id: 'nyx',      icon: 'fa-cat',             label: 'Nyx' },
     { id: 'spells',   icon: 'fa-wand-sparkles',   label: 'Spells' },
-    { id: 'radio',    icon: 'fa-tower-broadcast',  label: 'Radio' },
     { id: 'settings', icon: 'fa-gear',            label: 'Settings' },
 ];
 
 // ══════════════════════════════════════════════
-// STATE
+// DEBUG HELPER (toastr since no console on mobile)
 // ══════════════════════════════════════════════
 
-let grimoireState = {
-    isOpen: false,
-    currentTab: 'tarot',
-    isAnimating: false,
-};
-
-// ══════════════════════════════════════════════
-// CRITICAL CSS — injected as <style> tag
-// This guarantees the drawer renders even if
-// grimoire.css never loads via @import chain.
-// ══════════════════════════════════════════════
-
-function injectCriticalCSS() {
-    if (document.getElementById('mg-grimoire-critical-css')) return;
-
-    const style = document.createElement('style');
-    style.id = 'mg-grimoire-critical-css';
-    style.textContent = `
-        /* ── Overlay ── */
-        .mg-grimoire-overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.45);
-            z-index: 99998;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s ease;
-        }
-        .mg-grimoire-overlay.visible {
-            opacity: 1;
-            pointer-events: auto;
-        }
-
-        /* ── Drawer ── */
-        .mg-grimoire {
-            position: fixed;
-            top: 0;
-            right: 0;
-            bottom: 0;
-            z-index: 99999;
-            width: 380px;
-            max-width: 95vw;
-            transform: translateX(100%);
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            background:
-                repeating-linear-gradient(0deg,
-                    transparent, transparent 28px,
-                    rgba(139,90,43,0.03) 28px, rgba(139,90,43,0.03) 29px),
-                linear-gradient(135deg, #f5e6d3 0%, #e8d5bc 50%, #f5e6d3 100%);
-            box-shadow:
-                -4px 0 16px rgba(0,0,0,0.3),
-                -1px 0 0 #b8956a,
-                inset 2px 0 8px rgba(139,90,43,0.15);
-            pointer-events: auto;
-            overflow: hidden;
-        }
-        .mg-grimoire.open {
-            transform: translateX(0) !important;
-        }
-
-        /* ── Inner layout ── */
-        .mg-grimoire-inner {
-            display: flex;
-            height: 100%;
-            width: 100%;
-        }
-
-        /* ── Tab strip ── */
-        .mg-grimoire-tabstrip {
-            flex: 0 0 44px;
-            width: 44px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 8px 0;
-            gap: 2px;
-            background: linear-gradient(180deg, #d4b896 0%, #c4a880 50%, #d4b896 100%);
-            border-right: 2px solid #b8956a;
-            box-shadow: inset -2px 0 4px rgba(0,0,0,0.1);
-        }
-
-        /* ── Tab buttons ── */
-        .mg-grimoire-tab {
-            width: 36px;
-            height: 36px;
-            border: none;
-            border-radius: 6px;
-            background: transparent;
-            cursor: pointer;
-            padding: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #7a6858;
-            font-size: 14px;
-            transition: all 0.15s ease;
-            position: relative;
-        }
-        .mg-grimoire-tab:hover {
-            background: rgba(139,90,43,0.15);
-            color: #8b5a2b;
-        }
-        .mg-grimoire-tab[data-active="true"] {
-            background: #f5e6d3;
-            color: #8b5a2b;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.12),
-                        inset 0 0 0 1px rgba(139,90,43,0.15);
-        }
-        .mg-grimoire-tab[data-active="true"]::after {
-            content: '';
-            position: absolute;
-            right: 3px;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 4px;
-            height: 4px;
-            background: #8b5a2b;
-            border-radius: 50%;
-        }
-        .mg-grimoire-tab--close {
-            margin-top: auto;
-            color: #7a6858;
-        }
-        .mg-grimoire-tab--close:hover {
-            background: rgba(180,60,60,0.15);
-            color: #a04040;
-        }
-
-        /* ── Page content ── */
-        .mg-grimoire-page {
-            flex: 1;
-            min-width: 0;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-        }
-        .mg-grimoire-page-content {
-            flex: 1;
-            overflow-y: auto;
-            overflow-x: hidden;
-            padding: 16px 14px;
-            transition: opacity 0.15s ease;
-            scrollbar-width: thin;
-            scrollbar-color: #8b5a2b transparent;
-        }
-
-        /* ── Corners ── */
-        .mg-grimoire-corner {
-            position: absolute;
-            width: 24px;
-            height: 24px;
-            pointer-events: none;
-            opacity: 0.25;
-            z-index: 5;
-        }
-        .mg-grimoire-corner--tl { top:6px; left:50px; border-top:2px solid #8b5a2b; border-left:2px solid #8b5a2b; }
-        .mg-grimoire-corner--tr { top:6px; right:6px; border-top:2px solid #8b5a2b; border-right:2px solid #8b5a2b; }
-        .mg-grimoire-corner--bl { bottom:6px; left:50px; border-bottom:2px solid #8b5a2b; border-left:2px solid #8b5a2b; }
-        .mg-grimoire-corner--br { bottom:6px; right:6px; border-bottom:2px solid #8b5a2b; border-right:2px solid #8b5a2b; }
-
-        /* ── Page styles ── */
-        .mg-page-section { margin-bottom: 12px; }
-        .mg-page-title {
-            font-size: 15px; font-weight: 700; color: #8b5a2b;
-            margin: 0 0 6px 0; padding-bottom: 6px;
-            border-bottom: 2px solid #d4a574; letter-spacing: 1px;
-        }
-        .mg-page-subtitle {
-            font-size: 12px; font-weight: 700; color: #4a3728;
-            margin: 10px 0 6px 0; text-transform: uppercase; letter-spacing: 0.5px;
-        }
-        .mg-page-flavor {
-            font-size: 11px; font-style: italic; color: #7a6858;
-            margin: 0 0 10px 0; line-height: 1.5;
-        }
-        .mg-page-divider {
-            height: 1px;
-            background: linear-gradient(90deg, transparent, #d4a574 20%, #d4a574 80%, transparent);
-            margin: 14px 0; opacity: 0.6;
-        }
-        .mg-text-dim {
-            color: #7a6858; font-size: 11px; font-style: italic; line-height: 1.5;
-        }
-
-        /* ── Buttons ── */
-        .mg-page-btn {
-            display: block; width: 100%; padding: 10px 14px; margin: 10px 0;
-            background: linear-gradient(180deg, #d4a574, #8b5a2b);
-            border: 2px solid #8b5a2b; border-radius: 6px;
-            color: #fff; font-size: 11px; font-weight: 700;
-            text-transform: uppercase; letter-spacing: 1.5px;
-            text-shadow: 1px 1px 0 rgba(0,0,0,0.3);
-            text-align: center; cursor: pointer;
-            transition: all 0.15s ease;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.15);
-        }
-        .mg-page-btn:hover { transform: translateY(-1px); box-shadow: 0 3px 8px rgba(0,0,0,0.2); }
-        .mg-page-btn:active { transform: translateY(1px); box-shadow: 0 1px 2px rgba(0,0,0,0.15); }
-
-        /* ── Tarot ── */
-        .mg-card-spread { display: flex; justify-content: center; gap: 8px; margin: 12px 0; }
-        .mg-card-slot {
-            width: 50px; height: 72px;
-            background: linear-gradient(135deg, rgba(139,90,43,0.12), rgba(212,165,116,0.08));
-            border: 2px dashed #8b5a2b; border-radius: 4px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 16px; color: #8b5a2b; opacity: 0.5;
-        }
-        .mg-queue-list { min-height: 40px; }
-        .mg-queue-empty {
-            text-align: center; padding: 10px 4px;
-            color: #7a6858; font-style: italic; font-size: 11px;
-        }
-        .mg-queue-footer {
-            text-align: center; font-size: 9px; color: #7a6858;
-            padding-top: 4px; border-top: 1px dashed #d4a574; opacity: 0.7;
-        }
-        .mg-last-reading {
-            display: flex; align-items: center; gap: 8px; padding: 6px 8px;
-            background: rgba(139,90,43,0.06); border-radius: 6px;
-            border: 1px solid rgba(139,90,43,0.1);
-        }
-        .mg-mini-card {
-            width: 28px; height: 38px; background: #8b5a2b;
-            border-radius: 3px; display: flex; align-items: center;
-            justify-content: center; color: #fff; font-size: 11px; flex-shrink: 0;
-        }
-        .mg-last-reading-info { flex: 1; font-size: 11px; color: #4a3728; }
-
-        /* ── Crystal Ball ── */
-        .mg-crystal-orb { display: flex; flex-direction: column; align-items: center; margin: 14px 0; }
-        .mg-crystal-sphere {
-            width: 72px; height: 72px; border-radius: 50%;
-            background: radial-gradient(circle at 30% 30%,
-                rgba(200,180,255,0.9), rgba(100,80,150,0.7), rgba(50,30,80,0.9));
-            box-shadow: 0 0 20px rgba(150,100,200,0.35), inset 0 0 16px rgba(255,255,255,0.2);
-            position: relative; overflow: hidden;
-        }
-        .mg-crystal-mist {
-            position: absolute; inset: 0;
-            background: radial-gradient(circle at 50% 50%,
-                transparent 0%, rgba(200,180,255,0.3) 50%, transparent 70%);
-            animation: mg-swirl 4s ease-in-out infinite;
-        }
-        .mg-crystal-mist--2 { animation-delay: -2s; animation-direction: reverse; }
-        @keyframes mg-swirl {
-            0%, 100% { transform: rotate(0deg) scale(1); opacity: 0.5; }
-            50% { transform: rotate(180deg) scale(1.1); opacity: 0.8; }
-        }
-        .mg-crystal-base {
-            width: 32px; height: 8px;
-            background: linear-gradient(180deg, #5a4a3a, #3a2a1a);
-            border-radius: 0 0 4px 4px; margin-top: -3px;
-        }
-        .mg-vision-log, .mg-ouija-history { min-height: 50px; max-height: 120px; overflow-y: auto; }
-
-        /* ── Ouija ── */
-        .mg-ouija-mini {
-            padding: 10px; background: linear-gradient(180deg, #3a2a1a, #2a1a0a);
-            border-radius: 8px; text-align: center; margin: 8px 0;
-            box-shadow: inset 0 2px 6px rgba(0,0,0,0.3);
-        }
-        .mg-ouija-letters { font-size: 9px; color: #d4a574; letter-spacing: 3px; margin-bottom: 4px; font-weight: 600; }
-        .mg-ouija-yes-no { display: flex; justify-content: space-around; font-size: 10px; font-weight: 700; color: #d4a574; margin: 6px 0; }
-        .mg-ouija-input {
-            width: 100%; padding: 6px 10px; margin-top: 6px;
-            background: rgba(255,255,255,0.08); border: 1px solid #d4a574;
-            border-radius: 4px; color: #d4a574; font-size: 11px; box-sizing: border-box;
-        }
-        .mg-ouija-input::placeholder { color: rgba(212,165,116,0.4); }
-
-        /* ── Nyx ── */
-        .mg-nyx-portrait {
-            width: 56px; height: 56px; margin: 0 auto 8px; border-radius: 50%;
-            background: linear-gradient(135deg, #6b5b95, #4a3f6b);
-            display: flex; align-items: center; justify-content: center;
-            font-size: 24px; box-shadow: 0 3px 8px rgba(107,91,149,0.4);
-        }
-        .mg-nyx-mood { text-align: center; font-size: 12px; color: #4a3728; margin-bottom: 6px; }
-        .mg-nyx-disposition { height: 6px; background: rgba(139,90,43,0.15); border-radius: 4px; overflow: hidden; margin: 8px 0; }
-        .mg-nyx-disposition-fill { height: 100%; background: linear-gradient(90deg, #d4a574, #8b5a2b); border-radius: 4px; transition: width 0.3s ease; }
-        .mg-nyx-actions { display: flex; gap: 6px; margin-top: 8px; }
-        .mg-nyx-btn {
-            flex: 1; padding: 8px 10px; font-size: 11px; font-weight: 600;
-            border-radius: 6px; border: 1px solid #8b5a2b;
-            background: rgba(139,90,43,0.08); color: #4a3728;
-            cursor: pointer; transition: all 0.15s ease; text-align: center;
-        }
-        .mg-nyx-btn:hover { background: #8b5a2b; color: #fff; }
-
-        /* ── Responsive ── */
-        @media (max-width: 420px) {
-            .mg-grimoire { width: 100vw; }
-            .mg-grimoire-tabstrip { flex: 0 0 40px; width: 40px; }
-            .mg-grimoire-tab { width: 32px; height: 32px; font-size: 13px; }
-            .mg-grimoire-corner--tl, .mg-grimoire-corner--bl { left: 46px; }
-        }
-        @media (min-width: 421px) and (max-width: 600px) {
-            .mg-grimoire { width: 88vw; }
-        }
-        @media (min-width: 601px) and (max-width: 1000px) {
-            .mg-grimoire { width: 420px; }
-            .mg-grimoire-tabstrip { flex: 0 0 48px; width: 48px; }
-            .mg-grimoire-tab { width: 40px; height: 40px; font-size: 16px; }
-        }
-        @media (min-width: 1001px) {
-            .mg-grimoire { width: 440px; }
-            .mg-grimoire-tabstrip { flex: 0 0 52px; width: 52px; }
-            .mg-grimoire-tab { width: 42px; height: 42px; font-size: 17px; }
-            .mg-page-title { font-size: 17px; }
-            .mg-page-subtitle { font-size: 13px; }
-            .mg-page-flavor, .mg-text-dim { font-size: 12px; }
-            .mg-page-btn { font-size: 12px; padding: 12px 16px; }
-            .mg-grimoire-page-content { padding: 20px 18px; }
-        }
-    `;
-    document.head.appendChild(style);
-    console.log('[Grimoire] Critical CSS injected');
+function debug(msg) {
+    console.log(`[Grimoire] ${msg}`);
+    // Uncomment for toastr debugging:
+    // if (typeof toastr !== 'undefined') {
+    //     toastr.info(msg, 'Grimoire', { timeOut: 1500 });
+    // }
 }
 
 // ══════════════════════════════════════════════
@@ -355,219 +52,251 @@ function injectCriticalCSS() {
 // ══════════════════════════════════════════════
 
 export function initGrimoire() {
-    console.log('[Grimoire] Initializing v4 (nuclear)...');
-
+    debug('Initializing...');
+    
     try {
-        injectCriticalCSS();
-        createGrimoireDOM();
-        setupEventListeners();
-        console.log('[Grimoire] ✅ Ready');
-        if (typeof toastr !== 'undefined') {
-            toastr.success('Grimoire initialized', 'Petit Grimoire', { timeOut: 2000 });
-        }
+        createCompact();
+        createDrawer();
+        debug('✅ Ready');
     } catch (err) {
         console.error('[Grimoire] Init failed:', err);
         if (typeof toastr !== 'undefined') {
-            toastr.error('Grimoire init failed: ' + err.message, 'Petit Grimoire');
+            toastr.error('Grimoire init failed: ' + err.message);
         }
     }
 }
 
 // ══════════════════════════════════════════════
-// DOM CREATION
+// COMPACT CREATION
 // ══════════════════════════════════════════════
 
-function createGrimoireDOM() {
-    // Remove stale copies
-    document.getElementById('mg-grimoire')?.remove();
-    document.getElementById('mg-grimoire-overlay')?.remove();
+function createCompact() {
+    // Remove old
+    $('#mg-compact').remove();
+    
+    const html = `
+        <div class="mg-fab mg-compact" id="mg-compact"
+             data-mg-theme="${extensionSettings.shellTheme || 'guardian'}"
+             data-mg-size="${extensionSettings.compactSize || 'medium'}">
+            <div class="mg-compact-body">
+                <div class="mg-compact-glow"></div>
+                <div class="mg-compact-icon"></div>
+                <div class="mg-compact-sparkles">
+                    <span class="mg-compact-sparkle"></span>
+                    <span class="mg-compact-sparkle"></span>
+                    <span class="mg-compact-sparkle"></span>
+                    <span class="mg-compact-sparkle"></span>
+                </div>
+                <div class="mg-compact-badge" id="mg-compact-badge"></div>
+            </div>
+        </div>
+    `;
+    
+    $('body').append(html);
+    
+    const el = document.getElementById('mg-compact');
+    if (!el) {
+        debug('❌ Compact creation failed');
+        return;
+    }
+    
+    // Force visibility
+    el.style.setProperty('position', 'fixed', 'important');
+    el.style.setProperty('z-index', '99990', 'important');
+    el.style.setProperty('display', 'flex', 'important');
+    el.style.setProperty('visibility', 'visible', 'important');
+    el.style.setProperty('opacity', '1', 'important');
+    el.style.setProperty('pointer-events', 'auto', 'important');
+    
+    // Position
+    applyPosition('mg-compact', 'compactPosition');
+    
+    // Drag + tap handler - THIS IS THE KEY: tap calls toggleGrimoire directly
+    setupFabDrag('mg-compact', 'compact', 'compactPosition', () => {
+        debug('Compact tapped');
+        toggleGrimoire();
+    });
+    
+    // Respect visibility setting
+    if (extensionSettings.showCompact === false) {
+        el.style.setProperty('display', 'none', 'important');
+    }
+    
+    debug('Compact created');
+}
 
+// ══════════════════════════════════════════════
+// DRAWER CREATION
+// ══════════════════════════════════════════════
+
+function createDrawer() {
+    // Remove old
+    $('#mg-grimoire').remove();
+    $('#mg-grimoire-overlay').remove();
+    
     // Overlay
     const overlay = document.createElement('div');
     overlay.className = 'mg-grimoire-overlay';
     overlay.id = 'mg-grimoire-overlay';
+    overlay.addEventListener('click', closeGrimoire);
     document.body.appendChild(overlay);
-
+    
     // Drawer
     const drawer = document.createElement('div');
     drawer.className = 'mg-grimoire';
     drawer.id = 'mg-grimoire';
-
+    drawer.setAttribute('data-mg-theme', extensionSettings.shellTheme || 'guardian');
+    
     drawer.innerHTML = `
         <div class="mg-grimoire-inner">
             <div class="mg-grimoire-tabstrip">
-                ${GRIMOIRE_TABS.map(tab => `
+                ${TABS.map(tab => `
                     <button class="mg-grimoire-tab"
                             data-tab="${tab.id}"
-                            data-active="${tab.id === grimoireState.currentTab}"
+                            data-active="${tab.id === currentTab}"
                             title="${tab.label}">
                         <i class="fa-solid ${tab.icon}"></i>
                     </button>
                 `).join('')}
-
+                
                 <button class="mg-grimoire-tab mg-grimoire-tab--close"
                         id="mg-grimoire-close"
                         title="Close Grimoire">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
-
+            
             <div class="mg-grimoire-page" id="mg-grimoire-page">
                 <div class="mg-grimoire-page-content" id="mg-page-content"></div>
             </div>
         </div>
-
+        
         <div class="mg-grimoire-corner mg-grimoire-corner--tl"></div>
         <div class="mg-grimoire-corner mg-grimoire-corner--tr"></div>
         <div class="mg-grimoire-corner mg-grimoire-corner--bl"></div>
         <div class="mg-grimoire-corner mg-grimoire-corner--br"></div>
     `;
-
+    
     document.body.appendChild(drawer);
-    console.log('[Grimoire] DOM created:', !!document.getElementById('mg-grimoire'));
-
-    loadPageContent(grimoireState.currentTab);
-}
-
-// ══════════════════════════════════════════════
-// EVENT LISTENERS
-// ══════════════════════════════════════════════
-
-let _escapeHandler = null;
-
-function setupEventListeners() {
-    document.getElementById('mg-grimoire-overlay')?.addEventListener('click', closeGrimoire);
-
-    document.getElementById('mg-grimoire-close')?.addEventListener('click', (e) => {
-        e.stopPropagation();
-        closeGrimoire();
-    });
-
-    document.querySelectorAll('.mg-grimoire-tab:not(.mg-grimoire-tab--close)').forEach(tab => {
+    
+    // Tab click handlers
+    drawer.querySelectorAll('.mg-grimoire-tab:not(.mg-grimoire-tab--close)').forEach(tab => {
         tab.addEventListener('click', (e) => {
             const tabId = e.currentTarget.dataset.tab;
-            if (tabId && tabId !== grimoireState.currentTab) {
+            if (tabId && tabId !== currentTab) {
                 switchTab(tabId);
             }
         });
     });
-
-    if (_escapeHandler) document.removeEventListener('keydown', _escapeHandler);
-    _escapeHandler = (e) => {
-        if (e.key === 'Escape' && grimoireState.isOpen) closeGrimoire();
-    };
-    document.addEventListener('keydown', _escapeHandler);
+    
+    // Close button
+    document.getElementById('mg-grimoire-close')?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        closeGrimoire();
+    });
+    
+    // Escape key
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && isOpen) {
+            closeGrimoire();
+        }
+    });
+    
+    // Load initial page
+    loadPageContent(currentTab);
+    
+    debug('Drawer created');
 }
 
 // ══════════════════════════════════════════════
-// COMPACT VISIBILITY
-// ══════════════════════════════════════════════
-
-function hideCompact() {
-    const el = document.getElementById('mg-compact');
-    if (!el) return;
-    el.style.setProperty('opacity', '0', 'important');
-    el.style.setProperty('pointer-events', 'none', 'important');
-    el.style.setProperty('transition', 'opacity 0.2s ease', 'important');
-}
-
-function showCompact() {
-    const el = document.getElementById('mg-compact');
-    if (!el) return;
-    el.style.setProperty('opacity', '1', 'important');
-    el.style.setProperty('pointer-events', 'auto', 'important');
-    el.style.setProperty('transition', 'opacity 0.3s ease 0.1s', 'important');
-}
-
-// ══════════════════════════════════════════════
-// OPEN / CLOSE
+// OPEN / CLOSE / TOGGLE
 // ══════════════════════════════════════════════
 
 export function openGrimoire() {
-    // ALWAYS force-clear — never trust this flag
-    grimoireState.isAnimating = false;
-
-    if (grimoireState.isOpen) return;
-
-    console.log('[Grimoire] Opening...');
-
-    let drawer = document.getElementById('mg-grimoire');
-    let overlay = document.getElementById('mg-grimoire-overlay');
-
-    // Recreate if missing
-    if (!drawer || !overlay) {
-        console.warn('[Grimoire] DOM missing — recreating');
-        injectCriticalCSS();
-        createGrimoireDOM();
-        setupEventListeners();
-        drawer = document.getElementById('mg-grimoire');
-        overlay = document.getElementById('mg-grimoire-overlay');
-    }
-
-    if (!drawer || !overlay) {
-        console.error('[Grimoire] DOM creation failed!');
-        if (typeof toastr !== 'undefined') {
-            toastr.error('Grimoire DOM creation failed', 'Petit Grimoire');
-        }
-        showCompact();
+    if (isOpen) {
+        debug('Already open');
         return;
     }
-
-    grimoireState.isAnimating = true;
-    hideCompact();
-
-    // Force display
-    drawer.style.removeProperty('display');
-
-    // Slide in
+    
+    debug('Opening...');
+    
+    const drawer = document.getElementById('mg-grimoire');
+    const overlay = document.getElementById('mg-grimoire-overlay');
+    const compact = document.getElementById('mg-compact');
+    
+    if (!drawer || !overlay) {
+        debug('❌ DOM missing, recreating...');
+        createDrawer();
+        return openGrimoire();
+    }
+    
+    // Hide compact
+    if (compact) {
+        compact.style.setProperty('opacity', '0', 'important');
+        compact.style.setProperty('pointer-events', 'none', 'important');
+    }
+    
+    // Show overlay + drawer
     overlay.classList.add('visible');
     drawer.classList.add('open');
-
-    if (typeof toastr !== 'undefined') {
-        toastr.info('Grimoire opening...', 'Petit Grimoire', { timeOut: 1500 });
-    }
-
-    setTimeout(() => {
-        grimoireState.isOpen = true;
-        grimoireState.isAnimating = false;
-        console.log('[Grimoire] ✅ Opened');
-    }, 400);
+    
+    isOpen = true;
+    debug('✅ Opened');
 }
 
 export function closeGrimoire() {
-    // ALWAYS force-clear
-    grimoireState.isAnimating = false;
-
-    if (!grimoireState.isOpen) {
+    if (!isOpen) {
+        debug('Already closed');
+        // Still ensure everything is in closed state
         document.getElementById('mg-grimoire')?.classList.remove('open');
         document.getElementById('mg-grimoire-overlay')?.classList.remove('visible');
         showCompact();
         return;
     }
-
+    
+    debug('Closing...');
+    
     const drawer = document.getElementById('mg-grimoire');
     const overlay = document.getElementById('mg-grimoire-overlay');
-    if (!drawer || !overlay) {
-        grimoireState.isOpen = false;
-        showCompact();
-        return;
-    }
-
-    grimoireState.isAnimating = true;
-
-    drawer.classList.remove('open');
-    overlay.classList.remove('visible');
-
-    setTimeout(() => {
-        grimoireState.isOpen = false;
-        grimoireState.isAnimating = false;
-        showCompact();
-        console.log('[Grimoire] ✅ Closed');
-    }, 400);
+    
+    if (drawer) drawer.classList.remove('open');
+    if (overlay) overlay.classList.remove('visible');
+    
+    isOpen = false;
+    
+    // Show compact after animation
+    setTimeout(showCompact, 300);
+    
+    debug('✅ Closed');
 }
 
 export function toggleGrimoire() {
-    grimoireState.isOpen ? closeGrimoire() : openGrimoire();
+    debug(`Toggle called (isOpen: ${isOpen})`);
+    
+    if (isOpen) {
+        closeGrimoire();
+    } else {
+        // Play transform flash on compact
+        const compact = document.getElementById('mg-compact');
+        if (compact) {
+            compact.classList.add('transforming');
+            setTimeout(() => compact.classList.remove('transforming'), 400);
+        }
+        openGrimoire();
+    }
+}
+
+function showCompact() {
+    const compact = document.getElementById('mg-compact');
+    if (!compact) return;
+    
+    if (extensionSettings.showCompact === false) {
+        compact.style.setProperty('display', 'none', 'important');
+        return;
+    }
+    
+    compact.style.setProperty('opacity', '1', 'important');
+    compact.style.setProperty('pointer-events', 'auto', 'important');
 }
 
 // ══════════════════════════════════════════════
@@ -575,22 +304,23 @@ export function toggleGrimoire() {
 // ══════════════════════════════════════════════
 
 function switchTab(tabId) {
-    if (tabId === grimoireState.currentTab) return;
-
+    debug(`Switching to tab: ${tabId}`);
+    
+    // Update active states
     document.querySelectorAll('.mg-grimoire-tab').forEach(tab => {
         tab.dataset.active = tab.dataset.tab === tabId ? 'true' : 'false';
     });
-
+    
     const page = document.getElementById('mg-page-content');
     if (page) {
         page.style.opacity = '0';
         setTimeout(() => {
-            grimoireState.currentTab = tabId;
+            currentTab = tabId;
             loadPageContent(tabId);
             page.style.opacity = '1';
         }, 150);
     } else {
-        grimoireState.currentTab = tabId;
+        currentTab = tabId;
         loadPageContent(tabId);
     }
 }
@@ -602,14 +332,14 @@ function switchTab(tabId) {
 function loadPageContent(tabId) {
     const container = document.getElementById('mg-page-content');
     if (!container) return;
-    container.innerHTML = getPageContent(tabId);
+    
+    container.innerHTML = getPageHTML(tabId);
     container.scrollTop = 0;
     bindPageActions(tabId);
 }
 
-function getPageContent(tabId) {
+function getPageHTML(tabId) {
     const pages = {
-
         tarot: `
             <div class="mg-page-section">
                 <h3 class="mg-page-title">🎴 Tarot</h3>
@@ -619,7 +349,7 @@ function getPageContent(tabId) {
                     <div class="mg-card-slot">?</div>
                     <div class="mg-card-slot">?</div>
                 </div>
-                <button class="mg-page-btn" id="mg-btn-draw-card">✦ Draw a Card</button>
+                <button class="mg-page-btn" id="mg-btn-draw-card">✦ Draw A Card</button>
             </div>
             <div class="mg-page-divider"></div>
             <div class="mg-page-section">
@@ -641,7 +371,7 @@ function getPageContent(tabId) {
                 </div>
             </div>
         `,
-
+        
         crystal: `
             <div class="mg-page-section">
                 <h3 class="mg-page-title">🔮 Crystal Ball</h3>
@@ -665,8 +395,13 @@ function getPageContent(tabId) {
                     <p class="mg-text-dim">The mists are clear...</p>
                 </div>
             </div>
+            <div class="mg-page-divider"></div>
+            <div class="mg-page-section">
+                <h4 class="mg-page-subtitle">Effect Pool</h4>
+                <p class="mg-text-dim">35 possible fates across 6 categories: Fortunate, Unfortunate, Revelation, Upheaval, Chaos, and Silence.</p>
+            </div>
         `,
-
+        
         ouija: `
             <div class="mg-page-section">
                 <h3 class="mg-page-title">👻 Ouija</h3>
@@ -687,8 +422,13 @@ function getPageContent(tabId) {
                     <p class="mg-text-dim">The board is silent...</p>
                 </div>
             </div>
+            <div class="mg-page-divider"></div>
+            <div class="mg-page-section">
+                <h4 class="mg-page-subtitle">How It Works</h4>
+                <p class="mg-text-dim">The ouija doesn't just predict—it plants. Ask about feelings, and feelings stir. The prophecy fulfills itself.</p>
+            </div>
         `,
-
+        
         nyx: `
             <div class="mg-page-section">
                 <h3 class="mg-page-title">🐱 Nyx</h3>
@@ -714,9 +454,12 @@ function getPageContent(tabId) {
                     Keep Nyx entertained and your luck improves.
                     Bore her and the cards turn against you.
                 </p>
+                <p class="mg-text-dim" style="margin-top:8px;">
+                    She enjoys: Drama, embarrassment, romantic tension, conflict.
+                </p>
             </div>
         `,
-
+        
         spells: `
             <div class="mg-page-section">
                 <h3 class="mg-page-title">✨ Spell Cards</h3>
@@ -740,25 +483,7 @@ function getPageContent(tabId) {
                 </p>
             </div>
         `,
-
-        radio: `
-            <div class="mg-page-section">
-                <h3 class="mg-page-title">📻 Radio</h3>
-                <p class="mg-page-flavor">"Tune in to the cosmic frequencies."</p>
-                <p class="mg-text-dim">Coming soon: Ambient soundscapes and mystical frequencies.</p>
-            </div>
-            <div class="mg-page-divider"></div>
-            <div class="mg-page-section">
-                <h4 class="mg-page-subtitle">Stations</h4>
-                <p class="mg-text-dim">
-                    🌙 Moonlight Lounge<br>
-                    🔮 Crystal Frequencies<br>
-                    ⭐ Starbound Static<br>
-                    🌸 Sakura Dreams
-                </p>
-            </div>
-        `,
-
+        
         settings: `
             <div class="mg-page-section">
                 <h3 class="mg-page-title">⚙️ Settings</h3>
@@ -775,59 +500,106 @@ function getPageContent(tabId) {
             <div class="mg-page-divider"></div>
             <div class="mg-page-section">
                 <h4 class="mg-page-subtitle">About</h4>
-                <p class="mg-text-dim">Petit Grimoire v0.4 — Drawer Edition (Nuclear)</p>
+                <p class="mg-text-dim">Petit Grimoire v5 — Merged Edition</p>
             </div>
         `,
     };
-
+    
     return pages[tabId] || pages.tarot;
 }
 
 function bindPageActions(tabId) {
+    // Tarot
     document.getElementById('mg-btn-draw-card')?.addEventListener('click', () => {
-        console.log('[Grimoire] Draw card clicked');
+        debug('Draw card clicked');
+        if (typeof toastr !== 'undefined') {
+            toastr.info('Card draw coming soon!', 'Tarot');
+        }
     });
+    
+    // Crystal ball
     document.getElementById('mg-btn-gaze')?.addEventListener('click', () => {
-        console.log('[Grimoire] Crystal ball gaze');
+        debug('Crystal ball gaze');
+        if (typeof toastr !== 'undefined') {
+            toastr.info('Crystal ball coming soon!', 'Crystal Ball');
+        }
     });
+    
+    // Ouija
     document.getElementById('mg-btn-ask-spirits')?.addEventListener('click', () => {
         const q = document.getElementById('mg-ouija-question')?.value;
-        console.log('[Grimoire] Ouija:', q);
+        debug('Ouija: ' + q);
+        if (typeof toastr !== 'undefined') {
+            toastr.info('Ouija coming soon!', 'Ouija');
+        }
     });
+    
+    // Nyx
     document.getElementById('mg-btn-pet-nyx')?.addEventListener('click', () => {
-        console.log('[Grimoire] Pet Nyx');
+        debug('Pet Nyx');
+        if (typeof toastr !== 'undefined') {
+            toastr.info('"...Was that supposed to be pleasant?"', 'Nyx');
+        }
     });
+    
     document.getElementById('mg-btn-treat-nyx')?.addEventListener('click', () => {
-        console.log('[Grimoire] Treat Nyx');
+        debug('Treat Nyx');
+        if (typeof toastr !== 'undefined') {
+            toastr.info('"Acceptable."', 'Nyx');
+        }
     });
+    
+    // Spells
     document.getElementById('mg-btn-test-spell')?.addEventListener('click', () => {
-        console.log('[Grimoire] Test spell');
+        debug('Test spell');
+        if (typeof toastr !== 'undefined') {
+            toastr.info('Spell effects coming soon!', 'Spells');
+        }
     });
 }
 
 // ══════════════════════════════════════════════
-// CALLBACK STUBS (index.js compatibility)
+// PUBLIC UTILITIES
+// ══════════════════════════════════════════════
+
+/**
+ * Update the queue badge on the compact FAB
+ */
+export function updateCompactBadge(count) {
+    const badge = document.getElementById('mg-compact-badge');
+    if (!badge) return;
+    
+    if (count > 0) {
+        badge.textContent = count;
+        badge.classList.add('visible');
+    } else {
+        badge.classList.remove('visible');
+    }
+}
+
+/**
+ * Get current state (for debugging)
+ */
+export function getState() {
+    return { isOpen, currentTab };
+}
+
+// ══════════════════════════════════════════════
+// LEGACY EXPORTS (for index.js compatibility)
 // ══════════════════════════════════════════════
 
 export function triggerTransformation() {
-    console.log('[Grimoire] Transformation triggered!');
-    openGrimoire();
+    toggleGrimoire();
 }
 
 export function onDrawCard() {
-    console.log('[Grimoire] Draw card from Nyxgotchi');
+    debug('onDrawCard stub');
 }
 
 export function onViewQueue() {
-    console.log('[Grimoire] View queue from Nyxgotchi');
+    debug('onViewQueue stub');
 }
 
 export function onPokeNyx() {
-    console.log('[Grimoire] Poke Nyx from Nyxgotchi');
+    debug('onPokeNyx stub');
 }
-
-// ══════════════════════════════════════════════
-// EXPORTS
-// ══════════════════════════════════════════════
-
-export { grimoireState, GRIMOIRE_TABS };
