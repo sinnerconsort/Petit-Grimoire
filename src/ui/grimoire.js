@@ -45,29 +45,27 @@ export function createGrimoire() {
     });
     
     // =========== BOOK CONTAINER ===========
-    // Uses sprite as background, responsive sizing
+    // Uses sprite as background, fills most of the screen
     const book = document.createElement('div');
     book.id = 'pg-book';
     Object.assign(book.style, {
         position: 'relative',
-        // Responsive sizing - 85% of viewport width, max 400px
-        width: 'min(85vw, 400px)',
-        // Height calculated from aspect ratio (896:720 = 1.244:1)
+        // Fill most of the viewport - book is wider than tall (896:720)
+        width: '95vw',
+        maxWidth: '600px',
+        // Height based on aspect ratio
         aspectRatio: '896 / 720',
-        maxHeight: '70vh',
         margin: 'auto',
         // Sprite background
         backgroundImage: `url('${ASSET_PATHS.grimoire}/Grimoire_WithTabs.png')`,
-        backgroundSize: 'contain',
+        backgroundSize: '100% 100%',
         backgroundRepeat: 'no-repeat',
         backgroundPosition: 'center',
         imageRendering: 'pixelated',
-        // Fallback if sprite fails
-        backgroundColor: theme.cardBg,
-        // No border - sprite has its own frame
+        // Transparent - sprite has its own visuals
+        backgroundColor: 'transparent',
         borderRadius: '0',
-        boxShadow: `0 10px 40px rgba(0,0,0,0.5), 0 0 30px ${theme.main}30`,
-        display: 'flex',
+        boxShadow: 'none',
         overflow: 'visible'
     });
     
@@ -327,11 +325,6 @@ export function updateGrimoireTheme() {
     const theme = getTheme(settings.theme);
     const book = document.getElementById('pg-book');
     const content = document.getElementById('pg-content');
-    
-    if (book) {
-        book.style.boxShadow = `0 10px 40px rgba(0,0,0,0.5), 0 0 30px ${theme.main}30`;
-        book.style.backgroundColor = theme.cardBg; // Fallback color
-    }
     
     if (content) {
         content.style.color = theme.textLight;
