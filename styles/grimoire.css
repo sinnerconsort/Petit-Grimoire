@@ -1,5 +1,5 @@
 /**
- * Petit Grimoire — Inventory Book Edition (FIXED)
+ * Petit Grimoire — Inventory Book Edition
  * Clean book with FontAwesome tab icons
  * Native sprite: 896×720
  * 
@@ -7,8 +7,6 @@
  * - Left page:  x=152-418, y=198-578
  * - Right page: x=478-746, y=198-578
  * - Tabs: 7 tabs starting at y=259
- * 
- * FIX: Pages now fill their containers properly with no gaps
  */
 
 /* ══════════════════════════════════════════════
@@ -23,26 +21,24 @@
     /* 
      * Display size - WIDTH based
      * Book is landscape, phone is portrait, so width is the constraint
+     * Adjust --grimoire-width to make book bigger/smaller
      */
-    --grimoire-width: 96vw;
+    --grimoire-width: 100vw;
     --grimoire-max-width: 1000px;
     
     /* 
-     * Page content areas - CORRECTED percentages from sprite measurements
-     * These define the OUTER bounds of the entire pages area
+     * Page content areas - CORRECTED percentages
+     * These position the content INSIDE the parchment pages
      */
-    --pages-left: 17%;      /* 152/896 = 16.96% */
-    --pages-right: 16.7%;   /* (896-746)/896 = 16.74% */
-    --pages-top: 27.5%;     /* 198/720 */
-    --pages-bottom: 19.7%;  /* (720-578)/720 */
-    
-    /* Spine center position (gap between pages) */
-    --spine-start: 46.7%;   /* 418/896 - left page ends */
-    --spine-end: 53.3%;     /* 478/896 - right page starts */
-    --spine-width: 6.6%;    /* spine-end minus spine-start */
+    --page-left-start: 17%;
+    --page-left-end: 46.7%;
+    --page-right-start: 53.3%;
+    --page-right-end: 83.3%;
+    --page-top: 27.5%;
+    --page-bottom: 19.7%;
     
     /* Tab positions */
-    --tab-right: 6%;        /* Adjusted - closer to edge */
+    --tab-right: 10%;  /* from right edge */
     --tab-width: 32px;
     --tab-height: 28px;
     
@@ -82,38 +78,41 @@
     z-index: 99999;
     display: none;
     pointer-events: auto;
+    box-sizing: border-box !important;
     
-    /* Use aspect-ratio for proper scaling */
+    /* 
+     * Size using aspect-ratio for proper scaling
+     * Book is landscape (896:720 = 1.244:1)
+     * Phone is portrait, so WIDTH is the constraint
+     */
     aspect-ratio: 896 / 720;
-    width: var(--grimoire-width) !important;
+    width: var(--grimoire-width, 100vw) !important;
     height: auto !important;
     
     /* Caps */
-    max-width: var(--grimoire-max-width) !important;
-    max-height: 90vh !important;
+    max-width: var(--grimoire-max-width, 1000px) !important;
+    /* max-height removed — aspect-ratio handles proportions,
+       and 90vh was potentially clamping the book smaller */
     
-    /* Prevent any default browser sizing */
-    box-sizing: border-box !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    
-    /* Center positioning */
+    /* Center positioning (JS may override for mobile) */
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
 }
 
 /* ══════════════════════════════════════════════
-   BOOK CONTAINER - THE BACKGROUND SPRITE
+   BOOK CONTAINER
    ══════════════════════════════════════════════ */
 
 .mg-grimoire-book {
-    position: absolute;
-    inset: 0;
+    position: relative;
+    width: 100% !important;
+    height: 100% !important;
+    box-sizing: border-box !important;
     
-    /* Book sprite as background */
+    /* Book with tabs as background */
     background-image: url('../assets/grimoire/Grimoire_WithTabs.png');
-    background-size: 100% 100%;
+    background-size: 100% 100% !important;
     background-repeat: no-repeat;
     background-position: center;
     
@@ -247,7 +246,7 @@
     border-radius: 50%;
 }
 
-/* Tab positions - 7 tabs on right side */
+/* Tab positions - 7 tabs on right side (CORRECTED) */
 .mg-grimoire-tab--1 { top: 36.0%; }
 .mg-grimoire-tab--2 { top: 41.2%; }
 .mg-grimoire-tab--3 { top: 46.5%; }
@@ -257,62 +256,56 @@
 .mg-grimoire-tab--7 { top: 67.6%; }
 
 /* ══════════════════════════════════════════════
-   PAGE CONTENT AREAS (FIXED!)
-   
-   Changed from flex to absolute positioning
-   so each page fills its exact sprite area
+   PAGE CONTENT AREAS
    ══════════════════════════════════════════════ */
 
 .mg-grimoire-pages {
     position: absolute;
-    top: var(--pages-top);
-    bottom: var(--pages-bottom);
-    left: var(--pages-left);
-    right: var(--pages-right);
+    /* CORRECTED bounds - content now sits ON the parchment */
+    top: var(--page-top);
+    bottom: var(--page-bottom);
+    left: var(--page-left-start);
+    right: calc(100% - var(--page-right-end));
     
+    display: flex;
+    gap: 0;
     pointer-events: auto;
     z-index: 2;
-    
-    /* DEBUG - uncomment to see container bounds */
-    /* background: rgba(0, 255, 0, 0.1); */
 }
 
 .mg-grimoire-page {
-    position: absolute;
-    top: 0;
-    bottom: 0;
     display: flex;
     flex-direction: column;
     overflow: hidden;
     box-sizing: border-box;
-    
-    /* DEBUG - uncomment to see page bounds */
-    /* background: rgba(255, 0, 0, 0.1); */
 }
 
-/* Left page - from pages-left edge to spine start */
+/* Left page */
 .mg-grimoire-page--left {
-    left: 0;
-    /* Width = (spine-start - pages-left) / (total pages width) */
-    /* = (46.7% - 17%) / (100% - 17% - 16.7%) = 29.7% / 66.3% = 44.8% */
-    width: 44.8%;
-    padding-right: 4px; /* Small padding from spine */
+    /* 
+     * Width calculation:
+     * Total span = 83.3% - 17% = 66.3%
+     * Left page = 46.7% - 17% = 29.7%
+     * Left proportion = 29.7 / 66.3 = 44.8%
+     */
+    flex: 0 0 44.8%;
+    /* padding removed — was creating visible gap on small screens */
 }
 
-/* Right page - from spine end to pages-right edge */
+/* Right page */
 .mg-grimoire-page--right {
-    right: 0;
-    /* Width = (100% - pages-right - spine-end) / (total pages width) */
-    /* = (83.3% - 53.3%) / 66.3% = 30% / 66.3% = 45.2% */
-    width: 45.2%;
-    padding-left: 4px; /* Small padding from spine */
+    /* Right page = 83.3% - 53.3% = 30% */
+    /* Right proportion = 30 / 66.3 = 45.2% */
+    flex: 0 0 45.2%;
+    /* padding removed — spine gap from margin-left: auto is sufficient */
+    margin-left: auto; /* Push right, leaving spine gap */
 }
 
 .mg-grimoire-page-content {
     flex: 1;
     overflow-y: auto;
     overflow-x: hidden;
-    padding: 6px;
+    padding: 3px;
     
     /* Subtle scrollbar */
     scrollbar-width: thin;
@@ -372,24 +365,26 @@
     display: block;
     width: 100%;
     padding: 8px 12px;
-    margin-top: 8px;
-    background: linear-gradient(180deg, var(--grimoire-accent), #6b4420);
-    border: 1px solid #5a3415;
+    margin: 8px 0;
+    
+    background: linear-gradient(180deg, var(--grimoire-highlight), var(--grimoire-accent));
+    border: 2px solid var(--grimoire-accent);
     border-radius: 4px;
+    
     color: #fff;
-    font-size: 11px;
+    font-size: 10px;
     font-weight: 600;
-    text-align: center;
     text-transform: uppercase;
     letter-spacing: 1px;
+    text-shadow: 1px 1px 0 rgba(0,0,0,0.3);
+    
     cursor: pointer;
     transition: all 0.15s ease;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
 
 .mg-page-btn:hover {
-    background: linear-gradient(180deg, #9a6a35, var(--grimoire-accent));
-    box-shadow: 0 3px 6px rgba(0,0,0,0.3);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
 
 .mg-page-btn:active {
@@ -650,11 +645,17 @@
 /* Mobile - FILL the width since phones are portrait */
 @media (max-width: 600px) {
     :root {
-        --grimoire-width: 98vw;
+        --grimoire-width: 100vw;       /* True full width — no margin */
         --grimoire-max-width: 100vw;
         --tab-width: 36px;
         --tab-height: 32px;
-        --tab-right: 4%;
+        --tab-right: 8%;
+    }
+    
+    .mg-grimoire,
+    #mg-grimoire {
+        /* Override max-height so aspect-ratio controls height naturally */
+        max-height: none !important;
     }
     
     .mg-grimoire-tab {
@@ -678,7 +679,7 @@
         --grimoire-max-width: 800px;
         --tab-width: 40px;
         --tab-height: 36px;
-        --tab-right: 5%;
+        --tab-right: 9%;
     }
     
     .mg-grimoire-tab {
@@ -693,7 +694,7 @@
         --grimoire-max-width: 1000px;
         --tab-width: 44px;
         --tab-height: 40px;
-        --tab-right: 6%;
+        --tab-right: 10%;
     }
     
     .mg-grimoire-tab {
@@ -736,29 +737,22 @@
 
 /*
 .mg-grimoire {
-    outline: 3px solid magenta !important;
-}
-
-.mg-grimoire-book {
-    outline: 2px solid cyan !important;
-}
-
-.mg-grimoire-pages {
-    background: rgba(0, 255, 0, 0.15) !important;
-    outline: 1px dashed lime !important;
-}
-
-.mg-grimoire-page--left {
-    background: rgba(255, 0, 0, 0.15) !important;
-    outline: 1px solid red !important;
-}
-
-.mg-grimoire-page--right {
-    background: rgba(0, 0, 255, 0.15) !important;
-    outline: 1px solid blue !important;
+    outline: 2px solid magenta;
 }
 
 .mg-grimoire-tab {
     background: rgba(255, 0, 255, 0.3) !important;
+}
+
+.mg-grimoire-pages {
+    background: rgba(0, 255, 0, 0.2) !important;
+}
+
+.mg-grimoire-page--left {
+    background: rgba(255, 0, 0, 0.2) !important;
+}
+
+.mg-grimoire-page--right {
+    background: rgba(0, 0, 255, 0.2) !important;
 }
 */
