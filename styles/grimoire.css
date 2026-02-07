@@ -9,6 +9,7 @@
  *   Tab spacing:  26px tall, 38px apart vertically
  * 
  * TAB POSITIONS (canvas coords → % of visible 363×416 area):
+ *   Tab center X: canvas 474 → 6.6% of visible width
  *   Tab 1: center y=259 → 18.8%
  *   Tab 2: center y=297 → 27.9%
  *   Tab 3: center y=335 → 37.0%
@@ -64,12 +65,12 @@
     
     /* 
      * Tab icon hitbox (for positioned tab buttons)
-     * Tabs occupy x=450–484 in canvas = 0–34px in visible area
-     * Center: ~17/363 = 4.7% from left
+     * Tabs span x=459–489 in canvas, center x=474
+     * As % of visible area: (474−450)/363 = 6.6%
      */
-    --tab-center-x: 4.7%;
+    --tab-center-x: 6.6%;
     --tab-width: 30px;
-    --tab-height: 22px;
+    --tab-height: 24px;
     
     /* Colors */
     --grimoire-text: #4a3728;
@@ -126,6 +127,11 @@
     animation: grimoire-slide-in 0.3s ease-out;
 }
 
+/* Closing animation — applied by JS before hiding */
+.mg-grimoire.mg-grimoire-closing {
+    animation: grimoire-slide-out 0.25s ease-in forwards;
+}
+
 @keyframes grimoire-slide-in {
     from {
         opacity: 0;
@@ -134,6 +140,17 @@
     to {
         opacity: 1;
         transform: translateX(-50%) translateY(0);
+    }
+}
+
+@keyframes grimoire-slide-out {
+    from {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateX(-50%) translateY(40px);
     }
 }
 
@@ -254,6 +271,45 @@
 .mg-grimoire-tab--4 { top: 46.2%; }
 .mg-grimoire-tab--5 { top: 55.3%; }
 .mg-grimoire-tab--6 { top: 64.4%; }
+
+/* ══════════════════════════════════════════════
+   CLOSE BUTTON — Top-right corner of parchment
+   ══════════════════════════════════════════════ */
+
+.mg-grimoire-close {
+    position: absolute;
+    top: var(--content-top);
+    right: var(--content-right);
+    z-index: 15;
+    
+    width: 28px;
+    height: 28px;
+    
+    background: transparent;
+    border: 1.5px solid var(--grimoire-accent);
+    border-radius: 4px;
+    cursor: pointer;
+    pointer-events: auto;
+    
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    color: var(--grimoire-accent);
+    font-size: 13px;
+    
+    transition: all 0.15s ease;
+}
+
+.mg-grimoire-close:hover {
+    background: var(--grimoire-accent);
+    color: var(--grimoire-parchment);
+    transform: scale(1.1);
+}
+
+.mg-grimoire-close:active {
+    transform: scale(0.95);
+}
 
 /* ══════════════════════════════════════════════
    PAGE CONTENT AREA
@@ -650,7 +706,7 @@
         --grimoire-width: 92vw;
         --grimoire-max-width: 100vw;
         --tab-width: 28px;
-        --tab-height: 20px;
+        --tab-height: 22px;
     }
     
     .mg-grimoire,
@@ -660,6 +716,12 @@
     
     .mg-grimoire-tab {
         font-size: 10px;
+    }
+    
+    .mg-grimoire-close {
+        width: 26px;
+        height: 26px;
+        font-size: 12px;
     }
 }
 
@@ -702,6 +764,17 @@
         to {
             opacity: 1;
             transform: translateY(0);
+        }
+    }
+    
+    @keyframes grimoire-slide-out {
+        from {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        to {
+            opacity: 0;
+            transform: translateY(40px);
         }
     }
     
