@@ -1,12 +1,20 @@
 /**
- * Petit Grimoire — Inventory Book Edition
- * Clean book with FontAwesome tab icons
- * Native sprite: 896×720
+ * Petit Grimoire — Drawer Edition
+ * Single-page grimoire using right-half sprite crop
+ * Native sprite: 896×720 → showing right half = 448×720 (portrait!)
  * 
- * CORRECTED Page content areas measured from sprite:
- * - Left page:  x=152-418, y=198-578
- * - Right page: x=478-746, y=198-578
- * - Tabs: 7 tabs starting at y=259
+ * The right half of the book sprite gives us:
+ * - Spine edge on the left (the book binding)
+ * - Full right parchment page
+ * - Tab bookmarks on the right edge
+ * 
+ * Content area (mapped from original sprite coordinates):
+ * Original right page: x=478-746, y=198-578
+ * In right-half crop (starting at x=448):
+ *   - Parchment left edge:  (478-448)/448 = 6.7%
+ *   - Parchment right edge: (746-448)/448 = 66.5%
+ *   - Top: 198/720 = 27.5%
+ *   - Bottom: (720-578)/720 = 19.7%
  */
 
 /* ══════════════════════════════════════════════
@@ -14,33 +22,27 @@
    ══════════════════════════════════════════════ */
 
 :root {
-    /* Native book dimensions */
-    --book-native-width: 896;
-    --book-native-height: 720;
+    /* Half-book dimensions (portrait) */
+    --book-crop-width: 448;
+    --book-crop-height: 720;
+    
+    /* Drawer sizing */
+    --grimoire-width: 90vw;
+    --grimoire-max-width: 420px;
     
     /* 
-     * Display size - WIDTH based
-     * Book is landscape, phone is portrait, so width is the constraint
-     * Adjust --grimoire-width to make book bigger/smaller
+     * Page content area — mapped to the RIGHT half of the sprite
+     * These position content ON the parchment
      */
-    --grimoire-width: 100vw;
-    --grimoire-max-width: 1000px;
+    --page-left: 7%;
+    --page-right: 34%;    /* leaves room for book edge + tabs */
+    --page-top: 10%;
+    --page-bottom: 8%;
     
-    /* 
-     * Page content areas - CORRECTED percentages
-     * These position the content INSIDE the parchment pages
-     */
-    --page-left-start: 17%;
-    --page-left-end: 46.7%;
-    --page-right-start: 53.3%;
-    --page-right-end: 83.3%;
-    --page-top: 27.5%;
-    --page-bottom: 19.7%;
-    
-    /* Tab positions */
-    --tab-right: 10%;  /* from right edge */
-    --tab-width: 32px;
-    --tab-height: 28px;
+    /* Tab positions — right edge of the half-crop */
+    --tab-right: 5%;
+    --tab-width: 28px;
+    --tab-height: 24px;
     
     /* Colors */
     --grimoire-text: #4a3728;
@@ -56,7 +58,7 @@
 .mg-grimoire-overlay {
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.6);
+    background: rgba(0, 0, 0, 0.5);
     z-index: 99998;
     display: none;
     opacity: 0;
@@ -69,7 +71,7 @@
 }
 
 /* ══════════════════════════════════════════════
-   GRIMOIRE CONTAINER
+   GRIMOIRE CONTAINER — Bottom Drawer
    ══════════════════════════════════════════════ */
 
 .mg-grimoire,
@@ -81,27 +83,39 @@
     box-sizing: border-box !important;
     
     /* 
-     * Size using aspect-ratio for proper scaling
-     * Book is landscape (896:720 = 1.244:1)
-     * Phone is portrait, so WIDTH is the constraint
+     * Portrait aspect ratio from the right-half crop
+     * 448:720 ≈ 0.622:1 — naturally tall, phone-friendly
      */
-    aspect-ratio: 896 / 720;
-    width: var(--grimoire-width, 100vw) !important;
+    aspect-ratio: 448 / 720;
+    width: var(--grimoire-width, 90vw) !important;
     height: auto !important;
+    max-width: var(--grimoire-max-width, 420px) !important;
     
-    /* Caps */
-    max-width: var(--grimoire-max-width, 1000px) !important;
-    /* max-height removed — aspect-ratio handles proportions,
-       and 90vh was potentially clamping the book smaller */
-    
-    /* Center positioning (JS may override for mobile) */
-    top: 50%;
+    /* 
+     * Bottom-center positioning (drawer style)
+     * Sits near the bottom of the screen
+     */
+    bottom: 8px;
     left: 50%;
-    transform: translate(-50%, -50%);
+    transform: translateX(-50%);
+    
+    /* Slide-in animation when shown */
+    animation: grimoire-slide-in 0.25s ease-out;
+}
+
+@keyframes grimoire-slide-in {
+    from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
 }
 
 /* ══════════════════════════════════════════════
-   BOOK CONTAINER
+   BOOK CONTAINER — Right-half sprite crop
    ══════════════════════════════════════════════ */
 
 .mg-grimoire-book {
@@ -110,11 +124,16 @@
     height: 100% !important;
     box-sizing: border-box !important;
     
-    /* Book with tabs as background */
+    /* 
+     * THE CROP: Show only the right half of the book sprite
+     * background-size: 200% stretches sprite to double width,
+     * so only half fits in the container.
+     * background-position: 100% snaps to the RIGHT half.
+     */
     background-image: url('../assets/grimoire/Grimoire_WithTabs.png');
-    background-size: 100% 100% !important;
+    background-size: 200% 100% !important;
+    background-position: 100% 0% !important;
     background-repeat: no-repeat;
-    background-position: center;
     
     /* Pixel art crisp */
     image-rendering: pixelated;
@@ -125,6 +144,10 @@
 
 /* ══════════════════════════════════════════════
    ANIMATION LAYER
+   Book open/close and page-turn animations
+   are disabled in drawer mode — the drawer
+   slide IS the open animation.
+   Re-enable or replace if custom transitions needed.
    ══════════════════════════════════════════════ */
 
 .mg-grimoire-anim {
@@ -135,47 +158,12 @@
     height: 100%;
     z-index: 10;
     pointer-events: none;
-    opacity: 0;
     
-    background-repeat: no-repeat;
-    background-position: 0% center;
-    
-    image-rendering: pixelated;
-    image-rendering: crisp-edges;
+    /* Disabled — full-book sprite animations don't work with half crop */
+    display: none !important;
 }
 
-/* Opening animation - 5 frames */
-.mg-grimoire-anim.mg-anim-opening {
-    opacity: 1;
-    background-image: url('../assets/grimoire/Grimoire_Opening.png');
-    background-size: 500% 100%;
-    animation: grimoire-sprite-5 500ms steps(4) forwards;
-}
-
-/* Closing animation - 5 frames */
-.mg-grimoire-anim.mg-anim-closing {
-    opacity: 1;
-    background-image: url('../assets/grimoire/Grimoire_Closing.png');
-    background-size: 500% 100%;
-    animation: grimoire-sprite-5 500ms steps(4) forwards;
-}
-
-/* Page turn next - 9 frames */
-.mg-grimoire-anim.mg-anim-page-next {
-    opacity: 1;
-    background-image: url('../assets/grimoire/Grimoire_PageNext.png');
-    background-size: 900% 100%;
-    animation: grimoire-sprite-9 400ms steps(8) forwards;
-}
-
-/* Page turn prev - 9 frames */
-.mg-grimoire-anim.mg-anim-page-prev {
-    opacity: 1;
-    background-image: url('../assets/grimoire/Grimoire_PagePrev.png');
-    background-size: 900% 100%;
-    animation: grimoire-sprite-9 400ms steps(8) forwards;
-}
-
+/* Keep keyframes defined in case we want drawer-specific anims later */
 @keyframes grimoire-sprite-5 {
     from { background-position: 0% center; }
     to { background-position: 100% center; }
@@ -187,7 +175,7 @@
 }
 
 /* ══════════════════════════════════════════════
-   TAB ICONS (FontAwesome over blank tabs)
+   TAB ICONS (FontAwesome over the sprite tabs)
    ══════════════════════════════════════════════ */
 
 .mg-grimoire-tabs {
@@ -220,7 +208,7 @@
     
     /* Icon styling */
     color: var(--grimoire-text);
-    font-size: 14px;
+    font-size: 12px;
     
     transition: transform 0.15s ease, color 0.15s ease;
 }
@@ -246,7 +234,10 @@
     border-radius: 50%;
 }
 
-/* Tab positions - 7 tabs on right side (CORRECTED) */
+/* 
+ * Tab positions — 7 tabs on right edge
+ * Vertical positions unchanged (no vertical crop)
+ */
 .mg-grimoire-tab--1 { top: 36.0%; }
 .mg-grimoire-tab--2 { top: 41.2%; }
 .mg-grimoire-tab--3 { top: 46.5%; }
@@ -256,73 +247,71 @@
 .mg-grimoire-tab--7 { top: 67.6%; }
 
 /* ══════════════════════════════════════════════
-   PAGE CONTENT AREAS
+   PAGE CONTENT AREA — Single page, vertical stack
+   
+   Both .page--left and .page--right now stack
+   vertically inside one scrollable area.
+   No JS changes needed — content just flows down.
    ══════════════════════════════════════════════ */
 
 .mg-grimoire-pages {
     position: absolute;
-    /* CORRECTED bounds - content now sits ON the parchment */
     top: var(--page-top);
     bottom: var(--page-bottom);
-    left: var(--page-left-start);
-    right: calc(100% - var(--page-right-end));
+    left: var(--page-left);
+    right: var(--page-right);
     
-    display: flex;
-    gap: 0;
-    pointer-events: auto;
-    z-index: 2;
-}
-
-.mg-grimoire-page {
+    /* Single scrollable column */
     display: flex;
     flex-direction: column;
-    overflow: hidden;
-    box-sizing: border-box;
-}
-
-/* Left page */
-.mg-grimoire-page--left {
-    /* 
-     * Width calculation:
-     * Total span = 83.3% - 17% = 66.3%
-     * Left page = 46.7% - 17% = 29.7%
-     * Left proportion = 29.7 / 66.3 = 44.8%
-     */
-    flex: 0 0 44.8%;
-    /* padding removed — was creating visible gap on small screens */
-}
-
-/* Right page */
-.mg-grimoire-page--right {
-    /* Right page = 83.3% - 53.3% = 30% */
-    /* Right proportion = 30 / 66.3 = 45.2% */
-    flex: 0 0 45.2%;
-    /* padding removed — spine gap from margin-left: auto is sufficient */
-    margin-left: auto; /* Push right, leaving spine gap */
-}
-
-.mg-grimoire-page-content {
-    flex: 1;
     overflow-y: auto;
     overflow-x: hidden;
-    padding: 3px;
+    pointer-events: auto;
+    z-index: 2;
     
     /* Subtle scrollbar */
     scrollbar-width: thin;
     scrollbar-color: var(--grimoire-accent) transparent;
 }
 
-.mg-grimoire-page-content::-webkit-scrollbar {
+.mg-grimoire-pages::-webkit-scrollbar {
     width: 4px;
 }
 
-.mg-grimoire-page-content::-webkit-scrollbar-track {
+.mg-grimoire-pages::-webkit-scrollbar-track {
     background: transparent;
 }
 
-.mg-grimoire-page-content::-webkit-scrollbar-thumb {
+.mg-grimoire-pages::-webkit-scrollbar-thumb {
     background: var(--grimoire-accent);
     border-radius: 2px;
+}
+
+.mg-grimoire-page {
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    width: 100%;
+    flex-shrink: 0;
+}
+
+/* Left page — now stacks on TOP in the drawer */
+.mg-grimoire-page--left {
+    padding-bottom: 8px;
+    border-bottom: 1px dashed var(--grimoire-highlight);
+    margin-bottom: 8px;
+}
+
+/* Right page — stacks BELOW left page */
+.mg-grimoire-page--right {
+    /* Reset the old side-by-side margin */
+    margin-left: 0;
+}
+
+.mg-grimoire-page-content {
+    flex: 1;
+    overflow: visible;  /* Parent handles scrolling now */
+    padding: 2px;
 }
 
 /* ══════════════════════════════════════════════
@@ -330,42 +319,42 @@
    ══════════════════════════════════════════════ */
 
 .mg-page-section {
-    margin-bottom: 10px;
+    margin-bottom: 8px;
 }
 
 .mg-page-title {
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 600;
     color: var(--grimoire-accent);
-    margin: 0 0 6px 0;
-    padding-bottom: 4px;
+    margin: 0 0 4px 0;
+    padding-bottom: 3px;
     border-bottom: 1px solid var(--grimoire-highlight);
     text-transform: uppercase;
     letter-spacing: 1px;
 }
 
 .mg-page-subtitle {
-    font-size: 11px;
+    font-size: 10px;
     font-weight: 600;
     color: var(--grimoire-text);
-    margin: 8px 0 4px 0;
+    margin: 6px 0 3px 0;
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
 
 .mg-page-flavor {
-    font-size: 10px;
+    font-size: 9px;
     font-style: italic;
     color: var(--grimoire-text-dim);
-    margin: 0 0 8px 0;
+    margin: 0 0 6px 0;
     line-height: 1.4;
 }
 
 .mg-page-btn {
     display: block;
     width: 100%;
-    padding: 8px 12px;
-    margin: 8px 0;
+    padding: 8px 10px;
+    margin: 6px 0;
     
     background: linear-gradient(180deg, var(--grimoire-highlight), var(--grimoire-accent));
     border: 2px solid var(--grimoire-accent);
@@ -393,7 +382,7 @@
 
 .mg-text-dim {
     color: var(--grimoire-text-dim);
-    font-size: 10px;
+    font-size: 9px;
     font-style: italic;
 }
 
@@ -405,13 +394,13 @@
 .mg-card-spread {
     display: flex;
     justify-content: center;
-    gap: 4px;
+    gap: 6px;
     margin: 8px 0;
 }
 
 .mg-card-slot {
-    width: 32px;
-    height: 46px;
+    width: 36px;
+    height: 50px;
     background: linear-gradient(135deg, rgba(139,90,43,0.2), rgba(212,165,116,0.1));
     border: 2px dashed var(--grimoire-accent);
     border-radius: 3px;
@@ -459,8 +448,8 @@
 }
 
 .mg-crystal-sphere {
-    width: 48px;
-    height: 48px;
+    width: 56px;
+    height: 56px;
     border-radius: 50%;
     background: radial-gradient(circle at 30% 30%, 
         rgba(200,180,255,0.9), 
@@ -494,8 +483,8 @@
 }
 
 .mg-crystal-base {
-    width: 22px;
-    height: 5px;
+    width: 24px;
+    height: 6px;
     background: linear-gradient(180deg, #5a4a3a, #3a2a1a);
     border-radius: 0 0 3px 3px;
     margin-top: -2px;
@@ -503,15 +492,15 @@
 
 /* Ouija board mini */
 .mg-ouija-mini {
-    padding: 5px;
+    padding: 6px;
     background: linear-gradient(180deg, #3a2a1a, #2a1a0a);
     border-radius: 5px;
     text-align: center;
-    margin: 5px 0;
+    margin: 6px 0;
 }
 
 .mg-ouija-letters {
-    font-size: 5px;
+    font-size: 6px;
     color: var(--grimoire-highlight);
     letter-spacing: 1px;
     margin-bottom: 3px;
@@ -520,19 +509,19 @@
 .mg-ouija-yes-no {
     display: flex;
     justify-content: space-around;
-    font-size: 6px;
+    font-size: 7px;
     color: var(--grimoire-highlight);
     margin-bottom: 3px;
 }
 
 .mg-ouija-input {
     width: 100%;
-    padding: 3px 5px;
+    padding: 4px 6px;
     background: rgba(255,255,255,0.1);
     border: 1px solid var(--grimoire-accent);
     border-radius: 3px;
     color: var(--grimoire-highlight);
-    font-size: 8px;
+    font-size: 9px;
     box-sizing: border-box;
 }
 
@@ -550,25 +539,25 @@
     padding: 8px 4px;
     color: var(--grimoire-text-dim);
     font-style: italic;
-    font-size: 8px;
+    font-size: 9px;
 }
 
 .mg-queue-item {
     display: flex;
     align-items: center;
-    gap: 3px;
-    padding: 2px 4px;
+    gap: 4px;
+    padding: 3px 4px;
     margin-bottom: 2px;
     background: rgba(139,90,43,0.1);
     border-radius: 2px;
-    font-size: 8px;
+    font-size: 9px;
 }
 
 .mg-queue-footer {
     text-align: center;
-    font-size: 7px;
+    font-size: 8px;
     color: var(--grimoire-text-dim);
-    padding-top: 3px;
+    padding-top: 4px;
     border-top: 1px dashed var(--grimoire-highlight);
 }
 
@@ -576,21 +565,21 @@
 .mg-vision-log,
 .mg-ouija-history {
     min-height: 50px;
-    max-height: 80px;
+    max-height: 120px;
     overflow-y: auto;
 }
 
 /* Nyx page */
 .mg-nyx-portrait {
-    width: 44px;
-    height: 44px;
+    width: 48px;
+    height: 48px;
     margin: 0 auto 6px;
     border-radius: 50%;
     background: linear-gradient(135deg, #6b5b95, #4a3f6b);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 20px;
+    font-size: 22px;
     box-shadow: 0 2px 6px rgba(107,91,149,0.4);
 }
 
@@ -617,14 +606,14 @@
 
 .mg-nyx-actions {
     display: flex;
-    gap: 3px;
+    gap: 4px;
     margin-top: 6px;
 }
 
 .mg-nyx-btn {
     flex: 1;
-    padding: 4px 5px;
-    font-size: 8px;
+    padding: 5px 6px;
+    font-size: 9px;
     border-radius: 3px;
     border: 1px solid var(--grimoire-accent);
     background: rgba(139,90,43,0.1);
@@ -642,92 +631,98 @@
    RESPONSIVE SCALING
    ══════════════════════════════════════════════ */
 
-/* Mobile - FILL the width since phones are portrait */
+/* Mobile — primary target for drawer layout */
 @media (max-width: 600px) {
     :root {
-        --grimoire-width: 100vw;       /* True full width — no margin */
+        --grimoire-width: 92vw;
         --grimoire-max-width: 100vw;
-        --tab-width: 36px;
-        --tab-height: 32px;
-        --tab-right: 8%;
+        --tab-width: 30px;
+        --tab-height: 26px;
+        --tab-right: 4%;
     }
     
     .mg-grimoire,
     #mg-grimoire {
-        /* Override max-height so aspect-ratio controls height naturally */
-        max-height: none !important;
+        bottom: 4px;
     }
     
     .mg-grimoire-tab {
-        font-size: 14px;
-    }
-    
-    .mg-page-title {
-        font-size: 12px;
-    }
-    
-    .mg-page-flavor,
-    .mg-text-dim {
-        font-size: 9px;
+        font-size: 11px;
     }
 }
 
 /* Tablet */
 @media (min-width: 601px) and (max-width: 900px) {
     :root {
-        --grimoire-width: 95vw;
-        --grimoire-max-width: 800px;
-        --tab-width: 40px;
-        --tab-height: 36px;
-        --tab-right: 9%;
+        --grimoire-width: 60vw;
+        --grimoire-max-width: 400px;
+        --tab-width: 32px;
+        --tab-height: 28px;
+        --tab-right: 5%;
     }
     
     .mg-grimoire-tab {
-        font-size: 16px;
+        font-size: 13px;
+    }
+    
+    .mg-page-title {
+        font-size: 13px;
     }
 }
 
 /* Desktop */
 @media (min-width: 901px) {
     :root {
-        --grimoire-width: 85vw;
-        --grimoire-max-width: 1000px;
-        --tab-width: 44px;
-        --tab-height: 40px;
-        --tab-right: 10%;
+        --grimoire-width: 35vw;
+        --grimoire-max-width: 450px;
+        --tab-width: 36px;
+        --tab-height: 32px;
+        --tab-right: 5%;
+    }
+    
+    .mg-grimoire,
+    #mg-grimoire {
+        /* Desktop: bottom-right panel instead of centered */
+        bottom: 20px;
+        left: auto;
+        right: 20px;
+        transform: none;
+    }
+    
+    @keyframes grimoire-slide-in {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
     }
     
     .mg-grimoire-tab {
-        font-size: 18px;
-    }
-    
-    .mg-page-title {
         font-size: 15px;
     }
     
+    .mg-page-title {
+        font-size: 14px;
+    }
+    
     .mg-page-subtitle {
-        font-size: 13px;
+        font-size: 12px;
     }
     
     .mg-page-flavor {
-        font-size: 12px;
+        font-size: 11px;
     }
     
     .mg-page-btn {
-        padding: 10px 16px;
-        font-size: 12px;
+        padding: 10px 14px;
+        font-size: 11px;
     }
     
     .mg-text-dim {
-        font-size: 11px;
-    }
-}
-
-/* Large desktop */
-@media (min-width: 1200px) {
-    :root {
-        --grimoire-width: 80vw;
-        --grimoire-max-width: 1100px;
+        font-size: 10px;
     }
 }
 
@@ -749,10 +744,10 @@
 }
 
 .mg-grimoire-page--left {
-    background: rgba(255, 0, 0, 0.2) !important;
+    background: rgba(255, 0, 0, 0.15) !important;
 }
 
 .mg-grimoire-page--right {
-    background: rgba(0, 0, 255, 0.2) !important;
+    background: rgba(0, 0, 255, 0.15) !important;
 }
 */
