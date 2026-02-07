@@ -1,20 +1,26 @@
 /**
- * Petit Grimoire — Drawer Edition
- * Single-page grimoire using right-half sprite crop
- * Native sprite: 896×720 → showing right half = 448×720 (portrait!)
+ * Petit Grimoire — Single-Page Drawer Edition (WithTabs)
+ * Uses Grimoire_WithTabs.png — single page with 6 tab bookmarks
  * 
- * The right half of the book sprite gives us:
- * - Spine edge on the left (the book binding)
- * - Full right parchment page
- * - Tab bookmarks on the right edge
+ * SPRITE MEASUREMENTS (from Grimoire_WithTabs.png, 896×720 canvas):
+ *   Page body:    x=484–812, y=194–596  (329×403 px)
+ *   With tabs:    x=450–812, y=181–596  (363×416 px)
+ *   Tabs left:    x=450–484  (34px protrusion)
+ *   Tab spacing:  26px tall, 38px apart vertically
  * 
- * Content area (mapped from original sprite coordinates):
- * Original right page: x=478-746, y=198-578
- * In right-half crop (starting at x=448):
- *   - Parchment left edge:  (478-448)/448 = 6.7%
- *   - Parchment right edge: (746-448)/448 = 66.5%
- *   - Top: 198/720 = 27.5%
- *   - Bottom: (720-578)/720 = 19.7%
+ * TAB POSITIONS (canvas coords → % of visible 363×416 area):
+ *   Tab 1: center y=259 → 18.8%
+ *   Tab 2: center y=297 → 27.9%
+ *   Tab 3: center y=335 → 37.0%
+ *   Tab 4: center y=373 → 46.2%
+ *   Tab 5: center y=411 → 55.3%
+ *   Tab 6: center y=449 → 64.4%
+ * 
+ * ANIMATION NOTE:
+ *   Opening/Closing/PageTurn sprites are for the OTHER page layout
+ *   (left page at x=118–449). They won't align with WithTabs.
+ *   The drawer slide-in replaces the open/close animation.
+ *   Tab switches use a CSS crossfade instead of page turn sprites.
  */
 
 /* ══════════════════════════════════════════════
@@ -22,33 +28,55 @@
    ══════════════════════════════════════════════ */
 
 :root {
-    /* Half-book dimensions (portrait) */
-    --book-crop-width: 448;
-    --book-crop-height: 720;
+    /* Visible area of the sprite we're showing */
+    --page-vis-w: 363;
+    --page-vis-h: 416;
     
     /* Drawer sizing */
     --grimoire-width: 90vw;
-    --grimoire-max-width: 420px;
+    --grimoire-max-width: 400px;
     
     /* 
-     * Page content area — mapped to the RIGHT half of the sprite
-     * These position content ON the parchment
+     * Background crop math:
+     * Container shows 363×416 of the 896×720 canvas.
+     *   bg-size:  (896/363)×100% = 246.8%  ×  (720/416)×100% = 173.1%
+     *   bg-pos-x: 450/(896−363)  = 84.4%
+     *   bg-pos-y: 181/(720−416)  = 59.5%
      */
-    --page-left: 7%;
-    --page-right: 34%;    /* leaves room for book edge + tabs */
-    --page-top: 10%;
-    --page-bottom: 8%;
+    --bg-scale-x: 246.8%;
+    --bg-scale-y: 173.1%;
+    --bg-pos-x: 84.4%;
+    --bg-pos-y: 59.5%;
     
-    /* Tab positions — right edge of the half-crop */
-    --tab-right: 5%;
-    --tab-width: 28px;
-    --tab-height: 24px;
+    /* 
+     * Text content area (inside corner ornaments, right of tabs)
+     * Relative to the visible 363×416 container.
+     * Parchment inner: ~x=510–795, y=215–575 in canvas
+     *   left:   (510−450)/363 = 16.5%
+     *   right:  (812−795)/363 = 4.7%
+     *   top:    (215−181)/416 = 8.2%
+     *   bottom: (596−575)/416 = 5.0%
+     */
+    --content-left: 16.5%;
+    --content-right: 5%;
+    --content-top: 8%;
+    --content-bottom: 5%;
+    
+    /* 
+     * Tab icon hitbox (for positioned tab buttons)
+     * Tabs occupy x=450–484 in canvas = 0–34px in visible area
+     * Center: ~17/363 = 4.7% from left
+     */
+    --tab-center-x: 4.7%;
+    --tab-width: 30px;
+    --tab-height: 22px;
     
     /* Colors */
     --grimoire-text: #4a3728;
     --grimoire-text-dim: #7a6858;
     --grimoire-accent: #8b5a2b;
     --grimoire-highlight: #d4a574;
+    --grimoire-parchment: #eabd8a;
 }
 
 /* ══════════════════════════════════════════════
@@ -81,32 +109,27 @@
     display: none;
     pointer-events: auto;
     box-sizing: border-box !important;
+    overflow: hidden;
     
-    /* 
-     * Portrait aspect ratio from the right-half crop
-     * 448:720 ≈ 0.622:1 — naturally tall, phone-friendly
-     */
-    aspect-ratio: 448 / 720;
-    width: var(--grimoire-width, 90vw) !important;
+    /* Portrait ratio from visible area: 363:416 */
+    aspect-ratio: 363 / 416;
+    width: var(--grimoire-width) !important;
     height: auto !important;
-    max-width: var(--grimoire-max-width, 420px) !important;
+    max-width: var(--grimoire-max-width) !important;
     
-    /* 
-     * Bottom-center positioning (drawer style)
-     * Sits near the bottom of the screen
-     */
+    /* Bottom-center drawer */
     bottom: 8px;
     left: 50%;
     transform: translateX(-50%);
     
-    /* Slide-in animation when shown */
-    animation: grimoire-slide-in 0.25s ease-out;
+    /* Slide-in */
+    animation: grimoire-slide-in 0.3s ease-out;
 }
 
 @keyframes grimoire-slide-in {
     from {
         opacity: 0;
-        transform: translateX(-50%) translateY(30px);
+        transform: translateX(-50%) translateY(40px);
     }
     to {
         opacity: 1;
@@ -115,27 +138,19 @@
 }
 
 /* ══════════════════════════════════════════════
-   BOOK CONTAINER — Right-half sprite crop
+   BOOK BACKGROUND — Cropped to visible page+tabs
    ══════════════════════════════════════════════ */
 
 .mg-grimoire-book {
-    position: relative;
-    width: 100% !important;
-    height: 100% !important;
+    position: absolute;
+    inset: 0;
     box-sizing: border-box !important;
     
-    /* 
-     * THE CROP: Show only the right half of the book sprite
-     * background-size: 200% stretches sprite to double width,
-     * so only half fits in the container.
-     * background-position: 100% snaps to the RIGHT half.
-     */
     background-image: url('../assets/grimoire/Grimoire_WithTabs.png');
-    background-size: 200% 100% !important;
-    background-position: 100% 0% !important;
+    background-size: var(--bg-scale-x) var(--bg-scale-y);
+    background-position: var(--bg-pos-x) var(--bg-pos-y);
     background-repeat: no-repeat;
     
-    /* Pixel art crisp */
     image-rendering: pixelated;
     image-rendering: crisp-edges;
     
@@ -144,38 +159,35 @@
 
 /* ══════════════════════════════════════════════
    ANIMATION LAYER
-   Book open/close and page-turn animations
-   are disabled in drawer mode — the drawer
-   slide IS the open animation.
-   Re-enable or replace if custom transitions needed.
+   Opening/Closing sprites don't match this page
+   layout (they're for the left page). Disabled.
+   Page transitions use a CSS crossfade instead.
    ══════════════════════════════════════════════ */
 
 .mg-grimoire-anim {
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
+    inset: 0;
     z-index: 10;
     pointer-events: none;
-    
-    /* Disabled — full-book sprite animations don't work with half crop */
-    display: none !important;
+    opacity: 0;
+    /* Reserved for future page-change animations */
 }
 
-/* Keep keyframes defined in case we want drawer-specific anims later */
-@keyframes grimoire-sprite-5 {
-    from { background-position: 0% center; }
-    to { background-position: 100% center; }
+/* Simple crossfade for tab switches */
+.mg-grimoire-anim.mg-anim-page-fade {
+    opacity: 1;
+    background: var(--grimoire-parchment);
+    animation: grimoire-page-fade 0.25s ease-out forwards;
 }
 
-@keyframes grimoire-sprite-9 {
-    from { background-position: 0% center; }
-    to { background-position: 100% center; }
+@keyframes grimoire-page-fade {
+    0%   { opacity: 0.6; }
+    100% { opacity: 0; }
 }
 
 /* ══════════════════════════════════════════════
-   TAB ICONS (FontAwesome over the sprite tabs)
+   TAB ICONS — Positioned over sprite tab shapes
+   6 tabs on the LEFT side of the page
    ══════════════════════════════════════════════ */
 
 .mg-grimoire-tabs {
@@ -190,11 +202,12 @@
 
 .mg-grimoire-tab {
     position: absolute;
-    right: var(--tab-right);
+    left: var(--tab-center-x);
     width: var(--tab-width);
     height: var(--tab-height);
+    transform: translateX(-50%);
     
-    /* Transparent hitbox */
+    /* Transparent hitbox over sprite tab */
     background: transparent;
     border: none;
     cursor: pointer;
@@ -208,13 +221,13 @@
     
     /* Icon styling */
     color: var(--grimoire-text);
-    font-size: 12px;
+    font-size: 11px;
     
     transition: transform 0.15s ease, color 0.15s ease;
 }
 
 .mg-grimoire-tab:hover {
-    transform: scale(1.15);
+    transform: translateX(-50%) scale(1.15);
     color: var(--grimoire-accent);
 }
 
@@ -225,7 +238,7 @@
 .mg-grimoire-tab[data-active="true"]::after {
     content: '';
     position: absolute;
-    left: 2px;
+    right: 2px;
     top: 50%;
     transform: translateY(-50%);
     width: 3px;
@@ -234,34 +247,27 @@
     border-radius: 50%;
 }
 
-/* 
- * Tab positions — 7 tabs on right edge
- * Vertical positions unchanged (no vertical crop)
- */
-.mg-grimoire-tab--1 { top: 36.0%; }
-.mg-grimoire-tab--2 { top: 41.2%; }
-.mg-grimoire-tab--3 { top: 46.5%; }
-.mg-grimoire-tab--4 { top: 51.8%; }
-.mg-grimoire-tab--5 { top: 57.1%; }
-.mg-grimoire-tab--6 { top: 62.4%; }
-.mg-grimoire-tab--7 { top: 67.6%; }
+/* Tab vertical positions (% of visible area height) */
+.mg-grimoire-tab--1 { top: 18.8%; }
+.mg-grimoire-tab--2 { top: 27.9%; }
+.mg-grimoire-tab--3 { top: 37.0%; }
+.mg-grimoire-tab--4 { top: 46.2%; }
+.mg-grimoire-tab--5 { top: 55.3%; }
+.mg-grimoire-tab--6 { top: 64.4%; }
 
 /* ══════════════════════════════════════════════
-   PAGE CONTENT AREA — Single page, vertical stack
-   
-   Both .page--left and .page--right now stack
-   vertically inside one scrollable area.
-   No JS changes needed — content just flows down.
+   PAGE CONTENT AREA
+   Single scrollable column, positioned right
+   of the tab strip inside the parchment
    ══════════════════════════════════════════════ */
 
 .mg-grimoire-pages {
     position: absolute;
-    top: var(--page-top);
-    bottom: var(--page-bottom);
-    left: var(--page-left);
-    right: var(--page-right);
+    top: var(--content-top);
+    bottom: var(--content-bottom);
+    left: var(--content-left);
+    right: var(--content-right);
     
-    /* Single scrollable column */
     display: flex;
     flex-direction: column;
     overflow-y: auto;
@@ -287,30 +293,30 @@
     border-radius: 2px;
 }
 
+/*
+ * Both .page--left and .page--right stack vertically.
+ * Existing HTML structure works without JS changes.
+ */
 .mg-grimoire-page {
     display: flex;
     flex-direction: column;
     box-sizing: border-box;
     width: 100%;
-    flex-shrink: 0;
 }
 
-/* Left page — now stacks on TOP in the drawer */
 .mg-grimoire-page--left {
-    padding-bottom: 8px;
+    padding-bottom: 6px;
+    margin-bottom: 6px;
     border-bottom: 1px dashed var(--grimoire-highlight);
-    margin-bottom: 8px;
 }
 
-/* Right page — stacks BELOW left page */
 .mg-grimoire-page--right {
-    /* Reset the old side-by-side margin */
     margin-left: 0;
 }
 
 .mg-grimoire-page-content {
     flex: 1;
-    overflow: visible;  /* Parent handles scrolling now */
+    overflow: visible;
     padding: 2px;
 }
 
@@ -331,6 +337,13 @@
     border-bottom: 1px solid var(--grimoire-highlight);
     text-transform: uppercase;
     letter-spacing: 1px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.mg-page-title i {
+    font-size: 10px;
 }
 
 .mg-page-subtitle {
@@ -399,15 +412,15 @@
 }
 
 .mg-card-slot {
-    width: 36px;
-    height: 50px;
+    width: 40px;
+    height: 56px;
     background: linear-gradient(135deg, rgba(139,90,43,0.2), rgba(212,165,116,0.1));
     border: 2px dashed var(--grimoire-accent);
     border-radius: 3px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 12px;
+    font-size: 14px;
     color: var(--grimoire-accent);
     opacity: 0.6;
 }
@@ -417,14 +430,14 @@
     display: flex;
     align-items: center;
     gap: 6px;
-    padding: 4px;
+    padding: 5px;
     background: rgba(139,90,43,0.08);
     border-radius: 4px;
 }
 
 .mg-mini-card {
-    width: 20px;
-    height: 28px;
+    width: 22px;
+    height: 30px;
     background: var(--grimoire-accent);
     border-radius: 2px;
     display: flex;
@@ -444,12 +457,12 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin: 10px 0;
+    margin: 12px 0;
 }
 
 .mg-crystal-sphere {
-    width: 56px;
-    height: 56px;
+    width: 64px;
+    height: 64px;
     border-radius: 50%;
     background: radial-gradient(circle at 30% 30%, 
         rgba(200,180,255,0.9), 
@@ -483,45 +496,45 @@
 }
 
 .mg-crystal-base {
-    width: 24px;
-    height: 6px;
+    width: 28px;
+    height: 7px;
     background: linear-gradient(180deg, #5a4a3a, #3a2a1a);
     border-radius: 0 0 3px 3px;
     margin-top: -2px;
 }
 
-/* Ouija board mini */
+/* Ouija board */
 .mg-ouija-mini {
-    padding: 6px;
+    padding: 8px;
     background: linear-gradient(180deg, #3a2a1a, #2a1a0a);
     border-radius: 5px;
     text-align: center;
-    margin: 6px 0;
+    margin: 8px 0;
 }
 
 .mg-ouija-letters {
-    font-size: 6px;
+    font-size: 7px;
     color: var(--grimoire-highlight);
-    letter-spacing: 1px;
-    margin-bottom: 3px;
+    letter-spacing: 1.5px;
+    margin-bottom: 4px;
 }
 
 .mg-ouija-yes-no {
     display: flex;
     justify-content: space-around;
-    font-size: 7px;
+    font-size: 8px;
     color: var(--grimoire-highlight);
-    margin-bottom: 3px;
+    margin-bottom: 4px;
 }
 
 .mg-ouija-input {
     width: 100%;
-    padding: 4px 6px;
+    padding: 5px 8px;
     background: rgba(255,255,255,0.1);
     border: 1px solid var(--grimoire-accent);
     border-radius: 3px;
     color: var(--grimoire-highlight);
-    font-size: 9px;
+    font-size: 10px;
     box-sizing: border-box;
 }
 
@@ -536,7 +549,7 @@
 
 .mg-queue-empty {
     text-align: center;
-    padding: 8px 4px;
+    padding: 10px 4px;
     color: var(--grimoire-text-dim);
     font-style: italic;
     font-size: 9px;
@@ -546,10 +559,10 @@
     display: flex;
     align-items: center;
     gap: 4px;
-    padding: 3px 4px;
-    margin-bottom: 2px;
+    padding: 4px 5px;
+    margin-bottom: 3px;
     background: rgba(139,90,43,0.1);
-    border-radius: 2px;
+    border-radius: 3px;
     font-size: 9px;
 }
 
@@ -565,33 +578,33 @@
 .mg-vision-log,
 .mg-ouija-history {
     min-height: 50px;
-    max-height: 120px;
+    max-height: 140px;
     overflow-y: auto;
 }
 
 /* Nyx page */
 .mg-nyx-portrait {
-    width: 48px;
-    height: 48px;
-    margin: 0 auto 6px;
+    width: 52px;
+    height: 52px;
+    margin: 0 auto 8px;
     border-radius: 50%;
     background: linear-gradient(135deg, #6b5b95, #4a3f6b);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 22px;
-    box-shadow: 0 2px 6px rgba(107,91,149,0.4);
+    font-size: 24px;
+    box-shadow: 0 2px 8px rgba(107,91,149,0.4);
 }
 
 .mg-nyx-mood {
     text-align: center;
-    font-size: 10px;
+    font-size: 11px;
     color: var(--grimoire-text);
     margin-bottom: 6px;
 }
 
 .mg-nyx-disposition {
-    height: 5px;
+    height: 6px;
     background: rgba(139,90,43,0.2);
     border-radius: 3px;
     overflow: hidden;
@@ -607,12 +620,12 @@
 .mg-nyx-actions {
     display: flex;
     gap: 4px;
-    margin-top: 6px;
+    margin-top: 8px;
 }
 
 .mg-nyx-btn {
     flex: 1;
-    padding: 5px 6px;
+    padding: 6px 8px;
     font-size: 9px;
     border-radius: 3px;
     border: 1px solid var(--grimoire-accent);
@@ -631,14 +644,13 @@
    RESPONSIVE SCALING
    ══════════════════════════════════════════════ */
 
-/* Mobile — primary target for drawer layout */
+/* Mobile */
 @media (max-width: 600px) {
     :root {
         --grimoire-width: 92vw;
         --grimoire-max-width: 100vw;
-        --tab-width: 30px;
-        --tab-height: 26px;
-        --tab-right: 4%;
+        --tab-width: 28px;
+        --tab-height: 20px;
     }
     
     .mg-grimoire,
@@ -647,22 +659,19 @@
     }
     
     .mg-grimoire-tab {
-        font-size: 11px;
+        font-size: 10px;
     }
 }
 
 /* Tablet */
 @media (min-width: 601px) and (max-width: 900px) {
     :root {
-        --grimoire-width: 60vw;
-        --grimoire-max-width: 400px;
-        --tab-width: 32px;
-        --tab-height: 28px;
-        --tab-right: 5%;
+        --grimoire-width: 55vw;
+        --grimoire-max-width: 380px;
     }
     
     .mg-grimoire-tab {
-        font-size: 13px;
+        font-size: 12px;
     }
     
     .mg-page-title {
@@ -673,16 +682,12 @@
 /* Desktop */
 @media (min-width: 901px) {
     :root {
-        --grimoire-width: 35vw;
-        --grimoire-max-width: 450px;
-        --tab-width: 36px;
-        --tab-height: 32px;
-        --tab-right: 5%;
+        --grimoire-width: 30vw;
+        --grimoire-max-width: 420px;
     }
     
     .mg-grimoire,
     #mg-grimoire {
-        /* Desktop: bottom-right panel instead of centered */
         bottom: 20px;
         left: auto;
         right: 20px;
@@ -692,7 +697,7 @@
     @keyframes grimoire-slide-in {
         from {
             opacity: 0;
-            transform: translateY(30px);
+            transform: translateY(40px);
         }
         to {
             opacity: 1;
@@ -701,7 +706,7 @@
     }
     
     .mg-grimoire-tab {
-        font-size: 15px;
+        font-size: 13px;
     }
     
     .mg-page-title {
@@ -727,7 +732,7 @@
 }
 
 /* ══════════════════════════════════════════════
-   DEBUG MODE (uncomment to visualize hitboxes)
+   DEBUG MODE
    ══════════════════════════════════════════════ */
 
 /*
@@ -740,14 +745,14 @@
 }
 
 .mg-grimoire-pages {
-    background: rgba(0, 255, 0, 0.2) !important;
+    background: rgba(0, 255, 0, 0.15) !important;
 }
 
 .mg-grimoire-page--left {
-    background: rgba(255, 0, 0, 0.15) !important;
+    background: rgba(255, 0, 0, 0.1) !important;
 }
 
 .mg-grimoire-page--right {
-    background: rgba(0, 0, 255, 0.15) !important;
+    background: rgba(0, 0, 255, 0.1) !important;
 }
 */
