@@ -12,11 +12,11 @@
     /* Native book dimensions */
     --book-native-width: 896;
     --book-native-height: 720;
-    --book-aspect: calc(720 / 896); /* 0.803 */
+    --book-aspect: 0.803; /* 720/896 */
     
-    /* Display size (will be scaled) */
-    --grimoire-width: 480px;
-    --grimoire-height: calc(var(--grimoire-width) * var(--book-aspect));
+    /* Display size - 94% viewport width, capped at 850px on desktop */
+    --grimoire-width: 94vw;
+    --grimoire-height: calc(94vw * 0.803);
     
     /* Page content areas (percentages of book) */
     --page-top: 8%;
@@ -67,9 +67,10 @@
     display: none;
     pointer-events: auto;
     
-    /* Size */
-    width: var(--grimoire-width);
-    height: var(--grimoire-height);
+    /* Size - forced */
+    width: var(--grimoire-width) !important;
+    height: var(--grimoire-height) !important;
+    min-width: 340px;
     
     /* Will be positioned by JS */
     top: 50%;
@@ -296,45 +297,45 @@
 }
 
 .mg-page-title {
-    font-size: 13px;
+    font-size: 15px;
     font-weight: 600;
     color: var(--grimoire-accent);
-    margin: 0 0 8px 0;
-    padding-bottom: 6px;
+    margin: 0 0 10px 0;
+    padding-bottom: 8px;
     border-bottom: 1px solid var(--grimoire-highlight);
     text-transform: uppercase;
     letter-spacing: 1px;
 }
 
 .mg-page-subtitle {
-    font-size: 11px;
+    font-size: 13px;
     font-weight: 600;
     color: var(--grimoire-text);
-    margin: 10px 0 6px 0;
+    margin: 12px 0 8px 0;
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
 
 .mg-page-flavor {
-    font-size: 11px;
+    font-size: 13px;
     font-style: italic;
     color: var(--grimoire-text-dim);
-    margin: 0 0 10px 0;
-    line-height: 1.4;
+    margin: 0 0 12px 0;
+    line-height: 1.5;
 }
 
 .mg-page-btn {
     display: block;
     width: 100%;
-    padding: 10px 14px;
-    margin: 10px 0;
+    padding: 12px 18px;
+    margin: 12px 0;
     
     background: linear-gradient(180deg, var(--grimoire-highlight), var(--grimoire-accent));
     border: 2px solid var(--grimoire-accent);
     border-radius: 4px;
     
     color: #fff;
-    font-size: 11px;
+    font-size: 13px;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 1px;
@@ -357,7 +358,7 @@
 
 .mg-text-dim {
     color: var(--grimoire-text-dim);
-    font-size: 10px;
+    font-size: 12px;
     font-style: italic;
 }
 
@@ -605,68 +606,61 @@
    RESPONSIVE SCALING
    ══════════════════════════════════════════════ */
 
-@media (max-width: 480px) {
+/* Small screens - bump up tab size for touch */
+@media (max-width: 500px) {
     :root {
-        --grimoire-width: 92vw;
-        --tab-width: 28px;
-        --tab-height: 24px;
-    }
-    
-    .mg-grimoire-tab {
-        font-size: 11px;
-    }
-    
-    .mg-page-title {
-        font-size: 11px;
-    }
-    
-    .mg-page-btn {
-        padding: 8px 12px;
-        font-size: 10px;
-    }
-}
-
-@media (min-width: 481px) and (max-width: 600px) {
-    :root {
-        --grimoire-width: 420px;
-        --tab-width: 30px;
-        --tab-height: 26px;
-    }
-    
-    .mg-grimoire-tab {
-        font-size: 12px;
-    }
-}
-
-@media (min-width: 601px) and (max-width: 900px) {
-    :root {
-        --grimoire-width: 520px;
-        --tab-width: 34px;
-        --tab-height: 30px;
-    }
-    
-    .mg-grimoire-tab {
-        font-size: 14px;
-    }
-}
-
-@media (min-width: 901px) {
-    :root {
-        --grimoire-width: 600px;
-        --tab-width: 38px;
-        --tab-height: 34px;
+        --tab-width: 36px;
+        --tab-height: 32px;
     }
     
     .mg-grimoire-tab {
         font-size: 16px;
     }
+}
+
+/* Medium screens */
+@media (min-width: 501px) and (max-width: 800px) {
+    :root {
+        --tab-width: 40px;
+        --tab-height: 36px;
+    }
+    
+    .mg-grimoire-tab {
+        font-size: 18px;
+    }
+}
+
+/* Large screens */
+@media (min-width: 801px) {
+    :root {
+        --grimoire-width: 850px;
+        --grimoire-height: calc(850px * 0.803);
+        --tab-width: 48px;
+        --tab-height: 44px;
+    }
+    
+    .mg-grimoire-tab {
+        font-size: 20px;
+    }
     
     .mg-page-title {
+        font-size: 18px;
+    }
+    
+    .mg-page-subtitle {
+        font-size: 15px;
+    }
+    
+    .mg-page-flavor {
         font-size: 14px;
     }
     
     .mg-page-btn {
-        padding: 12px 18px;
+        padding: 14px 22px;
+        font-size: 15px;
+    }
+    
+    .mg-text-dim {
         font-size: 13px;
     }
 }
