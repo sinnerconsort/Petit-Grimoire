@@ -61,16 +61,24 @@
    GRIMOIRE CONTAINER
    ══════════════════════════════════════════════ */
 
-.mg-grimoire {
+.mg-grimoire,
+#mg-grimoire {
     position: fixed;
     z-index: 99999;
     display: none;
     pointer-events: auto;
+    box-sizing: border-box !important;
     
-    /* Size - forced */
-    width: var(--grimoire-width) !important;
-    height: var(--grimoire-height) !important;
-    min-width: 340px;
+    /* Size - FORCE IT - 94% of viewport width */
+    width: 94vw !important;
+    height: 75.5vw !important;  /* 94 * 0.803 aspect ratio */
+    max-width: 850px !important;
+    max-height: 682px !important;
+    min-width: 320px !important;
+    min-height: 257px !important;
+    
+    /* Debug border - shows container size */
+    outline: 3px solid magenta;
     
     /* Will be positioned by JS */
     top: 50%;
@@ -84,12 +92,16 @@
 
 .mg-grimoire-book {
     position: relative;
-    width: 100%;
-    height: 100%;
+    width: 100% !important;
+    height: 100% !important;
+    box-sizing: border-box !important;
+    
+    /* Debug - shows book size */
+    outline: 2px solid cyan;
     
     /* Book with tabs as background */
     background-image: url('../assets/grimoire/Grimoire_WithTabs.png');
-    background-size: 100% 100%;
+    background-size: 100% 100% !important;
     background-repeat: no-repeat;
     background-position: center;
     
