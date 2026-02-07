@@ -183,10 +183,14 @@ function createUI() {
         background: 'rgba(0,0,0,0.85)',
         backdropFilter: 'blur(4px)',
         display: 'none',
-        alignItems: 'center',
+        alignItems: 'flex-start',
         justifyContent: 'center',
-        padding: '20px',
-        boxSizing: 'border-box'
+        paddingTop: '15vh',
+        paddingBottom: '10vh',
+        paddingLeft: '10px',
+        paddingRight: '10px',
+        boxSizing: 'border-box',
+        overflowY: 'auto'
     });
     
     // Book container
@@ -195,15 +199,16 @@ function createUI() {
     Object.assign(book.style, {
         position: 'relative',
         width: '320px',
-        maxWidth: '95vw',
-        height: '450px',
-        maxHeight: '70vh',
+        maxWidth: '90vw',
+        height: '380px',
+        maxHeight: '55vh',
         background: theme.cardBg,
         border: `3px solid ${theme.main}`,
         borderRadius: '12px',
         boxShadow: `0 10px 40px rgba(0,0,0,0.5), 0 0 30px ${theme.main}40`,
         display: 'flex',
-        overflow: 'hidden'
+        overflow: 'hidden',
+        flexShrink: '0'
     });
     
     // Tab sidebar
