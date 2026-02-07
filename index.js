@@ -195,9 +195,9 @@ function createUI() {
     Object.assign(book.style, {
         position: 'relative',
         width: '320px',
-        maxWidth: '90vw',
-        minHeight: '420px',
-        maxHeight: '80vh',
+        maxWidth: '95vw',
+        height: '450px',
+        maxHeight: '70vh',
         background: theme.cardBg,
         border: `3px solid ${theme.main}`,
         borderRadius: '12px',
@@ -215,7 +215,9 @@ function createUI() {
         padding: '10px 5px',
         display: 'flex',
         flexDirection: 'column',
-        gap: '8px'
+        gap: '6px',
+        overflowY: 'auto',
+        flexShrink: '0'
     });
     
     TABS.forEach(tab => {
@@ -225,15 +227,20 @@ function createUI() {
         btn.title = tab.name;
         btn.innerHTML = `<i class="fa-solid ${tab.icon}"></i>`;
         Object.assign(btn.style, {
-            width: '40px',
-            height: '40px',
+            width: '38px',
+            height: '38px',
+            minHeight: '38px',
             background: tab.id === settings.activeTab ? theme.main : 'transparent',
             border: `1px solid ${theme.main}`,
             borderRadius: '8px',
             color: tab.id === settings.activeTab ? theme.bg : theme.main,
-            fontSize: '16px',
+            fontSize: '14px',
             cursor: 'pointer',
-            transition: 'all 0.2s ease'
+            transition: 'all 0.2s ease',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            flexShrink: '0'
         });
         btn.onclick = () => switchTab(tab.id, theme);
         sidebar.appendChild(btn);
@@ -246,20 +253,29 @@ function createUI() {
         flex: '1',
         padding: '20px',
         overflowY: 'auto',
-        color: theme.textLight
+        color: theme.textLight,
+        display: 'flex',
+        flexDirection: 'column'
     });
     
     TABS.forEach(tab => {
         const page = document.createElement('div');
         page.className = 'pg-page';
         page.dataset.page = tab.id;
-        page.style.display = tab.id === settings.activeTab ? 'block' : 'none';
+        Object.assign(page.style, {
+            display: tab.id === settings.activeTab ? 'flex' : 'none',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            flex: '1',
+            textAlign: 'center'
+        });
         page.innerHTML = `
-            <h2 style="color: ${theme.main}; text-align: center; margin-bottom: 15px; font-size: 18px; letter-spacing: 2px;">
-                ${tab.name}
+            <h2 style="color: ${theme.main}; margin-bottom: 15px; font-size: 20px; letter-spacing: 2px;">
+                ✨ ${tab.name} ✨
             </h2>
-            <p style="text-align: center; opacity: 0.6; font-style: italic;">
-                ✨ Coming soon...
+            <p style="opacity: 0.6; font-style: italic; margin-top: 10px;">
+                Coming soon...
             </p>
         `;
         content.appendChild(page);
@@ -273,18 +289,22 @@ function createUI() {
     closeBtn.innerHTML = '×';
     Object.assign(closeBtn.style, {
         position: 'absolute',
-        top: '-15px',
-        right: '-15px',
-        width: '36px',
-        height: '36px',
-        background: theme.bg,
-        border: `2px solid ${theme.main}`,
+        top: '10px',
+        right: '10px',
+        width: '32px',
+        height: '32px',
+        background: theme.main,
+        border: 'none',
         borderRadius: '50%',
-        color: theme.main,
-        fontSize: '24px',
+        color: theme.bg,
+        fontSize: '20px',
+        fontWeight: 'bold',
         lineHeight: '1',
         cursor: 'pointer',
-        zIndex: '10'
+        zIndex: '10',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center'
     });
     closeBtn.onclick = closePanel;
     book.appendChild(closeBtn);
@@ -380,7 +400,7 @@ function switchTab(tabId, theme) {
     });
     
     document.querySelectorAll('.pg-page').forEach(page => {
-        page.style.display = page.dataset.page === tabId ? 'block' : 'none';
+        page.style.display = page.dataset.page === tabId ? 'flex' : 'none';
     });
     
     settings.activeTab = tabId;
