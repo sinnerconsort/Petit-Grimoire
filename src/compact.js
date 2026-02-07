@@ -1,6 +1,11 @@
 /**
  * Petit Grimoire — Compact Brooch
  * Pixel art moon sprite FAB — opens the Grimoire
+ * 
+ * FIX: z-index lowered from 2147483647 (max-int) to 99990
+ *      This keeps it above ST UI but BELOW the grimoire overlay (99998)
+ *      and grimoire panel (99999). The brooch hides when grimoire opens
+ *      anyway, so it never needs to compete.
  */
 
 import { extensionName, extensionSettings } from './state.js';
@@ -52,8 +57,9 @@ export function createCompact(onTap) {
     const el = $compact[0];
 
     // Force critical display properties
+    // z-index: high enough for ST UI, but BELOW grimoire (99998/99999)
     el.style.setProperty('position', 'fixed', 'important');
-    el.style.setProperty('z-index', '2147483647', 'important');
+    el.style.setProperty('z-index', '99990', 'important');
     el.style.setProperty('display', 'flex', 'important');
     el.style.setProperty('visibility', 'visible', 'important');
     el.style.setProperty('opacity', '1', 'important');
@@ -70,7 +76,7 @@ export function createCompact(onTap) {
         el.style.setProperty('display', 'none', 'important');
     }
 
-    console.log(`[${extensionName}] Compact created`);
+    console.log(`[${extensionName}] Compact created (z-index: 99990)`);
 }
 
 // ============================================

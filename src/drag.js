@@ -1,9 +1,33 @@
 /**
  * Petit Grimoire — Drag System
  * Reusable FAB drag handling + position helpers
+ * 
+ * FIX: Tracks and removes previous document-level listeners
+ *      on re-init to prevent listener stacking (each call to
+ *      setupFabDrag was adding NEW mousemove/touchmove to document
+ *      without removing old ones — causes phantom drag behavior)
  */
 
 import { extensionSettings, dragState, saveSettings } from './state.js';
+
+// ============================================
+// LISTENER CLEANUP REGISTRY
+// Track document-level listeners so we can remove them on re-init
+// ============================================
+
+const _registeredListeners = {};
+
+function cleanupListeners(stateKey) {
+    const existing = _registeredListeners[stateKey];
+    if (!existing) return;
+
+    document.removeEventListener('mousemove', existing.onMove);
+    document.removeEventListener('mouseup', existing.onEnd);
+    document.removeEventListener('touchmove', existing.onMove);
+    document.removeEventListener('touchend', existing.onEnd);
+
+    delete _registeredListeners[stateKey];
+}
 
 // ============================================
 // FAB DRAG
@@ -19,6 +43,9 @@ import { extensionSettings, dragState, saveSettings } from './state.js';
 export function setupFabDrag(elementId, stateKey, positionKey, onTap) {
     const el = document.getElementById(elementId);
     if (!el) return;
+
+    // ── Clean up any previous listeners for this stateKey ──
+    cleanupListeners(stateKey);
 
     const state = dragState[stateKey];
 
@@ -86,13 +113,18 @@ export function setupFabDrag(elementId, stateKey, positionKey, onTap) {
         state.moved = false;
     }
 
+    // ── Attach element-level listeners ──
     el.addEventListener('mousedown', onStart);
+    el.addEventListener('touchstart', onStart, { passive: false });
+
+    // ── Attach document-level listeners (tracked for cleanup) ──
     document.addEventListener('mousemove', onMove);
     document.addEventListener('mouseup', onEnd);
-
-    el.addEventListener('touchstart', onStart, { passive: false });
     document.addEventListener('touchmove', onMove, { passive: false });
     document.addEventListener('touchend', onEnd);
+
+    // ── Register for future cleanup ──
+    _registeredListeners[stateKey] = { onMove, onEnd };
 }
 
 // ============================================
