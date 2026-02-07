@@ -27,6 +27,8 @@ import {
     onDrawCard, onViewQueue, onPokeNyx
 } from './src/grimoire.js';
 
+import { initGrimoire, toggleGrimoire } from './src/grimoire.js'; 
+
 // ============================================
 // CSS LOADING
 // ============================================
