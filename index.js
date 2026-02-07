@@ -192,8 +192,9 @@ async function addExtensionSettings() {
         saveSettings();
 
         if (extensionSettings.enabled) {
-            initCompact();
-            initTama();
+    initCompact();
+    initTama();
+    initGrimoire();
         } else {
             $('#mg-compact').remove();
             $('#nyxgotchi').remove();
@@ -263,9 +264,10 @@ jQuery(async () => {
         await addExtensionSettings();
 
         if (extensionSettings.enabled) {
-            initCompact();
-            initTama();
-        }
+    initCompact();
+    initTama();
+    initGrimoire();
+}
 
         console.log(`[${extensionName}] ✅ Loaded successfully`);
 
