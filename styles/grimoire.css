@@ -58,28 +58,28 @@
 
 
 /* ══════════════════════════════════════════════
-   GRIMOIRE CONTAINER - CENTERED ON SCREEN
+   GRIMOIRE CONTAINER - Investigation-style positioning
    ══════════════════════════════════════════════ */
 
 .mg-grimoire {
     position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
     z-index: 99999;
     display: none;
+    pointer-events: auto;
     
-    /* Flexbox centering */
-    align-items: center;
-    justify-content: center;
-    
-    /* Prevent interaction when hidden */
-    pointer-events: none;
+    /* Will be positioned by JS, but defaults for safety */
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
 }
 
-.mg-grimoire.visible {
-    pointer-events: auto;
+/* Mobile: centered horizontally, positioned below top bar */
+@media (max-width: 1000px) {
+    .mg-grimoire {
+        left: 50% !important;
+        transform: translateX(-50%) !important;
+        max-width: 94vw !important;
+    }
 }
 
 
@@ -147,9 +147,9 @@
     max-width: 90vw;
     max-height: 70vh;
     
-    /* The book image */
+    /* The book image - FILL exactly */
     background-image: url('../assets/grimoire/Spellbook_WithTabs.png');
-    background-size: contain;
+    background-size: 100% 100%;
     background-repeat: no-repeat;
     background-position: center;
     
