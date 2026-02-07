@@ -75,33 +75,31 @@ function destroy() {
 function createCompact() {
     const theme = extensionSettings.shellTheme || 'guardian';
 
-    // === VERSION CHECK: If you see this toastr, this file loaded ===
-    toastr?.warning('v7-REDCIRCLE loaded', 'Grimoire', { timeOut: 10000 });
-
     const fab = document.createElement('div');
     fab.id = 'mg-compact';
     fab.setAttribute('data-mg-theme', theme);
     fab.textContent = '🌙';
 
-    // EXACT same style as the working red debug circle
+    // Same structure as working v7-REDCIRCLE, just with real styling
     Object.assign(fab.style, {
         position: 'fixed',
-        top: '50%',
-        left: '50%',
-        transform: 'translate(-50%, -50%)',
+        bottom: '80px',
+        right: '16px',
         zIndex: '2147483647',
-        width: '100px',
-        height: '100px',
-        background: 'red',
+        width: '64px',
+        height: '64px',
+        background: 'linear-gradient(135deg, #6b3a7d, #4a2060)',
         borderRadius: '50%',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        fontSize: '48px',
+        fontSize: '28px',
         cursor: 'pointer',
-        border: '5px solid yellow',
-        boxShadow: '0 0 40px 20px red',
+        border: '2px solid rgba(200, 160, 255, 0.4)',
+        boxShadow: '0 4px 16px rgba(120, 40, 160, 0.6), inset 0 1px 0 rgba(255,255,255,0.15)',
         pointerEvents: 'auto',
+        userSelect: 'none',
+        WebkitTapHighlightColor: 'transparent',
     });
 
     document.body.appendChild(fab);
@@ -110,7 +108,7 @@ function createCompact() {
         fab.style.display = 'none';
     }
 
-    console.log('[PetitGrimoire] v7-REDCIRCLE FAB created');
+    console.log('[PetitGrimoire] Compact FAB created');
 }
 
 // ══════════════════════════════════════════════
@@ -130,12 +128,14 @@ function createDrawer() {
         </button>
     `).join('');
 
-    // Overlay (click to close)
-    $('body').append(`<div class="mg-grimoire-overlay" id="mg-grimoire-overlay"></div>`);
+    // Overlay (click to close) — inline z-index failsafe
+    $('body').append(`<div class="mg-grimoire-overlay" id="mg-grimoire-overlay"
+        style="z-index: 2147483640;"></div>`);
 
-    // Drawer
+    // Drawer — inline z-index failsafe
     $('body').append(`
-        <div class="mg-grimoire" id="mg-grimoire" data-mg-theme="${theme}">
+        <div class="mg-grimoire" id="mg-grimoire" data-mg-theme="${theme}"
+             style="z-index: 2147483645;">
             <div class="mg-grimoire-inner">
                 <div class="mg-grimoire-tabstrip">
                     ${tabsHTML}
