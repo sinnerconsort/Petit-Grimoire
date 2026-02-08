@@ -97,9 +97,9 @@ function createTabIcons(book, scale, offsetY) {
     ];
     
     // Tab dimensions in sprite coordinates
-    const TAB_WIDTH = 50;   // How wide the clickable area
-    const TAB_HEIGHT = 55;  // Height of each tab
-    const TAB_LEFT = 12;    // X position from left edge of book portion
+    const TAB_WIDTH = 40;   // How wide the clickable area
+    const TAB_HEIGHT = 45;  // Height of each tab
+    const TAB_LEFT = 20;    // X position from left edge of book portion
     
     TAB_DATA.forEach(tab => {
         const btn = document.createElement('button');
