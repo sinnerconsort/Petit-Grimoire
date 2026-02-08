@@ -3,7 +3,7 @@
  * The magical book UI with tabs
  */
 
-import { TABS, ASSET_PATHS, getTheme } from '../core/config.js';
+import { TABS, ASSET_PATHS, getTheme, THEMES } from '../core/config.js';
 import { settings, updateSetting } from '../core/state.js';
 import { setFabOpenState } from './fab.js';
 
@@ -304,7 +304,7 @@ function getPageContent(tabId) {
         crystal: '🔮',
         ouija: '👻',
         nyx: '🐱',
-        radio: '📻'
+        spells: '✨'
     };
     
     const names = {
@@ -312,7 +312,7 @@ function getPageContent(tabId) {
         crystal: 'CRYSTAL BALL',
         ouija: 'OUIJA',
         nyx: 'NYX',
-        radio: 'RADIO'
+        spells: 'SPELL CARDS'
     };
     
     const quotes = {
@@ -320,7 +320,7 @@ function getPageContent(tabId) {
         crystal: 'Fate is not a request line.',
         ouija: 'Ask, and fate shall answer. Then make it true.',
         nyx: "I'm watching. Always watching.",
-        radio: 'Tune in to the cosmic frequencies.'
+        spells: 'Words have power. Use them wisely.'
     };
     
     return `
