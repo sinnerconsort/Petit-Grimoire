@@ -713,18 +713,14 @@ export function openGrimoire() {
     const vw = window.innerWidth;
     const vh = window.innerHeight;
     
-    // Book sizing: 
-    // - Right edge anchored to right side of screen
-    // - Left edge (with tabs) starts ~100px from left edge
-    // - Book fills that horizontal space
-    const leftMargin = 100;  // Where tabs start (green dots)
-    const bookWidth = vw - leftMargin;
-    
-    // Maintain aspect ratio from sprite
+    // SIZE BASED ON HEIGHT - book should fill ~70-75% of viewport height
     const bookInSpriteWidth = 586;
     const bookInSpriteHeight = 665;
-    const bookAspectRatio = bookInSpriteHeight / bookInSpriteWidth;
-    let bookHeight = Math.floor(bookWidth * bookAspectRatio);
+    const bookAspectRatio = bookInSpriteWidth / bookInSpriteHeight; // width/height
+    
+    // Book height is primary - fill most of the screen vertically
+    let bookHeight = Math.floor(vh * 0.72);
+    let bookWidth = Math.floor(bookHeight * bookAspectRatio);
     
     // Panel as container
     panelElement.setAttribute('style', `
@@ -743,11 +739,11 @@ export function openGrimoire() {
     
     const book = document.getElementById('pg-book');
     if (book) {
-        // Vertical centering with offset
+        // Vertical position - center with offset
         const grimoireYOffset = settings.grimoireOffsetY || 0;
-        const topPosition = Math.max(0, Math.min(vh - bookHeight, (vh - bookHeight) / 2 + grimoireYOffset));
+        const topPosition = Math.max(0, (vh - bookHeight) / 2 + grimoireYOffset);
         
-        // Anchor to right edge, book expands left to leftMargin
+        // ANCHOR TO RIGHT - spine at right edge, tabs extend left (off-screen)
         book.setAttribute('style', `
             position: absolute !important;
             right: 0 !important;
