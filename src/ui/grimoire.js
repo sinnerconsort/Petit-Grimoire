@@ -179,12 +179,12 @@ function createTabIcons(book, scale, offsetY) {
     // Measured from the book+tabs portion starting at x:310 in the full sprite
     // ADJUST THESE if icons don't line up perfectly!
     const TAB_DATA = [
-        { id: 'tarot',    icon: 'fa-copy',        y: 237, label: 'Tarot' },
+        { id: 'tarot',    icon: 'fa-star',        y: 237, label: 'Tarot' },
         { id: 'crystal',  icon: 'fa-moon',        y: 275, label: 'Crystal Ball' },
         { id: 'ouija',    icon: 'fa-ghost',       y: 313, label: 'Ouija' },
         { id: 'nyx',      icon: 'fa-cat',         y: 352, label: 'Nyx' },
-        { id: 'radio',    icon: 'fa-radio',       y: 388, label: 'Radio' },
-        { id: 'settings', icon: 'fa-gear',        y: 427, label: 'Settings' },
+        { id: 'spells',   icon: 'fa-magic',       y: 388, label: 'Spells' },
+        { id: 'settings', icon: 'fa-cog',         y: 427, label: 'Settings' },
     ];
     
     // Tab dimensions in sprite coordinates
@@ -300,13 +300,13 @@ function createContent(book, scale, offsetY) {
     content.id = 'pg-content';
     
     // Position inside the "page" area of the sprite
-    // Left at 33% to not clip past tabs, right at 8% for margin
+    // Wider content area for better toggle visibility
     content.setAttribute('style', `
         position: absolute !important;
-        left: 33% !important;
-        right: 8% !important;
-        top: 24% !important;
-        bottom: 12% !important;
+        left: 30% !important;
+        right: 4% !important;
+        top: 22% !important;
+        bottom: 10% !important;
         padding: 2% !important;
         overflow-y: auto !important;
         overflow-x: hidden !important;
@@ -473,6 +473,32 @@ function buildSettingsPage() {
                 </button>
             </div>
             
+            <!-- Grimoire Scale -->
+            <div class="pg-setting-group" style="display: flex; flex-direction: column; gap: 4px;">
+                <label style="color: ${textDark}; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">
+                    ✦ Grimoire Size
+                </label>
+                <div style="display: flex; align-items: center; gap: 6px;">
+                    <span style="color: ${textMid}; font-size: 9px;">−</span>
+                    <input type="range" id="pg-scale-slider" 
+                        min="0.8" max="1.5" step="0.05" value="${settings.grimoireScale || 1.15}"
+                        style="
+                            flex: 1;
+                            height: 4px;
+                            border-radius: 2px;
+                            background: ${theme.main}50;
+                            outline: none;
+                            cursor: pointer;
+                            accent-color: ${theme.main};
+                        "
+                    />
+                    <span style="color: ${textMid}; font-size: 9px;">+</span>
+                    <span id="pg-scale-value" style="color: ${textDark}; font-size: 9px; min-width: 35px; text-align: right;">
+                        ${Math.round((settings.grimoireScale || 1.15) * 100)}%
+                    </span>
+                </div>
+            </div>
+            
             <!-- Lock Position -->
             <div class="pg-setting-group" style="display: flex; align-items: center; gap: 8px;">
                 <label style="color: ${textDark}; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; flex: 1;">
@@ -609,6 +635,26 @@ function initSettingsListeners() {
         });
     }
     
+    // Scale slider
+    const scaleSlider = document.getElementById('pg-scale-slider');
+    const scaleValue = document.getElementById('pg-scale-value');
+    if (scaleSlider) {
+        scaleSlider.addEventListener('input', (e) => {
+            const val = parseFloat(e.target.value);
+            if (scaleValue) scaleValue.textContent = `${Math.round(val * 100)}%`;
+            updateSetting('grimoireScale', val);
+        });
+        
+        // Apply scale on release (rebuild needed)
+        scaleSlider.addEventListener('change', () => {
+            // Rebuild to apply new scale
+            destroyGrimoire();
+            createGrimoire();
+            openGrimoire();
+            switchTab('settings');
+        });
+    }
+    
     // Lock toggle
     const lockToggle = document.getElementById('pg-lock-toggle');
     const toggleOff = '#a08070';  // Match the build function
@@ -700,8 +746,17 @@ export function openGrimoire() {
     const pagePortionRatio = 0.82;
     const bookAspectRatio = bookInSpriteHeight / bookInSpriteWidth;
     
-    let bookWidth = Math.floor(vw / pagePortionRatio);
+    // Apply user scale setting (default 1.15 for bigger book)
+    const userScale = settings.grimoireScale || 1.15;
+    
+    let bookWidth = Math.floor((vw / pagePortionRatio) * userScale);
     let bookHeight = Math.floor(bookWidth * bookAspectRatio);
+    
+    // Cap at viewport dimensions to prevent overflow issues
+    if (bookHeight > vh * 0.95) {
+        bookHeight = Math.floor(vh * 0.95);
+        bookWidth = Math.floor(bookHeight / bookAspectRatio);
+    }
     
     // Panel as flex container
     panelElement.setAttribute('style', `
