@@ -6,6 +6,7 @@
 import { THEMES, getTheme } from '../../core/config.js';
 import { settings, updateSetting } from '../../core/state.js';
 import { destroyGrimoire, createGrimoire, openGrimoire, switchTab } from '../grimoire.js';
+import { updateFabTheme } from '../fab.js';  // <-- ADD THIS IMPORT
 
 // Track initialization state
 let isInitialized = false;
@@ -247,7 +248,11 @@ export function cleanup() {
 
 function handleThemeChange(e) {
     updateSetting('theme', e.target.value);
-    // Rebuild UI to apply new theme fully
+    
+    // Update FAB theme FIRST (before rebuilding grimoire)
+    updateFabTheme();  // <-- THIS WAS MISSING!
+    
+    // Rebuild grimoire UI to apply new theme fully
     destroyGrimoire();
     createGrimoire();
     openGrimoire();

@@ -6,10 +6,10 @@
 // Tab modules
 import * as settingsTab from './settings.js';
 import * as placeholderTab from './placeholder.js';
+import * as crystalBallTab from './crystalBall.js';  // <-- ADDED
 
 // Future tab imports (uncomment as built)
 // import * as tarotTab from './tarot.js';
-// import * as crystalTab from './crystal.js';
 // import * as ouijaTab from './ouija.js';
 // import * as nyxTab from './nyx.js';
 // import * as spellsTab from './spells.js';
@@ -23,7 +23,7 @@ import * as placeholderTab from './placeholder.js';
  */
 const TAB_MODULES = {
     tarot: placeholderTab,      // TODO: tarotTab
-    crystal: placeholderTab,    // TODO: crystalTab
+    crystal: crystalBallTab,    // <-- CHANGED from placeholderTab
     ouija: placeholderTab,      // TODO: ouijaTab
     nyx: placeholderTab,        // TODO: nyxTab
     spells: placeholderTab,     // TODO: spellsTab
