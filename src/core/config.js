@@ -172,8 +172,8 @@ export const THEMES = {
         textDim: '#e3b35f88',
         fabIcon: 'fab-celestial.png',
         shell: 'celestial-shell.png',
-        // Grimoire tint: warm tan → deep navy blue (rich, dark, majestic)
-        grimoireFilter: 'hue-rotate(190deg) saturate(1.4) brightness(0.8)'
+        // Grimoire tint: warm tan → deep navy blue (darker, richer)
+        grimoireFilter: 'hue-rotate(200deg) saturate(2.0) brightness(0.55) contrast(1.1)'
     }
 };
 
