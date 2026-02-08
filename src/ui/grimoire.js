@@ -368,28 +368,24 @@ export function openGrimoire() {
             border: 3px solid lime !important;
         `);
         
-        // Use an actual img element for the sprite
-        let spriteImg = document.getElementById('pg-book-sprite');
-        if (!spriteImg) {
-            spriteImg = document.createElement('img');
-            spriteImg.id = 'pg-book-sprite';
-            book.insertBefore(spriteImg, book.firstChild);
+        // Use a div with background-image instead of img (more reliable sizing)
+        let spriteDiv = document.getElementById('pg-book-sprite');
+        if (!spriteDiv) {
+            spriteDiv = document.createElement('div');
+            spriteDiv.id = 'pg-book-sprite';
+            book.insertBefore(spriteDiv, book.firstChild);
         }
-        spriteImg.src = `${ASSET_PATHS.grimoire}/Grimoire_WithTabs.png`;
-        // Set HTML attributes for dimensions
-        spriteImg.width = bookWidth;
-        spriteImg.height = bookHeight;
-        // Force EXACT pixel dimensions with styles too
-        spriteImg.setAttribute('style', `
+        // Force the div to fill the book and stretch the background
+        spriteDiv.setAttribute('style', `
             position: absolute !important;
             top: 0 !important;
             left: 0 !important;
             width: ${bookWidth}px !important;
             height: ${bookHeight}px !important;
-            min-width: ${bookWidth}px !important;
-            min-height: ${bookHeight}px !important;
-            max-width: ${bookWidth}px !important;
-            max-height: ${bookHeight}px !important;
+            background-image: url('${ASSET_PATHS.grimoire}/Grimoire_WithTabs.png') !important;
+            background-size: ${bookWidth}px ${bookHeight}px !important;
+            background-position: 0 0 !important;
+            background-repeat: no-repeat !important;
             image-rendering: pixelated !important;
             pointer-events: none !important;
             z-index: 0 !important;
@@ -458,13 +454,14 @@ export function openGrimoire() {
     const bookRect = book?.getBoundingClientRect();
     const sidebar = document.getElementById('pg-sidebar');
     const content = document.getElementById('pg-content');
-    const spriteImg = document.getElementById('pg-book-sprite');
-    const spriteRect = spriteImg?.getBoundingClientRect();
+    const spriteDiv = document.getElementById('pg-book-sprite');
+    const spriteRect = spriteDiv?.getBoundingClientRect();
+    const spriteStyle = spriteDiv ? window.getComputedStyle(spriteDiv) : null;
     
     debugEl.innerHTML = `
-        Book: ${bookRect?.width?.toFixed(0)}x${bookRect?.height?.toFixed(0)} @ ${bookRect?.left?.toFixed(0)},${bookRect?.top?.toFixed(0)}<br>
-        Sprite: ${spriteRect?.width?.toFixed(0)}x${spriteRect?.height?.toFixed(0)}<br>
-        Sidebar parent: ${sidebar?.parentElement?.id || 'none'}
+        Book: ${bookRect?.width?.toFixed(0)}x${bookRect?.height?.toFixed(0)}<br>
+        Sprite div: ${spriteRect?.width?.toFixed(0)}x${spriteRect?.height?.toFixed(0)}<br>
+        BG size: ${spriteStyle?.backgroundSize || 'none'}
     `;
     
     panelElement.classList.add('pg-open');
