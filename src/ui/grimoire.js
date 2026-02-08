@@ -276,19 +276,20 @@ export function openGrimoire() {
         overflow: hidden !important;
     `);
     
-    // Force book size AND position relative
-    // IMPORTANT: overflow: hidden to contain children
+    // Force book size AND position
+    // Position so RIGHT edge of book touches screen edge
     const book = document.getElementById('pg-book');
     if (book) {
-        // Position book so its RIGHT edge is at screen's right edge
-        // This means left edge (with tabs) will extend off-screen
+        // Calculate left position: we want right edge at vw
+        // So left = vw - bookWidth (negative means extends off left edge)
+        const leftPos = vw - bookWidth;
+        
         book.setAttribute('style', `
             position: absolute !important;
             top: 0 !important;
-            right: 0 !important;
+            left: ${leftPos}px !important;
             width: ${bookWidth}px !important;
             height: ${bookHeight}px !important;
-            flex-shrink: 0 !important;
             background: none !important;
             overflow: hidden !important;
         `);
@@ -332,6 +333,7 @@ export function openGrimoire() {
         `);
         
         console.log('[Petit Grimoire] Book size:', bookWidth, 'x', bookHeight);
+        console.log('[Petit Grimoire] Left position:', leftPos, '(viewport:', vw, ')');
         console.log('[Petit Grimoire] Sprite scale:', scale.toFixed(3));
         console.log('[Petit Grimoire] Offset:', offsetX, offsetY);
     }
