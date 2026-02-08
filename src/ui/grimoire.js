@@ -298,20 +298,19 @@ function createContent(book, scale, offsetY) {
     content.id = 'pg-content';
     
     // Position inside the "page" area of the sprite
-    // These are percentages of the book container
-    // left + right must be less than 100% or content collapses!
+    // Widened for better text readability on mobile
     content.setAttribute('style', `
         position: absolute !important;
-        left: 35% !important;
-        right: 10% !important;
-        top: 27% !important;
-        bottom: 14% !important;
-        padding: 3% !important;
+        left: 28% !important;
+        right: 5% !important;
+        top: 25% !important;
+        bottom: 12% !important;
+        padding: 2% !important;
         overflow-y: auto !important;
         overflow-x: hidden !important;
         color: #4a3728 !important;
-        font-size: 13px !important;
-        line-height: 1.4 !important;
+        font-size: 11px !important;
+        line-height: 1.5 !important;
         word-wrap: break-word !important;
         overflow-wrap: break-word !important;
         scrollbar-width: thin !important;
@@ -397,84 +396,84 @@ function buildSettingsPage() {
     ).join('');
     
     return `
-        <h2 class="pg-page-title" style="color: #5a4030; margin: 0 0 8px 0; font-size: 16px; font-weight: 600; display: flex; align-items: center; gap: 8px;">
+        <h2 class="pg-page-title" style="color: #5a4030; margin: 0 0 6px 0; font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 6px;">
             ⚙️ SETTINGS
         </h2>
-        <p style="color: #6a5040; font-style: italic; font-size: 12px; margin-bottom: 15px;">
+        <p style="color: #6a5040; font-style: italic; font-size: 10px; margin-bottom: 10px;">
             "Adjust the mystical parameters."
         </p>
         
-        <div class="pg-settings-content" style="display: flex; flex-direction: column; gap: 16px; padding: 8px 0;">
+        <div class="pg-settings-content" style="display: flex; flex-direction: column; gap: 12px; padding: 4px 0;">
             
             <!-- Theme Selection -->
-            <div class="pg-setting-group" style="display: flex; flex-direction: column; gap: 6px;">
-                <label style="color: #5a4030; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">
+            <div class="pg-setting-group" style="display: flex; flex-direction: column; gap: 4px;">
+                <label style="color: #5a4030; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">
                     ✦ Theme
                 </label>
                 <select id="pg-theme-select" style="
-                    padding: 8px 12px;
-                    border-radius: 8px;
+                    padding: 6px 8px;
+                    border-radius: 6px;
                     border: 2px solid ${theme.main}60;
                     background: ${theme.cardBg}40;
                     color: #5a4030;
-                    font-size: 13px;
+                    font-size: 11px;
                     cursor: pointer;
                     outline: none;
                 ">
                     ${themeOptions}
                 </select>
-                <span style="color: #8a7060; font-size: 10px; font-style: italic;">
+                <span style="color: #8a7060; font-size: 9px; font-style: italic;">
                     ${theme.desc}
                 </span>
             </div>
             
             <!-- Grimoire Position -->
-            <div class="pg-setting-group" style="display: flex; flex-direction: column; gap: 6px;">
-                <label style="color: #5a4030; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">
+            <div class="pg-setting-group" style="display: flex; flex-direction: column; gap: 4px;">
+                <label style="color: #5a4030; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">
                     ✦ Grimoire Position
                 </label>
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    <span style="color: #8a7060; font-size: 11px;">↑</span>
+                <div style="display: flex; align-items: center; gap: 6px;">
+                    <span style="color: #8a7060; font-size: 9px;">↑</span>
                     <input type="range" id="pg-position-slider" 
                         min="-200" max="200" value="${settings.grimoireOffsetY || 0}"
                         style="
                             flex: 1;
-                            height: 6px;
-                            border-radius: 3px;
+                            height: 4px;
+                            border-radius: 2px;
                             background: ${theme.main}30;
                             outline: none;
                             cursor: pointer;
                             accent-color: ${theme.main};
                         "
                     />
-                    <span style="color: #8a7060; font-size: 11px;">↓</span>
-                    <span id="pg-position-value" style="color: #5a4030; font-size: 11px; min-width: 35px; text-align: right;">
+                    <span style="color: #8a7060; font-size: 9px;">↓</span>
+                    <span id="pg-position-value" style="color: #5a4030; font-size: 9px; min-width: 30px; text-align: right;">
                         ${settings.grimoireOffsetY || 0}px
                     </span>
                 </div>
                 <button id="pg-position-reset" style="
                     align-self: flex-start;
-                    padding: 4px 10px;
+                    padding: 3px 8px;
                     border-radius: 4px;
                     border: 1px solid ${theme.main}40;
                     background: transparent;
                     color: #6a5040;
-                    font-size: 10px;
+                    font-size: 9px;
                     cursor: pointer;
                 ">
-                    Reset to Center
+                    Reset
                 </button>
             </div>
             
             <!-- Lock Position -->
-            <div class="pg-setting-group" style="display: flex; align-items: center; gap: 10px;">
-                <label style="color: #5a4030; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; flex: 1;">
-                    ✦ Lock FAB Position
+            <div class="pg-setting-group" style="display: flex; align-items: center; gap: 8px;">
+                <label style="color: #5a4030; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; flex: 1;">
+                    ✦ Lock FAB
                 </label>
                 <label class="pg-toggle" style="
                     position: relative;
-                    width: 44px;
-                    height: 24px;
+                    width: 36px;
+                    height: 20px;
                     cursor: pointer;
                 ">
                     <input type="checkbox" id="pg-lock-toggle" 
@@ -485,32 +484,32 @@ function buildSettingsPage() {
                         position: absolute;
                         inset: 0;
                         background: ${settings.grimoireLocked ? theme.main : '#ccc'};
-                        border-radius: 24px;
+                        border-radius: 20px;
                         transition: background 0.3s;
                     "></span>
                     <span class="pg-toggle-knob" style="
                         position: absolute;
                         top: 2px;
-                        left: ${settings.grimoireLocked ? '22px' : '2px'};
-                        width: 20px;
-                        height: 20px;
+                        left: ${settings.grimoireLocked ? '18px' : '2px'};
+                        width: 16px;
+                        height: 16px;
                         background: white;
                         border-radius: 50%;
                         transition: left 0.3s;
-                        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+                        box-shadow: 0 1px 3px rgba(0,0,0,0.2);
                     "></span>
                 </label>
             </div>
             
             <!-- Fancy Font Toggle -->
-            <div class="pg-setting-group" style="display: flex; align-items: center; gap: 10px;">
-                <label style="color: #5a4030; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; flex: 1;">
+            <div class="pg-setting-group" style="display: flex; align-items: center; gap: 8px;">
+                <label style="color: #5a4030; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; flex: 1;">
                     ✦ Fancy Headers
                 </label>
                 <label class="pg-toggle" style="
                     position: relative;
-                    width: 44px;
-                    height: 24px;
+                    width: 36px;
+                    height: 20px;
                     cursor: pointer;
                 ">
                     <input type="checkbox" id="pg-fancy-font-toggle" 
@@ -521,29 +520,29 @@ function buildSettingsPage() {
                         position: absolute;
                         inset: 0;
                         background: ${settings.fancyFont ? theme.main : '#ccc'};
-                        border-radius: 24px;
+                        border-radius: 20px;
                         transition: background 0.3s;
                     "></span>
                     <span class="pg-toggle-knob" id="pg-fancy-knob" style="
                         position: absolute;
                         top: 2px;
-                        left: ${settings.fancyFont ? '22px' : '2px'};
-                        width: 20px;
-                        height: 20px;
+                        left: ${settings.fancyFont ? '18px' : '2px'};
+                        width: 16px;
+                        height: 16px;
                         background: white;
                         border-radius: 50%;
                         transition: left 0.3s;
-                        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+                        box-shadow: 0 1px 3px rgba(0,0,0,0.2);
                     "></span>
                 </label>
             </div>
-            <span style="color: #8a7060; font-size: 10px; font-style: italic; margin-top: -10px;">
-                Gothic pixel font with glowing theme colors
+            <span style="color: #8a7060; font-size: 9px; font-style: italic; margin-top: -8px;">
+                Gothic pixel font with theme glow
             </span>
             
             <!-- Extension Info -->
-            <div style="margin-top: auto; padding-top: 16px; border-top: 1px solid ${theme.main}20;">
-                <p style="color: #8a7060; font-size: 10px; text-align: center; margin: 0;">
+            <div style="margin-top: auto; padding-top: 12px; border-top: 1px solid ${theme.main}20;">
+                <p style="color: #8a7060; font-size: 9px; text-align: center; margin: 0;">
                     ✨ Petit Grimoire v0.1 ✨
                 </p>
             </div>
@@ -611,7 +610,7 @@ function initSettingsListeners() {
             const slider = lockToggle.parentElement.querySelector('.pg-toggle-slider');
             const knob = lockToggle.parentElement.querySelector('.pg-toggle-knob');
             if (slider) slider.style.background = isLocked ? theme.main : '#ccc';
-            if (knob) knob.style.left = isLocked ? '22px' : '2px';
+            if (knob) knob.style.left = isLocked ? '18px' : '2px';
         });
     }
     
@@ -626,7 +625,7 @@ function initSettingsListeners() {
             const slider = document.getElementById('pg-fancy-slider');
             const knob = document.getElementById('pg-fancy-knob');
             if (slider) slider.style.background = isEnabled ? theme.main : '#ccc';
-            if (knob) knob.style.left = isEnabled ? '22px' : '2px';
+            if (knob) knob.style.left = isEnabled ? '18px' : '2px';
             
             // Toggle fancy font class on panel
             if (panelElement) {
