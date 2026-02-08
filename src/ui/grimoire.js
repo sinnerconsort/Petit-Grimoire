@@ -317,9 +317,9 @@ function createContent(book, scale, offsetY) {
     // Content is contained within the visible page - scrolls if needed
     content.setAttribute('style', `
         position: absolute !important;
-        left: 35% !important;
+        left: 37% !important;
         right: 20% !important;
-        top: 23% !important;
+        top: 26% !important;
         bottom: 10% !important;
         padding: 3% !important;
         overflow-y: auto !important;
