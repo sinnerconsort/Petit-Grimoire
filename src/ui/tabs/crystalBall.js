@@ -69,8 +69,8 @@ export function getContent() {
     height: 100%;
     overflow-y: auto;
     overflow-x: hidden;
-    padding-right: 4px;
-    padding-top: 10px;      /* push content DOWN */
+    padding-right: 2px;
+    padding-top: 5px;      /* push content DOWN */
     padding-left: 5px;      /* push content RIGHT */
     padding-bottom: 10px;   /* add space at BOTTOM */
 ">
