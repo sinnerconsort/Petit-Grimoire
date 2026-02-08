@@ -42,17 +42,15 @@ export function createGrimoire() {
     
     // =========== BOOK CONTAINER ===========
     // Uses sprite as background
-    // Book sprite is 896x720 (wider than tall, ratio 1.244:1)
-    // On mobile portrait, WIDTH is the constraint
+    // Book sprite is 896x720 - use CSS aspect-ratio for proper sizing
     const book = document.createElement('div');
     book.id = 'pg-book';
     
     Object.assign(book.style, {
         position: 'relative',
-        // Width-based sizing for mobile portrait
+        // Fill most of the screen width, let aspect-ratio handle height
         width: '95vw',
-        height: 'calc(95vw * 0.804)',  // 720/896 = 0.804
-        maxHeight: '70vh',
+        aspectRatio: '896 / 720',
         margin: 'auto',
         // Sprite background
         backgroundImage: `url('${ASSET_PATHS.grimoire}/Grimoire_WithTabs.png')`,
