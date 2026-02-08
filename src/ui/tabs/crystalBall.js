@@ -70,7 +70,7 @@ export function getContent() {
     overflow-y: auto;
     overflow-x: hidden;
     padding-right: 2px;
-    padding-top: 5px;      /* push content DOWN */
+    padding-top: 2px;      /* push content DOWN */
     padding-left: 10px;      /* push content RIGHT */
     padding-bottom: 15px;   /* add space at BOTTOM */
 ">
