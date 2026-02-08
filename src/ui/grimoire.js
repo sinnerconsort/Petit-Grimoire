@@ -18,80 +18,17 @@ function injectStyles() {
     document.getElementById('pg-grimoire-styles')?.remove();
     styleElement = null;
     
-    // Calculate sizes in pixels
-    const vw = window.innerWidth;
-    const vh = window.innerHeight;
-    const spriteRatio = 720 / 896; // 0.804
-    
-    let bookWidth = Math.floor(vw * 0.95);
-    let bookHeight = Math.floor(bookWidth * spriteRatio);
-    
-    // Cap at 70% viewport height
-    const maxHeight = Math.floor(vh * 0.7);
-    if (bookHeight > maxHeight) {
-        bookHeight = maxHeight;
-        bookWidth = Math.floor(bookHeight / spriteRatio);
-    }
-    
-    console.log('[Petit Grimoire] Injecting styles with size:', bookWidth, 'x', bookHeight);
+    console.log('[Petit Grimoire] Injecting minimal styles');
     
     styleElement = document.createElement('style');
     styleElement.id = 'pg-grimoire-styles';
+    // Only basic panel styles - openGrimoire() handles all positioning
     styleElement.textContent = `
         #pg-panel {
-            position: fixed !important;
-            top: 0 !important;
-            left: 0 !important;
-            right: 0 !important;
-            bottom: 0 !important;
-            width: 100% !important;
-            height: 100% !important;
-            z-index: 99998 !important;
-            background: rgba(0,0,0,0.6) !important;
-            backdrop-filter: blur(4px) !important;
             display: none;
-            align-items: center !important;
-            justify-content: center !important;
-            box-sizing: border-box !important;
-            margin: 0 !important;
-            padding: 0 !important;
         }
-        
         #pg-panel.pg-open {
             display: flex !important;
-        }
-        
-        #pg-book {
-            position: relative !important;
-            overflow: visible !important;
-            flex-shrink: 0 !important;
-            background: none !important;
-        }
-        
-        #pg-sidebar {
-            position: absolute !important;
-            left: 0 !important;
-            top: 10% !important;
-            bottom: 15% !important;
-            width: 10% !important;
-            display: flex !important;
-            flex-direction: column !important;
-            justify-content: flex-start !important;
-            align-items: center !important;
-            padding-top: 2% !important;
-            gap: 2% !important;
-            z-index: 5 !important;
-        }
-        
-        #pg-content {
-            position: absolute !important;
-            left: 14% !important;
-            right: 6% !important;
-            top: 8% !important;
-            bottom: 10% !important;
-            overflow-y: auto !important;
-            overflow-x: hidden !important;
-            z-index: 4 !important;
         }
     `;
     document.head.appendChild(styleElement);
@@ -336,25 +273,24 @@ export function openGrimoire() {
     }
     
     // Use setAttribute with !important to FORCE styles
-    // Position at TOP instead of centered
     panelElement.setAttribute('style', `
         position: fixed !important;
         top: 0 !important;
         left: 0 !important;
-        width: ${vw}px !important;
-        height: ${vh}px !important;
-        min-height: ${vh}px !important;
+        width: 100vw !important;
+        height: 100vh !important;
         z-index: 99998 !important;
-        background: rgba(0,0,0,0.6) !important;
+        background: rgba(0,0,0,0.7) !important;
         display: flex !important;
-        align-items: flex-start !important;
+        align-items: center !important;
         justify-content: center !important;
-        padding-top: 2% !important;
         margin: 0 !important;
+        padding: 0 !important;
         box-sizing: border-box !important;
     `);
     
     // Force book size AND position relative
+    // IMPORTANT: overflow: hidden to contain children
     const book = document.getElementById('pg-book');
     if (book) {
         book.setAttribute('style', `
@@ -365,6 +301,7 @@ export function openGrimoire() {
             min-height: ${bookHeight}px !important;
             flex-shrink: 0 !important;
             background: none !important;
+            overflow: hidden !important;
         `);
         
         // Crop sprite to show just the book portion, scaled to fill container
@@ -380,11 +317,11 @@ export function openGrimoire() {
         // Scale sprite so book portion matches our container size
         const spriteFullWidth = 896;
         const spriteFullHeight = 720;
-        const bookInSpriteWidth = 586;
+        const bookInSpriteWidthActual = 586;
         const bookStartX = 310;
         const bookStartY = 30;  // Small top margin
         
-        const scale = bookWidth / bookInSpriteWidth;
+        const scale = bookWidth / bookInSpriteWidthActual;
         const scaledSpriteWidth = Math.floor(spriteFullWidth * scale);
         const scaledSpriteHeight = Math.floor(spriteFullHeight * scale);
         const offsetX = Math.floor(bookStartX * scale);
@@ -405,34 +342,35 @@ export function openGrimoire() {
             z-index: 0 !important;
         `);
         
-        // Sidebar tabs - on the left edge where tab shapes appear
-        // Based on target mockup: tabs at ~0-10% from left
+        // Sidebar tabs - positioned ON the visible tabs in sprite
+        // In the cropped sprite, tabs are at the LEFT edge (0-15% of visible area)
         const sidebar = document.getElementById('pg-sidebar');
         if (sidebar) {
             sidebar.setAttribute('style', `
                 position: absolute !important;
-                left: 0 !important;
-                top: 8% !important;
-                bottom: 12% !important;
-                width: 12% !important;
+                left: 2% !important;
+                top: 10% !important;
+                bottom: 15% !important;
+                width: 10% !important;
                 display: flex !important;
                 flex-direction: column !important;
-                justify-content: space-between !important;
+                justify-content: flex-start !important;
                 align-items: center !important;
-                padding: 2% 0 !important;
+                padding-top: 2% !important;
+                gap: 8px !important;
                 z-index: 5 !important;
             `);
         }
         
-        // Content area - on the parchment page
-        // Based on target mockup: starts at ~15% from left
+        // Content area - on the parchment page (after tabs)
+        // Page area is roughly 18% to 97% horizontally
         const content = document.getElementById('pg-content');
         if (content) {
             content.setAttribute('style', `
                 position: absolute !important;
-                left: 15% !important;
+                left: 18% !important;
                 right: 3% !important;
-                top: 5% !important;
+                top: 6% !important;
                 bottom: 8% !important;
                 padding: 3% !important;
                 overflow-y: auto !important;
