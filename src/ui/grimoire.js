@@ -752,9 +752,11 @@ export function openGrimoire() {
         const grimoireYOffset = settings.grimoireOffsetY || 0;
         const topPosition = Math.max(0, (vh - bookHeight) / 2 + grimoireYOffset);
         
-        // Position so RIGHT edge touches right side of screen
-        // left = viewport width - book width
+        // Position so RIGHT edge of book is at RIGHT edge of viewport
+        // left = vw - bookWidth (will be negative if book is wider than screen, pushing tabs off left)
         const leftPosition = vw - bookWidth;
+        
+        toastr.info(`vw:${vw} bookW:${bookWidth} left:${leftPosition}`, 'Sizing');
         
         book.setAttribute('style', `
             position: absolute !important;
