@@ -1,283 +1,54 @@
 /**
- * Petit Grimoire - Styles
- * Using !important to fight any ST overrides
+ * Petit Grimoire - Minimal Styles
+ * Most styling is done inline via JavaScript for reliability
+ * This file only contains things that MUST be in CSS
  */
 
-/* =============================================================================
-   CONTAINER - Wraps everything
-   ============================================================================= */
-
-#petit-grimoire-container {
-    --pg-main: #dc78aa;
-    --pg-secondary: #f3aa1e;
-    --pg-bg: #1a0a12;
-    --pg-card-bg: #2a1020;
-    --pg-text-light: #fce4ec;
-    --pg-text-dim: #dc78aa99;
+/* Prevent any global img rules from affecting our sprites */
+#pg-book-sprite {
+    object-fit: fill !important;
+    object-position: 0 0 !important;
 }
 
-/* =============================================================================
-   FAB - The floating action button
-   ============================================================================= */
-
-#petit-grimoire-fab {
-    position: fixed !important;
-    z-index: 99999 !important;
-    display: flex !important;
-    visibility: visible !important;
-    opacity: 1 !important;
-    
-    /* Size - make it big and obvious */
-    width: 56px !important;
-    height: 56px !important;
-    min-width: 56px !important;
-    min-height: 56px !important;
-    
-    /* Appearance */
-    background: linear-gradient(135deg, #2a1020, #1a0a12) !important;
-    border: 2px solid var(--pg-main, #dc78aa) !important;
-    border-radius: 50% !important;
-    box-shadow: 0 4px 15px rgba(220, 120, 170, 0.5) !important;
-    
-    /* Center content */
-    align-items: center !important;
-    justify-content: center !important;
-    
-    /* Reset any inherited styles */
-    padding: 0 !important;
-    margin: 0 !important;
-    
-    /* Interaction */
-    cursor: pointer !important;
-    touch-action: none !important;
-    user-select: none !important;
-    -webkit-user-select: none !important;
-    
-    /* Animation */
-    transition: transform 0.2s ease, box-shadow 0.2s ease !important;
-}
-
-#petit-grimoire-fab:hover {
-    transform: scale(1.1) !important;
-    box-shadow: 0 6px 25px rgba(220, 120, 170, 0.7) !important;
-}
-
-#petit-grimoire-fab:active {
-    transform: scale(0.95) !important;
-}
-
-#petit-grimoire-fab.dragging {
-    transition: none !important;
-    box-shadow: 0 8px 30px rgba(220, 120, 170, 0.8) !important;
-}
-
-#petit-grimoire-fab img {
-    width: 32px !important;
-    height: 32px !important;
-    display: block !important;
-    image-rendering: pixelated !important;
-    image-rendering: crisp-edges !important;
-    pointer-events: none !important;
-}
-
-/* =============================================================================
-   PANEL - The overlay backdrop
-   ============================================================================= */
-
-#petit-grimoire-panel {
-    position: fixed !important;
-    top: 0 !important;
-    left: 0 !important;
-    right: 0 !important;
-    bottom: 0 !important;
-    width: 100% !important;
-    height: 100% !important;
-    z-index: 99998 !important;
-    
-    /* Backdrop */
-    background: rgba(0, 0, 0, 0.75) !important;
-    backdrop-filter: blur(4px) !important;
-    -webkit-backdrop-filter: blur(4px) !important;
-    
-    /* Layout */
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    padding: 20px !important;
-    box-sizing: border-box !important;
-    
-    /* Hidden by default */
-    opacity: 0 !important;
-    visibility: hidden !important;
-    pointer-events: none !important;
-    
-    transition: opacity 0.3s ease, visibility 0.3s ease !important;
-}
-
-#petit-grimoire-panel.visible {
-    opacity: 1 !important;
-    visibility: visible !important;
-    pointer-events: auto !important;
-}
-
-/* =============================================================================
-   BOOK - The grimoire sprite container
-   ============================================================================= */
-
-#petit-grimoire-book {
-    position: relative !important;
-    width: 320px !important;
-    height: 400px !important;
-    
-    /* Temporary: visible box to prove it exists */
-    background: var(--pg-card-bg, #2a1020) !important;
-    border: 3px solid var(--pg-main, #dc78aa) !important;
-    border-radius: 12px !important;
-    box-shadow: 
-        0 10px 40px rgba(0, 0, 0, 0.5),
-        0 0 40px rgba(220, 120, 170, 0.3) !important;
-    
-    overflow: hidden !important;
-}
-
-/* =============================================================================
-   TAB BUTTONS
-   ============================================================================= */
-
-#pg-tab-buttons {
-    position: absolute !important;
-    top: 10px !important;
-    left: 10px !important;
-    display: flex !important;
-    flex-direction: column !important;
-    gap: 8px !important;
-    z-index: 10 !important;
-}
-
+/* Tab button resets */
 .pg-tab-btn {
-    width: 36px !important;
-    height: 36px !important;
-    
-    background: var(--pg-bg, #1a0a12) !important;
-    border: 1px solid var(--pg-main, #dc78aa) !important;
-    border-radius: 8px !important;
-    
-    color: var(--pg-text-dim, #dc78aa99) !important;
-    font-size: 14px !important;
-    
-    cursor: pointer !important;
-    transition: all 0.2s ease !important;
+    all: unset !important;
+    box-sizing: border-box !important;
 }
 
-.pg-tab-btn:hover,
-.pg-tab-btn.active {
-    background: var(--pg-main, #dc78aa) !important;
-    color: var(--pg-bg, #1a0a12) !important;
+/* Scrollbar styling for content */
+#pg-content::-webkit-scrollbar {
+    width: 6px;
 }
 
-/* =============================================================================
-   PAGE CONTENT
-   ============================================================================= */
-
-#pg-page-content {
-    position: absolute !important;
-    top: 10px !important;
-    left: 60px !important;
-    right: 10px !important;
-    bottom: 10px !important;
-    overflow-y: auto !important;
+#pg-content::-webkit-scrollbar-track {
+    background: transparent;
 }
 
-.pg-tab-content {
-    display: none !important;
-    height: 100% !important;
+#pg-content::-webkit-scrollbar-thumb {
+    background: rgba(220, 120, 170, 0.3);
+    border-radius: 3px;
 }
 
-.pg-tab-content.active {
-    display: block !important;
+#pg-content::-webkit-scrollbar-thumb:hover {
+    background: rgba(220, 120, 170, 0.5);
 }
 
-.pg-page-header {
-    font-size: 18px !important;
-    font-weight: bold !important;
-    color: var(--pg-main, #dc78aa) !important;
-    text-align: center !important;
-    margin-bottom: 15px !important;
-    letter-spacing: 2px !important;
+/* Page content styling */
+.pg-page h2 {
+    margin: 0 0 8px 0;
+    font-size: 16px;
+    letter-spacing: 2px;
 }
 
-.pg-page-body {
-    color: var(--pg-text-light, #fce4ec) !important;
-    font-size: 14px !important;
+.pg-page .flavor-quote {
+    font-style: italic;
+    opacity: 0.7;
+    margin-bottom: 16px;
 }
 
-.pg-placeholder {
-    text-align: center !important;
-    color: var(--pg-text-dim, #dc78aa99) !important;
-    font-style: italic !important;
-    margin-top: 50px !important;
-}
-
-/* =============================================================================
-   CLOSE BUTTON
-   ============================================================================= */
-
-#pg-close-btn {
-    position: absolute !important;
-    top: 20px !important;
-    right: 20px !important;
-    z-index: 100000 !important;
-    
-    width: 40px !important;
-    height: 40px !important;
-    
-    background: rgba(0, 0, 0, 0.5) !important;
-    border: 2px solid var(--pg-main, #dc78aa) !important;
-    border-radius: 50% !important;
-    
-    color: var(--pg-text-light, #fce4ec) !important;
-    font-size: 18px !important;
-    
-    cursor: pointer !important;
-    transition: all 0.2s ease !important;
-}
-
-#pg-close-btn:hover {
-    background: var(--pg-main, #dc78aa) !important;
-    color: var(--pg-bg, #1a0a12) !important;
-}
-
-/* =============================================================================
-   PAGE TURN OVERLAY (for animations later)
-   ============================================================================= */
-
-#petit-grimoire-page-turn {
-    display: none !important;
-    position: absolute !important;
-    inset: 0 !important;
-    z-index: 15 !important;
-    pointer-events: none !important;
-}
-
-/* =============================================================================
-   MOBILE
-   ============================================================================= */
-
-@media (max-width: 400px) {
-    #petit-grimoire-book {
-        width: 280px !important;
-        height: 350px !important;
-    }
-    
-    #petit-grimoire-fab {
-        width: 50px !important;
-        height: 50px !important;
-        min-width: 50px !important;
-        min-height: 50px !important;
-    }
-    
-    #petit-grimoire-fab img {
-        width: 28px !important;
-        height: 28px !important;
-    }
+.pg-page .coming-soon {
+    text-align: center;
+    opacity: 0.5;
+    margin-top: 20px;
 }
