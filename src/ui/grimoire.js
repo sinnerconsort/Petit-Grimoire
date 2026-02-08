@@ -365,9 +365,7 @@ export function openGrimoire() {
             min-width: ${bookWidth}px !important;
             min-height: ${bookHeight}px !important;
             flex-shrink: 0 !important;
-            background-image: url('${ASSET_PATHS.grimoire}/Grimoire_WithTabs.png') !important;
-            background-size: 100% 100% !important;
-            background-repeat: no-repeat !important;
+            background: url('${ASSET_PATHS.grimoire}/Grimoire_WithTabs.png') no-repeat 0 0 / ${bookWidth}px ${bookHeight}px !important;
             image-rendering: pixelated !important;
             border: 3px solid lime !important;
         `);
