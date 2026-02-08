@@ -300,14 +300,14 @@ function createContent(book, scale, offsetY) {
     content.id = 'pg-content';
     
     // Position inside the "page" area of the sprite
-    // Wider content area for better toggle visibility
+    // Content is contained within the visible page - scrolls if needed
     content.setAttribute('style', `
         position: absolute !important;
         left: 30% !important;
-        right: 4% !important;
-        top: 22% !important;
+        right: 5% !important;
+        top: 20% !important;
         bottom: 10% !important;
-        padding: 2% !important;
+        padding: 3% !important;
         overflow-y: auto !important;
         overflow-x: hidden !important;
         color: #3a2518 !important;
@@ -318,6 +318,7 @@ function createContent(book, scale, offsetY) {
         scrollbar-width: thin !important;
         scrollbar-color: ${theme.main}40 transparent !important;
         z-index: 5 !important;
+        box-sizing: border-box !important;
     `);
     
     TABS.forEach(tab => {
@@ -331,6 +332,8 @@ function createContent(book, scale, offsetY) {
             flex-direction: column !important;
             height: 100% !important;
             text-align: left !important;
+            overflow: hidden !important;
+            box-sizing: border-box !important;
         `);
         
         // Placeholder content (will be replaced by feature modules)
@@ -411,7 +414,7 @@ function buildSettingsPage() {
             "Adjust the mystical parameters."
         </p>
         
-        <div class="pg-settings-content" style="display: flex; flex-direction: column; gap: 12px; padding: 4px 0;">
+        <div class="pg-settings-content" style="display: flex; flex-direction: column; gap: 12px; padding: 4px 0; overflow-x: hidden; max-width: 100%; box-sizing: border-box;">
             
             <!-- Theme Selection -->
             <div class="pg-setting-group" style="display: flex; flex-direction: column; gap: 4px;">
@@ -481,7 +484,7 @@ function buildSettingsPage() {
                 <div style="display: flex; align-items: center; gap: 6px;">
                     <span style="color: ${textMid}; font-size: 9px;">−</span>
                     <input type="range" id="pg-scale-slider" 
-                        min="0.8" max="1.5" step="0.05" value="${settings.grimoireScale || 1.15}"
+                        min="0.8" max="1.5" step="0.05" value="${settings.grimoireScale || 1.0}"
                         style="
                             flex: 1;
                             height: 4px;
@@ -494,13 +497,13 @@ function buildSettingsPage() {
                     />
                     <span style="color: ${textMid}; font-size: 9px;">+</span>
                     <span id="pg-scale-value" style="color: ${textDark}; font-size: 9px; min-width: 35px; text-align: right;">
-                        ${Math.round((settings.grimoireScale || 1.15) * 100)}%
+                        ${Math.round((settings.grimoireScale || 1.0) * 100)}%
                     </span>
                 </div>
             </div>
             
             <!-- Lock Position -->
-            <div class="pg-setting-group" style="display: flex; align-items: center; gap: 8px;">
+            <div class="pg-setting-group" style="display: flex; align-items: center; gap: 8px; flex-shrink: 0;">
                 <label style="color: ${textDark}; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; flex: 1;">
                     ✦ Lock FAB
                 </label>
@@ -510,6 +513,7 @@ function buildSettingsPage() {
                     height: 20px;
                     cursor: pointer;
                     display: inline-block;
+                    flex-shrink: 0;
                 ">
                     <input type="checkbox" id="pg-lock-toggle" 
                         ${settings.grimoireLocked ? 'checked' : ''}
@@ -537,7 +541,7 @@ function buildSettingsPage() {
             </div>
             
             <!-- Fancy Font Toggle -->
-            <div class="pg-setting-group" style="display: flex; align-items: center; gap: 8px;">
+            <div class="pg-setting-group" style="display: flex; align-items: center; gap: 8px; flex-shrink: 0;">
                 <label style="color: ${textDark}; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; flex: 1;">
                     ✦ Fancy Headers
                 </label>
@@ -547,6 +551,7 @@ function buildSettingsPage() {
                     height: 20px;
                     cursor: pointer;
                     display: inline-block;
+                    flex-shrink: 0;
                 ">
                     <input type="checkbox" id="pg-fancy-font-toggle" 
                         ${settings.fancyFont ? 'checked' : ''}
@@ -743,22 +748,24 @@ export function openGrimoire() {
     // Calculate book size - PAGE should fill screen, tabs extend off left
     const bookInSpriteWidth = 586;
     const bookInSpriteHeight = 665;
-    const pagePortionRatio = 0.82;
+    const pagePortionRatio = 0.82;  // Page portion of the book sprite
     const bookAspectRatio = bookInSpriteHeight / bookInSpriteWidth;
     
-    // Apply user scale setting (default 1.15 for bigger book)
-    const userScale = settings.grimoireScale || 1.15;
+    // Apply user scale setting (default 1.0)
+    const userScale = settings.grimoireScale || 1.0;
     
-    let bookWidth = Math.floor((vw / pagePortionRatio) * userScale);
+    // Calculate base book size that would make PAGE fill the viewport width
+    let baseBookWidth = Math.floor(vw / pagePortionRatio);
+    let bookWidth = Math.floor(baseBookWidth * userScale);
     let bookHeight = Math.floor(bookWidth * bookAspectRatio);
     
-    // Cap at viewport dimensions to prevent overflow issues
+    // Cap height at 95% viewport to prevent vertical overflow
     if (bookHeight > vh * 0.95) {
         bookHeight = Math.floor(vh * 0.95);
         bookWidth = Math.floor(bookHeight / bookAspectRatio);
     }
     
-    // Panel as flex container
+    // Panel as overlay container
     panelElement.setAttribute('style', `
         position: fixed !important;
         top: 0 !important;
@@ -770,9 +777,7 @@ export function openGrimoire() {
         margin: 0 !important;
         padding: 0 !important;
         box-sizing: border-box !important;
-        display: flex !important;
-        flex-direction: row !important;
-        align-items: flex-start !important;
+        overflow: hidden !important;
     `);
     
     const book = document.getElementById('pg-book');
@@ -781,14 +786,15 @@ export function openGrimoire() {
         const grimoireYOffset = settings.grimoireOffsetY || 0;
         const topPosition = Math.max(0, Math.min(vh - bookHeight, (vh - bookHeight) / 2 + grimoireYOffset));
         
+        // ANCHOR TO RIGHT EDGE - book expands to the left
+        // Tabs will extend past left viewport edge if needed
         book.setAttribute('style', `
-            position: relative !important;
+            position: absolute !important;
+            right: 0 !important;
+            top: ${topPosition}px !important;
             width: ${bookWidth}px !important;
             height: ${bookHeight}px !important;
             background: none !important;
-            margin-left: auto !important;
-            margin-top: ${topPosition}px !important;
-            flex-shrink: 0 !important;
         `);
         
         // Sprite setup
