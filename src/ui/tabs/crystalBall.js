@@ -65,13 +65,16 @@ export function getContent() {
     const totalEffects = Object.values(poolStats).reduce((sum, cat) => sum + cat.count, 0);
     
     return `
-        <div class="pg-crystal-scroll" style="
-            height: 100%;
-            overflow-y: auto;
-            overflow-x: hidden;
-            padding-right: 4px;
-        ">
-            <h2 class="pg-page-title" style="color: ${textDark}; margin: 0 0 6px 0; font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 6px;">
+    <div class="pg-crystal-scroll" style="
+    height: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-right: 4px;
+    padding-top: 10px;      /* push content DOWN */
+    padding-left: 5px;      /* push content RIGHT */
+    padding-bottom: 10px;   /* add space at BOTTOM */
+">
+        <h2 class="pg-page-title" style="color: ${textDark}; margin: 0 0 6px 0; font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 6px;">
                 🔮 CRYSTAL BALL
             </h2>
             <p style="color: ${textMid}; font-style: italic; font-size: 10px; margin-bottom: 12px;">
