@@ -11,7 +11,7 @@ import { settings, updateSetting } from '../core/state.js';
 import { setFabOpenState } from './fab.js';
 
 // Tab system - handles all tab content and initialization
-import { getTabContent, initTab, cleanupTab } from './tabs/index.js';
+import { getTabContent, initTab, cleanupTab } from './tabs/tabManager.js';
 
 let panelElement = null;
 let styleElement = null;
