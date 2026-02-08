@@ -407,6 +407,7 @@ export function closeGrimoire() {
     if (!panelElement) return;
     
     panelElement.classList.remove('pg-open');
+    panelElement.style.display = 'none';  // Override the inline display:flex
     isOpen = false;
     
     // Update FAB state
