@@ -315,13 +315,14 @@ function createContent(book, scale, offsetY) {
     
     // Position inside the "page" area of the sprite
     // Content is contained within the visible page - scrolls if needed
+    // right: 20% accounts for binding offset pushing book off-screen
     content.setAttribute('style', `
         position: absolute !important;
-        left: 30% !important;
-        right: 5% !important;
-        top: 20% !important;
-        bottom: 10% !important;
-        padding: 3% !important;
+        left: 22% !important;
+        right: 20% !important;
+        top: 12% !important;
+        bottom: 8% !important;
+        padding: 2% !important;
         overflow-y: auto !important;
         overflow-x: hidden !important;
         color: #3a2518 !important;
@@ -752,7 +753,7 @@ export function openGrimoire() {
         
         // FORCE right edge positioning
         // Negative right value pushes book right to compensate for sprite padding
-        const bindingOffset = -89;  // Adjust if gap still visible
+        const bindingOffset = 92;  // Adjust if gap still visible
         
         book.setAttribute('style', `
             position: absolute !important;
