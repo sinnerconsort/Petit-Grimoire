@@ -41,17 +41,18 @@ export function createGrimoire() {
     });
     
     // =========== BOOK CONTAINER ===========
-    // Uses sprite as background - large to fill screen like mockups
+    // Uses sprite as background
+    // Book sprite is 896x720 (wider than tall, ratio 1.244:1)
+    // On mobile portrait, WIDTH is the constraint
     const book = document.createElement('div');
     book.id = 'pg-book';
     
     Object.assign(book.style, {
         position: 'relative',
-        // Large size to match mockups - 70% of viewport height
-        // Book sprite is wider than tall (896:720 = 1.244:1)
-        height: '70vh',
-        width: 'calc(70vh * 1.244)',
-        maxWidth: '98vw',
+        // Width-based sizing for mobile portrait
+        width: '95vw',
+        height: 'calc(95vw * 0.804)',  // 720/896 = 0.804
+        maxHeight: '70vh',
         margin: 'auto',
         // Sprite background
         backgroundImage: `url('${ASSET_PATHS.grimoire}/Grimoire_WithTabs.png')`,
