@@ -713,16 +713,20 @@ export function openGrimoire() {
     const vw = window.innerWidth;
     const vh = window.innerHeight;
     
-    // Calculate book size - PAGE should fill screen, tabs extend off left
+    // Book sizing: 
+    // - Right edge anchored to right side of screen
+    // - Left edge (with tabs) starts ~100px from left edge
+    // - Book fills that horizontal space
+    const leftMargin = 100;  // Where tabs start (green dots)
+    const bookWidth = vw - leftMargin;
+    
+    // Maintain aspect ratio from sprite
     const bookInSpriteWidth = 586;
     const bookInSpriteHeight = 665;
-    const pagePortionRatio = 0.82;
     const bookAspectRatio = bookInSpriteHeight / bookInSpriteWidth;
-    
-    let bookWidth = Math.floor(vw / pagePortionRatio);
     let bookHeight = Math.floor(bookWidth * bookAspectRatio);
     
-    // Panel as flex container
+    // Panel as container
     panelElement.setAttribute('style', `
         position: fixed !important;
         top: 0 !important;
@@ -734,25 +738,23 @@ export function openGrimoire() {
         margin: 0 !important;
         padding: 0 !important;
         box-sizing: border-box !important;
-        display: flex !important;
-        flex-direction: row !important;
-        align-items: flex-start !important;
+        overflow: hidden !important;
     `);
     
     const book = document.getElementById('pg-book');
     if (book) {
-        // Apply vertical offset from settings
+        // Vertical centering with offset
         const grimoireYOffset = settings.grimoireOffsetY || 0;
         const topPosition = Math.max(0, Math.min(vh - bookHeight, (vh - bookHeight) / 2 + grimoireYOffset));
         
+        // Anchor to right edge, book expands left to leftMargin
         book.setAttribute('style', `
-            position: relative !important;
+            position: absolute !important;
+            right: 0 !important;
+            top: ${topPosition}px !important;
             width: ${bookWidth}px !important;
             height: ${bookHeight}px !important;
             background: none !important;
-            margin-left: auto !important;
-            margin-top: ${topPosition}px !important;
-            flex-shrink: 0 !important;
         `);
         
         // Sprite setup
