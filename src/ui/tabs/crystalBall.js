@@ -71,8 +71,8 @@ export function getContent() {
     overflow-x: hidden;
     padding-right: 2px;
     padding-top: 5px;      /* push content DOWN */
-    padding-left: 5px;      /* push content RIGHT */
-    padding-bottom: 10px;   /* add space at BOTTOM */
+    padding-left: 10px;      /* push content RIGHT */
+    padding-bottom: 15px;   /* add space at BOTTOM */
 ">
         <h2 class="pg-page-title" style="color: ${textDark}; margin: 0 0 6px 0; font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 6px;">
                 🔮 CRYSTAL BALL
