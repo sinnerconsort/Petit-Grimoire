@@ -20,13 +20,64 @@ window.petitGrimoireSettings = settings;
 function injectStyles() {
     // Remove old styles first
     document.getElementById('pg-grimoire-styles')?.remove();
+    document.getElementById('pg-font-link')?.remove();
     styleElement = null;
     
-    console.log('[Petit Grimoire] Injecting minimal styles');
+    console.log('[Petit Grimoire] Injecting styles with fonts');
+    
+    // Add Google Fonts link for Silkscreen
+    const fontLink = document.createElement('link');
+    fontLink.id = 'pg-font-link';
+    fontLink.rel = 'stylesheet';
+    fontLink.href = 'https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&display=swap';
+    document.head.appendChild(fontLink);
+    
+    // Get theme for header glow colors
+    const theme = getTheme(settings.theme);
     
     styleElement = document.createElement('style');
     styleElement.id = 'pg-grimoire-styles';
     styleElement.textContent = `
+        /* Font Face for Gentry Society */
+        @font-face {
+            font-family: 'Gentry Society';
+            src: url('/extensions/third-party/Petit-Grimoire/assets/fonts/Gentry_Society.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+            font-display: swap;
+        }
+        
+        /* Base pixel font for all grimoire text */
+        #pg-panel, #pg-panel * {
+            font-family: 'Silkscreen', cursive !important;
+        }
+        
+        /* Fancy font mode - headers only */
+        #pg-panel.pg-fancy-font .pg-page-title {
+            font-family: 'Gentry Society', serif !important;
+            font-size: 22px !important;
+            letter-spacing: 2px !important;
+        }
+        
+        /* Theme-colored header text when fancy font is on */
+        #pg-panel.pg-fancy-font .pg-page-title {
+            color: ${theme.main} !important;
+        }
+        
+        /* Soft pulsing glow animation for headers */
+        @keyframes pg-header-glow {
+            0%, 100% { 
+                text-shadow: 0 0 4px ${theme.main}40, 0 0 8px ${theme.main}20;
+            }
+            50% { 
+                text-shadow: 0 0 8px ${theme.main}60, 0 0 16px ${theme.main}40, 0 0 24px ${theme.main}20;
+            }
+        }
+        
+        #pg-panel.pg-fancy-font .pg-page-title {
+            animation: pg-header-glow 3s ease-in-out infinite !important;
+        }
+        
         #pg-panel {
             display: none;
         }
@@ -324,7 +375,7 @@ function getPageContent(tabId) {
     };
     
     return `
-        <h2 style="color: #5a4030; margin: 0 0 8px 0; font-size: 16px; font-weight: 600; display: flex; align-items: center; gap: 8px;">
+        <h2 class="pg-page-title" style="color: #5a4030; margin: 0 0 8px 0; font-size: 16px; font-weight: 600; display: flex; align-items: center; gap: 8px;">
             ${emojis[tabId] || '✦'} ${names[tabId] || tabId.toUpperCase()}
         </h2>
         <p style="color: #6a5040; font-style: italic; font-size: 12px; margin-bottom: 15px;">
@@ -346,7 +397,7 @@ function buildSettingsPage() {
     ).join('');
     
     return `
-        <h2 style="color: #5a4030; margin: 0 0 8px 0; font-size: 16px; font-weight: 600; display: flex; align-items: center; gap: 8px;">
+        <h2 class="pg-page-title" style="color: #5a4030; margin: 0 0 8px 0; font-size: 16px; font-weight: 600; display: flex; align-items: center; gap: 8px;">
             ⚙️ SETTINGS
         </h2>
         <p style="color: #6a5040; font-style: italic; font-size: 12px; margin-bottom: 15px;">
@@ -451,6 +502,45 @@ function buildSettingsPage() {
                 </label>
             </div>
             
+            <!-- Fancy Font Toggle -->
+            <div class="pg-setting-group" style="display: flex; align-items: center; gap: 10px;">
+                <label style="color: #5a4030; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; flex: 1;">
+                    ✦ Fancy Headers
+                </label>
+                <label class="pg-toggle" style="
+                    position: relative;
+                    width: 44px;
+                    height: 24px;
+                    cursor: pointer;
+                ">
+                    <input type="checkbox" id="pg-fancy-font-toggle" 
+                        ${settings.fancyFont ? 'checked' : ''}
+                        style="opacity: 0; width: 0; height: 0;"
+                    />
+                    <span class="pg-toggle-slider" id="pg-fancy-slider" style="
+                        position: absolute;
+                        inset: 0;
+                        background: ${settings.fancyFont ? theme.main : '#ccc'};
+                        border-radius: 24px;
+                        transition: background 0.3s;
+                    "></span>
+                    <span class="pg-toggle-knob" id="pg-fancy-knob" style="
+                        position: absolute;
+                        top: 2px;
+                        left: ${settings.fancyFont ? '22px' : '2px'};
+                        width: 20px;
+                        height: 20px;
+                        background: white;
+                        border-radius: 50%;
+                        transition: left 0.3s;
+                        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+                    "></span>
+                </label>
+            </div>
+            <span style="color: #8a7060; font-size: 10px; font-style: italic; margin-top: -10px;">
+                Gothic pixel font with glowing theme colors
+            </span>
+            
             <!-- Extension Info -->
             <div style="margin-top: auto; padding-top: 16px; border-top: 1px solid ${theme.main}20;">
                 <p style="color: #8a7060; font-size: 10px; text-align: center; margin: 0;">
@@ -522,6 +612,30 @@ function initSettingsListeners() {
             const knob = lockToggle.parentElement.querySelector('.pg-toggle-knob');
             if (slider) slider.style.background = isLocked ? theme.main : '#ccc';
             if (knob) knob.style.left = isLocked ? '22px' : '2px';
+        });
+    }
+    
+    // Fancy font toggle
+    const fancyFontToggle = document.getElementById('pg-fancy-font-toggle');
+    if (fancyFontToggle) {
+        fancyFontToggle.addEventListener('change', (e) => {
+            const isEnabled = e.target.checked;
+            updateSetting('fancyFont', isEnabled);
+            
+            // Update visual state of toggle
+            const slider = document.getElementById('pg-fancy-slider');
+            const knob = document.getElementById('pg-fancy-knob');
+            if (slider) slider.style.background = isEnabled ? theme.main : '#ccc';
+            if (knob) knob.style.left = isEnabled ? '22px' : '2px';
+            
+            // Toggle fancy font class on panel
+            if (panelElement) {
+                if (isEnabled) {
+                    panelElement.classList.add('pg-fancy-font');
+                } else {
+                    panelElement.classList.remove('pg-fancy-font');
+                }
+            }
         });
     }
 }
@@ -663,6 +777,14 @@ export function openGrimoire() {
     }
     
     panelElement.classList.add('pg-open');
+    
+    // Add fancy font class if enabled
+    if (settings.fancyFont) {
+        panelElement.classList.add('pg-fancy-font');
+    } else {
+        panelElement.classList.remove('pg-fancy-font');
+    }
+    
     isOpen = true;
     
     // Update FAB state
