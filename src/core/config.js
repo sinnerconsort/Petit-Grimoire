@@ -221,7 +221,9 @@ export const DEFAULT_SETTINGS = {
     grimoireOpen: false,
     // Grimoire positioning
     grimoireOffsetY: 0,       // Vertical offset in pixels (-200 to 200)
-    grimoireLocked: false     // Lock position toggle
+    grimoireLocked: false,    // Lock position toggle
+    // Font settings
+    fancyFont: false          // Use Gentry Society decorative font
 };
 
 /**
