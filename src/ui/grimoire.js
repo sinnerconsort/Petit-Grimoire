@@ -10,6 +10,9 @@ let panelElement = null;
 let styleElement = null;
 let isOpen = false;
 
+// Make settings accessible for tab icons
+window.petitGrimoireSettings = settings;
+
 /**
  * Inject CSS for the grimoire
  */
@@ -22,7 +25,6 @@ function injectStyles() {
     
     styleElement = document.createElement('style');
     styleElement.id = 'pg-grimoire-styles';
-    // Only basic panel styles - openGrimoire() handles all positioning
     styleElement.textContent = `
         #pg-panel {
             display: none;
@@ -56,8 +58,6 @@ export function createGrimoire() {
     const book = document.createElement('div');
     book.id = 'pg-book';
     
-    // NO SIDEBAR OR CONTENT FOR NOW - just the book
-    
     panel.appendChild(book);
     document.body.appendChild(panel);
     
@@ -66,96 +66,145 @@ export function createGrimoire() {
 }
 
 /**
- * Create the tab sidebar - positioned over sprite's visual tabs
- * Tabs align with the book spine on the left edge
+ * Create clickable tab icons overlaid on the sprite's tab shapes
  */
-function createSidebar(theme) {
-    const sidebar = document.createElement('div');
-    sidebar.id = 'pg-sidebar';
-    Object.assign(sidebar.style, {
-        position: 'absolute',
-        // Position over the left spine tabs in the sprite
-        left: '0',
-        top: '10%',
-        bottom: '15%',
-        width: '10%',
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'flex-start',
-        alignItems: 'center',
-        paddingTop: '2%',
-        gap: '2%',
-        zIndex: '5'
-    });
+function createTabIcons(book, scale, offsetY) {
+    // Remove existing tab icons
+    document.getElementById('pg-tab-icons')?.remove();
     
-    TABS.forEach((tab, index) => {
+    const container = document.createElement('div');
+    container.id = 'pg-tab-icons';
+    container.setAttribute('style', `
+        position: absolute !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+        pointer-events: none !important;
+        z-index: 10 !important;
+    `);
+    
+    // Tab positions in SPRITE coordinates (before scaling)
+    // Measured from the book+tabs portion starting at x:310 in the full sprite
+    // ADJUST THESE if icons don't line up perfectly!
+    const TAB_DATA = [
+        { id: 'tarot',    icon: 'fa-layer-group', y: 88,  label: 'Tarot' },
+        { id: 'crystal',  icon: 'fa-moon',        y: 158, label: 'Crystal Ball' },
+        { id: 'ouija',    icon: 'fa-ghost',       y: 228, label: 'Ouija' },
+        { id: 'nyx',      icon: 'fa-cat',         y: 298, label: 'Nyx' },
+        { id: 'radio',    icon: 'fa-radio',       y: 368, label: 'Radio' },
+        { id: 'settings', icon: 'fa-gear',        y: 438, label: 'Settings' },
+    ];
+    
+    // Tab dimensions in sprite coordinates
+    const TAB_WIDTH = 50;   // How wide the clickable area
+    const TAB_HEIGHT = 55;  // Height of each tab
+    const TAB_LEFT = 12;    // X position from left edge of book portion
+    
+    TAB_DATA.forEach(tab => {
         const btn = document.createElement('button');
-        btn.className = 'pg-tab-btn';
+        btn.className = 'pg-tab-icon';
         btn.dataset.tab = tab.id;
-        btn.title = tab.name;
+        btn.title = tab.label;
         btn.innerHTML = `<i class="fa-solid ${tab.icon}"></i>`;
         
-        const isActive = tab.id === settings.activeTab;
-        Object.assign(btn.style, {
-            width: '75%',
-            aspectRatio: '1',
-            background: isActive ? theme.main + '40' : 'transparent',
-            border: 'none',
-            borderRadius: '4px',
-            color: isActive ? theme.main : theme.textDim,
-            fontSize: '14px',
-            cursor: 'pointer',
-            transition: 'all 0.2s ease',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            opacity: isActive ? '1' : '0.6'
-        });
+        // Scale positions to match the scaled sprite
+        const scaledY = (tab.y * scale) - offsetY;
+        const scaledX = TAB_LEFT * scale;
+        const scaledW = TAB_WIDTH * scale;
+        const scaledH = TAB_HEIGHT * scale;
         
-        btn.addEventListener('click', () => switchTab(tab.id));
+        const isActive = tab.id === settings.activeTab;
+        
+        btn.setAttribute('style', `
+            position: absolute !important;
+            left: ${scaledX}px !important;
+            top: ${scaledY}px !important;
+            width: ${scaledW}px !important;
+            height: ${scaledH}px !important;
+            background: transparent !important;
+            border: none !important;
+            cursor: pointer !important;
+            pointer-events: auto !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            color: ${isActive ? '#5a4030' : '#8b7355'} !important;
+            font-size: ${Math.max(14, scaledH * 0.35)}px !important;
+            transition: color 0.2s ease, transform 0.15s ease !important;
+            opacity: ${isActive ? '1' : '0.7'} !important;
+        `);
+        
+        // Hover effects
         btn.addEventListener('mouseenter', () => {
             if (btn.dataset.tab !== settings.activeTab) {
+                btn.style.color = '#5a4030';
                 btn.style.opacity = '1';
-                btn.style.background = theme.main + '20';
-            }
-        });
-        btn.addEventListener('mouseleave', () => {
-            if (btn.dataset.tab !== settings.activeTab) {
-                btn.style.opacity = '0.6';
-                btn.style.background = 'transparent';
+                btn.style.transform = 'scale(1.1)';
             }
         });
         
-        sidebar.appendChild(btn);
+        btn.addEventListener('mouseleave', () => {
+            if (btn.dataset.tab !== settings.activeTab) {
+                btn.style.color = '#8b7355';
+                btn.style.opacity = '0.7';
+                btn.style.transform = 'scale(1)';
+            }
+        });
+        
+        // Click handler
+        btn.addEventListener('click', () => {
+            switchTab(tab.id);
+        });
+        
+        container.appendChild(btn);
     });
     
-    return sidebar;
+    book.appendChild(container);
+}
+
+/**
+ * Update the visual state of tab icons
+ */
+function updateTabIconStates() {
+    document.querySelectorAll('.pg-tab-icon').forEach(btn => {
+        const isActive = btn.dataset.tab === settings.activeTab;
+        btn.style.color = isActive ? '#5a4030' : '#8b7355';
+        btn.style.opacity = isActive ? '1' : '0.7';
+        btn.style.transform = 'scale(1)';
+    });
 }
 
 /**
  * Create the content area - positioned inside the book's page
  */
-function createContent(theme) {
+function createContent(book, scale, offsetY) {
+    // Remove existing content
+    document.getElementById('pg-content')?.remove();
+    
+    const theme = getTheme(settings.theme);
+    
     const content = document.createElement('div');
     content.id = 'pg-content';
-    Object.assign(content.style, {
-        position: 'absolute',
-        // Position inside the "page" area of the sprite
-        // Starts after the spine/tabs, with padding from edges
-        left: '14%',
-        right: '6%',
-        top: '8%',
-        bottom: '10%',
-        padding: '3%',
-        overflowY: 'auto',
-        overflowX: 'hidden',
-        color: '#4a3728',  // Dark brown text for parchment
-        fontSize: '13px',
-        lineHeight: '1.4',
-        // Subtle scrollbar
-        scrollbarWidth: 'thin',
-        scrollbarColor: `${theme.main}40 transparent`
-    });
+    
+    // Position inside the "page" area of the sprite
+    // These are percentages of the book container
+    content.setAttribute('style', `
+        position: absolute !important;
+        left: 14% !important;
+        right: 6% !important;
+        top: 8% !important;
+        bottom: 12% !important;
+        padding: 3% !important;
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+        color: #4a3728 !important;
+        font-size: 13px !important;
+        line-height: 1.4 !important;
+        scrollbar-width: thin !important;
+        scrollbar-color: ${theme.main}40 transparent !important;
+        z-index: 5 !important;
+    `);
     
     TABS.forEach(tab => {
         const page = document.createElement('div');
@@ -163,60 +212,64 @@ function createContent(theme) {
         page.dataset.page = tab.id;
         
         const isActive = tab.id === settings.activeTab;
-        Object.assign(page.style, {
-            display: isActive ? 'flex' : 'none',
-            flexDirection: 'column',
-            height: '100%',
-            textAlign: 'left'
-        });
+        page.setAttribute('style', `
+            display: ${isActive ? 'flex' : 'none'} !important;
+            flex-direction: column !important;
+            height: 100% !important;
+            text-align: left !important;
+        `);
         
         // Placeholder content (will be replaced by feature modules)
-        page.innerHTML = `
-            <h2 style="color: #5a4030; margin: 0 0 8px 0; font-size: 16px; font-weight: 600; display: flex; align-items: center; gap: 8px;">
-                ${getTabEmoji(tab.id)} ${tab.name.toUpperCase()}
-            </h2>
-            <p style="color: #6a5040; font-style: italic; font-size: 12px; margin-bottom: 15px;">
-                "${getTabQuote(tab.id)}"
-            </p>
-            <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0.5;">
-                <p style="font-style: italic;">Coming soon...</p>
-            </div>
-        `;
+        page.innerHTML = getPageContent(tab.id);
         
         content.appendChild(page);
     });
     
-    return content;
+    book.appendChild(content);
 }
 
 /**
- * Get emoji for tab header
+ * Get placeholder content for each page
  */
-function getTabEmoji(tabId) {
+function getPageContent(tabId) {
     const emojis = {
         tarot: '🎴',
         crystal: '🔮',
         ouija: '👻',
         nyx: '🐱',
-        spells: '✨',
+        radio: '📻',
         settings: '⚙️'
     };
-    return emojis[tabId] || '✦';
-}
-
-/**
- * Get flavor quote for tab
- */
-function getTabQuote(tabId) {
+    
+    const names = {
+        tarot: 'TAROT',
+        crystal: 'CRYSTAL BALL',
+        ouija: 'OUIJA',
+        nyx: 'NYX',
+        radio: 'RADIO',
+        settings: 'SETTINGS'
+    };
+    
     const quotes = {
         tarot: 'The cards know what you refuse to see.',
         crystal: 'Fate is not a request line.',
         ouija: 'Ask, and fate shall answer. Then make it true.',
         nyx: "I'm watching. Always watching.",
-        spells: 'Visual magic. No story impact—just vibes.',
-        settings: 'Tune the cosmic frequencies.'
+        radio: 'Tune in to the cosmic frequencies.',
+        settings: 'Adjust the mystical parameters.'
     };
-    return quotes[tabId] || 'Magic awaits...';
+    
+    return `
+        <h2 style="color: #5a4030; margin: 0 0 8px 0; font-size: 16px; font-weight: 600; display: flex; align-items: center; gap: 8px;">
+            ${emojis[tabId] || '✦'} ${names[tabId] || tabId.toUpperCase()}
+        </h2>
+        <p style="color: #6a5040; font-style: italic; font-size: 12px; margin-bottom: 15px;">
+            "${quotes[tabId] || 'Magic awaits...'}"
+        </p>
+        <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0.5;">
+            <p style="font-style: italic;">Coming soon...</p>
+        </div>
+    `;
 }
 
 /**
@@ -247,21 +300,15 @@ export function openGrimoire() {
     const vh = window.innerHeight;
     
     // Calculate book size - PAGE should fill screen, tabs extend off left
-    // The book+tabs in the sprite is ~586x665
-    // The PAGE portion (without tabs) is roughly 85% of that width (~500px)
-    // We want the PAGE to fill the screen width
     const bookInSpriteWidth = 586;
     const bookInSpriteHeight = 665;
-    const pagePortionRatio = 0.82; // Page is ~82% of total book width
-    const bookAspectRatio = bookInSpriteHeight / bookInSpriteWidth; // ~1.135
+    const pagePortionRatio = 0.82;
+    const bookAspectRatio = bookInSpriteHeight / bookInSpriteWidth;
     
-    // Scale so the PAGE fills the viewport width
-    // If page = 82% of book, then book = vw / 0.82
     let bookWidth = Math.floor(vw / pagePortionRatio);
     let bookHeight = Math.floor(bookWidth * bookAspectRatio);
     
-    // Use setAttribute with !important to FORCE styles
-    // Panel as flex container, book will push right with margin-left:auto
+    // Panel as flex container
     panelElement.setAttribute('style', `
         position: fixed !important;
         top: 0 !important;
@@ -278,8 +325,6 @@ export function openGrimoire() {
         align-items: flex-start !important;
     `);
     
-    // Force book size AND position
-    // margin-left: auto pushes the book to the right edge
     const book = document.getElementById('pg-book');
     if (book) {
         book.setAttribute('style', `
@@ -291,9 +336,7 @@ export function openGrimoire() {
             flex-shrink: 0 !important;
         `);
         
-        // Crop sprite to show just the book portion, scaled to fill container
-        // Sprite is 896x720, book+tabs starts at x:310, is 586x665
-        
+        // Sprite setup
         let spriteDiv = document.getElementById('pg-book-sprite');
         if (!spriteDiv) {
             spriteDiv = document.createElement('div');
@@ -301,12 +344,11 @@ export function openGrimoire() {
             book.appendChild(spriteDiv);
         }
         
-        // Scale sprite so book portion matches our container size
         const spriteFullWidth = 896;
         const spriteFullHeight = 720;
         const bookInSpriteWidthActual = 586;
         const bookStartX = 310;
-        const bookStartY = 30;  // Small top margin
+        const bookStartY = 30;
         
         const scale = bookWidth / bookInSpriteWidthActual;
         const scaledSpriteWidth = Math.floor(spriteFullWidth * scale);
@@ -329,42 +371,15 @@ export function openGrimoire() {
             z-index: 0 !important;
         `);
         
+        // Create tab icons overlay
+        createTabIcons(book, scale, offsetY);
+        
+        // Create content area
+        createContent(book, scale, offsetY);
+        
         console.log('[Petit Grimoire] Book size:', bookWidth, 'x', bookHeight);
-        console.log('[Petit Grimoire] Viewport:', vw, 'x', vh);
-        console.log('[Petit Grimoire] Sprite scale:', scale.toFixed(3));
-        console.log('[Petit Grimoire] Offset:', offsetX, offsetY);
+        console.log('[Petit Grimoire] Scale:', scale.toFixed(3));
     }
-    
-    // Debug (comment out when done)
-    /*
-    let debugEl = document.getElementById('pg-debug');
-    if (!debugEl) {
-        debugEl = document.createElement('div');
-        debugEl.id = 'pg-debug';
-        debugEl.setAttribute('style', `
-            position: fixed !important;
-            top: 5px !important;
-            left: 5px !important;
-            background: red !important;
-            color: white !important;
-            padding: 5px 10px !important;
-            font-size: 11px !important;
-            z-index: 999999 !important;
-            font-family: monospace !important;
-        `);
-        document.body.appendChild(debugEl);
-    }
-    
-    const bookRect = book?.getBoundingClientRect();
-    const spriteDiv = document.getElementById('pg-book-sprite');
-    const spriteStyle = spriteDiv ? window.getComputedStyle(spriteDiv) : null;
-    
-    debugEl.innerHTML = `
-        Book: ${bookRect?.width?.toFixed(0)}x${bookRect?.height?.toFixed(0)}<br>
-        BG size: ${spriteStyle?.backgroundSize || 'none'}<br>
-        BG pos: ${spriteStyle?.backgroundPosition || 'none'}
-    `;
-    */
     
     panelElement.classList.add('pg-open');
     isOpen = true;
@@ -404,23 +419,18 @@ export function isGrimoireOpen() {
  * Switch to a tab
  */
 export function switchTab(tabId) {
-    const theme = getTheme(settings.theme);
+    // Update setting
+    updateSetting('activeTab', tabId);
     
-    // Update button styles
-    document.querySelectorAll('.pg-tab-btn').forEach(btn => {
-        const isActive = btn.dataset.tab === tabId;
-        btn.style.background = isActive ? theme.main + '40' : 'transparent';
-        btn.style.color = isActive ? theme.main : theme.textDim;
-        btn.style.opacity = isActive ? '1' : '0.6';
-    });
+    // Update tab icon visuals
+    updateTabIconStates();
     
     // Show/hide pages
     document.querySelectorAll('.pg-page').forEach(page => {
         page.style.display = page.dataset.page === tabId ? 'flex' : 'none';
     });
     
-    // Save active tab
-    updateSetting('activeTab', tabId);
+    console.log('[Petit Grimoire] Switched to tab:', tabId);
 }
 
 /**
@@ -435,19 +445,10 @@ export function updateGrimoireTheme() {
     if (content) {
         content.style.scrollbarColor = `${theme.main}40 transparent`;
     }
-    
-    // Update tab buttons
-    document.querySelectorAll('.pg-tab-btn').forEach(btn => {
-        const isActive = btn.dataset.tab === settings.activeTab;
-        btn.style.background = isActive ? theme.main + '40' : 'transparent';
-        btn.style.color = isActive ? theme.main : theme.textDim;
-        btn.style.opacity = isActive ? '1' : '0.6';
-    });
 }
 
 /**
  * Get a page element by tab ID
- * (For feature modules to populate content)
  */
 export function getPage(tabId) {
     return document.querySelector(`.pg-page[data-page="${tabId}"]`);
