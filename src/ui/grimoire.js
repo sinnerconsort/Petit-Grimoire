@@ -317,10 +317,10 @@ function createContent(book, scale, offsetY) {
     // Content is contained within the visible page - scrolls if needed
     content.setAttribute('style', `
         position: absolute !important;
-        left: 30% !important;
-        right: 5% !important;
-        top: 20% !important;
-        bottom: 10% !important;
+        left: 28% !important;
+        right: 12% !important;
+        top: 18% !important;
+        bottom: 12% !important;
         padding: 3% !important;
         overflow-y: auto !important;
         overflow-x: hidden !important;
@@ -444,6 +444,9 @@ function buildSettingsPage() {
                     font-size: 11px;
                     cursor: pointer;
                     outline: none;
+                    width: 100%;
+                    max-width: 100%;
+                    box-sizing: border-box;
                 ">
                     ${themeOptions}
                 </select>
@@ -457,7 +460,7 @@ function buildSettingsPage() {
                 <label style="color: ${textDark}; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">
                     ✦ Grimoire Position
                 </label>
-                <div style="display: flex; align-items: center; gap: 6px;">
+                <div style="display: flex; align-items: center; gap: 6px; width: 100%; max-width: 100%; box-sizing: border-box;">
                     <span style="color: ${textMid}; font-size: 9px;">↑</span>
                     <input type="range" id="pg-position-slider" 
                         min="-200" max="200" value="${settings.grimoireOffsetY || 0}"
@@ -491,8 +494,8 @@ function buildSettingsPage() {
             </div>
             
             <!-- Lock Position -->
-            <div class="pg-setting-group" style="display: flex; align-items: center; gap: 8px; flex-shrink: 0;">
-                <label style="color: ${textDark}; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; flex: 1;">
+            <div class="pg-setting-group" style="display: flex; align-items: center; gap: 8px; width: 100%; max-width: 100%; box-sizing: border-box;">
+                <label style="color: ${textDark}; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; flex: 1; min-width: 0;">
                     ✦ Lock FAB
                 </label>
                 <label class="pg-toggle" style="
@@ -529,8 +532,8 @@ function buildSettingsPage() {
             </div>
             
             <!-- Fancy Font Toggle -->
-            <div class="pg-setting-group" style="display: flex; align-items: center; gap: 8px; flex-shrink: 0;">
-                <label style="color: ${textDark}; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; flex: 1;">
+            <div class="pg-setting-group" style="display: flex; align-items: center; gap: 8px; width: 100%; max-width: 100%; box-sizing: border-box;">
+                <label style="color: ${textDark}; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; flex: 1; min-width: 0;">
                     ✦ Fancy Headers
                 </label>
                 <label class="pg-toggle" style="
@@ -747,6 +750,7 @@ export function openGrimoire() {
         book.setAttribute('style', `
             position: absolute !important;
             right: 0 !important;
+            left: auto !important;
             top: ${topPosition}px !important;
             width: ${bookWidth}px !important;
             height: ${bookHeight}px !important;
