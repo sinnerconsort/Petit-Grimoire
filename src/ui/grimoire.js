@@ -5,6 +5,7 @@
 
 import { TABS, ASSET_PATHS, getTheme } from '../core/config.js';
 import { settings, updateSetting } from '../core/state.js';
+import { setFabOpenState } from './fab.js';
 
 let panelElement = null;
 let styleElement = null;
@@ -387,6 +388,9 @@ export function openGrimoire() {
     panelElement.classList.add('pg-open');
     isOpen = true;
     
+    // Update FAB state
+    setFabOpenState(true);
+    
     console.log('[Petit Grimoire] Opened');
 }
 
@@ -398,6 +402,9 @@ export function closeGrimoire() {
     
     panelElement.classList.remove('pg-open');
     isOpen = false;
+    
+    // Update FAB state
+    setFabOpenState(false);
 }
 
 /**
