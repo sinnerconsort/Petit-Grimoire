@@ -752,7 +752,7 @@ export function openGrimoire() {
         
         // FORCE right edge positioning
         // Negative right value pushes book right to compensate for sprite padding
-        const bindingOffset = 90;  // Adjust if gap still visible
+        const bindingOffset = -85;  // Adjust if gap still visible
         
         book.setAttribute('style', `
             position: absolute !important;
