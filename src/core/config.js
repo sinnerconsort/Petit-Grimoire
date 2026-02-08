@@ -218,7 +218,10 @@ export const DEFAULT_SETTINGS = {
     theme: 'guardian',
     activeTab: 'tarot',
     fabPosition: { x: null, y: null },
-    grimoireOpen: false
+    grimoireOpen: false,
+    // Grimoire positioning
+    grimoireOffsetY: 0,       // Vertical offset in pixels (-200 to 200)
+    grimoireLocked: false     // Lock position toggle
 };
 
 /**
