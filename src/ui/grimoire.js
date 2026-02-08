@@ -40,10 +40,10 @@ function injectStyles() {
     styleElement = document.createElement('style');
     styleElement.id = 'pg-grimoire-styles';
     styleElement.textContent = `
-        /* Font Face for Gentry Society */
+        /* Font Face for Royal Decree */
         @font-face {
-            font-family: 'Gentry Society';
-            src: url('/extensions/third-party/Petit-Grimoire/assets/fonts/Gentry_Society.ttf') format('truetype');
+            font-family: 'Royal Decree';
+            src: url('/extensions/third-party/Petit-Grimoire/assets/fonts/Royal_Decree.ttf') format('truetype');
             font-weight: normal;
             font-style: normal;
             font-display: swap;
@@ -56,7 +56,7 @@ function injectStyles() {
         
         /* Fancy font mode - headers only */
         #pg-panel.pg-fancy-font .pg-page-title {
-            font-family: 'Gentry Society', serif !important;
+            font-family: 'Royal Decree', serif !important;
             font-size: 22px !important;
             letter-spacing: 2px !important;
         }
