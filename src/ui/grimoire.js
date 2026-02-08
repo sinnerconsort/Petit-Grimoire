@@ -246,22 +246,17 @@ export function openGrimoire() {
     const vw = window.innerWidth;
     const vh = window.innerHeight;
     
-    // Calculate book size - PAGE should fill screen, tabs extend off left
-    // The book+tabs in the sprite is ~586x665
-    // The PAGE portion (without tabs) is roughly 85% of that width (~500px)
-    // We want the PAGE to fill the screen width
+    // Calculate book size - FILL SCREEN EDGE TO EDGE
+    // Tabs touch left edge, page touches right edge
     const bookInSpriteWidth = 586;
     const bookInSpriteHeight = 665;
-    const pagePortionRatio = 0.82; // Page is ~82% of total book width
     const bookAspectRatio = bookInSpriteHeight / bookInSpriteWidth; // ~1.135
     
-    // Scale so the PAGE fills the viewport width
-    // If page = 82% of book, then book = vw / 0.82
-    let bookWidth = Math.floor(vw / pagePortionRatio);
+    // Book width = full viewport width (edge to edge)
+    let bookWidth = vw;
     let bookHeight = Math.floor(bookWidth * bookAspectRatio);
     
     // Use setAttribute with !important to FORCE styles
-    // Panel as flex container, book will push right with margin-left:auto
     panelElement.setAttribute('style', `
         position: fixed !important;
         top: 0 !important;
@@ -273,22 +268,19 @@ export function openGrimoire() {
         margin: 0 !important;
         padding: 0 !important;
         box-sizing: border-box !important;
-        display: flex !important;
-        flex-direction: row !important;
-        align-items: flex-start !important;
     `);
     
     // Force book size AND position
-    // margin-left: auto pushes the book to the right edge
+    // Book fills full width, positioned at top-left
     const book = document.getElementById('pg-book');
     if (book) {
         book.setAttribute('style', `
-            position: relative !important;
+            position: absolute !important;
+            top: 0 !important;
+            left: 0 !important;
             width: ${bookWidth}px !important;
             height: ${bookHeight}px !important;
             background: none !important;
-            margin-left: auto !important;
-            flex-shrink: 0 !important;
         `);
         
         // Crop sprite to show just the book portion, scaled to fill container
