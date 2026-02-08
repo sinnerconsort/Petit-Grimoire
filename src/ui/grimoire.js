@@ -326,22 +326,23 @@ export function openGrimoire() {
     const vw = window.innerWidth;
     const vh = window.innerHeight;
     
-    // FORCE panel styles with PIXEL values
-    Object.assign(panelElement.style, {
-        position: 'fixed',
-        top: '0px',
-        left: '0px',
-        width: vw + 'px',
-        height: vh + 'px',
-        zIndex: '99998',
-        background: 'rgba(0,0,0,0.85)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        margin: '0',
-        padding: '0',
-        boxSizing: 'border-box'
-    });
+    // Use setAttribute with !important to FORCE styles
+    panelElement.setAttribute('style', `
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: ${vw}px !important;
+        height: ${vh}px !important;
+        min-height: ${vh}px !important;
+        z-index: 99998 !important;
+        background: rgba(0,0,0,0.85) !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        box-sizing: border-box !important;
+    `);
     
     // Force book size
     const book = document.getElementById('pg-book');
@@ -357,13 +358,18 @@ export function openGrimoire() {
             bookWidth = Math.floor(bookHeight / spriteRatio);
         }
         
-        Object.assign(book.style, {
-            width: bookWidth + 'px',
-            height: bookHeight + 'px',
-            minWidth: bookWidth + 'px',
-            minHeight: bookHeight + 'px',
-            flexShrink: '0'
-        });
+        book.setAttribute('style', `
+            position: relative !important;
+            width: ${bookWidth}px !important;
+            height: ${bookHeight}px !important;
+            min-width: ${bookWidth}px !important;
+            min-height: ${bookHeight}px !important;
+            flex-shrink: 0 !important;
+            background-image: url('${ASSET_PATHS.grimoire}/Grimoire_WithTabs.png') !important;
+            background-size: 100% 100% !important;
+            background-repeat: no-repeat !important;
+            image-rendering: pixelated !important;
+        `);
     }
     
     // Debug info
@@ -371,26 +377,27 @@ export function openGrimoire() {
     if (!debugEl) {
         debugEl = document.createElement('div');
         debugEl.id = 'pg-debug';
-        Object.assign(debugEl.style, {
-            position: 'fixed',
-            top: '5px',
-            left: '5px',
-            background: 'red',
-            color: 'white',
-            padding: '5px 10px',
-            fontSize: '12px',
-            zIndex: '999999',
-            fontFamily: 'monospace'
-        });
+        debugEl.setAttribute('style', `
+            position: fixed !important;
+            top: 5px !important;
+            left: 5px !important;
+            background: red !important;
+            color: white !important;
+            padding: 5px 10px !important;
+            font-size: 12px !important;
+            z-index: 999999 !important;
+            font-family: monospace !important;
+        `);
         document.body.appendChild(debugEl);
     }
     
+    // Check computed styles
+    const panelComputed = window.getComputedStyle(panelElement);
     const bookRect = book?.getBoundingClientRect();
-    const panelRect = panelElement.getBoundingClientRect();
     
     debugEl.innerHTML = `
         VP: ${vw}x${vh}<br>
-        Panel: ${panelRect.width.toFixed(0)}x${panelRect.height.toFixed(0)}<br>
+        Panel computed: ${panelComputed.width} x ${panelComputed.height}<br>
         Book: ${bookRect?.width?.toFixed(0) || '?'}x${bookRect?.height?.toFixed(0) || '?'}
     `;
     
@@ -398,6 +405,7 @@ export function openGrimoire() {
     isOpen = true;
     
     console.log('[Petit Grimoire] Opened');
+    console.log('[Petit Grimoire] Panel style attr:', panelElement.getAttribute('style'));
 }
 
 /**
