@@ -7,16 +7,70 @@ import { ASSET_PATHS, getTheme } from '../core/config.js';
 import { settings, saveFabPosition, getFabPosition } from '../core/state.js';
 
 let fabElement = null;
+let styleElement = null;
 let isDragging = false;
 let hasMoved = false;
 let startX, startY, startLeft, startTop;
 
 /**
- * Create the FAB element
- * @param {Function} onOpen - Callback when FAB is clicked (not dragged)
+ * Inject FAB animations
  */
-export function createFab(onOpen) {
+function injectStyles() {
+    if (styleElement) return;
+    
+    styleElement = document.createElement('style');
+    styleElement.id = 'pg-fab-styles';
+    styleElement.textContent = `
+        @keyframes pg-fab-float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-6px); }
+        }
+        
+        @keyframes pg-fab-pulse {
+            0%, 100% { filter: drop-shadow(0 0 8px var(--pg-glow-color)); }
+            50% { filter: drop-shadow(0 0 16px var(--pg-glow-color)); }
+        }
+        
+        @keyframes pg-fab-sparkle {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.85; }
+        }
+        
+        #pg-fab {
+            animation: pg-fab-float 3s ease-in-out infinite;
+        }
+        
+        #pg-fab:hover {
+            animation: pg-fab-float 3s ease-in-out infinite, pg-fab-pulse 1.5s ease-in-out infinite;
+        }
+        
+        #pg-fab.pg-fab-open {
+            animation: none;
+            transform: scale(0.95);
+        }
+        
+        #pg-fab img {
+            transition: transform 0.2s ease;
+        }
+        
+        #pg-fab:hover img {
+            transform: scale(1.05);
+        }
+        
+        #pg-fab:active img {
+            transform: scale(0.95);
+        }
+    `;
+    document.head.appendChild(styleElement);
+}
+
+/**
+ * Create the FAB element
+ * @param {Function} onToggle - Callback when FAB is clicked (not dragged)
+ */
+export function createFab(onToggle) {
     destroyFab();
+    injectStyles();
     
     const theme = getTheme(settings.theme);
     const pos = getFabPosition();
@@ -25,34 +79,39 @@ export function createFab(onOpen) {
     fab.id = 'pg-fab';
     fab.title = 'Open Petit Grimoire';
     
+    // Set CSS variable for glow color
+    fab.style.setProperty('--pg-glow-color', theme.main + '88');
+    
     Object.assign(fab.style, {
         position: 'fixed',
         left: pos.x + 'px',
         top: pos.y + 'px',
         zIndex: '99999',
-        width: '56px',
-        height: '56px',
-        background: `linear-gradient(135deg, ${theme.cardBg}, ${theme.bg})`,
-        border: `3px solid ${theme.main}`,
-        borderRadius: '50%',
-        boxShadow: `0 4px 20px ${theme.main}66`,
+        width: '64px',
+        height: '64px',
+        // NO circle - transparent background
+        background: 'transparent',
+        border: 'none',
+        borderRadius: '0',
+        boxShadow: 'none',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         cursor: 'pointer',
         userSelect: 'none',
         touchAction: 'none',
-        transition: 'transform 0.2s ease, box-shadow 0.2s ease'
+        // Filter for glow effect
+        filter: `drop-shadow(0 0 8px ${theme.main}66)`
     });
     
-    // Create icon image
+    // Create icon image (the sprite IS the button)
     const img = document.createElement('img');
     img.src = `${ASSET_PATHS.sprites}/${theme.fabIcon}`;
     img.alt = '✨';
     img.draggable = false;
     Object.assign(img.style, {
-        width: '36px',
-        height: '36px',
+        width: '64px',
+        height: '64px',
         imageRendering: 'pixelated',
         pointerEvents: 'none'
     });
@@ -60,15 +119,22 @@ export function createFab(onOpen) {
     // Fallback to emoji if image fails
     img.onerror = () => {
         fab.innerHTML = '✨';
-        fab.style.fontSize = '24px';
-        fab.style.color = theme.main;
+        Object.assign(fab.style, {
+            fontSize: '32px',
+            color: theme.main,
+            background: `linear-gradient(135deg, ${theme.cardBg}, ${theme.bg})`,
+            border: `3px solid ${theme.main}`,
+            borderRadius: '50%',
+            width: '56px',
+            height: '56px'
+        });
     };
     
     fab.appendChild(img);
     document.body.appendChild(fab);
     
     // Setup drag handlers
-    setupDragHandlers(fab, onOpen);
+    setupDragHandlers(fab, onToggle);
     
     fabElement = fab;
     return fab;
@@ -93,11 +159,9 @@ export function updateFabTheme() {
     
     const theme = getTheme(settings.theme);
     
-    Object.assign(fabElement.style, {
-        background: `linear-gradient(135deg, ${theme.cardBg}, ${theme.bg})`,
-        border: `3px solid ${theme.main}`,
-        boxShadow: `0 4px 20px ${theme.main}66`
-    });
+    // Update glow color
+    fabElement.style.setProperty('--pg-glow-color', theme.main + '88');
+    fabElement.style.filter = `drop-shadow(0 0 8px ${theme.main}66)`;
     
     const img = fabElement.querySelector('img');
     if (img) {
@@ -106,9 +170,24 @@ export function updateFabTheme() {
 }
 
 /**
+ * Set FAB open state (changes animation)
+ */
+export function setFabOpenState(isOpen) {
+    if (!fabElement) return;
+    
+    if (isOpen) {
+        fabElement.classList.add('pg-fab-open');
+        fabElement.title = 'Close Petit Grimoire';
+    } else {
+        fabElement.classList.remove('pg-fab-open');
+        fabElement.title = 'Open Petit Grimoire';
+    }
+}
+
+/**
  * Setup drag handlers for the FAB
  */
-function setupDragHandlers(fab, onOpen) {
+function setupDragHandlers(fab, onToggle) {
     function onStart(clientX, clientY) {
         isDragging = true;
         hasMoved = false;
@@ -116,7 +195,8 @@ function setupDragHandlers(fab, onOpen) {
         startY = clientY;
         startLeft = fab.offsetLeft;
         startTop = fab.offsetTop;
-        fab.style.transition = 'none';
+        // Pause animation while dragging
+        fab.style.animation = 'none';
     }
     
     function onMove(clientX, clientY) {
@@ -133,8 +213,9 @@ function setupDragHandlers(fab, onOpen) {
         let newY = startTop + dy;
         
         // Constrain to viewport
-        newX = Math.max(0, Math.min(window.innerWidth - 56, newX));
-        newY = Math.max(0, Math.min(window.innerHeight - 56, newY));
+        const fabSize = 64;
+        newX = Math.max(0, Math.min(window.innerWidth - fabSize, newX));
+        newY = Math.max(0, Math.min(window.innerHeight - fabSize, newY));
         
         fab.style.left = newX + 'px';
         fab.style.top = newY + 'px';
@@ -143,14 +224,18 @@ function setupDragHandlers(fab, onOpen) {
     function onEnd() {
         if (!isDragging) return;
         isDragging = false;
-        fab.style.transition = 'transform 0.2s ease, box-shadow 0.2s ease';
+        
+        // Restore animation (unless grimoire is open)
+        if (!fab.classList.contains('pg-fab-open')) {
+            fab.style.animation = '';
+        }
         
         // Save position
         saveFabPosition(fab.offsetLeft, fab.offsetTop);
         
-        // If didn't drag, trigger open
-        if (!hasMoved && onOpen) {
-            onOpen();
+        // If didn't drag, trigger toggle
+        if (!hasMoved && onToggle) {
+            onToggle();
         }
     }
     
@@ -186,8 +271,9 @@ function setupDragHandlers(fab, onOpen) {
 export function constrainFabToViewport() {
     if (!fabElement) return;
     
-    const x = Math.max(0, Math.min(window.innerWidth - 56, fabElement.offsetLeft));
-    const y = Math.max(0, Math.min(window.innerHeight - 56, fabElement.offsetTop));
+    const fabSize = 64;
+    const x = Math.max(0, Math.min(window.innerWidth - fabSize, fabElement.offsetLeft));
+    const y = Math.max(0, Math.min(window.innerHeight - fabSize, fabElement.offsetTop));
     
     fabElement.style.left = x + 'px';
     fabElement.style.top = y + 'px';
