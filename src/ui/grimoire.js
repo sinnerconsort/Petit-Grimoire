@@ -246,15 +246,28 @@ export function openGrimoire() {
     const vw = window.innerWidth;
     const vh = window.innerHeight;
     
-    // Calculate book size - scale to fill viewport HEIGHT
+    // Calculate book size - fill usable screen area, right-aligned
     // The book+tabs in the sprite is ~586x665
     const bookInSpriteWidth = 586;
     const bookInSpriteHeight = 665;
     const bookAspectRatio = bookInSpriteHeight / bookInSpriteWidth; // ~1.135
     
-    // Fill ~90% of viewport height, derive width from aspect ratio
-    let bookHeight = Math.floor(vh * 0.90);
-    let bookWidth = Math.floor(bookHeight / bookAspectRatio);
+    // Usable area: full width, height minus top bar (~50px) and bottom input (~100px)
+    const usableWidth = vw;
+    const usableHeight = vh - 150;
+    
+    // Scale to fill: pick the dimension that makes the book as large as possible
+    // while still fitting in the usable area
+    let bookWidth, bookHeight;
+    if (usableWidth * bookAspectRatio <= usableHeight) {
+        // Width is the constraint - book fits by width
+        bookWidth = Math.floor(usableWidth);
+        bookHeight = Math.floor(bookWidth * bookAspectRatio);
+    } else {
+        // Height is the constraint - book fits by height
+        bookHeight = Math.floor(usableHeight);
+        bookWidth = Math.floor(bookHeight / bookAspectRatio);
+    }
     
     // Use setAttribute with !important to FORCE styles
     // Panel as flex container, book will push right with margin-left:auto
@@ -272,6 +285,7 @@ export function openGrimoire() {
         display: flex !important;
         flex-direction: row !important;
         align-items: flex-start !important;
+        overflow: visible !important;
     `);
     
     // Force book size AND position
@@ -284,6 +298,7 @@ export function openGrimoire() {
             height: ${bookHeight}px !important;
             background: none !important;
             margin-left: auto !important;
+            margin-top: ${Math.floor((usableHeight - bookHeight) / 2) + 50}px !important;
             flex-shrink: 0 !important;
         `);
         
