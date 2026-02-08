@@ -461,17 +461,27 @@ export function switchTab(tabId) {
 }
 
 /**
- * Update grimoire theme (colors only, no rebuild)
+ * Update grimoire theme (sprite filter + colors, no rebuild)
  */
 export function updateGrimoireTheme() {
     if (!panelElement) return;
     
     const theme = getTheme(settings.theme);
-    const content = document.getElementById('pg-content');
     
+    // Update sprite filter
+    const spriteDiv = document.getElementById('pg-book-sprite');
+    if (spriteDiv) {
+        const grimoireFilter = theme.grimoireFilter || 'none';
+        spriteDiv.style.filter = grimoireFilter;
+    }
+    
+    // Update scrollbar color
+    const content = document.getElementById('pg-content');
     if (content) {
         content.style.scrollbarColor = `${theme.main}40 transparent`;
     }
+    
+    console.log('[Petit Grimoire] Updated grimoire theme:', settings.theme);
 }
 
 /**
@@ -489,18 +499,4 @@ export function setPageContent(tabId, html) {
     if (page) {
         page.innerHTML = html;
     }
-}
-
-/**
- * Update grimoire sprite filter when theme changes
- */
-export function updateGrimoireTheme() {
-    const spriteDiv = document.getElementById('pg-book-sprite');
-    if (!spriteDiv) return;
-    
-    const currentTheme = getTheme(settings.theme);
-    const grimoireFilter = currentTheme.grimoireFilter || 'none';
-    
-    spriteDiv.style.filter = grimoireFilter;
-    console.log('[Petit Grimoire] Updated grimoire filter for theme:', settings.theme);
 }
