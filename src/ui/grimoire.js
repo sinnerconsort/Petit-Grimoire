@@ -318,7 +318,7 @@ function createContent(book, scale, offsetY) {
     content.setAttribute('style', `
         position: absolute !important;
         left: 30% !important;
-        right: 5% !important;
+        right: 25% !important;
         top: 20% !important;
         bottom: 10% !important;
         padding: 3% !important;
