@@ -1,78 +1,156 @@
 /**
- * Petit Grimoire - Tab System Dispatcher
- * Routes tab content/init/cleanup to individual modules
+ * Petit Grimoire - Main Entry Point
+ * A Magical Girl Fortune-Telling Extension for SillyTavern
  */
 
-// Tab modules
-import * as settingsTab from './settings.js';
-import * as placeholderTab from './placeholder.js';
+// Core
+import { extensionName, THEMES, getTheme } from './src/core/config.js';
+import { settings, loadSettings, saveSettings, setTheme } from './src/core/state.js';
 
-// Future tab imports (uncomment as built)
-// import * as tarotTab from './tarot.js';
-// import * as crystalTab from './crystal.js';
-// import * as ouijaTab from './ouija.js';
-// import * as nyxTab from './nyx.js';
-// import * as spellsTab from './spells.js';
+// UI
+import { createFab, destroyFab, updateFabTheme, constrainFabToViewport } from './src/ui/fab.js';
+import { createGrimoire, destroyGrimoire, toggleGrimoire, updateGrimoireTheme } from './src/ui/grimoire.js';
+
+// =============================================================================
+// UI LIFECYCLE
+// =============================================================================
 
 /**
- * Tab module registry
- * Each module should export:
- *   - getContent(theme) → HTML string
- *   - init() → setup event listeners
- *   - cleanup() → optional teardown
+ * Create all UI elements
  */
-const TAB_MODULES = {
-    tarot: placeholderTab,      // TODO: tarotTab
-    crystal: placeholderTab,    // TODO: crystalTab
-    ouija: placeholderTab,      // TODO: ouijaTab
-    nyx: placeholderTab,        // TODO: nyxTab
-    spells: placeholderTab,     // TODO: spellsTab
-    settings: settingsTab
-};
-
-/**
- * Get the content HTML for a tab
- * @param {string} tabId - Tab identifier
- * @returns {string} HTML content
- */
-export function getTabContent(tabId) {
-    const module = TAB_MODULES[tabId];
-    if (module && typeof module.getContent === 'function') {
-        return module.getContent();
-    }
-    console.warn(`[PG Tabs] No module found for tab: ${tabId}`);
-    return placeholderTab.getContent(tabId);
+function createUI() {
+    destroyUI();
+    
+    // Create FAB (toggles grimoire on click)
+    createFab(toggleGrimoire);
+    
+    // Create grimoire panel (hidden by default)
+    createGrimoire();
+    
+    console.log('[PG] UI created');
 }
 
 /**
- * Initialize a tab (setup event listeners, etc.)
- * Called when switching to a tab
- * @param {string} tabId - Tab identifier
+ * Destroy all UI elements
  */
-export function initTab(tabId) {
-    const module = TAB_MODULES[tabId];
-    if (module && typeof module.init === 'function') {
-        module.init();
+function destroyUI() {
+    destroyFab();
+    destroyGrimoire();
+}
+
+/**
+ * Rebuild UI with current theme
+ */
+function rebuildUI() {
+    if (settings.enabled) {
+        createUI();
     }
 }
 
 /**
- * Cleanup a tab (teardown listeners, etc.)
- * Called when switching away from a tab
- * @param {string} tabId - Tab identifier
+ * Apply theme changes without full rebuild
  */
-export function cleanupTab(tabId) {
-    const module = TAB_MODULES[tabId];
-    if (module && typeof module.cleanup === 'function') {
-        module.cleanup();
-    }
+function applyTheme() {
+    updateFabTheme();
+    updateGrimoireTheme();
 }
 
-/**
- * Check if a tab has real content (not placeholder)
- * @param {string} tabId - Tab identifier
- * @returns {boolean}
- */
-export function isTabImplemented(tabId) {
-    return TAB_MODULES[tabId] !== placeholderTab;
+// =============================================================================
+// SETTINGS PANEL
+// =============================================================================
+
+function addSettingsUI() {
+    if (document.getElementById('pg-settings')) return;
+    
+    const themeOpts = Object.entries(THEMES)
+        .map(([k, t]) => `<option value="${k}" ${settings.theme === k ? 'selected' : ''}>${t.name}</option>`)
+        .join('');
+    
+    const html = `
+        <div id="pg-settings" class="inline-drawer">
+            <div class="inline-drawer-toggle inline-drawer-header">
+                <b>✨ Petit Grimoire</b>
+                <div class="inline-drawer-icon fa-solid fa-circle-chevron-down down"></div>
+            </div>
+            <div class="inline-drawer-content">
+                <label class="checkbox_label">
+                    <input type="checkbox" id="pg-enabled" ${settings.enabled ? 'checked' : ''}>
+                    <span>Enable Extension</span>
+                </label>
+                <div style="margin-top: 10px; display: flex; align-items: center; gap: 10px;">
+                    <label>Theme:</label>
+                    <select id="pg-theme">${themeOpts}</select>
+                </div>
+                <div style="margin-top: 8px; font-size: 11px; opacity: 0.6;">
+                    ${getTheme(settings.theme).desc}
+                </div>
+            </div>
+        </div>
+    `;
+    
+    $('#extensions_settings2').append(html);
+    
+    // Enable/disable toggle
+    $('#pg-enabled').on('change', function() {
+        settings.enabled = $(this).prop('checked');
+        saveSettings();
+        
+        if (settings.enabled) {
+            createUI();
+        } else {
+            destroyUI();
+        }
+    });
+    
+    // Theme selector
+    $('#pg-theme').on('change', function() {
+        const newTheme = $(this).val();
+        setTheme(newTheme);
+        
+        // Update description
+        $(this).closest('.inline-drawer-content')
+            .find('div:last-child')
+            .text(getTheme(newTheme).desc);
+        
+        // Rebuild UI with new theme
+        if (settings.enabled) {
+            rebuildUI();
+        }
+    });
 }
+
+// =============================================================================
+// WINDOW EVENTS
+// =============================================================================
+
+let resizeTimeout = null;
+
+function handleResize() {
+    constrainFabToViewport();
+}
+
+window.addEventListener('resize', () => {
+    if (resizeTimeout) clearTimeout(resizeTimeout);
+    resizeTimeout = setTimeout(handleResize, 150);
+});
+
+// =============================================================================
+// INITIALIZATION
+// =============================================================================
+
+jQuery(() => {
+    console.log('[PG] Petit Grimoire starting...');
+    
+    // Load saved settings
+    loadSettings();
+    
+    // Add settings panel
+    addSettingsUI();
+    
+    // Create UI if enabled
+    if (settings.enabled) {
+        setTimeout(createUI, 300);
+    }
+    
+    console.log('[PG] Initialized');
+});
