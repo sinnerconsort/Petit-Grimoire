@@ -88,18 +88,18 @@ function createTabIcons(book, scale, offsetY) {
     // Measured from the book+tabs portion starting at x:310 in the full sprite
     // ADJUST THESE if icons don't line up perfectly!
     const TAB_DATA = [
-        { id: 'tarot',    icon: 'fa-layer-group', y: 188,  label: 'Tarot' },
-        { id: 'crystal',  icon: 'fa-moon',        y: 258, label: 'Crystal Ball' },
-        { id: 'ouija',    icon: 'fa-ghost',       y: 328, label: 'Ouija' },
-        { id: 'nyx',      icon: 'fa-cat',         y: 395, label: 'Nyx' },
-        { id: 'radio',    icon: 'fa-radio',       y: 468, label: 'Radio' },
-        { id: 'settings', icon: 'fa-gear',        y: 538, label: 'Settings' },
+        { id: 'tarot',    icon: 'fa-layer-group', y: 200,  label: 'Tarot' },
+        { id: 'crystal',  icon: 'fa-moon',        y: 250, label: 'Crystal Ball' },
+        { id: 'ouija',    icon: 'fa-ghost',       y: 300, label: 'Ouija' },
+        { id: 'nyx',      icon: 'fa-cat',         y: 350, label: 'Nyx' },
+        { id: 'radio',    icon: 'fa-radio',       y: 400, label: 'Radio' },
+        { id: 'settings', icon: 'fa-gear',        y: 450, label: 'Settings' },
     ];
     
     // Tab dimensions in sprite coordinates
     const TAB_WIDTH = 40;   // How wide the clickable area
     const TAB_HEIGHT = 45;  // Height of each tab
-    const TAB_LEFT = 125;    // X position from left edge of book portion
+    const TAB_LEFT = 155;    // X position from left edge of book portion
     
     TAB_DATA.forEach(tab => {
         const btn = document.createElement('button');
