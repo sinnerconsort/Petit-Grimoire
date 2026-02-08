@@ -369,6 +369,7 @@ export function openGrimoire() {
             background-size: 100% 100% !important;
             background-repeat: no-repeat !important;
             image-rendering: pixelated !important;
+            border: 3px solid lime !important;
         `);
         
         // Force sidebar positioning relative to book
@@ -387,6 +388,7 @@ export function openGrimoire() {
                 padding-top: 2% !important;
                 gap: 4% !important;
                 z-index: 5 !important;
+                border: 2px solid cyan !important;
             `);
         }
         
@@ -405,6 +407,7 @@ export function openGrimoire() {
                 color: #4a3728 !important;
                 font-size: 13px !important;
                 z-index: 4 !important;
+                border: 2px solid magenta !important;
             `);
         }
     }
