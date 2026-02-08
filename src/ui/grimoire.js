@@ -246,18 +246,17 @@ export function openGrimoire() {
     const vw = window.innerWidth;
     const vh = window.innerHeight;
     
-    // Calculate book size - PAGE should fill screen, tabs extend off left
+    // Calculate book size - WHOLE BOOK (tabs + page) fills screen width
     // The book+tabs in the sprite is ~586x665
-    // The PAGE portion (without tabs) is roughly 85% of that width (~500px)
-    // We want the PAGE to fill the screen width
+    // Tabs are ~18% on the left, page is ~82% on the right
     const bookInSpriteWidth = 586;
     const bookInSpriteHeight = 665;
-    const pagePortionRatio = 0.72; // Scaled up so tabs extend further left
     const bookAspectRatio = bookInSpriteHeight / bookInSpriteWidth; // ~1.135
     
-    // Scale so the PAGE fills the viewport width
-    // If page = 82% of book, then book = vw / 0.82
-    let bookWidth = Math.floor(vw / pagePortionRatio);
+    // Book width = viewport width so tabs + page both fit on screen
+    // Tweak this multiplier to adjust: >1.0 = bigger (tabs overflow left), <1.0 = smaller
+    const bookScale = 1.0;
+    let bookWidth = Math.floor(vw * bookScale);
     let bookHeight = Math.floor(bookWidth * bookAspectRatio);
     
     // Use setAttribute with !important to FORCE styles
@@ -276,6 +275,7 @@ export function openGrimoire() {
         display: flex !important;
         flex-direction: row !important;
         align-items: flex-start !important;
+        overflow: visible !important;
     `);
     
     // Force book size AND position
