@@ -189,11 +189,12 @@ function createContent(book, scale, offsetY) {
     
     // Position inside the "page" area of the sprite
     // These are percentages of the book container
+    // left + right must be less than 100% or content collapses!
     content.setAttribute('style', `
         position: absolute !important;
-        left: 18% !important;
-        right: 35% !important;
-        top: 25% !important;
+        left: 30% !important;
+        right: 6% !important;
+        top: 12% !important;
         bottom: 14% !important;
         padding: 3% !important;
         overflow-y: auto !important;
