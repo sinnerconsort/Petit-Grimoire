@@ -65,128 +65,135 @@ export function getContent() {
     const totalEffects = Object.values(poolStats).reduce((sum, cat) => sum + cat.count, 0);
     
     return `
-        <h2 class="pg-page-title" style="color: ${textDark}; margin: 0 0 6px 0; font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 6px;">
-            🔮 CRYSTAL BALL
-        </h2>
-        <p style="color: ${textMid}; font-style: italic; font-size: 10px; margin-bottom: 12px;">
-            "Fate is not a request line."
-        </p>
-        
-        <!-- Crystal Ball Visual -->
-        <div id="pg-crystal-container" style="
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin-bottom: 12px;
+        <div class="pg-crystal-scroll" style="
+            height: 100%;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding-right: 4px;
         ">
-            <div id="pg-crystal-orb" style="
-                width: 64px;
-                height: 64px;
-                background-image: url('${crystalSprite}');
-                background-size: contain;
-                background-repeat: no-repeat;
-                background-position: center;
-                image-rendering: pixelated;
-                transition: filter 0.3s ease, transform 0.3s ease;
-                ${onCooldown ? 'filter: grayscale(0.5) brightness(0.7);' : ''}
+            <h2 class="pg-page-title" style="color: ${textDark}; margin: 0 0 6px 0; font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 6px;">
+                🔮 CRYSTAL BALL
+            </h2>
+            <p style="color: ${textMid}; font-style: italic; font-size: 10px; margin-bottom: 12px;">
+                "Fate is not a request line."
+            </p>
+            
+            <!-- Crystal Ball Visual -->
+            <div id="pg-crystal-container" style="
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                margin-bottom: 12px;
+            ">
+                <div id="pg-crystal-orb" style="
+                    width: 64px;
+                    height: 64px;
+                    background-image: url('${crystalSprite}');
+                    background-size: contain;
+                    background-repeat: no-repeat;
+                    background-position: center;
+                    image-rendering: pixelated;
+                    transition: filter 0.3s ease, transform 0.3s ease;
+                    ${onCooldown ? 'filter: grayscale(0.5) brightness(0.7);' : ''}
+                "></div>
+            </div>
+            
+            <!-- Gaze Button -->
+            <button id="pg-crystal-gaze" ${onCooldown ? 'disabled' : ''} style="
+                width: 100%;
+                padding: 10px 16px;
+                border-radius: 6px;
+                border: 2px solid ${theme.main};
+                background: linear-gradient(135deg, ${theme.main}40, ${theme.main}20);
+                color: ${textDark};
+                font-size: 11px;
+                font-weight: 600;
+                cursor: ${onCooldown ? 'not-allowed' : 'pointer'};
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 6px;
+                transition: all 0.2s ease;
+                opacity: ${onCooldown ? '0.6' : '1'};
+            ">
+                <span>◇</span>
+                <span id="pg-crystal-btn-text">${onCooldown ? `The mists settle... (${cooldownRemaining}s)` : 'GAZE INTO THE MIST'}</span>
+            </button>
+            
+            <p style="color: ${textLight}; font-size: 9px; text-align: center; margin: 8px 0; font-style: italic;">
+                Wild magic. No control. No refunds.
+            </p>
+            
+            <!-- Divider -->
+            <div style="border-top: 1px dashed ${textLight}40; margin: 12px 0;"></div>
+            
+            <!-- Recent Visions -->
+            <h3 style="color: ${textDark}; font-size: 11px; font-weight: 600; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px;">
+                Recent Visions
+            </h3>
+            <div id="pg-crystal-visions" style="
+                max-height: 120px;
+                overflow-y: auto;
+                margin-bottom: 12px;
+            ">
+                ${visionsHTML}
+            </div>
+            
+            <!-- Divider -->
+            <div style="border-top: 1px dashed ${textLight}40; margin: 12px 0;"></div>
+            
+            <!-- Effect Pool Info -->
+            <h3 style="color: ${textDark}; font-size: 11px; font-weight: 600; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 1px;">
+                Effect Pool
+            </h3>
+            <p style="color: ${textMid}; font-size: 9px; line-height: 1.4;">
+                ${totalEffects} possible fates across 6 categories: ${categoryList}.
+            </p>
+            
+            <!-- Result Display (hidden until used) -->
+            <div id="pg-crystal-result" style="
+                display: none;
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: ${theme.cardBg || '#1a1020'};
+                border: 3px solid ${theme.main};
+                border-radius: 12px;
+                padding: 20px;
+                max-width: 300px;
+                z-index: 10000;
+                box-shadow: 0 0 40px ${theme.main}60;
+                color: ${theme.textLight || '#fff'};
+            ">
+                <div id="pg-crystal-result-content"></div>
+                <button id="pg-crystal-result-close" style="
+                    margin-top: 12px;
+                    width: 100%;
+                    padding: 8px;
+                    border-radius: 6px;
+                    border: 1px solid ${theme.main};
+                    background: transparent;
+                    color: ${theme.textLight || '#fff'};
+                    cursor: pointer;
+                    font-size: 11px;
+                ">
+                    Close
+                </button>
+            </div>
+            
+            <!-- Overlay for result -->
+            <div id="pg-crystal-overlay" style="
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0,0,0,0.7);
+                z-index: 9999;
             "></div>
         </div>
-        
-        <!-- Gaze Button -->
-        <button id="pg-crystal-gaze" ${onCooldown ? 'disabled' : ''} style="
-            width: 100%;
-            padding: 10px 16px;
-            border-radius: 6px;
-            border: 2px solid ${theme.main};
-            background: linear-gradient(135deg, ${theme.main}40, ${theme.main}20);
-            color: ${textDark};
-            font-size: 11px;
-            font-weight: 600;
-            cursor: ${onCooldown ? 'not-allowed' : 'pointer'};
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-            transition: all 0.2s ease;
-            opacity: ${onCooldown ? '0.6' : '1'};
-        ">
-            <span>◇</span>
-            <span id="pg-crystal-btn-text">${onCooldown ? `The mists settle... (${cooldownRemaining}s)` : 'GAZE INTO THE MIST'}</span>
-        </button>
-        
-        <p style="color: ${textLight}; font-size: 9px; text-align: center; margin: 8px 0; font-style: italic;">
-            Wild magic. No control. No refunds.
-        </p>
-        
-        <!-- Divider -->
-        <div style="border-top: 1px dashed ${textLight}40; margin: 12px 0;"></div>
-        
-        <!-- Recent Visions -->
-        <h3 style="color: ${textDark}; font-size: 11px; font-weight: 600; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px;">
-            Recent Visions
-        </h3>
-        <div id="pg-crystal-visions" style="
-            max-height: 120px;
-            overflow-y: auto;
-            margin-bottom: 12px;
-        ">
-            ${visionsHTML}
-        </div>
-        
-        <!-- Divider -->
-        <div style="border-top: 1px dashed ${textLight}40; margin: 12px 0;"></div>
-        
-        <!-- Effect Pool Info -->
-        <h3 style="color: ${textDark}; font-size: 11px; font-weight: 600; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 1px;">
-            Effect Pool
-        </h3>
-        <p style="color: ${textMid}; font-size: 9px; line-height: 1.4;">
-            ${totalEffects} possible fates across 6 categories: ${categoryList}.
-        </p>
-        
-        <!-- Result Display (hidden until used) -->
-        <div id="pg-crystal-result" style="
-            display: none;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: ${theme.cardBg || '#1a1020'};
-            border: 3px solid ${theme.main};
-            border-radius: 12px;
-            padding: 20px;
-            max-width: 300px;
-            z-index: 10000;
-            box-shadow: 0 0 40px ${theme.main}60;
-            color: ${theme.textLight || '#fff'};
-        ">
-            <div id="pg-crystal-result-content"></div>
-            <button id="pg-crystal-result-close" style="
-                margin-top: 12px;
-                width: 100%;
-                padding: 8px;
-                border-radius: 6px;
-                border: 1px solid ${theme.main};
-                background: transparent;
-                color: ${theme.textLight || '#fff'};
-                cursor: pointer;
-                font-size: 11px;
-            ">
-                Close
-            </button>
-        </div>
-        
-        <!-- Overlay for result -->
-        <div id="pg-crystal-overlay" style="
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0,0,0,0.7);
-            z-index: 9999;
-        "></div>
     `;
 }
 
