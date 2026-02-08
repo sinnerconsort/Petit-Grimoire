@@ -252,7 +252,7 @@ export function openGrimoire() {
     // We want the PAGE to fill the screen width
     const bookInSpriteWidth = 586;
     const bookInSpriteHeight = 665;
-    const pagePortionRatio = 0.72; // Page is ~72% of total book width (tabs extend further left)
+    const pagePortionRatio = 0.72; // Scaled up so tabs extend further left
     const bookAspectRatio = bookInSpriteHeight / bookInSpriteWidth; // ~1.135
     
     // Scale so the PAGE fills the viewport width
@@ -273,8 +273,9 @@ export function openGrimoire() {
         margin: 0 !important;
         padding: 0 !important;
         box-sizing: border-box !important;
-        display: block !important;
-        overflow: visible !important;
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: flex-start !important;
     `);
     
     // Force book size AND position
@@ -282,12 +283,11 @@ export function openGrimoire() {
     const book = document.getElementById('pg-book');
     if (book) {
         book.setAttribute('style', `
-            position: absolute !important;
-            right: 0 !important;
-            top: 0 !important;
+            position: relative !important;
             width: ${bookWidth}px !important;
             height: ${bookHeight}px !important;
             background: none !important;
+            margin-left: auto !important;
             flex-shrink: 0 !important;
         `);
         
