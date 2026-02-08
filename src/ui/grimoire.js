@@ -750,11 +750,14 @@ export function openGrimoire() {
         const grimoireYOffset = settings.grimoireOffsetY || 0;
         const topPosition = Math.max(0, Math.min(vh - bookHeight, (vh - bookHeight) / 2 + grimoireYOffset));
         
-        // FORCE right edge positioning - explicit left:auto overrides any defaults
+        // FORCE right edge positioning
+        // Negative right value pushes book right to compensate for sprite padding
+        const bindingOffset = -60;  // Adjust if gap still visible
+        
         book.setAttribute('style', `
             position: absolute !important;
             top: ${topPosition}px !important;
-            right: 0px !important;
+            right: ${bindingOffset}px !important;
             left: auto !important;
             width: ${bookWidth}px !important;
             height: ${bookHeight}px !important;
