@@ -261,7 +261,7 @@ export function openGrimoire() {
     let bookHeight = Math.floor(bookWidth * bookAspectRatio);
     
     // Use setAttribute with !important to FORCE styles
-    // RIGHT-ALIGN the book so tabs extend off left edge
+    // Panel is the container - book will be positioned absolute inside
     panelElement.setAttribute('style', `
         position: fixed !important;
         top: 0 !important;
@@ -270,9 +270,6 @@ export function openGrimoire() {
         height: 100vh !important;
         z-index: 99998 !important;
         background: rgba(0,0,0,0.7) !important;
-        display: flex !important;
-        align-items: flex-start !important;
-        justify-content: flex-end !important;
         margin: 0 !important;
         padding: 0 !important;
         box-sizing: border-box !important;
@@ -283,12 +280,14 @@ export function openGrimoire() {
     // IMPORTANT: overflow: hidden to contain children
     const book = document.getElementById('pg-book');
     if (book) {
+        // Position book so its RIGHT edge is at screen's right edge
+        // This means left edge (with tabs) will extend off-screen
         book.setAttribute('style', `
-            position: relative !important;
+            position: absolute !important;
+            top: 0 !important;
+            right: 0 !important;
             width: ${bookWidth}px !important;
             height: ${bookHeight}px !important;
-            min-width: ${bookWidth}px !important;
-            min-height: ${bookHeight}px !important;
             flex-shrink: 0 !important;
             background: none !important;
             overflow: hidden !important;
