@@ -33,6 +33,43 @@ function injectStyles() {
         #pg-panel.pg-open {
             display: flex !important;
         }
+        
+        /* Tab icon animations */
+        @keyframes pg-icon-float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-2px); }
+        }
+        
+        @keyframes pg-icon-glow {
+            0%, 100% { filter: drop-shadow(0 0 2px currentColor); }
+            50% { filter: drop-shadow(0 0 6px currentColor); }
+        }
+        
+        @keyframes pg-icon-sparkle {
+            0%, 100% { opacity: 0.85; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.05); }
+        }
+        
+        @keyframes pg-icon-bounce {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.15); }
+        }
+        
+        .pg-tab-icon {
+            transition: all 0.2s ease !important;
+        }
+        
+        .pg-tab-icon.pg-active {
+            animation: pg-icon-glow 2s ease-in-out infinite !important;
+        }
+        
+        .pg-tab-icon:not(.pg-active) {
+            animation: pg-icon-float 3s ease-in-out infinite !important;
+        }
+        
+        .pg-tab-icon:hover:not(.pg-active) {
+            animation: pg-icon-bounce 0.4s ease-in-out !important;
+        }
     `;
     document.head.appendChild(styleElement);
 }
@@ -102,7 +139,12 @@ function createTabIcons(book, scale, offsetY) {
     const TAB_HEIGHT = 45;  // Height of each tab
     const TAB_LEFT = 145;    // X position from left edge of book portion
     
-    TAB_DATA.forEach(tab => {
+    // Get theme colors for icons
+    const theme = getTheme(settings.theme);
+    const activeColor = theme.secondary;
+    const inactiveColor = theme.main;
+    
+    TAB_DATA.forEach((tab, index) => {
         const btn = document.createElement('button');
         btn.className = 'pg-tab-icon';
         btn.dataset.tab = tab.id;
@@ -117,6 +159,12 @@ function createTabIcons(book, scale, offsetY) {
         
         const isActive = tab.id === settings.activeTab;
         
+        // Add active class for CSS animations
+        if (isActive) btn.classList.add('pg-active');
+        
+        // Stagger animation delay for wave effect
+        const animDelay = index * 0.15;
+        
         btn.setAttribute('style', `
             position: absolute !important;
             left: ${scaledX}px !important;
@@ -130,26 +178,24 @@ function createTabIcons(book, scale, offsetY) {
             display: flex !important;
             align-items: center !important;
             justify-content: center !important;
-            color: ${isActive ? '#5a4030' : '#8b7355'} !important;
+            color: ${isActive ? activeColor : inactiveColor} !important;
             font-size: ${Math.max(14, scaledH * 0.35)}px !important;
-            transition: color 0.2s ease, transform 0.15s ease !important;
-            opacity: ${isActive ? '1' : '0.7'} !important;
+            opacity: ${isActive ? '1' : '0.6'} !important;
+            animation-delay: ${animDelay}s !important;
         `);
         
-        // Hover effects
+        // Hover effects with theme colors
         btn.addEventListener('mouseenter', () => {
             if (btn.dataset.tab !== settings.activeTab) {
-                btn.style.color = '#5a4030';
+                btn.style.color = activeColor;
                 btn.style.opacity = '1';
-                btn.style.transform = 'scale(1.1)';
             }
         });
         
         btn.addEventListener('mouseleave', () => {
             if (btn.dataset.tab !== settings.activeTab) {
-                btn.style.color = '#8b7355';
-                btn.style.opacity = '0.7';
-                btn.style.transform = 'scale(1)';
+                btn.style.color = inactiveColor;
+                btn.style.opacity = '0.6';
             }
         });
         
@@ -168,11 +214,23 @@ function createTabIcons(book, scale, offsetY) {
  * Update the visual state of tab icons
  */
 function updateTabIconStates() {
+    const theme = getTheme(settings.theme);
+    const activeColor = theme.secondary;
+    const inactiveColor = theme.main;
+    
     document.querySelectorAll('.pg-tab-icon').forEach(btn => {
         const isActive = btn.dataset.tab === settings.activeTab;
-        btn.style.color = isActive ? '#5a4030' : '#8b7355';
-        btn.style.opacity = isActive ? '1' : '0.7';
-        btn.style.transform = 'scale(1)';
+        
+        // Update colors
+        btn.style.color = isActive ? activeColor : inactiveColor;
+        btn.style.opacity = isActive ? '1' : '0.6';
+        
+        // Toggle active class for CSS animations
+        if (isActive) {
+            btn.classList.add('pg-active');
+        } else {
+            btn.classList.remove('pg-active');
+        }
     });
 }
 
@@ -480,6 +538,9 @@ export function updateGrimoireTheme() {
     if (content) {
         content.style.scrollbarColor = `${theme.main}40 transparent`;
     }
+    
+    // Update tab icon colors
+    updateTabIconStates();
     
     console.log('[Petit Grimoire] Updated grimoire theme:', settings.theme);
 }
