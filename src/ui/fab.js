@@ -11,6 +11,7 @@ let styleElement = null;
 let isDragging = false;
 let hasMoved = false;
 let startX, startY, startLeft, startTop;
+let lastToggleTime = 0;  // Debounce for mobile double-fire
 
 /**
  * Inject FAB animations
@@ -233,10 +234,16 @@ function setupDragHandlers(fab, onToggle) {
         // Save position
         saveFabPosition(fab.offsetLeft, fab.offsetTop);
         
-        // If didn't drag, trigger toggle
+        // If didn't drag, trigger toggle (with debounce for mobile double-fire)
         if (!hasMoved && onToggle) {
-            console.log('[PG FAB] Calling onToggle');
-            onToggle();
+            const now = Date.now();
+            if (now - lastToggleTime > 300) {  // 300ms debounce
+                lastToggleTime = now;
+                console.log('[PG FAB] Calling onToggle');
+                onToggle();
+            } else {
+                console.log('[PG FAB] Debounced duplicate toggle');
+            }
         }
     }
     
