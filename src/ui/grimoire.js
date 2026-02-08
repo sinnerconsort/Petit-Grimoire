@@ -317,18 +317,18 @@ export function openGrimoire() {
     const vw = window.innerWidth;
     const vh = window.innerHeight;
     
-    // Calculate book size - we want it BIG
+    // Calculate book size - we want it BIG (half the screen)
     // The book+tabs in the sprite is ~586x665, we'll crop to show just that
     const bookInSpriteWidth = 586;
     const bookInSpriteHeight = 665;
     const bookAspectRatio = bookInSpriteHeight / bookInSpriteWidth; // ~1.135
     
     // Fill most of the screen width
-    let bookWidth = Math.floor(vw * 0.95);
+    let bookWidth = Math.floor(vw * 0.98);
     let bookHeight = Math.floor(bookWidth * bookAspectRatio);
     
-    // Cap at 60% viewport height to leave room for nyxgotchi
-    const maxHeight = Math.floor(vh * 0.60);
+    // Cap at 50% viewport height (half the screen)
+    const maxHeight = Math.floor(vh * 0.50);
     if (bookHeight > maxHeight) {
         bookHeight = maxHeight;
         bookWidth = Math.floor(bookHeight / bookAspectRatio);
