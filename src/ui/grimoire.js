@@ -317,22 +317,21 @@ export function openGrimoire() {
     const vw = window.innerWidth;
     const vh = window.innerHeight;
     
-    // Calculate book size
-    // Show the FULL sprite (896x720) and position content where book appears
-    // This is simpler than trying to crop - just work with the full canvas
-    const spriteWidth = 896;
-    const spriteHeight = 720;
-    const spriteAspectRatio = spriteHeight / spriteWidth; // 0.803
+    // Calculate book size - we want it BIG
+    // The book+tabs in the sprite is ~586x665, we'll crop to show just that
+    const bookInSpriteWidth = 586;
+    const bookInSpriteHeight = 665;
+    const bookAspectRatio = bookInSpriteHeight / bookInSpriteWidth; // ~1.135
     
-    // Size to fit viewport - the book takes up roughly right 60% of sprite
+    // Fill most of the screen width
     let bookWidth = Math.floor(vw * 0.95);
-    let bookHeight = Math.floor(bookWidth * spriteAspectRatio);
+    let bookHeight = Math.floor(bookWidth * bookAspectRatio);
     
-    // Cap at 55% viewport height to leave room for nyxgotchi
-    const maxHeight = Math.floor(vh * 0.55);
+    // Cap at 60% viewport height to leave room for nyxgotchi
+    const maxHeight = Math.floor(vh * 0.60);
     if (bookHeight > maxHeight) {
         bookHeight = maxHeight;
-        bookWidth = Math.floor(bookHeight / spriteAspectRatio);
+        bookWidth = Math.floor(bookHeight / bookAspectRatio);
     }
     
     // Use setAttribute with !important to FORCE styles
@@ -366,8 +365,8 @@ export function openGrimoire() {
             background: none !important;
         `);
         
-        // Show the FULL sprite - no cropping
-        // Book appears in the right portion of the 896x720 canvas
+        // Crop sprite to show just the book portion, scaled to fill container
+        // Sprite is 896x720, book+tabs starts at x:310, is 586x665
         
         let spriteDiv = document.getElementById('pg-book-sprite');
         if (!spriteDiv) {
@@ -376,32 +375,44 @@ export function openGrimoire() {
             book.insertBefore(spriteDiv, book.firstChild);
         }
         
-        // Just stretch full sprite to fill container
+        // Scale sprite so book portion matches our container size
+        const spriteFullWidth = 896;
+        const spriteFullHeight = 720;
+        const bookInSpriteWidth = 586;
+        const bookStartX = 310;
+        const bookStartY = 30;  // Small top margin
+        
+        const scale = bookWidth / bookInSpriteWidth;
+        const scaledSpriteWidth = Math.floor(spriteFullWidth * scale);
+        const scaledSpriteHeight = Math.floor(spriteFullHeight * scale);
+        const offsetX = Math.floor(bookStartX * scale);
+        const offsetY = Math.floor(bookStartY * scale);
+        
         spriteDiv.setAttribute('style', `
             position: absolute !important;
             top: 0 !important;
             left: 0 !important;
-            width: 100% !important;
-            height: 100% !important;
+            width: ${bookWidth}px !important;
+            height: ${bookHeight}px !important;
             background-image: url('${ASSET_PATHS.grimoire}/Grimoire_WithTabs.png') !important;
-            background-size: 100% 100% !important;
-            background-position: 0 0 !important;
+            background-size: ${scaledSpriteWidth}px ${scaledSpriteHeight}px !important;
+            background-position: -${offsetX}px -${offsetY}px !important;
             background-repeat: no-repeat !important;
             image-rendering: pixelated !important;
             pointer-events: none !important;
             z-index: 0 !important;
         `);
         
-        // Position sidebar where tabs appear in the full sprite
-        // Tabs are at roughly x: 35-43% in the 896px wide sprite
+        // Sidebar tabs - positioned on the left edge of our cropped view
+        // In the cropped portion, tabs are at the left edge (0-13%)
         const sidebar = document.getElementById('pg-sidebar');
         if (sidebar) {
             sidebar.setAttribute('style', `
                 position: absolute !important;
-                left: 35% !important;
-                top: 12% !important;
-                bottom: 18% !important;
-                width: 8% !important;
+                left: 0 !important;
+                top: 10% !important;
+                bottom: 15% !important;
+                width: 13% !important;
                 display: flex !important;
                 flex-direction: column !important;
                 justify-content: space-between !important;
@@ -411,21 +422,21 @@ export function openGrimoire() {
             `);
         }
         
-        // Position content inside the page area of the book
-        // Page starts at roughly x: 46% and ends at x: 97%
+        // Content area - inside the page, after the tabs
+        // Page area in cropped view: ~15% to ~95% horizontal, ~6% to ~90% vertical
         const content = document.getElementById('pg-content');
         if (content) {
             content.setAttribute('style', `
                 position: absolute !important;
-                left: 48% !important;
-                right: 4% !important;
-                top: 8% !important;
-                bottom: 12% !important;
-                padding: 2% !important;
+                left: 16% !important;
+                right: 5% !important;
+                top: 6% !important;
+                bottom: 10% !important;
+                padding: 3% !important;
                 overflow-y: auto !important;
                 overflow-x: hidden !important;
                 color: #4a3728 !important;
-                font-size: 12px !important;
+                font-size: 13px !important;
                 z-index: 4 !important;
             `);
         }
