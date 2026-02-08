@@ -43,8 +43,6 @@ export function createGrimoire() {
     // Inject styles first
     injectStyles();
     
-    const theme = getTheme(settings.theme);
-    
     // =========== PANEL OVERLAY ===========
     const panel = document.createElement('div');
     panel.id = 'pg-panel';
@@ -58,13 +56,7 @@ export function createGrimoire() {
     const book = document.createElement('div');
     book.id = 'pg-book';
     
-    // =========== TAB SIDEBAR ===========
-    const sidebar = createSidebar(theme);
-    book.appendChild(sidebar);
-    
-    // =========== CONTENT AREA ===========
-    const content = createContent(theme);
-    book.appendChild(content);
+    // NO SIDEBAR OR CONTENT FOR NOW - just the book
     
     panel.appendChild(book);
     document.body.appendChild(panel);
@@ -311,7 +303,7 @@ export function openGrimoire() {
         if (!spriteDiv) {
             spriteDiv = document.createElement('div');
             spriteDiv.id = 'pg-book-sprite';
-            book.insertBefore(spriteDiv, book.firstChild);
+            book.appendChild(spriteDiv);
         }
         
         // Scale sprite so book portion matches our container size
@@ -342,44 +334,9 @@ export function openGrimoire() {
             z-index: 0 !important;
         `);
         
-        // Sidebar tabs - positioned ON the visible tabs in sprite
-        // In the cropped sprite, tabs are at the LEFT edge (0-15% of visible area)
-        const sidebar = document.getElementById('pg-sidebar');
-        if (sidebar) {
-            sidebar.setAttribute('style', `
-                position: absolute !important;
-                left: 2% !important;
-                top: 10% !important;
-                bottom: 15% !important;
-                width: 10% !important;
-                display: flex !important;
-                flex-direction: column !important;
-                justify-content: flex-start !important;
-                align-items: center !important;
-                padding-top: 2% !important;
-                gap: 8px !important;
-                z-index: 5 !important;
-            `);
-        }
-        
-        // Content area - on the parchment page (after tabs)
-        // Page area is roughly 18% to 97% horizontally
-        const content = document.getElementById('pg-content');
-        if (content) {
-            content.setAttribute('style', `
-                position: absolute !important;
-                left: 18% !important;
-                right: 3% !important;
-                top: 6% !important;
-                bottom: 8% !important;
-                padding: 3% !important;
-                overflow-y: auto !important;
-                overflow-x: hidden !important;
-                color: #4a3728 !important;
-                font-size: 14px !important;
-                z-index: 4 !important;
-            `);
-        }
+        console.log('[Petit Grimoire] Book size:', bookWidth, 'x', bookHeight);
+        console.log('[Petit Grimoire] Sprite scale:', scale.toFixed(3));
+        console.log('[Petit Grimoire] Offset:', offsetX, offsetY);
     }
     
     // Debug (comment out when done)
