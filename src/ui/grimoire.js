@@ -141,8 +141,8 @@ function createTabIcons(book, scale, offsetY) {
     
     // Get theme colors for icons
     const theme = getTheme(settings.theme);
-    const activeColor = theme.secondary;
-    const inactiveColor = theme.main;
+    const activeColor = theme.iconActive || theme.secondary;
+    const inactiveColor = theme.iconInactive || theme.main;
     
     TAB_DATA.forEach((tab, index) => {
         const btn = document.createElement('button');
@@ -215,8 +215,8 @@ function createTabIcons(book, scale, offsetY) {
  */
 function updateTabIconStates() {
     const theme = getTheme(settings.theme);
-    const activeColor = theme.secondary;
-    const inactiveColor = theme.main;
+    const activeColor = theme.iconActive || theme.secondary;
+    const inactiveColor = theme.iconInactive || theme.main;
     
     document.querySelectorAll('.pg-tab-icon').forEach(btn => {
         const isActive = btn.dataset.tab === settings.activeTab;
