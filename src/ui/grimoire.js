@@ -261,7 +261,7 @@ export function openGrimoire() {
     let bookHeight = Math.floor(bookWidth * bookAspectRatio);
     
     // Use setAttribute with !important to FORCE styles
-    // Panel is the container - NO overflow hidden so book can extend left
+    // Panel as flex container, book will push right with margin-left:auto
     panelElement.setAttribute('style', `
         position: fixed !important;
         top: 0 !important;
@@ -273,19 +273,22 @@ export function openGrimoire() {
         margin: 0 !important;
         padding: 0 !important;
         box-sizing: border-box !important;
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: flex-start !important;
     `);
     
     // Force book size AND position
-    // Position so RIGHT edge of book touches screen edge using right:0
+    // margin-left: auto pushes the book to the right edge
     const book = document.getElementById('pg-book');
     if (book) {
         book.setAttribute('style', `
-            position: absolute !important;
-            top: 0 !important;
-            right: 0 !important;
+            position: relative !important;
             width: ${bookWidth}px !important;
             height: ${bookHeight}px !important;
             background: none !important;
+            margin-left: auto !important;
+            flex-shrink: 0 !important;
         `);
         
         // Crop sprite to show just the book portion, scaled to fill container
