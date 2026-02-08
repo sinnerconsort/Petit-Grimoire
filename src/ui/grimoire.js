@@ -261,7 +261,7 @@ export function openGrimoire() {
     let bookHeight = Math.floor(bookWidth * bookAspectRatio);
     
     // Use setAttribute with !important to FORCE styles
-    // Panel is the container - book will be positioned absolute inside
+    // Panel is the container - NO overflow hidden so book can extend left
     panelElement.setAttribute('style', `
         position: fixed !important;
         top: 0 !important;
@@ -273,25 +273,19 @@ export function openGrimoire() {
         margin: 0 !important;
         padding: 0 !important;
         box-sizing: border-box !important;
-        overflow: hidden !important;
     `);
     
     // Force book size AND position
-    // Position so RIGHT edge of book touches screen edge
+    // Position so RIGHT edge of book touches screen edge using right:0
     const book = document.getElementById('pg-book');
     if (book) {
-        // Calculate left position: we want right edge at vw
-        // So left = vw - bookWidth (negative means extends off left edge)
-        const leftPos = vw - bookWidth;
-        
         book.setAttribute('style', `
             position: absolute !important;
             top: 0 !important;
-            left: ${leftPos}px !important;
+            right: 0 !important;
             width: ${bookWidth}px !important;
             height: ${bookHeight}px !important;
             background: none !important;
-            overflow: hidden !important;
         `);
         
         // Crop sprite to show just the book portion, scaled to fill container
@@ -333,7 +327,7 @@ export function openGrimoire() {
         `);
         
         console.log('[Petit Grimoire] Book size:', bookWidth, 'x', bookHeight);
-        console.log('[Petit Grimoire] Left position:', leftPos, '(viewport:', vw, ')');
+        console.log('[Petit Grimoire] Viewport:', vw, 'x', vh);
         console.log('[Petit Grimoire] Sprite scale:', scale.toFixed(3));
         console.log('[Petit Grimoire] Offset:', offsetX, offsetY);
     }
