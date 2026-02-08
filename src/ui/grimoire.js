@@ -280,23 +280,19 @@ export function openGrimoire() {
     // Position so RIGHT edge of book touches screen edge
     const book = document.getElementById('pg-book');
     if (book) {
-        // How much the book extends beyond screen width
-        const overhang = bookWidth - vw;
+        // Calculate left position: we want right edge at vw
+        // So left = vw - bookWidth (negative means extends off left edge)
+        const leftPos = vw - bookWidth;
         
-        // Position at left:0, then use transform to shift left by overhang amount
-        // This pushes the right edge to meet the screen edge
         book.setAttribute('style', `
             position: absolute !important;
             top: 0 !important;
-            left: 0 !important;
+            left: ${leftPos}px !important;
             width: ${bookWidth}px !important;
             height: ${bookHeight}px !important;
             background: none !important;
             overflow: hidden !important;
-            transform: translateX(-${overhang}px) !important;
         `);
-        
-        console.log('[Petit Grimoire] Overhang:', overhang, 'px');
         
         // Crop sprite to show just the book portion, scaled to fill container
         // Sprite is 896x720, book+tabs starts at x:310, is 586x665
