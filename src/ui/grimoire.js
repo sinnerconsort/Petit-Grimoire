@@ -752,11 +752,13 @@ export function openGrimoire() {
         const grimoireYOffset = settings.grimoireOffsetY || 0;
         const topPosition = Math.max(0, (vh - bookHeight) / 2 + grimoireYOffset);
         
-        // ANCHOR TO RIGHT - spine at right edge, tabs extend left (off-screen)
+        // Position so RIGHT edge touches right side of screen
+        // left = viewport width - book width
+        const leftPosition = vw - bookWidth;
+        
         book.setAttribute('style', `
             position: absolute !important;
-            right: 0 !important;
-            left: auto !important;
+            left: ${leftPosition}px !important;
             top: ${topPosition}px !important;
             width: ${bookWidth}px !important;
             height: ${bookHeight}px !important;
