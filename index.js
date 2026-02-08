@@ -9,7 +9,7 @@ import { settings, loadSettings, saveSettings, setTheme } from './src/core/state
 
 // UI
 import { createFab, destroyFab, updateFabTheme, constrainFabToViewport } from './src/ui/fab.js';
-import { createGrimoire, destroyGrimoire, openGrimoire, updateGrimoireTheme } from './src/ui/grimoire.js';
+import { createGrimoire, destroyGrimoire, toggleGrimoire, updateGrimoireTheme } from './src/ui/grimoire.js';
 
 // =============================================================================
 // UI LIFECYCLE
@@ -21,8 +21,8 @@ import { createGrimoire, destroyGrimoire, openGrimoire, updateGrimoireTheme } fr
 function createUI() {
     destroyUI();
     
-    // Create FAB (opens grimoire on click)
-    createFab(openGrimoire);
+    // Create FAB (toggles grimoire on click)
+    createFab(toggleGrimoire);
     
     // Create grimoire panel (hidden by default)
     createGrimoire();
