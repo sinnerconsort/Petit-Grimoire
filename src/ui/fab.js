@@ -32,9 +32,42 @@ function injectStyles() {
             50% { filter: drop-shadow(0 0 16px var(--pg-glow-color)); }
         }
         
-        @keyframes pg-fab-sparkle {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.85; }
+        @keyframes pg-fab-spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        @keyframes pg-fab-glow-pulse {
+            0%, 100% { 
+                filter: drop-shadow(0 0 12px var(--pg-glow-color)) 
+                        drop-shadow(0 0 24px var(--pg-glow-color));
+            }
+            50% { 
+                filter: drop-shadow(0 0 20px var(--pg-glow-color)) 
+                        drop-shadow(0 0 40px var(--pg-glow-color));
+            }
+        }
+        
+        @keyframes pg-sparkle-burst {
+            0% { 
+                transform: translate(-50%, -50%) scale(0);
+                opacity: 1;
+            }
+            100% { 
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 0;
+            }
+        }
+        
+        @keyframes pg-sparkle-float {
+            0% {
+                transform: translate(0, 0) scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: translate(var(--tx), var(--ty)) scale(0);
+                opacity: 0;
+            }
         }
         
         #pg-fab {
@@ -46,8 +79,7 @@ function injectStyles() {
         }
         
         #pg-fab.pg-fab-open {
-            animation: none;
-            transform: scale(0.95);
+            animation: pg-fab-spin 8s linear infinite, pg-fab-glow-pulse 2s ease-in-out infinite;
         }
         
         #pg-fab img {
@@ -60,6 +92,26 @@ function injectStyles() {
         
         #pg-fab:active img {
             transform: scale(0.95);
+        }
+        
+        .pg-sparkle {
+            position: absolute;
+            pointer-events: none;
+            font-size: 16px;
+            animation: pg-sparkle-float 0.8s ease-out forwards;
+        }
+        
+        .pg-sparkle-ring {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            border: 3px solid var(--pg-glow-color);
+            box-shadow: 0 0 20px var(--pg-glow-color), inset 0 0 20px var(--pg-glow-color);
+            animation: pg-sparkle-burst 0.6s ease-out forwards;
+            pointer-events: none;
         }
     `;
     document.head.appendChild(styleElement);
@@ -179,9 +231,67 @@ export function setFabOpenState(isOpen) {
     if (isOpen) {
         fabElement.classList.add('pg-fab-open');
         fabElement.title = 'Close Petit Grimoire';
+        // Trigger sparkle burst!
+        createSparkleBurst();
     } else {
         fabElement.classList.remove('pg-fab-open');
         fabElement.title = 'Open Petit Grimoire';
+    }
+}
+
+/**
+ * Create magical sparkle burst effect
+ */
+function createSparkleBurst() {
+    if (!fabElement) return;
+    
+    const rect = fabElement.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
+    
+    // Create expanding ring
+    const ring = document.createElement('div');
+    ring.className = 'pg-sparkle-ring';
+    ring.style.cssText = `
+        position: fixed;
+        top: ${centerY}px;
+        left: ${centerX}px;
+        --pg-glow-color: ${fabElement.style.getPropertyValue('--pg-glow-color')};
+    `;
+    document.body.appendChild(ring);
+    setTimeout(() => ring.remove(), 600);
+    
+    // Create sparkle particles
+    const sparkles = ['✦', '✧', '⋆', '✶', '✷', '✸', '★', '☆', '✨', '💫'];
+    const colors = ['#ffeb3b', '#ff69b4', '#87ceeb', '#dda0dd', '#ffd700', '#fff'];
+    
+    for (let i = 0; i < 12; i++) {
+        const sparkle = document.createElement('div');
+        sparkle.className = 'pg-sparkle';
+        
+        // Random direction
+        const angle = (i / 12) * Math.PI * 2;
+        const distance = 60 + Math.random() * 40;
+        const tx = Math.cos(angle) * distance;
+        const ty = Math.sin(angle) * distance;
+        
+        sparkle.style.cssText = `
+            position: fixed;
+            top: ${centerY}px;
+            left: ${centerX}px;
+            --tx: ${tx}px;
+            --ty: ${ty}px;
+            color: ${colors[Math.floor(Math.random() * colors.length)]};
+            font-size: ${14 + Math.random() * 10}px;
+            text-shadow: 0 0 6px currentColor;
+            z-index: 999999;
+        `;
+        sparkle.textContent = sparkles[Math.floor(Math.random() * sparkles.length)];
+        
+        document.body.appendChild(sparkle);
+        
+        // Cleanup after animation
+        setTimeout(() => sparkle.remove(), 800);
     }
 }
 
