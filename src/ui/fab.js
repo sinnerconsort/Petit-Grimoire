@@ -79,7 +79,11 @@ function injectStyles() {
         }
         
         #pg-fab.pg-fab-open {
-            animation: pg-fab-spin 8s linear infinite, pg-fab-glow-pulse 2s ease-in-out infinite;
+            animation: pg-fab-glow-pulse 2s ease-in-out infinite;
+        }
+        
+        #pg-fab.pg-fab-open img {
+            animation: pg-fab-spin 8s linear infinite;
         }
         
         #pg-fab img {
