@@ -222,7 +222,6 @@ export const DEFAULT_SETTINGS = {
     // Grimoire positioning
     grimoireOffsetY: 0,       // Vertical offset in pixels (-200 to 200)
     grimoireLocked: false,    // Lock position toggle
-    grimoireScale: 1.0,       // Scale multiplier (1.0 = 100%, fits viewport)
     // Font settings
     fancyFont: false          // Use Gentry Society decorative font
 };
