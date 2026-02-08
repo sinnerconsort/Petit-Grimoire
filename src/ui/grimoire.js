@@ -327,14 +327,20 @@ export function openGrimoire() {
     const vh = window.innerHeight;
     
     // Calculate book size
-    const spriteRatio = 720 / 896;
-    let bookWidth = Math.floor(vw * 0.95);
-    let bookHeight = Math.floor(bookWidth * spriteRatio);
+    // NOTE: The sprite canvas is 896x720, but the book only occupies ~506x650 of it
+    // Use the BOOK's aspect ratio, not the canvas ratio
+    const bookInSpriteWidth = 506;
+    const bookInSpriteHeight = 650;
+    const bookAspectRatio = bookInSpriteHeight / bookInSpriteWidth; // ~1.28 (taller than wide)
     
-    const maxHeight = Math.floor(vh * 0.7);
+    let bookWidth = Math.floor(vw * 0.85);  // 85% of viewport width
+    let bookHeight = Math.floor(bookWidth * bookAspectRatio);
+    
+    // Cap at 75% viewport height
+    const maxHeight = Math.floor(vh * 0.75);
     if (bookHeight > maxHeight) {
         bookHeight = maxHeight;
-        bookWidth = Math.floor(bookHeight / spriteRatio);
+        bookWidth = Math.floor(bookHeight / bookAspectRatio);
     }
     
     // Use setAttribute with !important to FORCE styles
@@ -368,14 +374,32 @@ export function openGrimoire() {
             border: 3px solid lime !important;
         `);
         
-        // Use a div with background-image instead of img (more reliable sizing)
+        // Use a div with background-image
+        // NOTE: The sprite has the book on the RIGHT side of a 896x720 canvas
+        // Book appears to occupy roughly x:390 to x:896 (506px wide) and full height
+        // We need to crop/position to show just the book
+        
         let spriteDiv = document.getElementById('pg-book-sprite');
         if (!spriteDiv) {
             spriteDiv = document.createElement('div');
             spriteDiv.id = 'pg-book-sprite';
             book.insertBefore(spriteDiv, book.firstChild);
         }
-        // Force the div to fill the book and stretch the background
+        
+        // The actual book in the sprite is roughly 506x650 positioned at the right
+        // Original canvas: 896x720, book starts at ~x:390
+        // Scale factor to fit our bookWidth
+        const spriteFullWidth = 896;
+        const spriteFullHeight = 720;
+        const bookInSpriteWidth = 506;  // approximate width of book in sprite
+        const bookInSpriteX = 390;      // where book starts in sprite
+        
+        // Scale the full sprite so the book portion fits our element
+        const scale = bookWidth / bookInSpriteWidth;
+        const scaledSpriteWidth = Math.floor(spriteFullWidth * scale);
+        const scaledSpriteHeight = Math.floor(spriteFullHeight * scale);
+        const offsetX = Math.floor(bookInSpriteX * scale);
+        
         spriteDiv.setAttribute('style', `
             position: absolute !important;
             top: 0 !important;
@@ -383,13 +407,12 @@ export function openGrimoire() {
             width: ${bookWidth}px !important;
             height: ${bookHeight}px !important;
             background-image: url('${ASSET_PATHS.grimoire}/Grimoire_WithTabs.png') !important;
-            background-size: ${bookWidth}px ${bookHeight}px !important;
-            background-position: 0 0 !important;
+            background-size: ${scaledSpriteWidth}px ${scaledSpriteHeight}px !important;
+            background-position: -${offsetX}px 0 !important;
             background-repeat: no-repeat !important;
             image-rendering: pixelated !important;
             pointer-events: none !important;
             z-index: 0 !important;
-            border: 2px solid yellow !important;
         `);
         
         // Force sidebar positioning relative to book
@@ -452,16 +475,13 @@ export function openGrimoire() {
     }
     
     const bookRect = book?.getBoundingClientRect();
-    const sidebar = document.getElementById('pg-sidebar');
-    const content = document.getElementById('pg-content');
     const spriteDiv = document.getElementById('pg-book-sprite');
-    const spriteRect = spriteDiv?.getBoundingClientRect();
     const spriteStyle = spriteDiv ? window.getComputedStyle(spriteDiv) : null;
     
     debugEl.innerHTML = `
         Book: ${bookRect?.width?.toFixed(0)}x${bookRect?.height?.toFixed(0)}<br>
-        Sprite div: ${spriteRect?.width?.toFixed(0)}x${spriteRect?.height?.toFixed(0)}<br>
-        BG size: ${spriteStyle?.backgroundSize || 'none'}
+        BG size: ${spriteStyle?.backgroundSize || 'none'}<br>
+        BG pos: ${spriteStyle?.backgroundPosition || 'none'}
     `;
     
     panelElement.classList.add('pg-open');
