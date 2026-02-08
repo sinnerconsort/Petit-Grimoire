@@ -323,30 +323,29 @@ export function destroyGrimoire() {
 export function openGrimoire() {
     if (!panelElement) return;
     
-    // Refresh styles with current viewport size
-    injectStyles();
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
     
-    // FORCE panel styles directly (CSS might not be applying)
+    // FORCE panel styles with PIXEL values
     Object.assign(panelElement.style, {
         position: 'fixed',
-        top: '0',
-        left: '0',
-        width: '100vw',
-        height: '100vh',
+        top: '0px',
+        left: '0px',
+        width: vw + 'px',
+        height: vh + 'px',
         zIndex: '99998',
         background: 'rgba(0,0,0,0.85)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         margin: '0',
-        padding: '0'
+        padding: '0',
+        boxSizing: 'border-box'
     });
     
-    // Also force book size
+    // Force book size
     const book = document.getElementById('pg-book');
     if (book) {
-        const vw = window.innerWidth;
-        const vh = window.innerHeight;
         const spriteRatio = 720 / 896;
         
         let bookWidth = Math.floor(vw * 0.95);
@@ -386,8 +385,6 @@ export function openGrimoire() {
         document.body.appendChild(debugEl);
     }
     
-    const vw = window.innerWidth;
-    const vh = window.innerHeight;
     const bookRect = book?.getBoundingClientRect();
     const panelRect = panelElement.getBoundingClientRect();
     
