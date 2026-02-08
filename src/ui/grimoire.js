@@ -192,7 +192,7 @@ function createContent(book, scale, offsetY) {
     // left + right must be less than 100% or content collapses!
     content.setAttribute('style', `
         position: absolute !important;
-        left: 35% !important;
+        left: 32% !important;
         right: 6% !important;
         top: 25% !important;
         bottom: 14% !important;
