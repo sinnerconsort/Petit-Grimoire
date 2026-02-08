@@ -88,8 +88,8 @@ function createTabIcons(book, scale, offsetY) {
     // Measured from the book+tabs portion starting at x:310 in the full sprite
     // ADJUST THESE if icons don't line up perfectly!
     const TAB_DATA = [
-        { id: 'tarot',    icon: 'fa-layer-group', y: 200,  label: 'Tarot' },
-        { id: 'crystal',  icon: 'fa-moon',        y: 325, label: 'Crystal Ball' },
+        { id: 'tarot',    icon: 'fa-layer-group', y: 220,  label: 'Tarot' },
+        { id: 'crystal',  icon: 'fa-moon',        y: 275, label: 'Crystal Ball' },
         { id: 'ouija',    icon: 'fa-ghost',       y: 350, label: 'Ouija' },
         { id: 'nyx',      icon: 'fa-cat',         y: 375, label: 'Nyx' },
         { id: 'radio',    icon: 'fa-radio',       y: 400, label: 'Radio' },
