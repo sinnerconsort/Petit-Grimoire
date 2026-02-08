@@ -10,7 +10,6 @@ import { setFabOpenState } from './fab.js';
 let panelElement = null;
 let styleElement = null;
 let isOpen = false;
-let canClose = false;  // Prevents accidental close on open
 
 // Make settings accessible for tab icons
 window.petitGrimoireSettings = settings;
@@ -142,7 +141,7 @@ export function createGrimoire() {
     panel.id = 'pg-panel';
     
     // Click outside to close - with delay to prevent touch event bleed-through
-    canClose = false;  // Reset on creation
+    let canClose = false;
     panel.addEventListener('click', (e) => {
         if (e.target === panel && canClose) {
             closeGrimoire();
@@ -714,10 +713,6 @@ export function openGrimoire() {
     
     if (!panelElement) return;
     
-    // Prevent immediate close from touch bleed-through
-    canClose = false;
-    setTimeout(() => { canClose = true; }, 400);
-    
     const vw = window.innerWidth;
     const vh = window.innerHeight;
     
@@ -743,7 +738,6 @@ export function openGrimoire() {
         padding: 0 !important;
         box-sizing: border-box !important;
         overflow: hidden !important;
-        display: block !important;
     `);
     
     const book = document.getElementById('pg-book');
@@ -752,15 +746,11 @@ export function openGrimoire() {
         const grimoireYOffset = settings.grimoireOffsetY || 0;
         const topPosition = Math.max(0, (vh - bookHeight) / 2 + grimoireYOffset);
         
-        // Position so RIGHT edge of book is at RIGHT edge of viewport
-        // left = vw - bookWidth (will be negative if book is wider than screen, pushing tabs off left)
-        const leftPosition = vw - bookWidth;
-        
-        toastr.info(`vw:${vw} bookW:${bookWidth} left:${leftPosition}`, 'Sizing');
-        
+        // ANCHOR TO RIGHT - spine at right edge, tabs extend left (off-screen)
         book.setAttribute('style', `
             position: absolute !important;
-            left: ${leftPosition}px !important;
+            right: 0 !important;
+            left: auto !important;
             top: ${topPosition}px !important;
             width: ${bookWidth}px !important;
             height: ${bookHeight}px !important;
