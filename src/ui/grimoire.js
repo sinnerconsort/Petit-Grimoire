@@ -10,6 +10,7 @@ import { setFabOpenState } from './fab.js';
 let panelElement = null;
 let styleElement = null;
 let isOpen = false;
+let canClose = false;  // Prevents accidental close on open
 
 // Make settings accessible for tab icons
 window.petitGrimoireSettings = settings;
@@ -141,7 +142,7 @@ export function createGrimoire() {
     panel.id = 'pg-panel';
     
     // Click outside to close - with delay to prevent touch event bleed-through
-    let canClose = false;
+    canClose = false;  // Reset on creation
     panel.addEventListener('click', (e) => {
         if (e.target === panel && canClose) {
             closeGrimoire();
@@ -713,6 +714,10 @@ export function openGrimoire() {
     
     if (!panelElement) return;
     
+    // Prevent immediate close from touch bleed-through
+    canClose = false;
+    setTimeout(() => { canClose = true; }, 400);
+    
     const vw = window.innerWidth;
     const vh = window.innerHeight;
     
@@ -738,6 +743,7 @@ export function openGrimoire() {
         padding: 0 !important;
         box-sizing: border-box !important;
         overflow: hidden !important;
+        display: block !important;
     `);
     
     const book = document.getElementById('pg-book');
