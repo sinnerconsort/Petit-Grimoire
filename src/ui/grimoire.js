@@ -318,9 +318,9 @@ function createContent(book, scale, offsetY) {
     // to stay within visible page area
     content.setAttribute('style', `
         position: absolute !important;
-        left: 18% !important;
-        right: 25% !important;
-        top: 8% !important;
+        left: 35% !important;
+        right: 20% !important;
+        top: 12% !important;
         bottom: 6% !important;
         padding: 2% !important;
         overflow-y: auto !important;
