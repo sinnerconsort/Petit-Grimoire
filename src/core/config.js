@@ -55,7 +55,10 @@ export const GRIMOIRE_SPRITES = {
 
 /**
  * Theme definitions
- * Each theme has colors, FAB icon, and Nyxgotchi shell
+ * Each theme has colors, FAB icon, Nyxgotchi shell, and grimoire filter
+ * 
+ * grimoireFilter: CSS filter to tint the grimoire sprite
+ * Base grimoire is warm tan (~35° hue), filters shift it to match theme
  */
 export const THEMES = {
     guardian: {
@@ -72,7 +75,9 @@ export const THEMES = {
         textDim: '#dc78aa99',
         // Assets
         fabIcon: 'fab-guardian.png',
-        shell: 'guardian-shell.png'
+        shell: 'guardian-shell.png',
+        // Grimoire tint: warm tan → pink/magenta
+        grimoireFilter: 'hue-rotate(300deg) saturate(1.3) brightness(1.05)'
     },
     umbra: {
         name: 'Umbra',
@@ -86,7 +91,9 @@ export const THEMES = {
         textLight: '#e8d5f5',
         textDim: '#c8b1f788',
         fabIcon: 'fab-umbra.png',
-        shell: 'umbra-shell.png'
+        shell: 'umbra-shell.png',
+        // Grimoire tint: warm tan → deep purple (darker, more saturated)
+        grimoireFilter: 'hue-rotate(255deg) saturate(1.6) brightness(0.75)'
     },
     apothecary: {
         name: 'Apothecary',
@@ -100,7 +107,9 @@ export const THEMES = {
         textLight: '#f0e6d8',
         textDim: '#e9ae7588',
         fabIcon: 'fab-apothecary.png',
-        shell: 'apothecary-shell.png'
+        shell: 'apothecary-shell.png',
+        // Grimoire tint: warm tan → earthy olive/sage (minimal shift, keep natural)
+        grimoireFilter: 'hue-rotate(50deg) saturate(0.85) brightness(0.95)'
     },
     moonstone: {
         name: 'Moonstone',
@@ -114,7 +123,9 @@ export const THEMES = {
         textLight: '#feebff',
         textDim: '#d9c7fb88',
         fabIcon: 'fab-moonstone.png',
-        shell: 'moonstone-shell.png'
+        shell: 'moonstone-shell.png',
+        // Grimoire tint: warm tan → soft lavender (lighter, desaturated)
+        grimoireFilter: 'hue-rotate(240deg) saturate(0.7) brightness(1.15)'
     },
     phosphor: {
         name: 'Phosphor',
@@ -128,7 +139,9 @@ export const THEMES = {
         textLight: '#e8e8ff',
         textDim: '#7375ca88',
         fabIcon: 'fab-phosphor.png',
-        shell: 'phosphor-shell.png'
+        shell: 'phosphor-shell.png',
+        // Grimoire tint: warm tan → neon purple/cyan (vibrant, high contrast)
+        grimoireFilter: 'hue-rotate(230deg) saturate(1.8) brightness(0.9) contrast(1.15)'
     },
     rosewood: {
         name: 'Rosewood',
@@ -142,7 +155,9 @@ export const THEMES = {
         textLight: '#f5eaed',
         textDim: '#e4b0bc88',
         fabIcon: 'fab-rosewood.png',
-        shell: 'rosewood-shell.png'
+        shell: 'rosewood-shell.png',
+        // Grimoire tint: warm tan → soft blush pink (light, soft, dreamy)
+        grimoireFilter: 'hue-rotate(320deg) saturate(0.6) brightness(1.12)'
     },
     celestial: {
         name: 'Celestial',
@@ -156,7 +171,9 @@ export const THEMES = {
         textLight: '#fbe09c',
         textDim: '#e3b35f88',
         fabIcon: 'fab-celestial.png',
-        shell: 'celestial-shell.png'
+        shell: 'celestial-shell.png',
+        // Grimoire tint: warm tan → deep navy blue (rich, dark, majestic)
+        grimoireFilter: 'hue-rotate(190deg) saturate(1.4) brightness(0.8)'
     }
 };
 
