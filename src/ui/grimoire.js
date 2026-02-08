@@ -246,23 +246,15 @@ export function openGrimoire() {
     const vw = window.innerWidth;
     const vh = window.innerHeight;
     
-    // Calculate book size - match the target mockup
+    // Calculate book size - FILL THE WIDTH
     // The book+tabs in the sprite is ~586x665, we'll crop to show just that
     const bookInSpriteWidth = 586;
     const bookInSpriteHeight = 665;
     const bookAspectRatio = bookInSpriteHeight / bookInSpriteWidth; // ~1.135
     
-    // Target: book fills ~85% of viewport height (big like a header)
-    const targetHeight = Math.floor(vh * 0.85);
-    let bookHeight = targetHeight;
-    let bookWidth = Math.floor(bookHeight / bookAspectRatio);
-    
-    // If too wide for screen, scale down
-    const maxWidth = Math.floor(vw * 0.98);
-    if (bookWidth > maxWidth) {
-        bookWidth = maxWidth;
-        bookHeight = Math.floor(bookWidth * bookAspectRatio);
-    }
+    // Fill full screen width
+    let bookWidth = vw;
+    let bookHeight = Math.floor(bookWidth * bookAspectRatio);
     
     // Use setAttribute with !important to FORCE styles
     panelElement.setAttribute('style', `
@@ -274,7 +266,7 @@ export function openGrimoire() {
         z-index: 99998 !important;
         background: rgba(0,0,0,0.7) !important;
         display: flex !important;
-        align-items: center !important;
+        align-items: flex-start !important;
         justify-content: center !important;
         margin: 0 !important;
         padding: 0 !important;
