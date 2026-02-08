@@ -326,6 +326,17 @@ export function openGrimoire() {
     const vw = window.innerWidth;
     const vh = window.innerHeight;
     
+    // Calculate book size
+    const spriteRatio = 720 / 896;
+    let bookWidth = Math.floor(vw * 0.95);
+    let bookHeight = Math.floor(bookWidth * spriteRatio);
+    
+    const maxHeight = Math.floor(vh * 0.7);
+    if (bookHeight > maxHeight) {
+        bookHeight = maxHeight;
+        bookWidth = Math.floor(bookHeight / spriteRatio);
+    }
+    
     // Use setAttribute with !important to FORCE styles
     panelElement.setAttribute('style', `
         position: fixed !important;
@@ -344,20 +355,9 @@ export function openGrimoire() {
         box-sizing: border-box !important;
     `);
     
-    // Force book size
+    // Force book size AND position relative
     const book = document.getElementById('pg-book');
     if (book) {
-        const spriteRatio = 720 / 896;
-        
-        let bookWidth = Math.floor(vw * 0.95);
-        let bookHeight = Math.floor(bookWidth * spriteRatio);
-        
-        const maxHeight = Math.floor(vh * 0.7);
-        if (bookHeight > maxHeight) {
-            bookHeight = maxHeight;
-            bookWidth = Math.floor(bookHeight / spriteRatio);
-        }
-        
         book.setAttribute('style', `
             position: relative !important;
             width: ${bookWidth}px !important;
@@ -370,6 +370,43 @@ export function openGrimoire() {
             background-repeat: no-repeat !important;
             image-rendering: pixelated !important;
         `);
+        
+        // Force sidebar positioning relative to book
+        const sidebar = document.getElementById('pg-sidebar');
+        if (sidebar) {
+            sidebar.setAttribute('style', `
+                position: absolute !important;
+                left: 0 !important;
+                top: 10% !important;
+                bottom: 15% !important;
+                width: 12% !important;
+                display: flex !important;
+                flex-direction: column !important;
+                justify-content: flex-start !important;
+                align-items: center !important;
+                padding-top: 2% !important;
+                gap: 4% !important;
+                z-index: 5 !important;
+            `);
+        }
+        
+        // Force content positioning relative to book
+        const content = document.getElementById('pg-content');
+        if (content) {
+            content.setAttribute('style', `
+                position: absolute !important;
+                left: 14% !important;
+                right: 6% !important;
+                top: 8% !important;
+                bottom: 10% !important;
+                padding: 3% !important;
+                overflow-y: auto !important;
+                overflow-x: hidden !important;
+                color: #4a3728 !important;
+                font-size: 13px !important;
+                z-index: 4 !important;
+            `);
+        }
     }
     
     // Debug info
@@ -391,21 +428,18 @@ export function openGrimoire() {
         document.body.appendChild(debugEl);
     }
     
-    // Check computed styles
-    const panelComputed = window.getComputedStyle(panelElement);
     const bookRect = book?.getBoundingClientRect();
     
     debugEl.innerHTML = `
         VP: ${vw}x${vh}<br>
-        Panel computed: ${panelComputed.width} x ${panelComputed.height}<br>
-        Book: ${bookRect?.width?.toFixed(0) || '?'}x${bookRect?.height?.toFixed(0) || '?'}
+        Book: ${bookRect?.width?.toFixed(0)}x${bookRect?.height?.toFixed(0)}<br>
+        Book pos: ${bookRect?.left?.toFixed(0)},${bookRect?.top?.toFixed(0)}
     `;
     
     panelElement.classList.add('pg-open');
     isOpen = true;
     
     console.log('[Petit Grimoire] Opened');
-    console.log('[Petit Grimoire] Panel style attr:', panelElement.getAttribute('style'));
 }
 
 /**
