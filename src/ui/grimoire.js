@@ -376,16 +376,24 @@ export function openGrimoire() {
             book.insertBefore(spriteImg, book.firstChild);
         }
         spriteImg.src = `${ASSET_PATHS.grimoire}/Grimoire_WithTabs.png`;
+        // Set HTML attributes for dimensions
+        spriteImg.width = bookWidth;
+        spriteImg.height = bookHeight;
+        // Force EXACT pixel dimensions with styles too
         spriteImg.setAttribute('style', `
             position: absolute !important;
             top: 0 !important;
             left: 0 !important;
-            width: 100% !important;
-            height: 100% !important;
-            object-fit: fill !important;
+            width: ${bookWidth}px !important;
+            height: ${bookHeight}px !important;
+            min-width: ${bookWidth}px !important;
+            min-height: ${bookHeight}px !important;
+            max-width: ${bookWidth}px !important;
+            max-height: ${bookHeight}px !important;
             image-rendering: pixelated !important;
             pointer-events: none !important;
             z-index: 0 !important;
+            border: 2px solid yellow !important;
         `);
         
         // Force sidebar positioning relative to book
@@ -450,14 +458,13 @@ export function openGrimoire() {
     const bookRect = book?.getBoundingClientRect();
     const sidebar = document.getElementById('pg-sidebar');
     const content = document.getElementById('pg-content');
-    const sidebarRect = sidebar?.getBoundingClientRect();
-    const contentRect = content?.getBoundingClientRect();
+    const spriteImg = document.getElementById('pg-book-sprite');
+    const spriteRect = spriteImg?.getBoundingClientRect();
     
     debugEl.innerHTML = `
         Book: ${bookRect?.width?.toFixed(0)}x${bookRect?.height?.toFixed(0)} @ ${bookRect?.left?.toFixed(0)},${bookRect?.top?.toFixed(0)}<br>
-        Sidebar parent: ${sidebar?.parentElement?.id || 'none'}<br>
-        Sidebar: @ ${sidebarRect?.left?.toFixed(0)},${sidebarRect?.top?.toFixed(0)}<br>
-        Content parent: ${content?.parentElement?.id || 'none'}
+        Sprite: ${spriteRect?.width?.toFixed(0)}x${spriteRect?.height?.toFixed(0)}<br>
+        Sidebar parent: ${sidebar?.parentElement?.id || 'none'}
     `;
     
     panelElement.classList.add('pg-open');
