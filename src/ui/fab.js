@@ -235,6 +235,7 @@ function setupDragHandlers(fab, onToggle) {
         
         // If didn't drag, trigger toggle
         if (!hasMoved && onToggle) {
+            console.log('[PG FAB] Calling onToggle');
             onToggle();
         }
     }

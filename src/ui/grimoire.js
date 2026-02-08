@@ -298,6 +298,9 @@ export function destroyGrimoire() {
  * Open the grimoire
  */
 export function openGrimoire() {
+    console.log('[PG] openGrimoire called');
+    toastr.info('openGrimoire called', 'Debug');
+    
     if (!panelElement) return;
     
     const vw = window.innerWidth;
@@ -398,6 +401,9 @@ export function openGrimoire() {
  * Close the grimoire
  */
 export function closeGrimoire() {
+    console.log('[PG] closeGrimoire called');
+    toastr.warning('closeGrimoire called', 'Debug');
+    
     if (!panelElement) return;
     
     panelElement.classList.remove('pg-open');
@@ -405,12 +411,17 @@ export function closeGrimoire() {
     
     // Update FAB state
     setFabOpenState(false);
+    
+    toastr.success('Grimoire closed, isOpen now: ' + isOpen, 'Debug');
 }
 
 /**
  * Toggle grimoire open/close
  */
 export function toggleGrimoire() {
+    console.log('[PG] toggleGrimoire called, isOpen:', isOpen);
+    toastr.info(`Toggle called. isOpen: ${isOpen}`, 'Debug');
+    
     if (isOpen) {
         closeGrimoire();
     } else {
