@@ -252,7 +252,7 @@ export function openGrimoire() {
     // We want the PAGE to fill the screen width
     const bookInSpriteWidth = 586;
     const bookInSpriteHeight = 665;
-    const pagePortionRatio = 0.82; // Page is ~82% of total book width
+    const pagePortionRatio = 0.62; // Bigger book - tabs extend further left
     const bookAspectRatio = bookInSpriteHeight / bookInSpriteWidth; // ~1.135
     
     // Scale so the PAGE fills the viewport width
@@ -275,7 +275,7 @@ export function openGrimoire() {
         box-sizing: border-box !important;
         display: flex !important;
         flex-direction: row !important;
-        align-items: flex-start !important;
+        align-items: flex-end !important;
     `);
     
     // Force book size AND position
