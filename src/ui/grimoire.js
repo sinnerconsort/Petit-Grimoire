@@ -7,7 +7,105 @@ import { TABS, ASSET_PATHS, getTheme } from '../core/config.js';
 import { settings, updateSetting } from '../core/state.js';
 
 let panelElement = null;
+let styleElement = null;
 let isOpen = false;
+
+/**
+ * Inject CSS for the grimoire
+ */
+function injectStyles() {
+    // Remove old styles first
+    document.getElementById('pg-grimoire-styles')?.remove();
+    styleElement = null;
+    
+    // Calculate sizes in pixels
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+    const spriteRatio = 720 / 896; // 0.804
+    
+    let bookWidth = Math.floor(vw * 0.95);
+    let bookHeight = Math.floor(bookWidth * spriteRatio);
+    
+    // Cap at 70% viewport height
+    const maxHeight = Math.floor(vh * 0.7);
+    if (bookHeight > maxHeight) {
+        bookHeight = maxHeight;
+        bookWidth = Math.floor(bookHeight / spriteRatio);
+    }
+    
+    console.log('[Petit Grimoire] Injecting styles with size:', bookWidth, 'x', bookHeight);
+    
+    styleElement = document.createElement('style');
+    styleElement.id = 'pg-grimoire-styles';
+    styleElement.textContent = `
+        #pg-panel {
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            bottom: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
+            z-index: 99998 !important;
+            background: rgba(0,0,0,0.85) !important;
+            backdrop-filter: blur(4px) !important;
+            display: none;
+            align-items: center !important;
+            justify-content: center !important;
+            box-sizing: border-box !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+        
+        #pg-panel.pg-open {
+            display: flex !important;
+        }
+        
+        #pg-book {
+            position: relative !important;
+            width: ${bookWidth}px !important;
+            height: ${bookHeight}px !important;
+            min-width: ${bookWidth}px !important;
+            min-height: ${bookHeight}px !important;
+            margin: auto !important;
+            background-image: url('${ASSET_PATHS.grimoire}/Grimoire_WithTabs.png') !important;
+            background-size: 100% 100% !important;
+            background-repeat: no-repeat !important;
+            background-position: center !important;
+            image-rendering: pixelated !important;
+            background-color: transparent !important;
+            overflow: visible !important;
+            flex-shrink: 0 !important;
+        }
+        
+        #pg-sidebar {
+            position: absolute !important;
+            left: 0 !important;
+            top: 10% !important;
+            bottom: 15% !important;
+            width: 10% !important;
+            display: flex !important;
+            flex-direction: column !important;
+            justify-content: flex-start !important;
+            align-items: center !important;
+            padding-top: 2% !important;
+            gap: 2% !important;
+            z-index: 5 !important;
+        }
+        
+        #pg-content {
+            position: absolute !important;
+            left: 14% !important;
+            right: 6% !important;
+            top: 8% !important;
+            bottom: 10% !important;
+            overflow-y: auto !important;
+            overflow-x: hidden !important;
+            z-index: 4 !important;
+        }
+    `;
+    document.head.appendChild(styleElement);
+}
 
 /**
  * Create the grimoire panel
@@ -15,25 +113,14 @@ let isOpen = false;
 export function createGrimoire() {
     destroyGrimoire();
     
+    // Inject styles first
+    injectStyles();
+    
     const theme = getTheme(settings.theme);
     
     // =========== PANEL OVERLAY ===========
     const panel = document.createElement('div');
     panel.id = 'pg-panel';
-    Object.assign(panel.style, {
-        position: 'fixed',
-        top: '0',
-        left: '0',
-        right: '0',
-        bottom: '0',
-        zIndex: '99998',
-        background: 'rgba(0,0,0,0.85)',
-        backdropFilter: 'blur(4px)',
-        display: 'none',
-        alignItems: 'center',
-        justifyContent: 'center',
-        boxSizing: 'border-box'
-    });
     
     // Click outside to close
     panel.addEventListener('click', (e) => {
@@ -41,44 +128,14 @@ export function createGrimoire() {
     });
     
     // =========== BOOK CONTAINER ===========
-    // Uses sprite as background
-    // Size will be recalculated when opened (see openGrimoire)
     const book = document.createElement('div');
     book.id = 'pg-book';
     
-    // Set initial size (will be recalculated on open)
-    const vw = window.innerWidth;
-    const vh = window.innerHeight;
-    const spriteRatio = 720 / 896; // height / width = 0.804
-    let bookWidth = vw * 0.95;
-    let bookHeight = bookWidth * spriteRatio;
-    if (bookHeight > vh * 0.7) {
-        bookHeight = vh * 0.7;
-        bookWidth = bookHeight / spriteRatio;
-    }
-    
-    Object.assign(book.style, {
-        position: 'relative',
-        width: bookWidth + 'px',
-        height: bookHeight + 'px',
-        margin: 'auto',
-        // Sprite background
-        backgroundImage: `url('${ASSET_PATHS.grimoire}/Grimoire_WithTabs.png')`,
-        backgroundSize: '100% 100%',
-        backgroundRepeat: 'no-repeat',
-        backgroundPosition: 'center',
-        imageRendering: 'pixelated',
-        backgroundColor: 'transparent',
-        overflow: 'visible'
-    });
-    
     // =========== TAB SIDEBAR ===========
-    // Positioned absolutely over the sprite's visual tabs
     const sidebar = createSidebar(theme);
     book.appendChild(sidebar);
     
     // =========== CONTENT AREA ===========
-    // Positioned inside the book's "page" area
     const content = createContent(theme);
     book.appendChild(content);
     
@@ -251,7 +308,12 @@ export function destroyGrimoire() {
         panelElement.remove();
         panelElement = null;
     }
+    if (styleElement) {
+        styleElement.remove();
+        styleElement = null;
+    }
     document.getElementById('pg-panel')?.remove();
+    document.getElementById('pg-grimoire-styles')?.remove();
     isOpen = false;
 }
 
@@ -261,53 +323,44 @@ export function destroyGrimoire() {
 export function openGrimoire() {
     if (!panelElement) return;
     
-    // Calculate book size based on current viewport
-    const book = document.getElementById('pg-book');
-    if (book) {
-        const vw = window.innerWidth;
-        const vh = window.innerHeight;
-        const spriteRatio = 720 / 896; // height / width = 0.804
-        
-        // Use 95% of viewport width
-        let bookWidth = Math.floor(vw * 0.95);
-        let bookHeight = Math.floor(bookWidth * spriteRatio);
-        
-        // If height would exceed 70% of viewport, scale down
-        const maxHeight = Math.floor(vh * 0.7);
-        if (bookHeight > maxHeight) {
-            bookHeight = maxHeight;
-            bookWidth = Math.floor(bookHeight / spriteRatio);
-        }
-        
-        console.log('[Petit Grimoire] Viewport:', { vw, vh });
-        console.log('[Petit Grimoire] Book size:', { bookWidth, bookHeight });
-        
-        // Apply size with !important to override any conflicting styles
-        book.style.cssText = `
-            position: relative;
-            width: ${bookWidth}px !important;
-            height: ${bookHeight}px !important;
-            min-width: ${bookWidth}px !important;
-            min-height: ${bookHeight}px !important;
-            max-width: ${bookWidth}px !important;
-            max-height: ${bookHeight}px !important;
-            margin: auto;
-            background-image: url('${ASSET_PATHS.grimoire}/Grimoire_WithTabs.png');
-            background-size: 100% 100%;
-            background-repeat: no-repeat;
-            background-position: center;
-            image-rendering: pixelated;
-            background-color: transparent;
-            overflow: visible;
-        `;
+    // Refresh styles with current viewport size
+    injectStyles();
+    
+    // Add debug info visible on screen
+    let debugEl = document.getElementById('pg-debug');
+    if (!debugEl) {
+        debugEl = document.createElement('div');
+        debugEl.id = 'pg-debug';
+        Object.assign(debugEl.style, {
+            position: 'fixed',
+            top: '5px',
+            left: '5px',
+            background: 'red',
+            color: 'white',
+            padding: '5px 10px',
+            fontSize: '12px',
+            zIndex: '999999',
+            fontFamily: 'monospace'
+        });
+        document.body.appendChild(debugEl);
     }
     
-    panelElement.style.display = 'flex';
-    panelElement.style.alignItems = 'center';
-    panelElement.style.justifyContent = 'center';
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+    const book = document.getElementById('pg-book');
+    const bookRect = book?.getBoundingClientRect();
+    
+    debugEl.innerHTML = `
+        VP: ${vw}x${vh}<br>
+        Book: ${bookRect?.width?.toFixed(0) || '?'}x${bookRect?.height?.toFixed(0) || '?'}<br>
+        Style: ${book?.style.width || 'none'}
+    `;
+    
+    // Toggle the class
+    panelElement.classList.add('pg-open');
     isOpen = true;
     
-    // TODO: Play opening animation
+    console.log('[Petit Grimoire] Opened');
 }
 
 /**
@@ -316,10 +369,8 @@ export function openGrimoire() {
 export function closeGrimoire() {
     if (!panelElement) return;
     
-    panelElement.style.display = 'none';
+    panelElement.classList.remove('pg-open');
     isOpen = false;
-    
-    // TODO: Play closing animation
 }
 
 /**
