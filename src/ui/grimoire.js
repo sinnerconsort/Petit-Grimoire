@@ -1,15 +1,22 @@
 /**
  * Petit Grimoire - Grimoire Panel
  * The magical book UI with tabs
+ * 
+ * NOTE: The positioning code in openGrimoire() is FRAGILE.
+ * Only modify tab content via the tabs/ modules.
  */
 
 import { TABS, ASSET_PATHS, getTheme, THEMES } from '../core/config.js';
 import { settings, updateSetting } from '../core/state.js';
 import { setFabOpenState } from './fab.js';
 
+// Tab system - handles all tab content and initialization
+import { getTabContent, initTab, cleanupTab } from './tabs/index.js';
+
 let panelElement = null;
 let styleElement = null;
 let isOpen = false;
+let currentTab = null;  // Track current tab for cleanup
 
 // Make settings accessible for tab icons
 window.petitGrimoireSettings = settings;
@@ -351,337 +358,13 @@ function createContent(book, scale, offsetY) {
             box-sizing: border-box !important;
         `);
         
-        // Placeholder content (will be replaced by feature modules)
-        page.innerHTML = getPageContent(tab.id);
+        // Get content from tab module system
+        page.innerHTML = getTabContent(tab.id);
         
         content.appendChild(page);
     });
     
     book.appendChild(content);
-}
-
-/**
- * Get placeholder content for each page
- */
-function getPageContent(tabId) {
-    // Settings page gets real content
-    if (tabId === 'settings') {
-        return buildSettingsPage();
-    }
-    
-    const emojis = {
-        tarot: '🎴',
-        crystal: '🔮',
-        ouija: '👻',
-        nyx: '🐱',
-        spells: '✨'
-    };
-    
-    const names = {
-        tarot: 'TAROT',
-        crystal: 'CRYSTAL BALL',
-        ouija: 'OUIJA',
-        nyx: 'NYX',
-        spells: 'SPELL CARDS'
-    };
-    
-    const quotes = {
-        tarot: 'The cards know what you refuse to see.',
-        crystal: 'Fate is not a request line.',
-        ouija: 'Ask, and fate shall answer. Then make it true.',
-        nyx: "I'm watching. Always watching.",
-        spells: 'Words have power. Use them wisely.'
-    };
-    
-    return `
-        <h2 class="pg-page-title" style="color: #2a1810; margin: 0 0 8px 0; font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 8px;">
-            ${emojis[tabId] || '✦'} ${names[tabId] || tabId.toUpperCase()}
-        </h2>
-        <p style="color: #4a3020; font-style: italic; font-size: 10px; margin-bottom: 15px;">
-            "${quotes[tabId] || 'Magic awaits...'}"
-        </p>
-        <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #6a5040;">
-            <p style="font-style: italic;">Coming soon...</p>
-        </div>
-    `;
-}
-
-/**
- * Build the settings page HTML
- */
-function buildSettingsPage() {
-    const theme = getTheme(settings.theme);
-    const themeOptions = Object.entries(THEMES).map(([key, t]) => 
-        `<option value="${key}" ${key === settings.theme ? 'selected' : ''}>${t.name}</option>`
-    ).join('');
-    
-    // Use darker colors for better readability on light background
-    const textDark = '#2a1810';
-    const textMid = '#4a3020';
-    const textLight = '#6a5040';
-    const toggleOff = '#a08070';  // Darker off state
-    
-    return `
-        <h2 class="pg-page-title" style="color: ${textDark}; margin: 0 0 6px 0; font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 6px;">
-            ⚙️ SETTINGS
-        </h2>
-        <p style="color: ${textMid}; font-style: italic; font-size: 10px; margin-bottom: 10px;">
-            "Adjust the mystical parameters."
-        </p>
-        
-        <div class="pg-settings-content" style="display: flex; flex-direction: column; gap: 12px; padding: 4px 0; overflow-x: hidden; max-width: 100%; box-sizing: border-box;">
-            
-            <!-- Theme Selection -->
-            <div class="pg-setting-group" style="display: flex; flex-direction: column; gap: 4px;">
-                <label style="color: ${textDark}; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">
-                    ✦ Theme
-                </label>
-                <select id="pg-theme-select" style="
-                    padding: 6px 8px;
-                    border-radius: 6px;
-                    border: 2px solid ${theme.main};
-                    background: rgba(255,255,255,0.5);
-                    color: ${textDark};
-                    font-size: 11px;
-                    cursor: pointer;
-                    outline: none;
-                ">
-                    ${themeOptions}
-                </select>
-                <span style="color: ${textLight}; font-size: 9px; font-style: italic;">
-                    ${theme.desc}
-                </span>
-            </div>
-            
-            <!-- Grimoire Position -->
-            <div class="pg-setting-group" style="display: flex; flex-direction: column; gap: 4px;">
-                <label style="color: ${textDark}; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">
-                    ✦ Grimoire Position
-                </label>
-                <div style="display: flex; align-items: center; gap: 6px;">
-                    <span style="color: ${textMid}; font-size: 9px;">↑</span>
-                    <input type="range" id="pg-position-slider" 
-                        min="-200" max="200" value="${settings.grimoireOffsetY || 0}"
-                        style="
-                            flex: 1;
-                            height: 4px;
-                            border-radius: 2px;
-                            background: ${theme.main}50;
-                            outline: none;
-                            cursor: pointer;
-                            accent-color: ${theme.main};
-                        "
-                    />
-                    <span style="color: ${textMid}; font-size: 9px;">↓</span>
-                    <span id="pg-position-value" style="color: ${textDark}; font-size: 9px; min-width: 30px; text-align: right;">
-                        ${settings.grimoireOffsetY || 0}px
-                    </span>
-                </div>
-                <button id="pg-position-reset" style="
-                    align-self: flex-start;
-                    padding: 3px 8px;
-                    border-radius: 4px;
-                    border: 1px solid ${theme.main};
-                    background: rgba(255,255,255,0.3);
-                    color: ${textMid};
-                    font-size: 9px;
-                    cursor: pointer;
-                ">
-                    Reset
-                </button>
-            </div>
-            
-            <!-- Lock Position -->
-            <div class="pg-setting-group" style="display: flex; align-items: center; gap: 8px; flex-shrink: 0;">
-                <label style="color: ${textDark}; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; flex: 1;">
-                    ✦ Lock FAB
-                </label>
-                <label class="pg-toggle" style="
-                    position: relative;
-                    width: 36px;
-                    height: 20px;
-                    cursor: pointer;
-                    display: inline-block;
-                    flex-shrink: 0;
-                ">
-                    <input type="checkbox" id="pg-lock-toggle" 
-                        ${settings.grimoireLocked ? 'checked' : ''}
-                        style="opacity: 0; width: 0; height: 0; position: absolute;"
-                    />
-                    <span class="pg-toggle-slider" style="
-                        position: absolute;
-                        inset: 0;
-                        background: ${settings.grimoireLocked ? theme.main : toggleOff};
-                        border-radius: 20px;
-                        transition: background 0.3s;
-                    "></span>
-                    <span class="pg-toggle-knob" style="
-                        position: absolute;
-                        top: 2px;
-                        left: ${settings.grimoireLocked ? '18px' : '2px'};
-                        width: 16px;
-                        height: 16px;
-                        background: white;
-                        border-radius: 50%;
-                        transition: left 0.3s;
-                        box-shadow: 0 1px 3px rgba(0,0,0,0.3);
-                    "></span>
-                </label>
-            </div>
-            
-            <!-- Fancy Font Toggle -->
-            <div class="pg-setting-group" style="display: flex; align-items: center; gap: 8px; flex-shrink: 0;">
-                <label style="color: ${textDark}; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; flex: 1;">
-                    ✦ Fancy Headers
-                </label>
-                <label class="pg-toggle" style="
-                    position: relative;
-                    width: 36px;
-                    height: 20px;
-                    cursor: pointer;
-                    display: inline-block;
-                    flex-shrink: 0;
-                ">
-                    <input type="checkbox" id="pg-fancy-font-toggle" 
-                        ${settings.fancyFont ? 'checked' : ''}
-                        style="opacity: 0; width: 0; height: 0; position: absolute;"
-                    />
-                    <span class="pg-toggle-slider" id="pg-fancy-slider" style="
-                        position: absolute;
-                        inset: 0;
-                        background: ${settings.fancyFont ? theme.main : toggleOff};
-                        border-radius: 20px;
-                        transition: background 0.3s;
-                    "></span>
-                    <span class="pg-toggle-knob" id="pg-fancy-knob" style="
-                        position: absolute;
-                        top: 2px;
-                        left: ${settings.fancyFont ? '18px' : '2px'};
-                        width: 16px;
-                        height: 16px;
-                        background: white;
-                        border-radius: 50%;
-                        transition: left 0.3s;
-                        box-shadow: 0 1px 3px rgba(0,0,0,0.3);
-                    "></span>
-                </label>
-            </div>
-            <span style="color: ${textLight}; font-size: 9px; font-style: italic; margin-top: -8px;">
-                Gothic pixel font with theme glow
-            </span>
-            
-            <!-- Extension Info -->
-            <div style="margin-top: auto; padding-top: 12px; border-top: 1px solid ${theme.main}40;">
-                <p style="color: ${textLight}; font-size: 9px; text-align: center; margin: 0;">
-                    ✨ Petit Grimoire v0.1 ✨
-                </p>
-            </div>
-        </div>
-    `;
-}
-
-/**
- * Initialize settings page event listeners
- */
-function initSettingsListeners() {
-    // Debounce to prevent double-init
-    const settingsPage = document.querySelector('.pg-page[data-page="settings"]');
-    if (!settingsPage || settingsPage.dataset.initialized) return;
-    settingsPage.dataset.initialized = 'true';
-    
-    const theme = getTheme(settings.theme);
-    
-    // Theme selector
-    const themeSelect = document.getElementById('pg-theme-select');
-    if (themeSelect) {
-        themeSelect.addEventListener('change', (e) => {
-            updateSetting('theme', e.target.value);
-            // Rebuild UI to apply new theme fully
-            destroyGrimoire();
-            createGrimoire();
-            openGrimoire();
-            switchTab('settings');
-        });
-    }
-    
-    // Position slider
-    const positionSlider = document.getElementById('pg-position-slider');
-    const positionValue = document.getElementById('pg-position-value');
-    if (positionSlider) {
-        positionSlider.addEventListener('input', (e) => {
-            const val = parseInt(e.target.value);
-            if (positionValue) positionValue.textContent = `${val}px`;
-            
-            // Apply position in real-time
-            updateSetting('grimoireOffsetY', val);
-            applyGrimoireOffset(val);
-        });
-    }
-    
-    // Reset position button
-    const resetBtn = document.getElementById('pg-position-reset');
-    if (resetBtn) {
-        resetBtn.addEventListener('click', () => {
-            updateSetting('grimoireOffsetY', 0);
-            if (positionSlider) positionSlider.value = 0;
-            if (positionValue) positionValue.textContent = '0px';
-            applyGrimoireOffset(0);
-        });
-    }
-    
-    // Lock toggle
-    const lockToggle = document.getElementById('pg-lock-toggle');
-    const toggleOff = '#a08070';  // Match the build function
-    if (lockToggle) {
-        lockToggle.addEventListener('change', (e) => {
-            const isLocked = e.target.checked;
-            updateSetting('grimoireLocked', isLocked);
-            
-            // Update visual state
-            const slider = lockToggle.parentElement.querySelector('.pg-toggle-slider');
-            const knob = lockToggle.parentElement.querySelector('.pg-toggle-knob');
-            if (slider) slider.style.background = isLocked ? theme.main : toggleOff;
-            if (knob) knob.style.left = isLocked ? '18px' : '2px';
-        });
-    }
-    
-    // Fancy font toggle
-    const fancyFontToggle = document.getElementById('pg-fancy-font-toggle');
-    if (fancyFontToggle) {
-        fancyFontToggle.addEventListener('change', (e) => {
-            const isEnabled = e.target.checked;
-            updateSetting('fancyFont', isEnabled);
-            
-            // Update visual state of toggle
-            const slider = document.getElementById('pg-fancy-slider');
-            const knob = document.getElementById('pg-fancy-knob');
-            if (slider) slider.style.background = isEnabled ? theme.main : toggleOff;
-            if (knob) knob.style.left = isEnabled ? '18px' : '2px';
-            
-            // Toggle fancy font class on panel
-            if (panelElement) {
-                if (isEnabled) {
-                    panelElement.classList.add('pg-fancy-font');
-                } else {
-                    panelElement.classList.remove('pg-fancy-font');
-                }
-            }
-        });
-    }
-}
-
-/**
- * Apply grimoire vertical offset in real-time
- */
-function applyGrimoireOffset(offset) {
-    const book = document.getElementById('pg-book');
-    if (!book) return;
-    
-    const vh = window.innerHeight;
-    const bookHeight = book.offsetHeight;
-    const topPosition = Math.max(0, Math.min(vh - bookHeight, (vh - bookHeight) / 2 + offset));
-    
-    book.style.marginTop = `${topPosition}px`;
 }
 
 /**
@@ -699,11 +382,15 @@ export function destroyGrimoire() {
     document.getElementById('pg-panel')?.remove();
     document.getElementById('pg-grimoire-styles')?.remove();
     document.getElementById('pg-debug')?.remove();
+    currentTab = null;
     isOpen = false;
 }
 
 /**
  * Open the grimoire
+ * 
+ * ⚠️ WARNING: The positioning math below is FRAGILE.
+ * Do not modify unless you understand the sprite coordinate system.
  */
 export function openGrimoire() {
     console.log('[PG] openGrimoire called');
@@ -832,10 +519,9 @@ export function openGrimoire() {
     // Update FAB state
     setFabOpenState(true);
     
-    // Initialize settings listeners if on settings tab
-    if (settings.activeTab === 'settings') {
-        initSettingsListeners();
-    }
+    // Initialize the active tab via tab module system
+    currentTab = settings.activeTab;
+    initTab(currentTab);
     
     console.log('[Petit Grimoire] Opened');
 }
@@ -848,6 +534,12 @@ export function closeGrimoire() {
     toastr.warning('closeGrimoire called', 'Debug');
     
     if (!panelElement) return;
+    
+    // Cleanup current tab
+    if (currentTab) {
+        cleanupTab(currentTab);
+        currentTab = null;
+    }
     
     panelElement.classList.remove('pg-open');
     panelElement.style.display = 'none';  // Override the inline display:flex
@@ -884,8 +576,14 @@ export function isGrimoireOpen() {
  * Switch to a tab
  */
 export function switchTab(tabId) {
+    // Cleanup previous tab
+    if (currentTab && currentTab !== tabId) {
+        cleanupTab(currentTab);
+    }
+    
     // Update setting
     updateSetting('activeTab', tabId);
+    currentTab = tabId;
     
     // Update tab icon visuals
     updateTabIconStates();
@@ -895,10 +593,8 @@ export function switchTab(tabId) {
         page.style.display = page.dataset.page === tabId ? 'flex' : 'none';
     });
     
-    // Initialize settings listeners when switching to settings tab
-    if (tabId === 'settings') {
-        initSettingsListeners();
-    }
+    // Initialize new tab via tab module system
+    initTab(tabId);
     
     console.log('[Petit Grimoire] Switched to tab:', tabId);
 }
