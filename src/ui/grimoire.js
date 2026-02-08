@@ -193,7 +193,7 @@ function createContent(book, scale, offsetY) {
     content.setAttribute('style', `
         position: absolute !important;
         left: 35% !important;
-        right: 6% !important;
+        right: 10% !important;
         top: 27% !important;
         bottom: 14% !important;
         padding: 3% !important;
@@ -202,6 +202,8 @@ function createContent(book, scale, offsetY) {
         color: #4a3728 !important;
         font-size: 13px !important;
         line-height: 1.4 !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
         scrollbar-width: thin !important;
         scrollbar-color: ${theme.main}40 transparent !important;
         z-index: 5 !important;
