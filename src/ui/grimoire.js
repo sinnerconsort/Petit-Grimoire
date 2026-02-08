@@ -273,10 +273,7 @@ export function openGrimoire() {
         margin: 0 !important;
         padding: 0 !important;
         box-sizing: border-box !important;
-        display: flex !important;
-        flex-direction: row !important;
-        align-items: flex-start !important;
-        justify-content: flex-end !important;
+        display: block !important;
         overflow: visible !important;
     `);
     
@@ -285,11 +282,12 @@ export function openGrimoire() {
     const book = document.getElementById('pg-book');
     if (book) {
         book.setAttribute('style', `
-            position: relative !important;
+            position: absolute !important;
+            right: 0 !important;
+            top: 0 !important;
             width: ${bookWidth}px !important;
             height: ${bookHeight}px !important;
             background: none !important;
-            margin-left: auto !important;
             flex-shrink: 0 !important;
         `);
         
