@@ -42,15 +42,25 @@ export function createGrimoire() {
     
     // =========== BOOK CONTAINER ===========
     // Uses sprite as background
-    // Book sprite is 896x720 - use CSS aspect-ratio for proper sizing
+    // Size will be recalculated when opened (see openGrimoire)
     const book = document.createElement('div');
     book.id = 'pg-book';
     
+    // Set initial size (will be recalculated on open)
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+    const spriteRatio = 720 / 896; // height / width = 0.804
+    let bookWidth = vw * 0.95;
+    let bookHeight = bookWidth * spriteRatio;
+    if (bookHeight > vh * 0.7) {
+        bookHeight = vh * 0.7;
+        bookWidth = bookHeight / spriteRatio;
+    }
+    
     Object.assign(book.style, {
         position: 'relative',
-        // Fill most of the screen width, let aspect-ratio handle height
-        width: '95vw',
-        aspectRatio: '896 / 720',
+        width: bookWidth + 'px',
+        height: bookHeight + 'px',
         margin: 'auto',
         // Sprite background
         backgroundImage: `url('${ASSET_PATHS.grimoire}/Grimoire_WithTabs.png')`,
@@ -250,6 +260,47 @@ export function destroyGrimoire() {
  */
 export function openGrimoire() {
     if (!panelElement) return;
+    
+    // Calculate book size based on current viewport
+    const book = document.getElementById('pg-book');
+    if (book) {
+        const vw = window.innerWidth;
+        const vh = window.innerHeight;
+        const spriteRatio = 720 / 896; // height / width = 0.804
+        
+        // Use 95% of viewport width
+        let bookWidth = Math.floor(vw * 0.95);
+        let bookHeight = Math.floor(bookWidth * spriteRatio);
+        
+        // If height would exceed 70% of viewport, scale down
+        const maxHeight = Math.floor(vh * 0.7);
+        if (bookHeight > maxHeight) {
+            bookHeight = maxHeight;
+            bookWidth = Math.floor(bookHeight / spriteRatio);
+        }
+        
+        console.log('[Petit Grimoire] Viewport:', { vw, vh });
+        console.log('[Petit Grimoire] Book size:', { bookWidth, bookHeight });
+        
+        // Apply size with !important to override any conflicting styles
+        book.style.cssText = `
+            position: relative;
+            width: ${bookWidth}px !important;
+            height: ${bookHeight}px !important;
+            min-width: ${bookWidth}px !important;
+            min-height: ${bookHeight}px !important;
+            max-width: ${bookWidth}px !important;
+            max-height: ${bookHeight}px !important;
+            margin: auto;
+            background-image: url('${ASSET_PATHS.grimoire}/Grimoire_WithTabs.png');
+            background-size: 100% 100%;
+            background-repeat: no-repeat;
+            background-position: center;
+            image-rendering: pixelated;
+            background-color: transparent;
+            overflow: visible;
+        `;
+    }
     
     panelElement.style.display = 'flex';
     panelElement.style.alignItems = 'center';
