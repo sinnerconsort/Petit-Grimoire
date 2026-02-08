@@ -91,7 +91,7 @@ function createTabIcons(book, scale, offsetY) {
         { id: 'tarot',    icon: 'fa-layer-group', y: 188,  label: 'Tarot' },
         { id: 'crystal',  icon: 'fa-moon',        y: 258, label: 'Crystal Ball' },
         { id: 'ouija',    icon: 'fa-ghost',       y: 328, label: 'Ouija' },
-        { id: 'nyx',      icon: 'fa-cat',         y: 398, label: 'Nyx' },
+        { id: 'nyx',      icon: 'fa-cat',         y: 395, label: 'Nyx' },
         { id: 'radio',    icon: 'fa-radio',       y: 468, label: 'Radio' },
         { id: 'settings', icon: 'fa-gear',        y: 538, label: 'Settings' },
     ];
@@ -99,7 +99,7 @@ function createTabIcons(book, scale, offsetY) {
     // Tab dimensions in sprite coordinates
     const TAB_WIDTH = 40;   // How wide the clickable area
     const TAB_HEIGHT = 45;  // Height of each tab
-    const TAB_LEFT = 100;    // X position from left edge of book portion
+    const TAB_LEFT = 125;    // X position from left edge of book portion
     
     TAB_DATA.forEach(tab => {
         const btn = document.createElement('button');
