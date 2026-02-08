@@ -326,7 +326,48 @@ export function openGrimoire() {
     // Refresh styles with current viewport size
     injectStyles();
     
-    // Add debug info visible on screen
+    // FORCE panel styles directly (CSS might not be applying)
+    Object.assign(panelElement.style, {
+        position: 'fixed',
+        top: '0',
+        left: '0',
+        width: '100vw',
+        height: '100vh',
+        zIndex: '99998',
+        background: 'rgba(0,0,0,0.85)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        margin: '0',
+        padding: '0'
+    });
+    
+    // Also force book size
+    const book = document.getElementById('pg-book');
+    if (book) {
+        const vw = window.innerWidth;
+        const vh = window.innerHeight;
+        const spriteRatio = 720 / 896;
+        
+        let bookWidth = Math.floor(vw * 0.95);
+        let bookHeight = Math.floor(bookWidth * spriteRatio);
+        
+        const maxHeight = Math.floor(vh * 0.7);
+        if (bookHeight > maxHeight) {
+            bookHeight = maxHeight;
+            bookWidth = Math.floor(bookHeight / spriteRatio);
+        }
+        
+        Object.assign(book.style, {
+            width: bookWidth + 'px',
+            height: bookHeight + 'px',
+            minWidth: bookWidth + 'px',
+            minHeight: bookHeight + 'px',
+            flexShrink: '0'
+        });
+    }
+    
+    // Debug info
     let debugEl = document.getElementById('pg-debug');
     if (!debugEl) {
         debugEl = document.createElement('div');
@@ -347,16 +388,15 @@ export function openGrimoire() {
     
     const vw = window.innerWidth;
     const vh = window.innerHeight;
-    const book = document.getElementById('pg-book');
     const bookRect = book?.getBoundingClientRect();
+    const panelRect = panelElement.getBoundingClientRect();
     
     debugEl.innerHTML = `
         VP: ${vw}x${vh}<br>
-        Book: ${bookRect?.width?.toFixed(0) || '?'}x${bookRect?.height?.toFixed(0) || '?'}<br>
-        Style: ${book?.style.width || 'none'}
+        Panel: ${panelRect.width.toFixed(0)}x${panelRect.height.toFixed(0)}<br>
+        Book: ${bookRect?.width?.toFixed(0) || '?'}x${bookRect?.height?.toFixed(0) || '?'}
     `;
     
-    // Toggle the class
     panelElement.classList.add('pg-open');
     isOpen = true;
     
