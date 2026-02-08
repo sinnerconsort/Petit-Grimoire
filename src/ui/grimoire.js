@@ -63,19 +63,9 @@ function injectStyles() {
         
         #pg-book {
             position: relative !important;
-            width: ${bookWidth}px !important;
-            height: ${bookHeight}px !important;
-            min-width: ${bookWidth}px !important;
-            min-height: ${bookHeight}px !important;
-            margin: auto !important;
-            background-image: url('${ASSET_PATHS.grimoire}/Grimoire_WithTabs.png') !important;
-            background-size: 100% 100% !important;
-            background-repeat: no-repeat !important;
-            background-position: center !important;
-            image-rendering: pixelated !important;
-            background-color: transparent !important;
             overflow: visible !important;
             flex-shrink: 0 !important;
+            background: none !important;
         }
         
         #pg-sidebar {
@@ -314,6 +304,7 @@ export function destroyGrimoire() {
     }
     document.getElementById('pg-panel')?.remove();
     document.getElementById('pg-grimoire-styles')?.remove();
+    document.getElementById('pg-debug')?.remove();
     isOpen = false;
 }
 
@@ -371,7 +362,7 @@ export function openGrimoire() {
             min-width: ${bookWidth}px !important;
             min-height: ${bookHeight}px !important;
             flex-shrink: 0 !important;
-            border: 3px solid lime !important;
+            background: none !important;
         `);
         
         // Use a div with background-image
@@ -431,7 +422,6 @@ export function openGrimoire() {
                 padding-top: 2% !important;
                 gap: 4% !important;
                 z-index: 5 !important;
-                border: 2px solid cyan !important;
             `);
         }
         
@@ -450,12 +440,12 @@ export function openGrimoire() {
                 color: #4a3728 !important;
                 font-size: 13px !important;
                 z-index: 4 !important;
-                border: 2px solid magenta !important;
             `);
         }
     }
     
-    // Debug info
+    // Debug (comment out when done)
+    /*
     let debugEl = document.getElementById('pg-debug');
     if (!debugEl) {
         debugEl = document.createElement('div');
@@ -483,6 +473,7 @@ export function openGrimoire() {
         BG size: ${spriteStyle?.backgroundSize || 'none'}<br>
         BG pos: ${spriteStyle?.backgroundPosition || 'none'}
     `;
+    */
     
     panelElement.classList.add('pg-open');
     isOpen = true;
