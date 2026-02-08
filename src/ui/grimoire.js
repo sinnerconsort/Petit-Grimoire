@@ -754,19 +754,19 @@ export function openGrimoire() {
         const grimoireYOffset = settings.grimoireOffsetY || 0;
         const topPosition = Math.max(0, (vh - bookHeight) / 2 + grimoireYOffset);
         
-        // Position so RIGHT edge of book is at RIGHT edge of viewport
-        // left = vw - bookWidth (will be negative, pushing tabs off left side)
-        const leftPosition = vw - bookWidth;
+        toastr.info(`vw:${vw} bookW:${bookWidth} bookH:${bookHeight}`, 'Sizing');
         
-        toastr.info(`vw:${vw} bookW:${bookWidth} left:${leftPosition}`, 'Sizing');
-        
+        // Right edge anchored to right side of viewport
+        // Tabs extend off the left
         book.setAttribute('style', `
             position: absolute !important;
-            left: ${leftPosition}px !important;
+            right: 0px !important;
+            left: auto !important;
             top: ${topPosition}px !important;
             width: ${bookWidth}px !important;
             height: ${bookHeight}px !important;
             background: none !important;
+            margin: 0 !important;
         `);
         
         // Sprite setup
