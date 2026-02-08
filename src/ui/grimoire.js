@@ -721,22 +721,16 @@ export function openGrimoire() {
     const vw = window.innerWidth;
     const vh = window.innerHeight;
     
-    // ============ MAXIMIZE BOOK SIZE ============
-    // Book as wide as possible, capped at 70% viewport height
+    // ============ HEIGHT-FIRST SIZING ============
+    // Book fills 80% of viewport height, width follows aspect ratio
+    // Anchored to RIGHT edge - tabs may extend off left, page stays visible
     const bookInSpriteWidth = 586;
     const bookInSpriteHeight = 665;
-    const bookAspectRatio = bookInSpriteHeight / bookInSpriteWidth;  // ~1.135
+    const bookAspectRatio = bookInSpriteWidth / bookInSpriteHeight;  // ~0.88
     
-    // Start with full viewport width (tabs reach left, binding at right)
-    let bookWidth = vw;
-    let bookHeight = Math.floor(bookWidth * bookAspectRatio);
-    
-    // If too tall, cap at 70% viewport height and shrink width
-    const maxHeight = Math.floor(vh * 0.7);
-    if (bookHeight > maxHeight) {
-        bookHeight = maxHeight;
-        bookWidth = Math.floor(bookHeight / bookAspectRatio);
-    }
+    // Height is 80% of viewport
+    let bookHeight = Math.floor(vh * 0.80);
+    let bookWidth = Math.floor(bookHeight * bookAspectRatio);
     
     // Panel as container
     panelElement.setAttribute('style', `
@@ -760,7 +754,7 @@ export function openGrimoire() {
         const grimoireYOffset = settings.grimoireOffsetY || 0;
         const topPosition = Math.max(0, (vh - bookHeight) / 2 + grimoireYOffset);
         
-        toastr.info(`vw:${vw} vh:${vh} bookW:${bookWidth} bookH:${bookHeight} (max:${maxHeight})`, 'Sizing');
+        toastr.info(`vh:${vh} 80%=${Math.floor(vh*0.8)} bookW:${bookWidth} bookH:${bookHeight}`, 'Sizing');
         
         // Right edge anchored to right side of viewport
         // Tabs extend off the left
