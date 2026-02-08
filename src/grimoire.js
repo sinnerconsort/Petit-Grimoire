@@ -47,7 +47,7 @@ function injectStyles() {
             width: 100% !important;
             height: 100% !important;
             z-index: 99998 !important;
-            background: rgba(0,0,0,0.85) !important;
+            background: rgba(0,0,0,0.6) !important;
             backdrop-filter: blur(4px) !important;
             display: none;
             align-items: center !important;
@@ -63,19 +63,9 @@ function injectStyles() {
         
         #pg-book {
             position: relative !important;
-            width: ${bookWidth}px !important;
-            height: ${bookHeight}px !important;
-            min-width: ${bookWidth}px !important;
-            min-height: ${bookHeight}px !important;
-            margin: auto !important;
-            background-image: url('${ASSET_PATHS.grimoire}/Grimoire_WithTabs.png') !important;
-            background-size: 100% 100% !important;
-            background-repeat: no-repeat !important;
-            background-position: center !important;
-            image-rendering: pixelated !important;
-            background-color: transparent !important;
             overflow: visible !important;
             flex-shrink: 0 !important;
+            background: none !important;
         }
         
         #pg-sidebar {
@@ -314,6 +304,7 @@ export function destroyGrimoire() {
     }
     document.getElementById('pg-panel')?.remove();
     document.getElementById('pg-grimoire-styles')?.remove();
+    document.getElementById('pg-debug')?.remove();
     isOpen = false;
 }
 
@@ -327,17 +318,17 @@ export function openGrimoire() {
     const vh = window.innerHeight;
     
     // Calculate book size
-    // NOTE: The sprite canvas is 896x720, but the book only occupies ~506x650 of it
-    // Use the BOOK's aspect ratio, not the canvas ratio
-    const bookInSpriteWidth = 506;
-    const bookInSpriteHeight = 650;
-    const bookAspectRatio = bookInSpriteHeight / bookInSpriteWidth; // ~1.28 (taller than wide)
+    // NOTE: The sprite canvas is 896x720, but the book+tabs only occupies ~586x665 of it
+    // Use the BOOK WITH TABS aspect ratio
+    const bookWithTabsWidth = 586;
+    const bookWithTabsHeight = 665;
+    const bookAspectRatio = bookWithTabsHeight / bookWithTabsWidth; // ~1.135 (slightly taller than wide)
     
-    let bookWidth = Math.floor(vw * 0.85);  // 85% of viewport width
+    let bookWidth = Math.floor(vw * 0.90);  // 90% of viewport width
     let bookHeight = Math.floor(bookWidth * bookAspectRatio);
     
-    // Cap at 75% viewport height
-    const maxHeight = Math.floor(vh * 0.75);
+    // Cap at 70% viewport height
+    const maxHeight = Math.floor(vh * 0.70);
     if (bookHeight > maxHeight) {
         bookHeight = maxHeight;
         bookWidth = Math.floor(bookHeight / bookAspectRatio);
@@ -352,7 +343,7 @@ export function openGrimoire() {
         height: ${vh}px !important;
         min-height: ${vh}px !important;
         z-index: 99998 !important;
-        background: rgba(0,0,0,0.85) !important;
+        background: rgba(0,0,0,0.6) !important;
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
@@ -371,13 +362,13 @@ export function openGrimoire() {
             min-width: ${bookWidth}px !important;
             min-height: ${bookHeight}px !important;
             flex-shrink: 0 !important;
-            border: 3px solid lime !important;
+            background: none !important;
         `);
         
         // Use a div with background-image
         // NOTE: The sprite has the book on the RIGHT side of a 896x720 canvas
-        // Book appears to occupy roughly x:390 to x:896 (506px wide) and full height
-        // We need to crop/position to show just the book
+        // Book WITH TABS spans from ~x:310 to ~x:896 (586px wide) 
+        // Height is ~650px starting from top
         
         let spriteDiv = document.getElementById('pg-book-sprite');
         if (!spriteDiv) {
@@ -386,19 +377,20 @@ export function openGrimoire() {
             book.insertBefore(spriteDiv, book.firstChild);
         }
         
-        // The actual book in the sprite is roughly 506x650 positioned at the right
-        // Original canvas: 896x720, book starts at ~x:390
-        // Scale factor to fit our bookWidth
+        // Revised measurements including tabs
         const spriteFullWidth = 896;
         const spriteFullHeight = 720;
-        const bookInSpriteWidth = 506;  // approximate width of book in sprite
-        const bookInSpriteX = 390;      // where book starts in sprite
+        const bookWithTabsWidth = 586;   // Book body + tabs
+        const bookWithTabsHeight = 665;  // Approximate visible height
+        const bookStartX = 310;          // Where book+tabs start in sprite
+        const bookStartY = 25;           // Small top margin in sprite
         
         // Scale the full sprite so the book portion fits our element
-        const scale = bookWidth / bookInSpriteWidth;
+        const scale = bookWidth / bookWithTabsWidth;
         const scaledSpriteWidth = Math.floor(spriteFullWidth * scale);
         const scaledSpriteHeight = Math.floor(spriteFullHeight * scale);
-        const offsetX = Math.floor(bookInSpriteX * scale);
+        const offsetX = Math.floor(bookStartX * scale);
+        const offsetY = Math.floor(bookStartY * scale);
         
         spriteDiv.setAttribute('style', `
             position: absolute !important;
@@ -408,54 +400,53 @@ export function openGrimoire() {
             height: ${bookHeight}px !important;
             background-image: url('${ASSET_PATHS.grimoire}/Grimoire_WithTabs.png') !important;
             background-size: ${scaledSpriteWidth}px ${scaledSpriteHeight}px !important;
-            background-position: -${offsetX}px 0 !important;
+            background-position: -${offsetX}px -${offsetY}px !important;
             background-repeat: no-repeat !important;
             image-rendering: pixelated !important;
             pointer-events: none !important;
             z-index: 0 !important;
         `);
         
-        // Force sidebar positioning relative to book
+        // Force sidebar positioning to align with sprite tabs
+        // Tabs in sprite are roughly 14% of width, starting at 12% from top
         const sidebar = document.getElementById('pg-sidebar');
         if (sidebar) {
             sidebar.setAttribute('style', `
                 position: absolute !important;
                 left: 0 !important;
-                top: 10% !important;
-                bottom: 15% !important;
-                width: 12% !important;
+                top: 12% !important;
+                bottom: 20% !important;
+                width: 14% !important;
                 display: flex !important;
                 flex-direction: column !important;
-                justify-content: flex-start !important;
+                justify-content: space-between !important;
                 align-items: center !important;
-                padding-top: 2% !important;
-                gap: 4% !important;
+                padding: 2% 0 !important;
                 z-index: 5 !important;
-                border: 2px solid cyan !important;
             `);
         }
         
-        // Force content positioning relative to book
+        // Force content positioning - after tabs, inside page area
         const content = document.getElementById('pg-content');
         if (content) {
             content.setAttribute('style', `
                 position: absolute !important;
-                left: 14% !important;
-                right: 6% !important;
-                top: 8% !important;
-                bottom: 10% !important;
+                left: 18% !important;
+                right: 4% !important;
+                top: 6% !important;
+                bottom: 8% !important;
                 padding: 3% !important;
                 overflow-y: auto !important;
                 overflow-x: hidden !important;
                 color: #4a3728 !important;
                 font-size: 13px !important;
                 z-index: 4 !important;
-                border: 2px solid magenta !important;
             `);
         }
     }
     
-    // Debug info
+    // Debug (comment out when done)
+    /*
     let debugEl = document.getElementById('pg-debug');
     if (!debugEl) {
         debugEl = document.createElement('div');
@@ -483,6 +474,7 @@ export function openGrimoire() {
         BG size: ${spriteStyle?.backgroundSize || 'none'}<br>
         BG pos: ${spriteStyle?.backgroundPosition || 'none'}
     `;
+    */
     
     panelElement.classList.add('pg-open');
     isOpen = true;
