@@ -490,32 +490,6 @@ function buildSettingsPage() {
                 </button>
             </div>
             
-            <!-- Grimoire Scale -->
-            <div class="pg-setting-group" style="display: flex; flex-direction: column; gap: 4px;">
-                <label style="color: ${textDark}; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">
-                    ✦ Grimoire Size
-                </label>
-                <div style="display: flex; align-items: center; gap: 6px;">
-                    <span style="color: ${textMid}; font-size: 9px;">−</span>
-                    <input type="range" id="pg-scale-slider" 
-                        min="0.8" max="1.5" step="0.05" value="${settings.grimoireScale || 1.0}"
-                        style="
-                            flex: 1;
-                            height: 4px;
-                            border-radius: 2px;
-                            background: ${theme.main}50;
-                            outline: none;
-                            cursor: pointer;
-                            accent-color: ${theme.main};
-                        "
-                    />
-                    <span style="color: ${textMid}; font-size: 9px;">+</span>
-                    <span id="pg-scale-value" style="color: ${textDark}; font-size: 9px; min-width: 35px; text-align: right;">
-                        ${Math.round((settings.grimoireScale || 1.0) * 100)}%
-                    </span>
-                </div>
-            </div>
-            
             <!-- Lock Position -->
             <div class="pg-setting-group" style="display: flex; align-items: center; gap: 8px; flex-shrink: 0;">
                 <label style="color: ${textDark}; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; flex: 1;">
@@ -654,26 +628,6 @@ function initSettingsListeners() {
         });
     }
     
-    // Scale slider
-    const scaleSlider = document.getElementById('pg-scale-slider');
-    const scaleValue = document.getElementById('pg-scale-value');
-    if (scaleSlider) {
-        scaleSlider.addEventListener('input', (e) => {
-            const val = parseFloat(e.target.value);
-            if (scaleValue) scaleValue.textContent = `${Math.round(val * 100)}%`;
-            updateSetting('grimoireScale', val);
-        });
-        
-        // Apply scale on release (rebuild needed)
-        scaleSlider.addEventListener('change', () => {
-            // Rebuild to apply new scale
-            destroyGrimoire();
-            createGrimoire();
-            openGrimoire();
-            switchTab('settings');
-        });
-    }
-    
     // Lock toggle
     const lockToggle = document.getElementById('pg-lock-toggle');
     const toggleOff = '#a08070';  // Match the build function
@@ -762,24 +716,13 @@ export function openGrimoire() {
     // Calculate book size - PAGE should fill screen, tabs extend off left
     const bookInSpriteWidth = 586;
     const bookInSpriteHeight = 665;
-    const pagePortionRatio = 0.82;  // Page portion of the book sprite
+    const pagePortionRatio = 0.82;
     const bookAspectRatio = bookInSpriteHeight / bookInSpriteWidth;
     
-    // Apply user scale setting (default 1.0)
-    const userScale = settings.grimoireScale || 1.0;
-    
-    // Calculate base book size that would make PAGE fill the viewport width
-    let baseBookWidth = Math.floor(vw / pagePortionRatio);
-    let bookWidth = Math.floor(baseBookWidth * userScale);
+    let bookWidth = Math.floor(vw / pagePortionRatio);
     let bookHeight = Math.floor(bookWidth * bookAspectRatio);
     
-    // Cap height at 95% viewport to prevent vertical overflow
-    if (bookHeight > vh * 0.95) {
-        bookHeight = Math.floor(vh * 0.95);
-        bookWidth = Math.floor(bookHeight / bookAspectRatio);
-    }
-    
-    // Panel as overlay container
+    // Panel as flex container
     panelElement.setAttribute('style', `
         position: fixed !important;
         top: 0 !important;
@@ -791,7 +734,9 @@ export function openGrimoire() {
         margin: 0 !important;
         padding: 0 !important;
         box-sizing: border-box !important;
-        overflow: hidden !important;
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: flex-start !important;
     `);
     
     const book = document.getElementById('pg-book');
@@ -800,15 +745,14 @@ export function openGrimoire() {
         const grimoireYOffset = settings.grimoireOffsetY || 0;
         const topPosition = Math.max(0, Math.min(vh - bookHeight, (vh - bookHeight) / 2 + grimoireYOffset));
         
-        // ANCHOR TO RIGHT EDGE - book expands to the left
-        // Tabs will extend past left viewport edge if needed
         book.setAttribute('style', `
-            position: absolute !important;
-            right: 0 !important;
-            top: ${topPosition}px !important;
+            position: relative !important;
             width: ${bookWidth}px !important;
             height: ${bookHeight}px !important;
             background: none !important;
+            margin-left: auto !important;
+            margin-top: ${topPosition}px !important;
+            flex-shrink: 0 !important;
         `);
         
         // Sprite setup
