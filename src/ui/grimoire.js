@@ -41,17 +41,17 @@ export function createGrimoire() {
     });
     
     // =========== BOOK CONTAINER ===========
-    // Uses sprite as background - simple viewport sizing
+    // Uses sprite as background - large to fill screen like mockups
     const book = document.createElement('div');
     book.id = 'pg-book';
     
     Object.assign(book.style, {
         position: 'relative',
-        // Simple approach: use viewport height as the driver
+        // Large size to match mockups - 70% of viewport height
         // Book sprite is wider than tall (896:720 = 1.244:1)
-        height: '60vh',
-        width: 'calc(60vh * 1.244)',
-        maxWidth: '95vw',
+        height: '70vh',
+        width: 'calc(70vh * 1.244)',
+        maxWidth: '98vw',
         margin: 'auto',
         // Sprite background
         backgroundImage: `url('${ASSET_PATHS.grimoire}/Grimoire_WithTabs.png')`,
@@ -73,36 +73,6 @@ export function createGrimoire() {
     const content = createContent(theme);
     book.appendChild(content);
     
-    // =========== CLOSE BUTTON ===========
-    const closeBtn = document.createElement('button');
-    closeBtn.innerHTML = '×';
-    closeBtn.title = 'Close';
-    Object.assign(closeBtn.style, {
-        position: 'absolute',
-        top: '8%',
-        right: '8%',
-        width: '24px',
-        height: '24px',
-        background: theme.main,
-        border: 'none',
-        borderRadius: '50%',
-        color: theme.bg,
-        fontSize: '16px',
-        fontWeight: 'bold',
-        lineHeight: '1',
-        cursor: 'pointer',
-        zIndex: '10',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        opacity: '0.8',
-        transition: 'opacity 0.2s'
-    });
-    closeBtn.addEventListener('mouseenter', () => closeBtn.style.opacity = '1');
-    closeBtn.addEventListener('mouseleave', () => closeBtn.style.opacity = '0.8');
-    closeBtn.addEventListener('click', closeGrimoire);
-    book.appendChild(closeBtn);
-    
     panel.appendChild(book);
     document.body.appendChild(panel);
     
@@ -112,22 +82,24 @@ export function createGrimoire() {
 
 /**
  * Create the tab sidebar - positioned over sprite's visual tabs
- * Tabs are absolutely positioned on the left edge
+ * Tabs align with the book spine on the left edge
  */
 function createSidebar(theme) {
     const sidebar = document.createElement('div');
     sidebar.id = 'pg-sidebar';
     Object.assign(sidebar.style, {
         position: 'absolute',
+        // Position over the left spine tabs in the sprite
         left: '0',
-        top: '15%',
+        top: '10%',
         bottom: '15%',
-        width: '12%',
+        width: '10%',
         display: 'flex',
         flexDirection: 'column',
-        justifyContent: 'space-around',
+        justifyContent: 'flex-start',
         alignItems: 'center',
-        padding: '5% 0',
+        paddingTop: '2%',
+        gap: '2%',
         zIndex: '5'
     });
     
@@ -140,32 +112,32 @@ function createSidebar(theme) {
         
         const isActive = tab.id === settings.activeTab;
         Object.assign(btn.style, {
-            width: '28px',
-            height: '28px',
-            background: isActive ? theme.main : 'transparent',
-            border: `2px solid ${isActive ? theme.main : theme.main + '60'}`,
-            borderRadius: '6px',
-            color: isActive ? theme.bg : theme.main,
-            fontSize: '12px',
+            width: '75%',
+            aspectRatio: '1',
+            background: isActive ? theme.main + '40' : 'transparent',
+            border: 'none',
+            borderRadius: '4px',
+            color: isActive ? theme.main : theme.textDim,
+            fontSize: '14px',
             cursor: 'pointer',
             transition: 'all 0.2s ease',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            opacity: isActive ? '1' : '0.7'
+            opacity: isActive ? '1' : '0.6'
         });
         
         btn.addEventListener('click', () => switchTab(tab.id));
         btn.addEventListener('mouseenter', () => {
             if (btn.dataset.tab !== settings.activeTab) {
                 btn.style.opacity = '1';
-                btn.style.borderColor = theme.main;
+                btn.style.background = theme.main + '20';
             }
         });
         btn.addEventListener('mouseleave', () => {
             if (btn.dataset.tab !== settings.activeTab) {
-                btn.style.opacity = '0.7';
-                btn.style.borderColor = theme.main + '60';
+                btn.style.opacity = '0.6';
+                btn.style.background = 'transparent';
             }
         });
         
@@ -184,16 +156,17 @@ function createContent(theme) {
     Object.assign(content.style, {
         position: 'absolute',
         // Position inside the "page" area of the sprite
-        // Adjust these percentages based on your sprite's layout
-        left: '15%',
-        right: '8%',
-        top: '12%',
-        bottom: '12%',
-        padding: '10px',
+        // Starts after the spine/tabs, with padding from edges
+        left: '14%',
+        right: '6%',
+        top: '8%',
+        bottom: '10%',
+        padding: '3%',
         overflowY: 'auto',
-        color: theme.textLight,
-        display: 'flex',
-        flexDirection: 'column',
+        overflowX: 'hidden',
+        color: '#4a3728',  // Dark brown text for parchment
+        fontSize: '13px',
+        lineHeight: '1.4',
         // Subtle scrollbar
         scrollbarWidth: 'thin',
         scrollbarColor: `${theme.main}40 transparent`
@@ -208,26 +181,57 @@ function createContent(theme) {
         Object.assign(page.style, {
             display: isActive ? 'flex' : 'none',
             flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            flex: '1',
-            textAlign: 'center'
+            height: '100%',
+            textAlign: 'left'
         });
         
         // Placeholder content (will be replaced by feature modules)
         page.innerHTML = `
-            <h2 style="color: ${theme.main}; margin-bottom: 10px; font-size: 16px; letter-spacing: 2px; text-shadow: 0 0 10px ${theme.main}40;">
-                ✨ ${tab.name} ✨
+            <h2 style="color: #5a4030; margin: 0 0 8px 0; font-size: 16px; font-weight: 600; display: flex; align-items: center; gap: 8px;">
+                ${getTabEmoji(tab.id)} ${tab.name.toUpperCase()}
             </h2>
-            <p style="opacity: 0.6; font-style: italic; font-size: 12px;">
-                Coming soon...
+            <p style="color: #6a5040; font-style: italic; font-size: 12px; margin-bottom: 15px;">
+                "${getTabQuote(tab.id)}"
             </p>
+            <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0.5;">
+                <p style="font-style: italic;">Coming soon...</p>
+            </div>
         `;
         
         content.appendChild(page);
     });
     
     return content;
+}
+
+/**
+ * Get emoji for tab header
+ */
+function getTabEmoji(tabId) {
+    const emojis = {
+        tarot: '🎴',
+        crystal: '🔮',
+        ouija: '👻',
+        nyx: '🐱',
+        spells: '✨',
+        settings: '⚙️'
+    };
+    return emojis[tabId] || '✦';
+}
+
+/**
+ * Get flavor quote for tab
+ */
+function getTabQuote(tabId) {
+    const quotes = {
+        tarot: 'The cards know what you refuse to see.',
+        crystal: 'Fate is not a request line.',
+        ouija: 'Ask, and fate shall answer. Then make it true.',
+        nyx: "I'm watching. Always watching.",
+        spells: 'Visual magic. No story impact—just vibes.',
+        settings: 'Tune the cosmic frequencies.'
+    };
+    return quotes[tabId] || 'Magic awaits...';
 }
 
 /**
@@ -295,10 +299,9 @@ export function switchTab(tabId) {
     // Update button styles
     document.querySelectorAll('.pg-tab-btn').forEach(btn => {
         const isActive = btn.dataset.tab === tabId;
-        btn.style.background = isActive ? theme.main : 'transparent';
-        btn.style.border = `2px solid ${isActive ? theme.main : theme.main + '60'}`;
-        btn.style.color = isActive ? theme.bg : theme.main;
-        btn.style.opacity = isActive ? '1' : '0.7';
+        btn.style.background = isActive ? theme.main + '40' : 'transparent';
+        btn.style.color = isActive ? theme.main : theme.textDim;
+        btn.style.opacity = isActive ? '1' : '0.6';
     });
     
     // Show/hide pages
@@ -317,34 +320,18 @@ export function updateGrimoireTheme() {
     if (!panelElement) return;
     
     const theme = getTheme(settings.theme);
-    const book = document.getElementById('pg-book');
     const content = document.getElementById('pg-content');
     
     if (content) {
-        content.style.color = theme.textLight;
         content.style.scrollbarColor = `${theme.main}40 transparent`;
     }
     
     // Update tab buttons
     document.querySelectorAll('.pg-tab-btn').forEach(btn => {
         const isActive = btn.dataset.tab === settings.activeTab;
-        btn.style.background = isActive ? theme.main : 'transparent';
-        btn.style.border = `2px solid ${isActive ? theme.main : theme.main + '60'}`;
-        btn.style.color = isActive ? theme.bg : theme.main;
-        btn.style.opacity = isActive ? '1' : '0.7';
-    });
-    
-    // Update close button
-    const closeBtn = book?.querySelector('button[title="Close"]');
-    if (closeBtn) {
-        closeBtn.style.background = theme.main;
-        closeBtn.style.color = theme.bg;
-    }
-    
-    // Update page titles
-    document.querySelectorAll('.pg-page h2').forEach(h2 => {
-        h2.style.color = theme.main;
-        h2.style.textShadow = `0 0 10px ${theme.main}40`;
+        btn.style.background = isActive ? theme.main + '40' : 'transparent';
+        btn.style.color = isActive ? theme.main : theme.textDim;
+        btn.style.opacity = isActive ? '1' : '0.6';
     });
 }
 
