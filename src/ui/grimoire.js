@@ -314,14 +314,14 @@ function createContent(book, scale, offsetY) {
     content.id = 'pg-content';
     
     // Position inside the "page" area of the sprite
-    // Content is contained within the visible page - scrolls if needed
-    // right: 20% accounts for binding offset pushing book off-screen
+    // Book binding is at screen edge, so content needs larger right margin
+    // to stay within visible page area
     content.setAttribute('style', `
         position: absolute !important;
-        left: 22% !important;
-        right: 20% !important;
-        top: 12% !important;
-        bottom: 8% !important;
+        left: 18% !important;
+        right: 25% !important;
+        top: 8% !important;
+        bottom: 6% !important;
         padding: 2% !important;
         overflow-y: auto !important;
         overflow-x: hidden !important;
@@ -753,7 +753,7 @@ export function openGrimoire() {
         
         // FORCE right edge positioning
         // Negative right value pushes book right to compensate for sprite padding
-        const bindingOffset = 92;  // Adjust if gap still visible
+        const bindingOffset = 89;  // Your working value
         
         book.setAttribute('style', `
             position: absolute !important;
