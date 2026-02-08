@@ -24,12 +24,12 @@ function injectStyles() {
     styleElement.textContent = `
         @keyframes pg-fab-float {
             0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-6px); }
+            50% { transform: translateY(-4px); }
         }
         
         @keyframes pg-fab-pulse {
-            0%, 100% { filter: drop-shadow(0 0 8px var(--pg-glow-color)); }
-            50% { filter: drop-shadow(0 0 16px var(--pg-glow-color)); }
+            0%, 100% { filter: drop-shadow(0 0 6px var(--pg-glow-color)); }
+            50% { filter: drop-shadow(0 0 12px var(--pg-glow-color)); }
         }
         
         @keyframes pg-fab-spin {
@@ -39,12 +39,12 @@ function injectStyles() {
         
         @keyframes pg-fab-glow-pulse {
             0%, 100% { 
-                filter: drop-shadow(0 0 12px var(--pg-glow-color)) 
-                        drop-shadow(0 0 24px var(--pg-glow-color));
+                filter: drop-shadow(0 0 8px var(--pg-glow-color)) 
+                        drop-shadow(0 0 16px var(--pg-glow-color));
             }
             50% { 
-                filter: drop-shadow(0 0 20px var(--pg-glow-color)) 
-                        drop-shadow(0 0 40px var(--pg-glow-color));
+                filter: drop-shadow(0 0 14px var(--pg-glow-color)) 
+                        drop-shadow(0 0 28px var(--pg-glow-color));
             }
         }
         
@@ -109,11 +109,13 @@ function injectStyles() {
             position: absolute;
             top: 50%;
             left: 50%;
-            width: 120px;
-            height: 120px;
+            width: 90px;
+            height: 90px;
+            margin-left: -45px;
+            margin-top: -45px;
             border-radius: 50%;
-            border: 3px solid var(--pg-glow-color);
-            box-shadow: 0 0 20px var(--pg-glow-color), inset 0 0 20px var(--pg-glow-color);
+            border: 2px solid var(--pg-glow-color);
+            box-shadow: 0 0 15px var(--pg-glow-color), inset 0 0 15px var(--pg-glow-color);
             animation: pg-sparkle-burst 0.6s ease-out forwards;
             pointer-events: none;
         }
@@ -144,8 +146,8 @@ export function createFab(onToggle) {
         left: pos.x + 'px',
         top: pos.y + 'px',
         zIndex: '99999',
-        width: '64px',
-        height: '64px',
+        width: '48px',
+        height: '48px',
         // NO circle - transparent background
         background: 'transparent',
         border: 'none',
@@ -158,7 +160,7 @@ export function createFab(onToggle) {
         userSelect: 'none',
         touchAction: 'none',
         // Filter for glow effect
-        filter: `drop-shadow(0 0 8px ${theme.main}66)`
+        filter: `drop-shadow(0 0 6px ${theme.main}66)`
     });
     
     // Create icon image (the sprite IS the button)
@@ -167,8 +169,8 @@ export function createFab(onToggle) {
     img.alt = '✨';
     img.draggable = false;
     Object.assign(img.style, {
-        width: '64px',
-        height: '64px',
+        width: '48px',
+        height: '48px',
         imageRendering: 'pixelated',
         pointerEvents: 'none'
     });
@@ -177,13 +179,13 @@ export function createFab(onToggle) {
     img.onerror = () => {
         fab.innerHTML = '✨';
         Object.assign(fab.style, {
-            fontSize: '32px',
+            fontSize: '24px',
             color: theme.main,
             background: `linear-gradient(135deg, ${theme.cardBg}, ${theme.bg})`,
-            border: `3px solid ${theme.main}`,
+            border: `2px solid ${theme.main}`,
             borderRadius: '50%',
-            width: '56px',
-            height: '56px'
+            width: '42px',
+            height: '42px'
         });
     };
     
@@ -218,7 +220,7 @@ export function updateFabTheme() {
     
     // Update glow color
     fabElement.style.setProperty('--pg-glow-color', theme.main + '88');
-    fabElement.style.filter = `drop-shadow(0 0 8px ${theme.main}66)`;
+    fabElement.style.filter = `drop-shadow(0 0 6px ${theme.main}66)`;
     
     const img = fabElement.querySelector('img');
     if (img) {
