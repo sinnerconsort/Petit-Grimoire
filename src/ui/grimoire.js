@@ -317,21 +317,22 @@ export function openGrimoire() {
     const vw = window.innerWidth;
     const vh = window.innerHeight;
     
-    // Calculate book size - we want it BIG (half the screen)
+    // Calculate book size - match the target mockup
     // The book+tabs in the sprite is ~586x665, we'll crop to show just that
     const bookInSpriteWidth = 586;
     const bookInSpriteHeight = 665;
     const bookAspectRatio = bookInSpriteHeight / bookInSpriteWidth; // ~1.135
     
-    // Fill most of the screen width
-    let bookWidth = Math.floor(vw * 1.20);
-    let bookHeight = Math.floor(bookWidth * bookAspectRatio);
+    // Target: book fills ~75% of viewport height
+    const targetHeight = Math.floor(vh * 0.75);
+    let bookHeight = targetHeight;
+    let bookWidth = Math.floor(bookHeight / bookAspectRatio);
     
-    // Cap at 50% viewport height (half the screen)
-    const maxHeight = Math.floor(vh * 0.60);
-    if (bookHeight > maxHeight) {
-        bookHeight = maxHeight;
-        bookWidth = Math.floor(bookHeight / bookAspectRatio);
+    // If too wide for screen, scale down
+    const maxWidth = Math.floor(vw * 0.95);
+    if (bookWidth > maxWidth) {
+        bookWidth = maxWidth;
+        bookHeight = Math.floor(bookWidth * bookAspectRatio);
     }
     
     // Use setAttribute with !important to FORCE styles
@@ -403,16 +404,16 @@ export function openGrimoire() {
             z-index: 0 !important;
         `);
         
-        // Sidebar tabs - positioned on the left edge of our cropped view
-        // In the cropped portion, tabs are at the left edge (0-13%)
+        // Sidebar tabs - on the left edge where tab shapes appear
+        // Based on target mockup: tabs at ~0-10% from left
         const sidebar = document.getElementById('pg-sidebar');
         if (sidebar) {
             sidebar.setAttribute('style', `
                 position: absolute !important;
                 left: 0 !important;
-                top: 10% !important;
-                bottom: 15% !important;
-                width: 13% !important;
+                top: 8% !important;
+                bottom: 12% !important;
+                width: 12% !important;
                 display: flex !important;
                 flex-direction: column !important;
                 justify-content: space-between !important;
@@ -422,21 +423,21 @@ export function openGrimoire() {
             `);
         }
         
-        // Content area - inside the page, after the tabs
-        // Page area in cropped view: ~15% to ~95% horizontal, ~6% to ~90% vertical
+        // Content area - on the parchment page
+        // Based on target mockup: starts at ~15% from left
         const content = document.getElementById('pg-content');
         if (content) {
             content.setAttribute('style', `
                 position: absolute !important;
-                left: 16% !important;
-                right: 5% !important;
-                top: 6% !important;
-                bottom: 10% !important;
+                left: 15% !important;
+                right: 3% !important;
+                top: 5% !important;
+                bottom: 8% !important;
                 padding: 3% !important;
                 overflow-y: auto !important;
                 overflow-x: hidden !important;
                 color: #4a3728 !important;
-                font-size: 13px !important;
+                font-size: 14px !important;
                 z-index: 4 !important;
             `);
         }
