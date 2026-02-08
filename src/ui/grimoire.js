@@ -40,10 +40,10 @@ function injectStyles() {
     styleElement = document.createElement('style');
     styleElement.id = 'pg-grimoire-styles';
     styleElement.textContent = `
-        /* Font Face for Gentry Society */
+        /* Font Face for Royal Decree */
         @font-face {
-            font-family: 'Gentry Society';
-            src: url('/extensions/third-party/Petit-Grimoire/assets/fonts/Gentry_Society.ttf') format('truetype');
+            font-family: 'Royal Decree';
+            src: url('/extensions/third-party/Petit-Grimoire/assets/fonts/Royal_Decree.ttf') format('truetype');
             font-weight: normal;
             font-style: normal;
             font-display: swap;
@@ -56,7 +56,7 @@ function injectStyles() {
         
         /* Fancy font mode - headers only */
         #pg-panel.pg-fancy-font .pg-page-title {
-            font-family: 'Gentry Society', serif !important;
+            font-family: 'Royal Decree', serif !important;
             font-size: 22px !important;
             letter-spacing: 2px !important;
         }
@@ -314,14 +314,15 @@ function createContent(book, scale, offsetY) {
     content.id = 'pg-content';
     
     // Position inside the "page" area of the sprite
-    // Content is contained within the visible page - scrolls if needed
+    // Book binding is at screen edge, so content needs larger right margin
+    // to stay within visible page area
     content.setAttribute('style', `
         position: absolute !important;
-        left: 37% !important;
-        right: 20% !important;
-        top: 26% !important;
-        bottom: 10% !important;
-        padding: 3% !important;
+        left: 18% !important;
+        right: 25% !important;
+        top: 8% !important;
+        bottom: 6% !important;
+        padding: 2% !important;
         overflow-y: auto !important;
         overflow-x: hidden !important;
         color: #3a2518 !important;
@@ -752,7 +753,7 @@ export function openGrimoire() {
         
         // FORCE right edge positioning
         // Negative right value pushes book right to compensate for sprite padding
-        const bindingOffset = -85;  // Adjust if gap still visible
+        const bindingOffset = 89;  // Your working value
         
         book.setAttribute('style', `
             position: absolute !important;
