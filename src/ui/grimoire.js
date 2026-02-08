@@ -191,10 +191,10 @@ function createContent(book, scale, offsetY) {
     // These are percentages of the book container
     content.setAttribute('style', `
         position: absolute !important;
-        left: 14% !important;
-        right: 6% !important;
-        top: 8% !important;
-        bottom: 12% !important;
+        left: 18% !important;
+        right: 8% !important;
+        top: 22% !important;
+        bottom: 14% !important;
         padding: 3% !important;
         overflow-y: auto !important;
         overflow-x: hidden !important;
