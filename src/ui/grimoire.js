@@ -40,10 +40,10 @@ function injectStyles() {
     styleElement = document.createElement('style');
     styleElement.id = 'pg-grimoire-styles';
     styleElement.textContent = `
-        /* Font Face for Royal Decree */
+        /* Font Face for Gentry Society */
         @font-face {
-            font-family: 'Royal Decree';
-            src: url('/extensions/third-party/Petit-Grimoire/assets/fonts/Royal_Decree.ttf') format('truetype');
+            font-family: 'Gentry Society';
+            src: url('/extensions/third-party/Petit-Grimoire/assets/fonts/Gentry_Society.ttf') format('truetype');
             font-weight: normal;
             font-style: normal;
             font-display: swap;
@@ -56,7 +56,7 @@ function injectStyles() {
         
         /* Fancy font mode - headers only */
         #pg-panel.pg-fancy-font .pg-page-title {
-            font-family: 'Royal Decree', serif !important;
+            font-family: 'Gentry Society', serif !important;
             font-size: 22px !important;
             letter-spacing: 2px !important;
         }
@@ -753,7 +753,7 @@ export function openGrimoire() {
         
         // FORCE right edge positioning
         // Negative right value pushes book right to compensate for sprite padding
-        const bindingOffset = -89;  // Your working value
+        const bindingOffset = 89;  // Your working value
         
         book.setAttribute('style', `
             position: absolute !important;
