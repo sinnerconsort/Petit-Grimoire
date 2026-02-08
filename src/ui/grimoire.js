@@ -365,9 +365,27 @@ export function openGrimoire() {
             min-width: ${bookWidth}px !important;
             min-height: ${bookHeight}px !important;
             flex-shrink: 0 !important;
-            background: url('${ASSET_PATHS.grimoire}/Grimoire_WithTabs.png') no-repeat 0 0 / ${bookWidth}px ${bookHeight}px !important;
-            image-rendering: pixelated !important;
             border: 3px solid lime !important;
+        `);
+        
+        // Use an actual img element for the sprite
+        let spriteImg = document.getElementById('pg-book-sprite');
+        if (!spriteImg) {
+            spriteImg = document.createElement('img');
+            spriteImg.id = 'pg-book-sprite';
+            book.insertBefore(spriteImg, book.firstChild);
+        }
+        spriteImg.src = `${ASSET_PATHS.grimoire}/Grimoire_WithTabs.png`;
+        spriteImg.setAttribute('style', `
+            position: absolute !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
+            object-fit: fill !important;
+            image-rendering: pixelated !important;
+            pointer-events: none !important;
+            z-index: 0 !important;
         `);
         
         // Force sidebar positioning relative to book
