@@ -721,14 +721,16 @@ export function openGrimoire() {
     const vw = window.innerWidth;
     const vh = window.innerHeight;
     
-    // SIZE BASED ON HEIGHT - book should fill ~70-75% of viewport height
+    // SIZE BASED ON WIDTH - page portion should fill viewport width
+    // This is the ORIGINAL working calculation
     const bookInSpriteWidth = 586;
     const bookInSpriteHeight = 665;
-    const bookAspectRatio = bookInSpriteWidth / bookInSpriteHeight; // width/height
+    const pagePortionRatio = 0.82;  // Page is ~82% of book width, tabs are rest
+    const bookAspectRatio = bookInSpriteHeight / bookInSpriteWidth;  // height/width
     
-    // Book height is primary - fill most of the screen vertically
-    let bookHeight = Math.floor(vh * 0.72);
-    let bookWidth = Math.floor(bookHeight * bookAspectRatio);
+    // Calculate so the PAGE fills the viewport width
+    let bookWidth = Math.floor(vw / pagePortionRatio);
+    let bookHeight = Math.floor(bookWidth * bookAspectRatio);
     
     // Panel as container
     panelElement.setAttribute('style', `
@@ -752,9 +754,11 @@ export function openGrimoire() {
         const grimoireYOffset = settings.grimoireOffsetY || 0;
         const topPosition = Math.max(0, (vh - bookHeight) / 2 + grimoireYOffset);
         
-        // Position so RIGHT edge touches right side of screen
-        // left = viewport width - book width
+        // Position so RIGHT edge of book is at RIGHT edge of viewport
+        // left = vw - bookWidth (will be negative, pushing tabs off left side)
         const leftPosition = vw - bookWidth;
+        
+        toastr.info(`vw:${vw} bookW:${bookWidth} left:${leftPosition}`, 'Sizing');
         
         book.setAttribute('style', `
             position: absolute !important;
