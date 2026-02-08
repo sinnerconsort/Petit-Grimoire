@@ -421,7 +421,7 @@ export function openGrimoire() {
             background: red !important;
             color: white !important;
             padding: 5px 10px !important;
-            font-size: 12px !important;
+            font-size: 11px !important;
             z-index: 999999 !important;
             font-family: monospace !important;
         `);
@@ -429,11 +429,16 @@ export function openGrimoire() {
     }
     
     const bookRect = book?.getBoundingClientRect();
+    const sidebar = document.getElementById('pg-sidebar');
+    const content = document.getElementById('pg-content');
+    const sidebarRect = sidebar?.getBoundingClientRect();
+    const contentRect = content?.getBoundingClientRect();
     
     debugEl.innerHTML = `
-        VP: ${vw}x${vh}<br>
-        Book: ${bookRect?.width?.toFixed(0)}x${bookRect?.height?.toFixed(0)}<br>
-        Book pos: ${bookRect?.left?.toFixed(0)},${bookRect?.top?.toFixed(0)}
+        Book: ${bookRect?.width?.toFixed(0)}x${bookRect?.height?.toFixed(0)} @ ${bookRect?.left?.toFixed(0)},${bookRect?.top?.toFixed(0)}<br>
+        Sidebar parent: ${sidebar?.parentElement?.id || 'none'}<br>
+        Sidebar: @ ${sidebarRect?.left?.toFixed(0)},${sidebarRect?.top?.toFixed(0)}<br>
+        Content parent: ${content?.parentElement?.id || 'none'}
     `;
     
     panelElement.classList.add('pg-open');
