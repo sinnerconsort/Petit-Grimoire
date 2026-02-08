@@ -140,10 +140,24 @@ export function createGrimoire() {
     const panel = document.createElement('div');
     panel.id = 'pg-panel';
     
-    // Click outside to close
+    // Click outside to close - with delay to prevent touch event bleed-through
+    let canClose = false;
     panel.addEventListener('click', (e) => {
-        if (e.target === panel) closeGrimoire();
+        if (e.target === panel && canClose) {
+            closeGrimoire();
+        }
     });
+    
+    // Also handle touch events explicitly
+    panel.addEventListener('touchend', (e) => {
+        if (e.target === panel && canClose) {
+            e.preventDefault();
+            closeGrimoire();
+        }
+    });
+    
+    // Enable closing after a short delay (prevents FAB touch bleed-through)
+    setTimeout(() => { canClose = true; }, 400);
     
     // =========== BOOK CONTAINER ===========
     const book = document.createElement('div');
@@ -177,14 +191,14 @@ function createTabIcons(book, scale, offsetY) {
     
     // Tab positions in SPRITE coordinates (before scaling)
     // Measured from the book+tabs portion starting at x:310 in the full sprite
-    // ADJUST THESE if icons don't line up perfectly!
+    // Using emoji for reliable display (FA may not load in all ST setups)
     const TAB_DATA = [
-        { id: 'tarot',    icon: 'fa-star',        y: 237, label: 'Tarot' },
-        { id: 'crystal',  icon: 'fa-moon',        y: 275, label: 'Crystal Ball' },
-        { id: 'ouija',    icon: 'fa-ghost',       y: 313, label: 'Ouija' },
-        { id: 'nyx',      icon: 'fa-cat',         y: 352, label: 'Nyx' },
-        { id: 'spells',   icon: 'fa-magic',       y: 388, label: 'Spells' },
-        { id: 'settings', icon: 'fa-cog',         y: 427, label: 'Settings' },
+        { id: 'tarot',    icon: '⭐',    y: 237, label: 'Tarot' },
+        { id: 'crystal',  icon: '🔮',    y: 275, label: 'Crystal Ball' },
+        { id: 'ouija',    icon: '👻',    y: 313, label: 'Ouija' },
+        { id: 'nyx',      icon: '🐱',    y: 352, label: 'Nyx' },
+        { id: 'spells',   icon: '✨',    y: 388, label: 'Spells' },
+        { id: 'settings', icon: '⚙️',    y: 427, label: 'Settings' },
     ];
     
     // Tab dimensions in sprite coordinates
@@ -202,7 +216,7 @@ function createTabIcons(book, scale, offsetY) {
         btn.className = 'pg-tab-icon';
         btn.dataset.tab = tab.id;
         btn.title = tab.label;
-        btn.innerHTML = `<i class="fas ${tab.icon}"></i>`;
+        btn.textContent = tab.icon;  // Direct emoji, no FA dependency
         
         // Scale positions to match the scaled sprite
         const scaledY = (tab.y * scale) - offsetY;
