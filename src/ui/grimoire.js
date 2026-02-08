@@ -294,13 +294,17 @@ function createContent(book, scale, offsetY) {
  * Get placeholder content for each page
  */
 function getPageContent(tabId) {
+    // Settings page gets real content
+    if (tabId === 'settings') {
+        return buildSettingsPage();
+    }
+    
     const emojis = {
         tarot: '🎴',
         crystal: '🔮',
         ouija: '👻',
         nyx: '🐱',
-        radio: '📻',
-        settings: '⚙️'
+        radio: '📻'
     };
     
     const names = {
@@ -308,8 +312,7 @@ function getPageContent(tabId) {
         crystal: 'CRYSTAL BALL',
         ouija: 'OUIJA',
         nyx: 'NYX',
-        radio: 'RADIO',
-        settings: 'SETTINGS'
+        radio: 'RADIO'
     };
     
     const quotes = {
@@ -317,8 +320,7 @@ function getPageContent(tabId) {
         crystal: 'Fate is not a request line.',
         ouija: 'Ask, and fate shall answer. Then make it true.',
         nyx: "I'm watching. Always watching.",
-        radio: 'Tune in to the cosmic frequencies.',
-        settings: 'Adjust the mystical parameters.'
+        radio: 'Tune in to the cosmic frequencies.'
     };
     
     return `
@@ -332,6 +334,210 @@ function getPageContent(tabId) {
             <p style="font-style: italic;">Coming soon...</p>
         </div>
     `;
+}
+
+/**
+ * Build the settings page HTML
+ */
+function buildSettingsPage() {
+    const theme = getTheme(settings.theme);
+    const themeOptions = Object.entries(THEMES).map(([key, t]) => 
+        `<option value="${key}" ${key === settings.theme ? 'selected' : ''}>${t.name}</option>`
+    ).join('');
+    
+    return `
+        <h2 style="color: #5a4030; margin: 0 0 8px 0; font-size: 16px; font-weight: 600; display: flex; align-items: center; gap: 8px;">
+            ⚙️ SETTINGS
+        </h2>
+        <p style="color: #6a5040; font-style: italic; font-size: 12px; margin-bottom: 15px;">
+            "Adjust the mystical parameters."
+        </p>
+        
+        <div class="pg-settings-content" style="display: flex; flex-direction: column; gap: 16px; padding: 8px 0;">
+            
+            <!-- Theme Selection -->
+            <div class="pg-setting-group" style="display: flex; flex-direction: column; gap: 6px;">
+                <label style="color: #5a4030; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">
+                    ✦ Theme
+                </label>
+                <select id="pg-theme-select" style="
+                    padding: 8px 12px;
+                    border-radius: 8px;
+                    border: 2px solid ${theme.main}60;
+                    background: ${theme.cardBg}40;
+                    color: #5a4030;
+                    font-size: 13px;
+                    cursor: pointer;
+                    outline: none;
+                ">
+                    ${themeOptions}
+                </select>
+                <span style="color: #8a7060; font-size: 10px; font-style: italic;">
+                    ${theme.desc}
+                </span>
+            </div>
+            
+            <!-- Grimoire Position -->
+            <div class="pg-setting-group" style="display: flex; flex-direction: column; gap: 6px;">
+                <label style="color: #5a4030; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">
+                    ✦ Grimoire Position
+                </label>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span style="color: #8a7060; font-size: 11px;">↑</span>
+                    <input type="range" id="pg-position-slider" 
+                        min="-200" max="200" value="${settings.grimoireOffsetY || 0}"
+                        style="
+                            flex: 1;
+                            height: 6px;
+                            border-radius: 3px;
+                            background: ${theme.main}30;
+                            outline: none;
+                            cursor: pointer;
+                            accent-color: ${theme.main};
+                        "
+                    />
+                    <span style="color: #8a7060; font-size: 11px;">↓</span>
+                    <span id="pg-position-value" style="color: #5a4030; font-size: 11px; min-width: 35px; text-align: right;">
+                        ${settings.grimoireOffsetY || 0}px
+                    </span>
+                </div>
+                <button id="pg-position-reset" style="
+                    align-self: flex-start;
+                    padding: 4px 10px;
+                    border-radius: 4px;
+                    border: 1px solid ${theme.main}40;
+                    background: transparent;
+                    color: #6a5040;
+                    font-size: 10px;
+                    cursor: pointer;
+                ">
+                    Reset to Center
+                </button>
+            </div>
+            
+            <!-- Lock Position -->
+            <div class="pg-setting-group" style="display: flex; align-items: center; gap: 10px;">
+                <label style="color: #5a4030; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; flex: 1;">
+                    ✦ Lock FAB Position
+                </label>
+                <label class="pg-toggle" style="
+                    position: relative;
+                    width: 44px;
+                    height: 24px;
+                    cursor: pointer;
+                ">
+                    <input type="checkbox" id="pg-lock-toggle" 
+                        ${settings.grimoireLocked ? 'checked' : ''}
+                        style="opacity: 0; width: 0; height: 0;"
+                    />
+                    <span class="pg-toggle-slider" style="
+                        position: absolute;
+                        inset: 0;
+                        background: ${settings.grimoireLocked ? theme.main : '#ccc'};
+                        border-radius: 24px;
+                        transition: background 0.3s;
+                    "></span>
+                    <span class="pg-toggle-knob" style="
+                        position: absolute;
+                        top: 2px;
+                        left: ${settings.grimoireLocked ? '22px' : '2px'};
+                        width: 20px;
+                        height: 20px;
+                        background: white;
+                        border-radius: 50%;
+                        transition: left 0.3s;
+                        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+                    "></span>
+                </label>
+            </div>
+            
+            <!-- Extension Info -->
+            <div style="margin-top: auto; padding-top: 16px; border-top: 1px solid ${theme.main}20;">
+                <p style="color: #8a7060; font-size: 10px; text-align: center; margin: 0;">
+                    ✨ Petit Grimoire v0.1 ✨
+                </p>
+            </div>
+        </div>
+    `;
+}
+
+/**
+ * Initialize settings page event listeners
+ */
+function initSettingsListeners() {
+    // Debounce to prevent double-init
+    const settingsPage = document.querySelector('.pg-page[data-page="settings"]');
+    if (!settingsPage || settingsPage.dataset.initialized) return;
+    settingsPage.dataset.initialized = 'true';
+    
+    const theme = getTheme(settings.theme);
+    
+    // Theme selector
+    const themeSelect = document.getElementById('pg-theme-select');
+    if (themeSelect) {
+        themeSelect.addEventListener('change', (e) => {
+            updateSetting('theme', e.target.value);
+            // Rebuild UI to apply new theme fully
+            destroyGrimoire();
+            createGrimoire();
+            openGrimoire();
+            switchTab('settings');
+        });
+    }
+    
+    // Position slider
+    const positionSlider = document.getElementById('pg-position-slider');
+    const positionValue = document.getElementById('pg-position-value');
+    if (positionSlider) {
+        positionSlider.addEventListener('input', (e) => {
+            const val = parseInt(e.target.value);
+            if (positionValue) positionValue.textContent = `${val}px`;
+            
+            // Apply position in real-time
+            updateSetting('grimoireOffsetY', val);
+            applyGrimoireOffset(val);
+        });
+    }
+    
+    // Reset position button
+    const resetBtn = document.getElementById('pg-position-reset');
+    if (resetBtn) {
+        resetBtn.addEventListener('click', () => {
+            updateSetting('grimoireOffsetY', 0);
+            if (positionSlider) positionSlider.value = 0;
+            if (positionValue) positionValue.textContent = '0px';
+            applyGrimoireOffset(0);
+        });
+    }
+    
+    // Lock toggle
+    const lockToggle = document.getElementById('pg-lock-toggle');
+    if (lockToggle) {
+        lockToggle.addEventListener('change', (e) => {
+            const isLocked = e.target.checked;
+            updateSetting('grimoireLocked', isLocked);
+            
+            // Update visual state
+            const slider = lockToggle.parentElement.querySelector('.pg-toggle-slider');
+            const knob = lockToggle.parentElement.querySelector('.pg-toggle-knob');
+            if (slider) slider.style.background = isLocked ? theme.main : '#ccc';
+            if (knob) knob.style.left = isLocked ? '22px' : '2px';
+        });
+    }
+}
+
+/**
+ * Apply grimoire vertical offset in real-time
+ */
+function applyGrimoireOffset(offset) {
+    const book = document.getElementById('pg-book');
+    if (!book) return;
+    
+    const vh = window.innerHeight;
+    const bookHeight = book.offsetHeight;
+    const topPosition = Math.max(0, Math.min(vh - bookHeight, (vh - bookHeight) / 2 + offset));
+    
+    book.style.marginTop = `${topPosition}px`;
 }
 
 /**
@@ -392,12 +598,17 @@ export function openGrimoire() {
     
     const book = document.getElementById('pg-book');
     if (book) {
+        // Apply vertical offset from settings
+        const grimoireYOffset = settings.grimoireOffsetY || 0;
+        const topPosition = Math.max(0, Math.min(vh - bookHeight, (vh - bookHeight) / 2 + grimoireYOffset));
+        
         book.setAttribute('style', `
             position: relative !important;
             width: ${bookWidth}px !important;
             height: ${bookHeight}px !important;
             background: none !important;
             margin-left: auto !important;
+            margin-top: ${topPosition}px !important;
             flex-shrink: 0 !important;
         `);
         
@@ -457,6 +668,11 @@ export function openGrimoire() {
     // Update FAB state
     setFabOpenState(true);
     
+    // Initialize settings listeners if on settings tab
+    if (settings.activeTab === 'settings') {
+        initSettingsListeners();
+    }
+    
     console.log('[Petit Grimoire] Opened');
 }
 
@@ -514,6 +730,11 @@ export function switchTab(tabId) {
     document.querySelectorAll('.pg-page').forEach(page => {
         page.style.display = page.dataset.page === tabId ? 'flex' : 'none';
     });
+    
+    // Initialize settings listeners when switching to settings tab
+    if (tabId === 'settings') {
+        initSettingsListeners();
+    }
     
     console.log('[Petit Grimoire] Switched to tab:', tabId);
 }

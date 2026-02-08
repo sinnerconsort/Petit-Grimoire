@@ -306,6 +306,13 @@ function createSparkleBurst() {
  */
 function setupDragHandlers(fab, onToggle) {
     function onStart(clientX, clientY) {
+        // If locked, only allow click (not drag)
+        if (settings.grimoireLocked) {
+            isDragging = false;
+            hasMoved = false;
+            return;
+        }
+        
         isDragging = true;
         hasMoved = false;
         startX = clientX;
@@ -330,7 +337,7 @@ function setupDragHandlers(fab, onToggle) {
         let newY = startTop + dy;
         
         // Constrain to viewport
-        const fabSize = 64;
+        const fabSize = 48;
         newX = Math.max(0, Math.min(window.innerWidth - fabSize, newX));
         newY = Math.max(0, Math.min(window.innerHeight - fabSize, newY));
         
@@ -339,6 +346,17 @@ function setupDragHandlers(fab, onToggle) {
     }
     
     function onEnd() {
+        // Handle click on locked FAB
+        if (settings.grimoireLocked && !hasMoved && onToggle) {
+            const now = Date.now();
+            if (now - lastToggleTime > 300) {
+                lastToggleTime = now;
+                console.log('[PG FAB] Calling onToggle (locked)');
+                onToggle();
+            }
+            return;
+        }
+        
         if (!isDragging) return;
         isDragging = false;
         
@@ -395,7 +413,7 @@ function setupDragHandlers(fab, onToggle) {
 export function constrainFabToViewport() {
     if (!fabElement) return;
     
-    const fabSize = 64;
+    const fabSize = 48;
     const x = Math.max(0, Math.min(window.innerWidth - fabSize, fabElement.offsetLeft));
     const y = Math.max(0, Math.min(window.innerHeight - fabSize, fabElement.offsetTop));
     
