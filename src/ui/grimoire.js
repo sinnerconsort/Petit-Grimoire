@@ -194,7 +194,7 @@ function createContent(book, scale, offsetY) {
         position: absolute !important;
         left: 35% !important;
         right: 6% !important;
-        top: 28% !important;
+        top: 25% !important;
         bottom: 14% !important;
         padding: 3% !important;
         overflow-y: auto !important;
