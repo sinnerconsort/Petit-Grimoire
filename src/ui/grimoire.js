@@ -363,6 +363,10 @@ export function openGrimoire() {
         const offsetX = Math.floor(bookStartX * scale);
         const offsetY = Math.floor(bookStartY * scale);
         
+        // Get current theme for grimoire filter
+        const currentTheme = getTheme(settings.theme);
+        const grimoireFilter = currentTheme.grimoireFilter || 'none';
+        
         spriteDiv.setAttribute('style', `
             position: absolute !important;
             top: 0 !important;
@@ -376,6 +380,7 @@ export function openGrimoire() {
             image-rendering: pixelated !important;
             pointer-events: none !important;
             z-index: 0 !important;
+            filter: ${grimoireFilter} !important;
         `);
         
         // Create tab icons overlay
@@ -484,4 +489,18 @@ export function setPageContent(tabId, html) {
     if (page) {
         page.innerHTML = html;
     }
+}
+
+/**
+ * Update grimoire sprite filter when theme changes
+ */
+export function updateGrimoireTheme() {
+    const spriteDiv = document.getElementById('pg-book-sprite');
+    if (!spriteDiv) return;
+    
+    const currentTheme = getTheme(settings.theme);
+    const grimoireFilter = currentTheme.grimoireFilter || 'none';
+    
+    spriteDiv.style.filter = grimoireFilter;
+    console.log('[Petit Grimoire] Updated grimoire filter for theme:', settings.theme);
 }
