@@ -73,6 +73,9 @@ export const THEMES = {
         cardBg: '#2a1020',
         textLight: '#fce4ec',
         textDim: '#dc78aa99',
+        // Icon colors (purple like tama bow)
+        iconActive: '#8060c0',
+        iconInactive: '#6040a0',
         // Assets
         fabIcon: 'fab-guardian.png',
         shell: 'guardian-shell.png',
@@ -90,6 +93,9 @@ export const THEMES = {
         cardBg: '#1a0825',
         textLight: '#e8d5f5',
         textDim: '#c8b1f788',
+        // Icon colors (dark purple)
+        iconActive: '#c8b1f7',
+        iconInactive: '#5d0971',
         fabIcon: 'fab-umbra.png',
         shell: 'umbra-shell.png',
         // Grimoire tint: warm tan → deep purple (darker, more saturated)
@@ -106,6 +112,9 @@ export const THEMES = {
         cardBg: '#2a2015',
         textLight: '#f0e6d8',
         textDim: '#e9ae7588',
+        // Icon colors (earthy green/gold)
+        iconActive: '#bdbf46',
+        iconInactive: '#4c6b20',
         fabIcon: 'fab-apothecary.png',
         shell: 'apothecary-shell.png',
         // Grimoire tint: warm tan → earthy olive/sage (minimal shift, keep natural)
@@ -122,6 +131,9 @@ export const THEMES = {
         cardBg: '#251e35',
         textLight: '#feebff',
         textDim: '#d9c7fb88',
+        // Icon colors (soft purple/cyan)
+        iconActive: '#bcf1fd',
+        iconInactive: '#a090d0',
         fabIcon: 'fab-moonstone.png',
         shell: 'moonstone-shell.png',
         // Grimoire tint: warm tan → soft lavender (lighter, desaturated)
@@ -138,6 +150,9 @@ export const THEMES = {
         cardBg: '#0d0230',
         textLight: '#e8e8ff',
         textDim: '#7375ca88',
+        // Icon colors (cyan/turquoise)
+        iconActive: '#00e5e5',
+        iconInactive: '#0090a0',
         fabIcon: 'fab-phosphor.png',
         shell: 'phosphor-shell.png',
         // Grimoire tint: warm tan → neon purple/cyan (vibrant, high contrast)
@@ -154,6 +169,9 @@ export const THEMES = {
         cardBg: '#2a1e22',
         textLight: '#f5eaed',
         textDim: '#e4b0bc88',
+        // Icon colors (green tones)
+        iconActive: '#83b6ac',
+        iconInactive: '#177656',
         fabIcon: 'fab-rosewood.png',
         shell: 'rosewood-shell.png',
         // Grimoire tint: warm tan → soft blush pink (light, soft, dreamy)
@@ -170,6 +188,9 @@ export const THEMES = {
         cardBg: '#0c1528',
         textLight: '#fbe09c',
         textDim: '#e3b35f88',
+        // Icon colors (gold tones)
+        iconActive: '#fbe09c',
+        iconInactive: '#e3b35f',
         fabIcon: 'fab-celestial.png',
         shell: 'celestial-shell.png',
         // Grimoire tint: warm tan → deep navy blue (darker, richer)
