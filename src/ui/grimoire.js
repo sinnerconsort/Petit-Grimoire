@@ -324,11 +324,11 @@ export function openGrimoire() {
     const bookAspectRatio = bookInSpriteHeight / bookInSpriteWidth; // ~1.135
     
     // Fill most of the screen width
-    let bookWidth = Math.floor(vw * 0.98);
+    let bookWidth = Math.floor(vw * 1.00);
     let bookHeight = Math.floor(bookWidth * bookAspectRatio);
     
     // Cap at 50% viewport height (half the screen)
-    const maxHeight = Math.floor(vh * 0.50);
+    const maxHeight = Math.floor(vh * 0.60);
     if (bookHeight > maxHeight) {
         bookHeight = maxHeight;
         bookWidth = Math.floor(bookHeight / bookAspectRatio);
