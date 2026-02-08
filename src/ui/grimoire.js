@@ -323,19 +323,20 @@ export function openGrimoire() {
     const bookInSpriteHeight = 665;
     const bookAspectRatio = bookInSpriteHeight / bookInSpriteWidth; // ~1.135
     
-    // Target: book fills ~75% of viewport height
-    const targetHeight = Math.floor(vh * 0.75);
+    // Target: book fills ~85% of viewport height (big like a header)
+    const targetHeight = Math.floor(vh * 0.85);
     let bookHeight = targetHeight;
     let bookWidth = Math.floor(bookHeight / bookAspectRatio);
     
     // If too wide for screen, scale down
-    const maxWidth = Math.floor(vw * 0.95);
+    const maxWidth = Math.floor(vw * 0.98);
     if (bookWidth > maxWidth) {
         bookWidth = maxWidth;
         bookHeight = Math.floor(bookWidth * bookAspectRatio);
     }
     
     // Use setAttribute with !important to FORCE styles
+    // Position at TOP instead of centered
     panelElement.setAttribute('style', `
         position: fixed !important;
         top: 0 !important;
@@ -346,10 +347,10 @@ export function openGrimoire() {
         z-index: 99998 !important;
         background: rgba(0,0,0,0.6) !important;
         display: flex !important;
-        align-items: center !important;
+        align-items: flex-start !important;
         justify-content: center !important;
+        padding-top: 2% !important;
         margin: 0 !important;
-        padding: 0 !important;
         box-sizing: border-box !important;
     `);
     
