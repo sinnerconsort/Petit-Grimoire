@@ -205,9 +205,9 @@ export const TABS = [
     { id: 'tarot', name: 'Tarot', icon: 'fa-star' },
     { id: 'crystal', name: 'Crystal Ball', icon: 'fa-circle' },
     { id: 'ouija', name: 'Ouija', icon: 'fa-ghost' },
-    { id: 'spells', name: 'Spell Cards', icon: 'fa-wand-magic-sparkles' },
+    { id: 'spells', name: 'Spell Cards', icon: 'fa-magic' },
     { id: 'nyx', name: 'Nyx', icon: 'fa-cat' },
-    { id: 'settings', name: 'Settings', icon: 'fa-gear' }
+    { id: 'settings', name: 'Settings', icon: 'fa-cog' }
 ];
 
 /**
@@ -222,6 +222,7 @@ export const DEFAULT_SETTINGS = {
     // Grimoire positioning
     grimoireOffsetY: 0,       // Vertical offset in pixels (-200 to 200)
     grimoireLocked: false,    // Lock position toggle
+    grimoireScale: 1.15,      // Scale multiplier (1.0 = 100%, 1.25 = 125%)
     // Font settings
     fancyFont: false          // Use Gentry Society decorative font
 };
