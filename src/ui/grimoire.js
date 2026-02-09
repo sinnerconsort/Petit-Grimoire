@@ -350,14 +350,14 @@ function createContent(book, scale, offsetY) {
         
         const isActive = tab.id === settings.activeTab;
         page.setAttribute('style', `
-    display: ${isActive ? 'flex' : 'none'};
-    flex-direction: column !important;
-    height: 100% !important;
-    text-align: left !important;
-    overflow: hidden !important;
-    box-sizing: border-box !important;
-    position: relative !important;
-`);
+            display: ${isActive ? 'flex' : 'none'};
+            flex-direction: column !important;
+            height: 100% !important;
+            text-align: left !important;
+            overflow: hidden !important;
+            box-sizing: border-box !important;
+            position: relative !important;
+        `);
         
         // Get content from tab module system
         page.innerHTML = getTabContent(tab.id);
