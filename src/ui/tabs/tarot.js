@@ -12,6 +12,24 @@ import { MAJOR_ARCANA, getCardImagePath, getCardBackPath } from '../../data/taro
 // Currently selected card for detail view
 let selectedCard = null;
 
+// Frame path based on theme
+const FRAME_PATH = 'scripts/extensions/third-party/Petit-Grimoire/assets/sprites/frames';
+
+const THEME_FRAMES = {
+    guardian: 'frame_gold.png',
+    celestial: 'frame_gold.png',
+    umbra: 'frame_purple.png',
+    phosphor: 'frame_purple.png',
+    apothecary: 'frame_teal.png',
+    rosewood: 'frame_teal.png',
+    moonstone: 'frame_blue.png'
+};
+
+function getFramePath(themeName) {
+    const frame = THEME_FRAMES[themeName] || 'frame_purple.png';
+    return `${FRAME_PATH}/${frame}`;
+}
+
 /**
  * Get the content HTML for the tarot tab
  */
@@ -84,31 +102,42 @@ export function getContent() {
         <div id="pg-tarot-detail" style="
             display: none;
             position: fixed;
-            top: 10%;
+            top: 50%;
             left: 50%;
-            transform: translateX(-50%);
-            background: ${theme.cardBg || '#1a1020'};
-            border: 3px solid ${theme.main};
-            border-radius: 12px;
-            padding: 16px;
-            width: 280px;
-            max-height: 80vh;
-            overflow-y: auto;
+            transform: translate(-50%, -50%);
+            width: 304px;
+            height: 484px;
+            background-image: url('${getFramePath(settings.theme)}');
+            background-size: 100% 100%;
+            background-repeat: no-repeat;
+            image-rendering: pixelated;
             z-index: 10000;
-            box-shadow: 0 0 40px ${theme.main}60;
             color: ${theme.textLight || '#fff'};
         ">
-            <div id="pg-tarot-detail-content"></div>
+            <div id="pg-tarot-detail-content" style="
+                position: absolute;
+                top: 20px;
+                left: 20px;
+                right: 20px;
+                bottom: 50px;
+                overflow-y: auto;
+                scrollbar-width: thin;
+            "></div>
             <button id="pg-tarot-detail-close" style="
-                margin-top: 12px;
-                width: 100%;
-                padding: 8px;
-                border-radius: 6px;
-                border: 1px solid ${theme.main};
+                position: absolute;
+                bottom: 12px;
+                left: 50%;
+                transform: translateX(-50%);
+                width: 120px;
+                padding: 6px 12px;
+                border-radius: 4px;
+                border: none;
                 background: transparent;
                 color: ${theme.textLight || '#fff'};
                 cursor: pointer;
                 font-size: 11px;
+                text-transform: uppercase;
+                letter-spacing: 1px;
             ">
                 Close
             </button>
@@ -200,12 +229,15 @@ function showDetail(card) {
     
     if (!detail || !content) return;
     
+    // Update frame for current theme
+    detail.style.backgroundImage = `url('${getFramePath(settings.theme)}')`;
+    
     content.innerHTML = `
         <!-- Card Image -->
-        <div style="text-align: center; margin-bottom: 12px;">
+        <div style="text-align: center; margin-bottom: 8px;">
             <img src="${getCardImagePath(card, '5x')}" alt="${card.name}" style="
-                max-width: 180px;
-                max-height: 220px;
+                max-width: 140px;
+                max-height: 180px;
                 image-rendering: pixelated;
                 border-radius: 4px;
                 box-shadow: 0 4px 12px rgba(0,0,0,0.4);
@@ -215,22 +247,22 @@ function showDetail(card) {
         <!-- Card Name -->
         <h3 style="
             text-align: center;
-            font-size: 16px;
-            margin-bottom: 4px;
+            font-size: 14px;
+            margin: 0 0 8px 0;
             color: ${theme.secondary || theme.main};
         ">${card.numeral} - ${card.name}</h3>
         
         <!-- Upright Meaning -->
-        <div style="margin-top: 12px;">
+        <div style="margin-bottom: 10px;">
             <div style="
                 display: flex;
                 align-items: center;
-                gap: 6px;
-                margin-bottom: 6px;
+                gap: 4px;
+                margin-bottom: 4px;
             ">
-                <span style="font-size: 14px;">⬆️</span>
+                <span style="font-size: 12px;">⬆️</span>
                 <span style="
-                    font-size: 11px;
+                    font-size: 10px;
                     font-weight: 600;
                     color: ${theme.secondary || theme.main};
                     text-transform: uppercase;
@@ -238,31 +270,31 @@ function showDetail(card) {
                 ">Upright</span>
             </div>
             <div style="
-                font-size: 9px;
+                font-size: 8px;
                 color: ${theme.textDim || '#aaa'};
-                margin-bottom: 6px;
+                margin-bottom: 4px;
             ">
                 ${card.upright.keywords.join(' • ')}
             </div>
             <p style="
-                font-size: 10px;
-                line-height: 1.5;
+                font-size: 9px;
+                line-height: 1.4;
                 margin: 0;
                 color: ${theme.textLight || '#fff'};
             ">${card.upright.meaning}</p>
         </div>
         
         <!-- Reversed Meaning -->
-        <div style="margin-top: 14px; padding-top: 12px; border-top: 1px solid ${theme.main}40;">
+        <div style="padding-top: 8px; border-top: 1px solid ${theme.main}40;">
             <div style="
                 display: flex;
                 align-items: center;
-                gap: 6px;
-                margin-bottom: 6px;
+                gap: 4px;
+                margin-bottom: 4px;
             ">
-                <span style="font-size: 14px;">⬇️</span>
+                <span style="font-size: 12px;">⬇️</span>
                 <span style="
-                    font-size: 11px;
+                    font-size: 10px;
                     font-weight: 600;
                     color: ${theme.main};
                     text-transform: uppercase;
@@ -270,15 +302,15 @@ function showDetail(card) {
                 ">Reversed</span>
             </div>
             <div style="
-                font-size: 9px;
+                font-size: 8px;
                 color: ${theme.textDim || '#aaa'};
-                margin-bottom: 6px;
+                margin-bottom: 4px;
             ">
                 ${card.reversed.keywords.join(' • ')}
             </div>
             <p style="
-                font-size: 10px;
-                line-height: 1.5;
+                font-size: 9px;
+                line-height: 1.4;
                 margin: 0;
                 color: ${theme.textLight || '#fff'};
             ">${card.reversed.meaning}</p>
