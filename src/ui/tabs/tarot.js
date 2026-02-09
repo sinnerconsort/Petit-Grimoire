@@ -14,51 +14,65 @@ let currentView = 'gallery';
 let selectedCard = null;
 
 /**
- * Theme-specific card tint settings
- * Colors matched to tamagotchi shell bow accents
+ * Theme-specific card filter settings
+ * Values taken directly from image editor Hue/Saturation/Luminescence sliders
+ * 
+ * hue: degrees (-180 to +180)
+ * saturation: multiplier (1 = 100%, 0.5 = 50%, 2 = 200%)
+ * brightness: multiplier (1 = 100%, 0.5 = 50%)
  */
-const THEME_CARD_TINT = {
+const THEME_CARD_FILTER = {
     guardian: { 
-        color: '#9575cd',  // Purple-blue to match bow
-        opacity: 0.65,
+        hue: -72,
+        saturation: 1.11,  // +11%
+        brightness: 1,
     },
     umbra: { 
-        color: '#5c4d99',  // Dark blue-purple bow
-        opacity: 0.7,
+        hue: -88,
+        saturation: 1,
+        brightness: 0.74,  // -26%
     },
     apothecary: { 
-        color: '#8d6e4c',  // Warm brown bow
-        opacity: 0.6,
+        hue: -7,
+        saturation: 0.97,  // -3%
+        brightness: 0.56,  // -44%
     },
     moonstone: { 
-        color: '#99c2fb',  // Sky blue (user specified)
-        opacity: 0.55,
+        hue: -100,
+        saturation: 0.75,  // -25%
+        brightness: 1,
     },
     phosphor: { 
-        color: '#4ecdc4',  // Cyan/teal bow
-        opacity: 0.6,
+        hue: 80,
+        saturation: 2,     // +100%
+        brightness: 1,
     },
     rosewood: { 
-        color: '#97c676',  // Sage green (user specified)
-        opacity: 0.55,
+        hue: 36,
+        saturation: 0.47,  // -53%
+        brightness: 1,
     },
     celestial: { 
-        color: '#e3b35f',  // Gold bow
-        opacity: 0.7,
+        hue: 0,
+        saturation: 1,
+        brightness: 1,
+        // Keep original gold - no filter needed
     },
 };
 
 /**
- * Get the card tint color and opacity for current theme
+ * Get the CSS filter string for current theme's cards
  */
-function getCardTintStyle() {
+function getCardFilter() {
     const themeName = settings.theme || 'guardian';
-    const config = THEME_CARD_TINT[themeName] || THEME_CARD_TINT.guardian;
+    const config = THEME_CARD_FILTER[themeName] || THEME_CARD_FILTER.guardian;
     
-    return {
-        color: config.color,
-        opacity: config.opacity
-    };
+    // Skip filter entirely for celestial (keep original gold)
+    if (themeName === 'celestial') {
+        return 'none';
+    }
+    
+    return `hue-rotate(${config.hue}deg) saturate(${config.saturation}) brightness(${config.brightness})`;
 }
 
 /**
@@ -77,7 +91,7 @@ export function getContent() {
  */
 function getGalleryView() {
     const theme = getTheme(settings.theme);
-    const tint = getCardTintStyle();
+    const cardFilter = getCardFilter();
     const textDark = '#2a1810';
     const textMid = '#4a3020';
     const textLight = '#6a5040';
@@ -98,15 +112,8 @@ function getGalleryView() {
                 height: 100%;
                 image-rendering: pixelated;
                 display: block;
+                filter: ${cardFilter};
             ">
-            <div class="pg-card-tint" style="
-                position: absolute;
-                inset: 0;
-                background: ${tint.color};
-                mix-blend-mode: hue;
-                pointer-events: none;
-                opacity: ${tint.opacity};
-            "></div>
         </div>
     `).join('');
     
@@ -154,7 +161,7 @@ function getGalleryView() {
  */
 function getDetailView(card) {
     const theme = getTheme(settings.theme);
-    const tint = getCardTintStyle();
+    const cardFilter = getCardFilter();
     const textDark = '#2a1810';
     const textMid = '#4a3020';
     const textLight = '#6a5040';
@@ -186,30 +193,18 @@ function getDetailView(card) {
                     <span>Back to Deck</span>
                 </div>
                 
-                <!-- Card Image with Tint -->
+                <!-- Card Image with Filter -->
                 <div style="text-align: center; margin-bottom: 10px;">
-                    <div style="
-                        position: relative;
-                        display: inline-block;
+                    <img src="${getCardImagePath(card, '5x')}" alt="${card.name}" style="
+                        width: 115px;
+                        height: 202px;
+                        image-rendering: pixelated;
+                        display: block;
+                        margin: 0 auto;
                         border-radius: 4px;
-                        overflow: hidden;
                         box-shadow: 0 3px 10px rgba(0,0,0,0.3);
+                        filter: ${cardFilter};
                     ">
-                        <img src="${getCardImagePath(card, '5x')}" alt="${card.name}" style="
-                            width: 115px;
-                            height: 202px;
-                            image-rendering: pixelated;
-                            display: block;
-                        ">
-                        <div class="pg-card-tint" style="
-                            position: absolute;
-                            inset: 0;
-                            background: ${tint.color};
-                            mix-blend-mode: hue;
-                            pointer-events: none;
-                            opacity: ${tint.opacity};
-                        "></div>
-                    </div>
                 </div>
                 
                 <!-- Card Name -->
