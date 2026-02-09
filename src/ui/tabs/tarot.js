@@ -102,7 +102,7 @@ export function getContent() {
         <div id="pg-tarot-detail" style="
             display: none;
             position: fixed;
-            top: 65%;
+            top: 85%;
             left: 50%;
             transform: translate(-50%, -50%);
             width: 228px;
