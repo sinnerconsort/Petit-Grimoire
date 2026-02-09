@@ -14,29 +14,49 @@ let currentView = 'gallery';
 let selectedCard = null;
 
 /**
- * Theme-specific tint settings
- * Adjusts overlay opacity for best visual results per theme
+ * Theme-specific card tint settings
+ * Colors matched to tamagotchi shell bow accents
  */
-const THEME_TINT_CONFIG = {
-    guardian: { opacity: 0.7 },    // Rose gold - bright magical girl
-    umbra: { opacity: 0.8 },       // Deep purple - Madoka darkness
-    apothecary: { opacity: 0.6 },  // Earthy brown - antique sepia
-    moonstone: { opacity: 0.5 },   // Soft lavender - dreamy pastels
-    phosphor: { opacity: 0.75 },   // Neon blue - digital glow
-    rosewood: { opacity: 0.55 },   // Blush pink - soft romantic
-    celestial: { opacity: 0.85 }, // Deep navy - midnight starry
+const THEME_CARD_TINT = {
+    guardian: { 
+        color: '#9575cd',  // Purple-blue to match bow
+        opacity: 0.65,
+    },
+    umbra: { 
+        color: '#5c4d99',  // Dark blue-purple bow
+        opacity: 0.7,
+    },
+    apothecary: { 
+        color: '#8d6e4c',  // Warm brown bow
+        opacity: 0.6,
+    },
+    moonstone: { 
+        color: '#99c2fb',  // Sky blue (user specified)
+        opacity: 0.55,
+    },
+    phosphor: { 
+        color: '#4ecdc4',  // Cyan/teal bow
+        opacity: 0.6,
+    },
+    rosewood: { 
+        color: '#97c676',  // Sage green (user specified)
+        opacity: 0.55,
+    },
+    celestial: { 
+        color: '#e3b35f',  // Gold bow
+        opacity: 0.7,
+    },
 };
 
 /**
  * Get the card tint color and opacity for current theme
  */
 function getCardTintStyle() {
-    const theme = getTheme(settings.theme);
     const themeName = settings.theme || 'guardian';
-    const config = THEME_TINT_CONFIG[themeName] || { opacity: 0.7 };
+    const config = THEME_CARD_TINT[themeName] || THEME_CARD_TINT.guardian;
     
     return {
-        color: theme.main || '#c9a227',
+        color: config.color,
         opacity: config.opacity
     };
 }
@@ -83,7 +103,7 @@ function getGalleryView() {
                 position: absolute;
                 inset: 0;
                 background: ${tint.color};
-                mix-blend-mode: color;
+                mix-blend-mode: hue;
                 pointer-events: none;
                 opacity: ${tint.opacity};
             "></div>
@@ -185,7 +205,7 @@ function getDetailView(card) {
                             position: absolute;
                             inset: 0;
                             background: ${tint.color};
-                            mix-blend-mode: color;
+                            mix-blend-mode: hue;
                             pointer-events: none;
                             opacity: ${tint.opacity};
                         "></div>
