@@ -102,11 +102,11 @@ export function getContent() {
         <div id="pg-tarot-detail" style="
             display: none;
             position: fixed;
-            top: 50%;
+            bottom: 15%;
             left: 50%;
-            transform: translate(-50%, -50%);
-            width: 304px;
-            height: 484px;
+            transform: translateX(-50%);
+            width: 228px;
+            height: 363px;
             background-image: url('${getFramePath(settings.theme)}');
             background-size: 100% 100%;
             background-repeat: no-repeat;
@@ -116,26 +116,26 @@ export function getContent() {
         ">
             <div id="pg-tarot-detail-content" style="
                 position: absolute;
-                top: 20px;
-                left: 20px;
-                right: 20px;
-                bottom: 50px;
+                top: 15px;
+                left: 15px;
+                right: 15px;
+                bottom: 40px;
                 overflow-y: auto;
                 scrollbar-width: thin;
             "></div>
             <button id="pg-tarot-detail-close" style="
                 position: absolute;
-                bottom: 12px;
+                bottom: 10px;
                 left: 50%;
                 transform: translateX(-50%);
-                width: 120px;
-                padding: 6px 12px;
+                width: 100px;
+                padding: 4px 10px;
                 border-radius: 4px;
                 border: none;
                 background: transparent;
                 color: ${theme.textLight || '#fff'};
                 cursor: pointer;
-                font-size: 11px;
+                font-size: 10px;
                 text-transform: uppercase;
                 letter-spacing: 1px;
             ">
@@ -234,83 +234,69 @@ function showDetail(card) {
     
     content.innerHTML = `
         <!-- Card Image -->
-        <div style="text-align: center; margin-bottom: 8px;">
-            <img src="${getCardImagePath(card, '5x')}" alt="${card.name}" style="
-                max-width: 140px;
-                max-height: 180px;
+        <div style="text-align: center; margin-bottom: 6px;">
+            <img src="${getCardImagePath(card, '2x')}" alt="${card.name}" style="
+                width: 69px;
+                height: 122px;
                 image-rendering: pixelated;
-                border-radius: 4px;
-                box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+                border-radius: 2px;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.4);
             ">
         </div>
         
         <!-- Card Name -->
         <h3 style="
             text-align: center;
-            font-size: 14px;
-            margin: 0 0 8px 0;
+            font-size: 11px;
+            margin: 0 0 6px 0;
             color: ${theme.secondary || theme.main};
         ">${card.numeral} - ${card.name}</h3>
         
         <!-- Upright Meaning -->
-        <div style="margin-bottom: 10px;">
+        <div style="margin-bottom: 6px;">
             <div style="
                 display: flex;
                 align-items: center;
-                gap: 4px;
-                margin-bottom: 4px;
+                gap: 3px;
+                margin-bottom: 2px;
             ">
-                <span style="font-size: 12px;">⬆️</span>
+                <span style="font-size: 10px;">⬆️</span>
                 <span style="
-                    font-size: 10px;
+                    font-size: 8px;
                     font-weight: 600;
                     color: ${theme.secondary || theme.main};
                     text-transform: uppercase;
                     letter-spacing: 1px;
                 ">Upright</span>
             </div>
-            <div style="
-                font-size: 8px;
-                color: ${theme.textDim || '#aaa'};
-                margin-bottom: 4px;
-            ">
-                ${card.upright.keywords.join(' • ')}
-            </div>
             <p style="
-                font-size: 9px;
-                line-height: 1.4;
+                font-size: 8px;
+                line-height: 1.3;
                 margin: 0;
                 color: ${theme.textLight || '#fff'};
             ">${card.upright.meaning}</p>
         </div>
         
         <!-- Reversed Meaning -->
-        <div style="padding-top: 8px; border-top: 1px solid ${theme.main}40;">
+        <div style="padding-top: 6px; border-top: 1px solid ${theme.main}40;">
             <div style="
                 display: flex;
                 align-items: center;
-                gap: 4px;
-                margin-bottom: 4px;
+                gap: 3px;
+                margin-bottom: 2px;
             ">
-                <span style="font-size: 12px;">⬇️</span>
+                <span style="font-size: 10px;">⬇️</span>
                 <span style="
-                    font-size: 10px;
+                    font-size: 8px;
                     font-weight: 600;
                     color: ${theme.main};
                     text-transform: uppercase;
                     letter-spacing: 1px;
                 ">Reversed</span>
             </div>
-            <div style="
-                font-size: 8px;
-                color: ${theme.textDim || '#aaa'};
-                margin-bottom: 4px;
-            ">
-                ${card.reversed.keywords.join(' • ')}
-            </div>
             <p style="
-                font-size: 9px;
-                line-height: 1.4;
+                font-size: 8px;
+                line-height: 1.3;
                 margin: 0;
                 color: ${theme.textLight || '#fff'};
             ">${card.reversed.meaning}</p>
