@@ -102,9 +102,9 @@ export function getContent() {
         <div id="pg-tarot-detail" style="
             display: none;
             position: fixed;
-            bottom: 15%;
+            top: 40%;
             left: 50%;
-            transform: translateX(-50%);
+            transform: translate(-50%, -50%);
             width: 228px;
             height: 363px;
             background-image: url('${getFramePath(settings.theme)}');
