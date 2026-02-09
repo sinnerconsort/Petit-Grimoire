@@ -44,7 +44,7 @@ export function getContent() {
     `).join('');
     
     return `
-        <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; overflow: hidden;">
+        <div style="flex: 1; min-height: 0; overflow: hidden; position: relative;">
             <div class="pg-tarot-scroll" style="
                 position: absolute;
                 top: 0;
