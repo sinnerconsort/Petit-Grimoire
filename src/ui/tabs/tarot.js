@@ -14,6 +14,34 @@ let currentView = 'gallery';
 let selectedCard = null;
 
 /**
+ * Theme-specific tint settings
+ * Adjusts overlay opacity for best visual results per theme
+ */
+const THEME_TINT_CONFIG = {
+    guardian: { opacity: 0.7 },    // Rose gold - bright magical girl
+    umbra: { opacity: 0.8 },       // Deep purple - Madoka darkness
+    apothecary: { opacity: 0.6 },  // Earthy brown - antique sepia
+    moonstone: { opacity: 0.5 },   // Soft lavender - dreamy pastels
+    phosphor: { opacity: 0.75 },   // Neon blue - digital glow
+    rosewood: { opacity: 0.55 },   // Blush pink - soft romantic
+    celestial: { opacity: 0.85 }, // Deep navy - midnight starry
+};
+
+/**
+ * Get the card tint color and opacity for current theme
+ */
+function getCardTintStyle() {
+    const theme = getTheme(settings.theme);
+    const themeName = settings.theme || 'guardian';
+    const config = THEME_TINT_CONFIG[themeName] || { opacity: 0.7 };
+    
+    return {
+        color: theme.main || '#c9a227',
+        opacity: config.opacity
+    };
+}
+
+/**
  * Get the content HTML for the tarot tab
  */
 export function getContent() {
@@ -29,12 +57,14 @@ export function getContent() {
  */
 function getGalleryView() {
     const theme = getTheme(settings.theme);
+    const tint = getCardTintStyle();
     const textDark = '#2a1810';
     const textMid = '#4a3020';
     const textLight = '#6a5040';
     
     const galleryHTML = MAJOR_ARCANA.map(card => `
         <div class="pg-tarot-card" data-card-id="${card.id}" style="
+            position: relative;
             width: 46px;
             height: 81px;
             cursor: pointer;
@@ -49,6 +79,14 @@ function getGalleryView() {
                 image-rendering: pixelated;
                 display: block;
             ">
+            <div class="pg-card-tint" style="
+                position: absolute;
+                inset: 0;
+                background: ${tint.color};
+                mix-blend-mode: color;
+                pointer-events: none;
+                opacity: ${tint.opacity};
+            "></div>
         </div>
     `).join('');
     
@@ -96,6 +134,7 @@ function getGalleryView() {
  */
 function getDetailView(card) {
     const theme = getTheme(settings.theme);
+    const tint = getCardTintStyle();
     const textDark = '#2a1810';
     const textMid = '#4a3020';
     const textLight = '#6a5040';
@@ -127,15 +166,30 @@ function getDetailView(card) {
                     <span>Back to Deck</span>
                 </div>
                 
-                <!-- Card Image -->
+                <!-- Card Image with Tint -->
                 <div style="text-align: center; margin-bottom: 10px;">
-                    <img src="${getCardImagePath(card, '5x')}" alt="${card.name}" style="
-                        width: 115px;
-                        height: 202px;
-                        image-rendering: pixelated;
+                    <div style="
+                        position: relative;
+                        display: inline-block;
                         border-radius: 4px;
+                        overflow: hidden;
                         box-shadow: 0 3px 10px rgba(0,0,0,0.3);
                     ">
+                        <img src="${getCardImagePath(card, '5x')}" alt="${card.name}" style="
+                            width: 115px;
+                            height: 202px;
+                            image-rendering: pixelated;
+                            display: block;
+                        ">
+                        <div class="pg-card-tint" style="
+                            position: absolute;
+                            inset: 0;
+                            background: ${tint.color};
+                            mix-blend-mode: color;
+                            pointer-events: none;
+                            opacity: ${tint.opacity};
+                        "></div>
+                    </div>
                 </div>
                 
                 <!-- Card Name -->
