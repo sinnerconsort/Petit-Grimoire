@@ -327,10 +327,11 @@ function createContent(book, scale, offsetY) {
         position: absolute !important;
         left: 35% !important;
         right: 20% !important;
-        top: 25% !important;
+        top: 30% !important;
         bottom: 6% !important;
         padding: 2% !important;
-        overflow: hidden !important;
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
         color: #3a2518 !important;
         font-size: 11px !important;
         line-height: 1.5 !important;
@@ -349,13 +350,12 @@ function createContent(book, scale, offsetY) {
         
         const isActive = tab.id === settings.activeTab;
         page.setAttribute('style', `
-            display: ${isActive ? 'flex' : 'none'};
+            display: ${isActive ? 'flex' : 'none'} !important;
             flex-direction: column !important;
             height: 100% !important;
             text-align: left !important;
             overflow: hidden !important;
             box-sizing: border-box !important;
-            position: relative !important;
         `);
         
         // Get content from tab module system
