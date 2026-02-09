@@ -65,17 +65,17 @@ export function getContent() {
     const totalEffects = Object.values(poolStats).reduce((sum, cat) => sum + cat.count, 0);
     
     return `
-<div class="pg-crystal-scroll" style="
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    overflow-y: auto;
-    overflow-x: hidden;
-    padding: 10px 4px 10px 5px;
-">
-        <h2 class="pg-page-title" style="color: ${textDark}; margin: 0 0 6px 0; font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 6px;">
+        <div class="pg-crystal-scroll" style="
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding: 10px 4px 10px 5px;
+        ">
+            <h2 class="pg-page-title" style="color: ${textDark}; margin: 0 0 6px 0; font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 6px;">
                 🔮 CRYSTAL BALL
             </h2>
             <p style="color: ${textMid}; font-style: italic; font-size: 10px; margin-bottom: 12px;">
@@ -153,53 +153,53 @@ export function getContent() {
             <p style="color: ${textMid}; font-size: 9px; line-height: 1.4;">
                 ${totalEffects} possible fates across 6 categories: ${categoryList}.
             </p>
-            
-            <!-- Result Display (hidden until used) -->
-            <div id="pg-crystal-result" style="
-                display: none;
-                position: fixed;
-                top: 16%;
-                transform: translateX(-50%);
-                left: 50%;
-                background: ${theme.cardBg || '#1a1020'};
-                border: 3px solid ${theme.main};
-                border-radius: 12px;
-                padding: 20px;
-                max-width: 300px;
-                max-height: 70vh;
-                overflow-y: auto;
-                z-index: 10000;
-                box-shadow: 0 0 40px ${theme.main}60;
-                color: ${theme.textLight || '#fff'};
-            ">
-                <div id="pg-crystal-result-content"></div>
-                <button id="pg-crystal-result-close" style="
-                    margin-top: 12px;
-                    width: 100%;
-                    padding: 8px;
-                    border-radius: 6px;
-                    border: 1px solid ${theme.main};
-                    background: transparent;
-                    color: ${theme.textLight || '#fff'};
-                    cursor: pointer;
-                    font-size: 11px;
-                ">
-                    Close
-                </button>
-            </div>
-            
-            <!-- Overlay for result -->
-            <div id="pg-crystal-overlay" style="
-                display: none;
-                position: fixed;
-                top: 0;
-                left: 0;
-                right: 0;
-                bottom: 0;
-                background: rgba(0,0,0,0.7);
-                z-index: 9999;
-            "></div>
         </div>
+
+        <!-- Result Display - OUTSIDE scroll wrapper -->
+        <div id="pg-crystal-result" style="
+            display: none;
+            position: fixed;
+            top: 16%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: ${theme.cardBg || '#1a1020'};
+            border: 3px solid ${theme.main};
+            border-radius: 12px;
+            padding: 20px;
+            max-width: 300px;
+            max-height: 70vh;
+            overflow-y: auto;
+            z-index: 10000;
+            box-shadow: 0 0 40px ${theme.main}60;
+            color: ${theme.textLight || '#fff'};
+        ">
+            <div id="pg-crystal-result-content"></div>
+            <button id="pg-crystal-result-close" style="
+                margin-top: 12px;
+                width: 100%;
+                padding: 8px;
+                border-radius: 6px;
+                border: 1px solid ${theme.main};
+                background: transparent;
+                color: ${theme.textLight || '#fff'};
+                cursor: pointer;
+                font-size: 11px;
+            ">
+                Close
+            </button>
+        </div>
+        
+        <!-- Overlay for result - OUTSIDE scroll wrapper -->
+        <div id="pg-crystal-overlay" style="
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.7);
+            z-index: 9999;
+        "></div>
     `;
 }
 
