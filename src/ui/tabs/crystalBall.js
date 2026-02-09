@@ -157,7 +157,7 @@ export function getContent() {
             <div id="pg-crystal-result" style="
                 display: none;
                 position: fixed;
-                top: 20%;
+                top: 16%;
                 transform: translateX(-50%);
                 left: 50%;
                 background: ${theme.cardBg || '#1a1020'};
