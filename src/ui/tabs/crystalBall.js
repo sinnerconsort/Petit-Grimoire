@@ -160,12 +160,13 @@ export function getContent() {
                 top: 20%;
                 transform: translateX(-50%);
                 left: 50%;
-                transform: translate(-50%, -50%);
                 background: ${theme.cardBg || '#1a1020'};
                 border: 3px solid ${theme.main};
                 border-radius: 12px;
                 padding: 20px;
                 max-width: 300px;
+                max-height: 70vh;
+                overflow-y: auto;
                 z-index: 10000;
                 box-shadow: 0 0 40px ${theme.main}60;
                 color: ${theme.textLight || '#fff'};
