@@ -44,16 +44,17 @@ export function getContent() {
     `).join('');
     
     return `
-        <div class="pg-tarot-scroll" style="
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            overflow-y: auto;
-            overflow-x: hidden;
-            padding: 10px 4px 10px 5px;
-        ">
+        <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; overflow: hidden;">
+            <div class="pg-tarot-scroll" style="
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                overflow-y: auto;
+                overflow-x: hidden;
+                padding: 10px 4px 10px 5px;
+            ">
             <h2 class="pg-page-title" style="color: ${textDark}; margin: 0 0 6px 0; font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 6px;">
                 🎴 TAROT
             </h2>
@@ -76,6 +77,7 @@ export function getContent() {
             <p style="color: ${textLight}; font-size: 9px; text-align: center; font-style: italic;">
                 Tap a card to see its meaning
             </p>
+            </div>
         </div>
 
         <!-- Card Detail Popup - OUTSIDE scroll wrapper -->
