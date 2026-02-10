@@ -130,7 +130,7 @@ export function getContent() {
                 margin-bottom: 12px;
                 position: relative;
             ">
-                <!-- Clock animation (hidden until gaze) -->
+                <!-- Clock animation (hidden until gaze, overlays the orb) -->
                 <div id="pg-crystal-clock" style="
                     position: absolute;
                     width: 64px;
@@ -142,7 +142,8 @@ export function getContent() {
                     image-rendering: pixelated;
                     opacity: 0;
                     transition: opacity 0.3s ease;
-                    z-index: 0;
+                    z-index: 2;
+                    pointer-events: none;
                 "></div>
                 <div id="pg-crystal-orb" data-theme-sprite="${crystalSprite}" style="
                     position: relative;
@@ -321,7 +322,7 @@ async function playRainbowGaze(orb) {
     let clockFrame = 0;
     let clockInterval = null;
     if (clock) {
-        clock.style.opacity = '0.7';
+        clock.style.opacity = '0.5';
         clockInterval = setInterval(() => {
             clockFrame = (clockFrame + 1) % CLOCK_FRAMES;
             clock.style.backgroundPosition = `-${clockFrame * CLOCK_FRAME_SIZE}px 0`;
