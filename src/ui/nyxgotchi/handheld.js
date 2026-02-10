@@ -364,6 +364,39 @@ export function openHandheld() {
         return;
     }
 
+    // Position directly with inline styles (same pattern as investigation.js)
+    const isMobile = window.innerWidth <= 1000;
+
+    if (isMobile) {
+        const topBar = document.getElementById('top-settings-holder');
+        const topBarHeight = topBar ? topBar.offsetHeight : 60;
+        
+        // Calculate size to fit screen
+        const availHeight = window.innerHeight - topBarHeight - 80; // leave room for input bar
+        const containerHeight = Math.min(390, availHeight);
+        const containerWidth = Math.round(containerHeight * (260 / 390)); // maintain aspect ratio
+
+        container.style.cssText = `
+            position: fixed !important;
+            top: ${topBarHeight + 10}px !important;
+            left: 50% !important;
+            transform: translateX(-50%) !important;
+            width: ${containerWidth}px !important;
+            height: ${containerHeight}px !important;
+            z-index: 2147483647 !important;
+        `;
+    } else {
+        container.style.cssText = `
+            position: fixed !important;
+            top: 50% !important;
+            left: 50% !important;
+            transform: translate(-50%, -50%) !important;
+            width: 280px !important;
+            height: 420px !important;
+            z-index: 2147483647 !important;
+        `;
+    }
+
     // Setup close handlers
     const closeBtn = document.getElementById('handheld-close');
     if (closeBtn) {
