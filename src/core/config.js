@@ -86,8 +86,8 @@ export const NYXGOTCHI_SIZES = {
  * Theme definitions
  * Each theme has colors, FAB icon, Nyxgotchi shell, gameboy shell, and grimoire filter
  * 
- * grimoireFilter: CSS filter to tint the grimoire sprite
- * Base grimoire is warm tan (~35° hue), filters shift it to match theme
+ * grimoireBook: Pre-colored PNG for the grimoire sprite (replaces CSS filter tinting)
+ * Base grimoire sprite is palette-swapped per theme as book_[theme].png
  * 
  * gameboyShell: PNG filename in shells/ folder for the handheld popup
  * Base gameboy_lid.png is grey; themed versions are pre-colored
@@ -113,7 +113,7 @@ export const THEMES = {
         shell: 'guardian-shell.png',
         gameboyShell: 'gameboy_guardian.png',
         // Grimoire tint: warm tan → pink/magenta
-        grimoireFilter: 'hue-rotate(300deg) saturate(1.3) brightness(1.05)'
+        grimoireBook: 'book_guardian.png'
     },
     umbra: {
         name: 'Umbra',
@@ -133,7 +133,7 @@ export const THEMES = {
         shell: 'umbra-shell.png',
         gameboyShell: 'gameboy_umbra.png',
         // Grimoire tint: warm tan → deep purple (darker, more saturated)
-        grimoireFilter: 'hue-rotate(255deg) saturate(1.6) brightness(0.75)'
+        grimoireBook: 'book_umbra.png'
     },
     apothecary: {
         name: 'Apothecary',
@@ -153,7 +153,7 @@ export const THEMES = {
         shell: 'apothecary-shell.png',
         gameboyShell: 'gameboy_apothecary.png',
         // Grimoire tint: warm tan → earthy olive/sage (minimal shift, keep natural)
-        grimoireFilter: 'hue-rotate(50deg) saturate(0.85) brightness(0.95)'
+        grimoireBook: 'book_apothecary.png'
     },
     moonstone: {
         name: 'Moonstone',
@@ -173,7 +173,7 @@ export const THEMES = {
         shell: 'moonstone-shell.png',
         gameboyShell: 'gameboy_moonstone.png',
         // Grimoire tint: warm tan → soft lavender (lighter, desaturated)
-        grimoireFilter: 'hue-rotate(240deg) saturate(0.7) brightness(1.15)'
+        grimoireBook: 'book_moonstone.png'
     },
     phosphor: {
         name: 'Phosphor',
@@ -193,7 +193,7 @@ export const THEMES = {
         shell: 'phosphor-shell.png',
         gameboyShell: 'gameboy_phosphor.png',
         // Grimoire tint: warm tan → neon purple/cyan (vibrant, high contrast)
-        grimoireFilter: 'hue-rotate(230deg) saturate(1.8) brightness(0.9) contrast(1.15)'
+        grimoireBook: 'book_phosphor.png'
     },
     rosewood: {
         name: 'Rosewood',
@@ -213,7 +213,7 @@ export const THEMES = {
         shell: 'rosewood-shell.png',
         gameboyShell: 'gameboy_rosewood.png',
         // Grimoire tint: warm tan → soft blush pink (light, soft, dreamy)
-        grimoireFilter: 'hue-rotate(320deg) saturate(0.6) brightness(1.12)'
+        grimoireBook: 'book_rosewood.png'
     },
     celestial: {
         name: 'Celestial',
@@ -233,7 +233,7 @@ export const THEMES = {
         shell: 'celestial-shell.png',
         gameboyShell: 'gameboy_celestial.png',
         // Grimoire tint: warm tan → deep navy blue (darker, richer)
-        grimoireFilter: 'hue-rotate(200deg) saturate(2.0) brightness(0.55) contrast(1.1)'
+        grimoireBook: 'book_celestial.png'
     },
     angel: {
         name: 'Angel',
@@ -255,7 +255,7 @@ export const THEMES = {
         shell: 'angel-shell.png',
         gameboyShell: 'gameboy_angel.png',
         // Grimoire tint: warm tan → ivory gold (warm, bright, ethereal)
-        grimoireFilter: 'hue-rotate(15deg) saturate(0.5) brightness(1.25) contrast(0.95)'
+        grimoireBook: 'book_angel.png'
     },
     demon: {
         name: 'Demon',
@@ -277,7 +277,7 @@ export const THEMES = {
         shell: 'demon-shell.png',
         gameboyShell: 'gameboy_demon.png',
         // Grimoire tint: warm tan → blood red/charred (dark, saturated)
-        grimoireFilter: 'hue-rotate(345deg) saturate(1.8) brightness(0.6) contrast(1.2)'
+        grimoireBook: 'book_demon.png'
     }
 };
 
