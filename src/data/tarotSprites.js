@@ -18,10 +18,10 @@ import { MAJOR_ARCANA, drawCard, drawOrientation } from './tarotCards.js';
 // SPRITESHEET SPECIFICATIONS
 // ============================================
 
-const SHEET_WIDTH = 5290;
+const SHEET_WIDTH = 5272;
 const SHEET_HEIGHT = 405;
 const TOTAL_CARDS = 23;
-const CARD_WIDTH = 230;
+const CARD_WIDTH = 229;
 const CARD_BACK_INDEX = 22;
 const BASE_SCALE = 5; // Sprites are 5x base size
 
