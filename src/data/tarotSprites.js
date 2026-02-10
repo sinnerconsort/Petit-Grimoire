@@ -6,11 +6,13 @@
  * This module handles DISPLAY only (spritesheets, animations, elements)
  * 
  * Spritesheet specs: 5272×405px, 23 cards (22 Major Arcana + card back)
+ * 
+ * Location: /src/data/tarotSprites.js
  */
 
-import { settings } from '../../core/state.js';
-import { ASSET_PATHS } from '../../core/config.js';
-import { MAJOR_ARCANA, drawCard, drawOrientation } from '../../data/tarotCards.js';
+import { settings } from '../core/state.js';
+import { ASSET_PATHS } from '../core/config.js';
+import { MAJOR_ARCANA, drawCard, drawOrientation } from './tarotCards.js';
 
 // ============================================
 // SPRITESHEET SPECIFICATIONS
@@ -73,32 +75,31 @@ export function getDisplayDimensions(displayScale = 2) {
 }
 
 // ============================================
-// CARD ELEMENT CREATION
+// CARD ELEMENT CREATION (NON-FLIPPABLE)
 // ============================================
 
 /**
- * Create a card element with spritesheet background
- * @param {number|null} cardIndex - Card index (0-21) or null for random
+ * Create a simple card element (for gallery view)
+ * @param {number} cardIndex - Card index (0-21)
  * @param {Object} options - Configuration options
  */
-export function createCardElement(cardIndex = null, options = {}) {
+export function createCardElement(cardIndex, options = {}) {
     const {
         displayScale = 2,
-        faceDown = true,
+        showBack = false,
         isReversed = false,
         theme = null,
         clickable = true,
     } = options;
     
     const dims = getDisplayDimensions(displayScale);
-    const posX = faceDown 
+    const posX = showBack 
         ? getCardBackPosition(displayScale) 
         : getCardPosition(cardIndex, displayScale);
     
     const card = document.createElement('div');
     card.className = 'pg-tarot-card';
     card.dataset.cardIndex = cardIndex;
-    card.dataset.faceDown = faceDown;
     card.dataset.isReversed = isReversed;
     
     Object.assign(card.style, {
@@ -110,8 +111,10 @@ export function createCardElement(cardIndex = null, options = {}) {
         backgroundRepeat: 'no-repeat',
         imageRendering: 'pixelated',
         cursor: clickable ? 'pointer' : 'default',
-        transform: isReversed && !faceDown ? 'rotate(180deg)' : 'none',
-        transition: 'transform 0.1s ease',
+        transform: isReversed ? 'rotate(180deg)' : 'none',
+        borderRadius: '3px',
+        boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
+        transition: 'transform 0.2s ease, box-shadow 0.2s ease',
     });
     
     return card;
@@ -188,7 +191,7 @@ export function injectFlipStyles() {
 }
 
 /**
- * Create a flippable card with front/back faces
+ * Create a flippable card with front/back faces (for spreads)
  * @param {number} cardIndex - The card to show when flipped
  * @param {Object} options - Configuration options
  */
@@ -425,4 +428,5 @@ export {
     SHEET_HEIGHT, 
     CARD_BACK_INDEX,
     BASE_SCALE,
+    MAJOR_ARCANA,
 };
