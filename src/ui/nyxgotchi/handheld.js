@@ -379,8 +379,8 @@ function getHandheldHTML() {
                     position: absolute;
                     left: 8%;
                     top: 62%;
-                    width: 22%;
-                    aspect-ratio: 1;
+                    width: 56px;
+                    height: 56px;
                     z-index: 5;
                 ">
                     <img id="dpad-sprite" 
@@ -422,8 +422,8 @@ function getHandheldHTML() {
                     position: absolute;
                     left: 52%;
                     top: 67%;
-                    width: 14%;
-                    aspect-ratio: 1;
+                    width: 35px;
+                    height: 35px;
                     background: transparent;
                     border: none;
                     border-radius: 50%;
@@ -434,8 +434,8 @@ function getHandheldHTML() {
                     position: absolute;
                     left: 66%;
                     top: 60%;
-                    width: 16%;
-                    aspect-ratio: 1;
+                    width: 40px;
+                    height: 40px;
                     background: transparent;
                     border: none;
                     border-radius: 50%;
