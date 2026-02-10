@@ -15,48 +15,55 @@ let selectedCard = null;
 
 /**
  * Theme-specific card filter settings
- * Values taken directly from image editor Hue/Saturation/Luminescence sliders
+ * Original cards are gold/yellow (~50° on color wheel)
+ * hue-rotate shifts FROM that starting point
  * 
- * hue: degrees (-180 to +180)
- * saturation: multiplier (1 = 100%, 0.5 = 50%, 2 = 200%)
- * brightness: multiplier (1 = 100%, 0.5 = 50%)
+ * Color wheel reference:
+ *   0° = Red, 60° = Yellow, 120° = Green, 
+ *   180° = Cyan, 240° = Blue, 300° = Magenta
  */
 const THEME_CARD_FILTER = {
     guardian: { 
-        hue: -72,
-        saturation: 1.11,  // +11%
+        // Target: Purple (~280°) from gold (~50°) = +230°
+        hue: 230,
+        saturation: 1.1,
         brightness: 1,
     },
     umbra: { 
-        hue: -88,
-        saturation: 1,
-        brightness: 0.74,  // -26%
+        // Target: Vivid dark purple, needs pop against purple book
+        hue: 200,
+        saturation: 1.4,
+        brightness: 0.8,
     },
     apothecary: { 
+        // Target: Warm brown/sepia - slight shift, darkened but not TOO dark
         hue: -7,
-        saturation: 0.97,  // -3%
-        brightness: 0.56,  // -44%
+        saturation: 0.97,
+        brightness: 0.75,  // Was 0.56, now lighter
     },
     moonstone: { 
-        hue: -100,
-        saturation: 0.75,  // -25%
+        // Target: Sky blue (~200°) from gold (~50°) = +150°
+        hue: 150,
+        saturation: 0.8,
         brightness: 1,
     },
     phosphor: { 
-        hue: 80,
-        saturation: 2,     // +100%
+        // Target: Cyan (~180°) from gold (~50°) = +130°
+        hue: 130,
+        saturation: 1.8,
         brightness: 1,
     },
     rosewood: { 
+        // Target: Sage green - this one was working
         hue: 36,
-        saturation: 0.47,  // -53%
+        saturation: 0.47,
         brightness: 1,
     },
     celestial: { 
+        // Keep original gold
         hue: 0,
         saturation: 1,
         brightness: 1,
-        // Keep original gold - no filter needed
     },
 };
 
