@@ -21,7 +21,7 @@ import { MAJOR_ARCANA, drawCard, drawOrientation } from './tarotCards.js';
 const SHEET_WIDTH = 5272;
 const SHEET_HEIGHT = 405;
 const TOTAL_CARDS = 23;
-const CARD_WIDTH = 229;
+const CARD_WIDTH = 228;
 const CARD_BACK_INDEX = 22;
 const BASE_SCALE = 5; // Sprites are 5x base size
 
