@@ -101,8 +101,8 @@ function injectStyles() {
         }
         
         @keyframes pg-icon-glow {
-            0%, 100% { filter: drop-shadow(0 0 2px currentColor); }
-            50% { filter: drop-shadow(0 0 6px currentColor); }
+            0%, 100% { filter: drop-shadow(0 0 2px rgba(255,255,255,0.5)); }
+            50% { filter: drop-shadow(0 0 6px rgba(255,255,255,0.8)); }
         }
         
         @keyframes pg-icon-sparkle {
@@ -197,15 +197,14 @@ function createTabIcons(book, scale, offsetY) {
     `);
     
     // Tab positions in SPRITE coordinates (before scaling)
-    // Measured from the book+tabs portion starting at x:310 in the full sprite
-    // Using emoji for reliable display (FA may not load in all ST setups)
+    // Using pixel art icons for consistent theme
     const TAB_DATA = [
-        { id: 'tarot',    icon: '⭐',    y: 237, label: 'Tarot' },
-        { id: 'crystal',  icon: '🔮',    y: 275, label: 'Crystal Ball' },
-        { id: 'ouija',    icon: '👻',    y: 313, label: 'Ouija' },
-        { id: 'nyx',      icon: '🐱',    y: 352, label: 'Nyx' },
-        { id: 'spells',   icon: '✨',    y: 388, label: 'Spells' },
-        { id: 'settings', icon: '⚙️',    y: 427, label: 'Settings' },
+        { id: 'tarot',    icon: 'tab_tarot.png',      y: 237, label: 'Tarot' },
+        { id: 'crystal',  icon: 'tab_crystal.png',    y: 275, label: 'Crystal Ball' },
+        { id: 'ouija',    icon: 'tab_planchette.png', y: 313, label: 'Ouija' },
+        { id: 'nyx',      icon: 'tab_nyx.png',        y: 352, label: 'Nyx' },
+        { id: 'spells',   icon: 'tab_magic.png',      y: 388, label: 'Spells' },
+        { id: 'settings', icon: 'tab_settings.png',   y: 427, label: 'Settings' },
     ];
     
     // Tab dimensions in sprite coordinates
@@ -223,7 +222,19 @@ function createTabIcons(book, scale, offsetY) {
         btn.className = 'pg-tab-icon';
         btn.dataset.tab = tab.id;
         btn.title = tab.label;
-        btn.textContent = tab.icon;  // Direct emoji, no FA dependency
+        
+        // Create image element instead of text
+        const iconImg = document.createElement('img');
+        iconImg.src = `${ASSET_PATHS.icons}/${tab.icon}`;
+        iconImg.alt = tab.label;
+        iconImg.style.cssText = `
+            width: 80%;
+            height: 80%;
+            object-fit: contain;
+            image-rendering: pixelated;
+            pointer-events: none;
+        `;
+        btn.appendChild(iconImg);
         
         // Scale positions to match the scaled sprite
         const scaledY = (tab.y * scale) - offsetY;
@@ -252,24 +263,23 @@ function createTabIcons(book, scale, offsetY) {
             display: flex !important;
             align-items: center !important;
             justify-content: center !important;
-            color: ${isActive ? activeColor : inactiveColor} !important;
-            font-size: ${Math.max(14, scaledH * 0.35)}px !important;
             opacity: ${isActive ? '1' : '0.6'} !important;
             animation-delay: ${animDelay}s !important;
+            padding: 4px !important;
         `);
         
-        // Hover effects with theme colors
+        // Hover effects
         btn.addEventListener('mouseenter', () => {
             if (btn.dataset.tab !== settings.activeTab) {
-                btn.style.color = activeColor;
                 btn.style.opacity = '1';
+                btn.style.transform = 'scale(1.1)';
             }
         });
         
         btn.addEventListener('mouseleave', () => {
             if (btn.dataset.tab !== settings.activeTab) {
-                btn.style.color = inactiveColor;
                 btn.style.opacity = '0.6';
+                btn.style.transform = 'scale(1)';
             }
         });
         
@@ -295,9 +305,9 @@ function updateTabIconStates() {
     document.querySelectorAll('.pg-tab-icon').forEach(btn => {
         const isActive = btn.dataset.tab === settings.activeTab;
         
-        // Update colors
-        btn.style.color = isActive ? activeColor : inactiveColor;
+        // Update opacity and transform
         btn.style.opacity = isActive ? '1' : '0.6';
+        btn.style.transform = 'scale(1)';
         
         // Toggle active class for CSS animations
         if (isActive) {
