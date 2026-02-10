@@ -16,6 +16,32 @@ let cooldownUntil = null;
 const COOLDOWN_MS = 60000; // 1 minute between gazes (adjust as needed)
 const MAX_RECENT_VISIONS = 5;
 
+// Clock sprite config: 29 frames, 64x64 each, horizontal strip
+const CLOCK_FRAMES = 29;
+const CLOCK_FRAME_SIZE = 64;
+const CLOCK_FPS = 12;
+
+// Theme → clock color mapping
+const CLOCK_COLORS = {
+    guardian: 'red',
+    umbra: 'violet',
+    apothecary: 'green',
+    moonstone: 'blue',
+    phosphor: 'violet',
+    rosewood: 'red',
+    celestial: 'yellow',
+    angel: 'yellow',
+    demon: 'orange'
+};
+
+/**
+ * Get clock sprite path for current theme
+ */
+function getClockSprite(themeName) {
+    const color = CLOCK_COLORS[themeName] || 'blue';
+    return `${ASSET_PATHS.effects}/clock/${color}.png`;
+}
+
 /**
  * Get crystal ball sprite path for current theme
  */
@@ -102,8 +128,25 @@ export function getContent() {
                 flex-direction: column;
                 align-items: center;
                 margin-bottom: 12px;
+                position: relative;
             ">
+                <!-- Clock animation (hidden until gaze) -->
+                <div id="pg-crystal-clock" style="
+                    position: absolute;
+                    width: 64px;
+                    height: 64px;
+                    background-image: url('${getClockSprite(settings.theme)}');
+                    background-size: ${CLOCK_FRAMES * CLOCK_FRAME_SIZE}px ${CLOCK_FRAME_SIZE}px;
+                    background-position: 0 0;
+                    background-repeat: no-repeat;
+                    image-rendering: pixelated;
+                    opacity: 0;
+                    transition: opacity 0.3s ease;
+                    z-index: 0;
+                "></div>
                 <div id="pg-crystal-orb" data-theme-sprite="${crystalSprite}" style="
+                    position: relative;
+                    z-index: 1;
                     width: 64px;
                     height: 64px;
                     background-image: url('${crystalSprite}');
@@ -266,20 +309,39 @@ export function cleanup() {
 
 /**
  * Rainbow gazing animation.
- * Rapidly cycles between the rainbow sprite and theme sprite
- * with hue-rotate to create a prismatic flash effect.
+ * Swaps crystal to rainbow sprite with hue-rotate cycle,
+ * while spinning the clock sprite behind it.
  */
 async function playRainbowGaze(orb) {
     const themeSprite = orb.dataset.themeSprite || getCrystalSprite(settings.theme);
     const rainbowSprite = getRainbowSprite();
+    const clock = document.getElementById('pg-crystal-clock');
+    
+    // Start clock animation
+    let clockFrame = 0;
+    let clockInterval = null;
+    if (clock) {
+        clock.style.opacity = '0.7';
+        clockInterval = setInterval(() => {
+            clockFrame = (clockFrame + 1) % CLOCK_FRAMES;
+            clock.style.backgroundPosition = `-${clockFrame * CLOCK_FRAME_SIZE}px 0`;
+        }, 1000 / CLOCK_FPS);
+    }
     
     // Swap to rainbow sprite
     orb.style.backgroundImage = `url('${rainbowSprite}')`;
     orb.style.animation = 'pg-crystal-rainbow 0.4s linear infinite, pg-crystal-pulse 0.5s ease-in-out infinite';
     orb.style.filter = 'brightness(1.4) saturate(1.8)';
     
-    // Hold the rainbow effect for the gazing duration
+    // Hold the effect for gazing duration
     await new Promise(resolve => setTimeout(resolve, 1500));
+    
+    // Stop clock animation
+    if (clockInterval) clearInterval(clockInterval);
+    if (clock) {
+        clock.style.opacity = '0';
+        clock.style.backgroundPosition = '0 0';
+    }
     
     // Swap back to theme sprite
     orb.style.backgroundImage = `url('${themeSprite}')`;
