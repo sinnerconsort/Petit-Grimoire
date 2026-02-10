@@ -355,6 +355,7 @@ function getHandheldHTML() {
     const theme = settings.theme || 'guardian';
     const themeData = getTheme(theme);
     const gameboyImg = themeData.gameboyShell || 'gameboy_lid.png';
+    const dpadBase = `${ASSET_PATHS.effects}/dpad`;
 
     return `
         <div class="handheld-overlay" id="handheld-overlay">
@@ -373,19 +374,74 @@ function getHandheldHTML() {
                      alt=""
                      draggable="false" />
 
-                <!-- D-Pad (positioned over the shell) -->
-                <div class="handheld-dpad">
-                    <button class="dpad-btn dpad-up" data-dir="up">▲</button>
-                    <button class="dpad-btn dpad-left" data-dir="left">◀</button>
-                    <button class="dpad-btn dpad-right" data-dir="right">▶</button>
-                    <button class="dpad-btn dpad-down" data-dir="down">▼</button>
+                <!-- Animated D-Pad sprite -->
+                <div class="handheld-dpad" id="handheld-dpad" style="
+                    position: absolute;
+                    left: 8%;
+                    top: 62%;
+                    width: 22%;
+                    aspect-ratio: 1;
+                    z-index: 5;
+                ">
+                    <img id="dpad-sprite" 
+                         src="${dpadBase}/idle.png"
+                         data-idle="${dpadBase}/idle.png"
+                         data-up="${dpadBase}/up.gif"
+                         data-down="${dpadBase}/down.gif"
+                         data-left="${dpadBase}/left.gif"
+                         data-right="${dpadBase}/right.gif"
+                         alt=""
+                         draggable="false"
+                         style="
+                            width: 100%;
+                            height: 100%;
+                            image-rendering: pixelated;
+                            pointer-events: none;
+                         " />
+                    <!-- Touch zones (invisible, positioned over quadrants) -->
+                    <button class="dpad-zone dpad-zone-up" data-dir="up" style="
+                        position: absolute; top: 0; left: 25%; width: 50%; height: 35%;
+                        background: transparent; border: none; cursor: pointer;
+                    "></button>
+                    <button class="dpad-zone dpad-zone-down" data-dir="down" style="
+                        position: absolute; bottom: 0; left: 25%; width: 50%; height: 35%;
+                        background: transparent; border: none; cursor: pointer;
+                    "></button>
+                    <button class="dpad-zone dpad-zone-left" data-dir="left" style="
+                        position: absolute; top: 25%; left: 0; width: 35%; height: 50%;
+                        background: transparent; border: none; cursor: pointer;
+                    "></button>
+                    <button class="dpad-zone dpad-zone-right" data-dir="right" style="
+                        position: absolute; top: 25%; right: 0; width: 35%; height: 50%;
+                        background: transparent; border: none; cursor: pointer;
+                    "></button>
                 </div>
 
-                <!-- A/B Buttons -->
-                <div class="handheld-buttons">
-                    <button class="action-btn btn-b">B</button>
-                    <button class="action-btn btn-a">A</button>
-                </div>
+                <!-- Paw button hit zones (invisible, over shell paw prints) -->
+                <button class="paw-btn paw-b" id="paw-btn-b" style="
+                    position: absolute;
+                    left: 52%;
+                    top: 67%;
+                    width: 14%;
+                    aspect-ratio: 1;
+                    background: transparent;
+                    border: none;
+                    border-radius: 50%;
+                    cursor: pointer;
+                    z-index: 5;
+                "></button>
+                <button class="paw-btn paw-a" id="paw-btn-a" style="
+                    position: absolute;
+                    left: 66%;
+                    top: 60%;
+                    width: 16%;
+                    aspect-ratio: 1;
+                    background: transparent;
+                    border: none;
+                    border-radius: 50%;
+                    cursor: pointer;
+                    z-index: 5;
+                "></button>
             </div>
         </div>
     `;
@@ -464,19 +520,42 @@ export function openHandheld(pendingMsg = null) {
         }
     });
 
-    // Wire D-pad buttons
-    container.querySelectorAll('.dpad-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-            handleDpad(btn.dataset.dir);
-        });
+    // Wire D-pad sprite zones
+    const dpadSprite = container.querySelector('#dpad-sprite');
+    container.querySelectorAll('.dpad-zone').forEach(zone => {
+        const dir = zone.dataset.dir;
+        
+        // Press → swap to directional GIF
+        const onPress = (e) => {
+            e.preventDefault();
+            if (dpadSprite) {
+                // Add cache-bust to restart GIF animation
+                dpadSprite.src = dpadSprite.dataset[dir] + '?t=' + Date.now();
+            }
+            handleDpad(dir);
+        };
+        
+        // Release → back to idle
+        const onRelease = () => {
+            if (dpadSprite) {
+                dpadSprite.src = dpadSprite.dataset.idle;
+            }
+        };
+        
+        zone.addEventListener('mousedown', onPress);
+        zone.addEventListener('mouseup', onRelease);
+        zone.addEventListener('mouseleave', onRelease);
+        zone.addEventListener('touchstart', onPress, { passive: false });
+        zone.addEventListener('touchend', onRelease);
+        zone.addEventListener('touchcancel', onRelease);
     });
 
-    // Wire A/B buttons
-    const btnA = container.querySelector('.btn-a');
-    if (btnA) btnA.addEventListener('click', handleAButton);
-
-    const btnB = container.querySelector('.btn-b');
-    if (btnB) btnB.addEventListener('click', handleBButton);
+    // Wire paw buttons
+    const pawA = container.querySelector('#paw-btn-a');
+    const pawB = container.querySelector('#paw-btn-b');
+    
+    if (pawA) pawA.addEventListener('click', handleAButton);
+    if (pawB) pawB.addEventListener('click', handleBButton);
 
     // Setup screen listeners
     setupScreenListeners();
