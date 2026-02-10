@@ -481,7 +481,7 @@ export function createNyxgotchi() {
             const moved = Math.abs(e.clientX - tapX) + Math.abs(e.clientY - tapY);
             
             if (elapsed < 300 && moved < 10) {
-                import('./handheld.js').then(m => m.openHandheld()).catch(() => {});
+                import('./handheld.js').then(m => m.toggleHandheld()).catch(() => {});
             }
         });
 
@@ -497,7 +497,7 @@ export function createNyxgotchi() {
             const moved = Math.abs(touch.clientX - tapX) + Math.abs(touch.clientY - tapY);
             
             if (elapsed < 300 && moved < 10) {
-                import('./handheld.js').then(m => m.openHandheld()).catch(() => {});
+                import('./handheld.js').then(m => m.toggleHandheld()).catch(() => {});
             }
         }, { passive: true });
     }

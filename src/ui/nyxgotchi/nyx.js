@@ -24,6 +24,7 @@ export {
 } from './nyxgotchi.js';
 
 export {
+    toggleHandheld,
     openHandheld,
     closeHandheld,
     isHandheldOpen,
