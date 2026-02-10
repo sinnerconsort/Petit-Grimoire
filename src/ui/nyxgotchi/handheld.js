@@ -1,9 +1,11 @@
 /**
  * Petit Grimoire — Handheld Panel
- * Game Boy style popup for Nyx interactions & Knucklebones
+ * Game Boy style popup for Nyx interactions
  * 
  * Opens when tapping the Nyxgotchi shell.
- * Features a transparent screen area for dynamic content.
+ * D-pad navigates menu, A selects, B goes back.
+ * 
+ * Screens: main, chat, status, knucklebones, radio, weather, horoscope, settings
  */
 
 import { ASSET_PATHS, getTheme } from '../../core/config.js';
@@ -15,7 +17,21 @@ import { getMoodText } from './sprites.js';
 // ============================================
 
 let isOpen = false;
-let currentScreen = 'main';  // 'main' | 'knucklebones' | 'settings'
+let currentScreen = 'main';
+let selectedIndex = 0;  // D-pad highlighted menu item
+
+// ============================================
+// MENU DEFINITIONS
+// ============================================
+
+const MAIN_MENU = [
+    { id: 'chat',         icon: '💬', label: 'Chat',         screen: 'chat' },
+    { id: 'status',       icon: '♥',  label: 'Status',       screen: 'status' },
+    { id: 'knucklebones', icon: '🎲', label: 'Knucklebones', screen: 'knucklebones' },
+    { id: 'radio',        icon: '📻', label: 'Radio',        screen: 'radio' },
+    { id: 'weather',      icon: '🌧',  label: 'Weather',      screen: 'weather' },
+    { id: 'horoscope',    icon: '⭐', label: 'Horoscope',    screen: 'horoscope' },
+];
 
 // ============================================
 // SCREEN CONTENT GENERATORS
@@ -24,7 +40,14 @@ let currentScreen = 'main';  // 'main' | 'knucklebones' | 'settings'
 function getMainScreenContent() {
     const disposition = settings.nyxDisposition ?? 50;
     const mood = getMoodText(disposition);
-    const theme = getTheme(settings.theme);
+
+    const menuHTML = MAIN_MENU.map((item, i) => `
+        <button class="handheld-menu-btn ${i === selectedIndex ? 'selected' : ''}" 
+                data-screen="${item.screen}" data-index="${i}">
+            <span class="menu-icon">${item.icon}</span>
+            <span class="menu-label">${item.label}</span>
+        </button>
+    `).join('');
 
     return `
         <div class="handheld-main-screen">
@@ -39,114 +62,116 @@ function getMainScreenContent() {
             </div>
 
             <div class="handheld-menu">
-                <button class="handheld-menu-btn" data-screen="knucklebones">
-                    🎲 Knucklebones
-                </button>
-                <button class="handheld-menu-btn" data-action="poke">
-                    👆 Poke Nyx
-                </button>
-                <button class="handheld-menu-btn" data-screen="settings">
-                    ⚙️ Settings
-                </button>
+                ${menuHTML}
             </div>
+        </div>
+    `;
+}
 
-            <div class="handheld-speech" id="handheld-speech">
-                <span class="speech-text">...</span>
+function getChatContent() {
+    return `
+        <div class="handheld-sub-screen">
+            <div class="handheld-sub-title">💬 Chat</div>
+            <div class="handheld-sub-body" id="handheld-chat-log">
+                <p class="screen-placeholder">Nyx is listening...</p>
             </div>
+            <button class="handheld-back-btn" data-screen="main">← Back</button>
+        </div>
+    `;
+}
+
+function getStatusContent() {
+    const disposition = settings.nyxDisposition ?? 50;
+    const mood = getMoodText(disposition);
+
+    return `
+        <div class="handheld-sub-screen">
+            <div class="handheld-sub-title">♥ Status</div>
+            <div class="handheld-sub-body">
+                <div class="status-row">
+                    <span class="status-label">Mood</span>
+                    <span class="status-value">${mood}</span>
+                </div>
+                <div class="status-row">
+                    <span class="status-label">Disposition</span>
+                    <span class="status-value">${disposition}/100</span>
+                </div>
+                <div class="mood-bar" style="margin-top: 4px;">
+                    <div class="mood-bar-fill" style="width: ${disposition}%"></div>
+                </div>
+            </div>
+            <button class="handheld-back-btn" data-screen="main">← Back</button>
         </div>
     `;
 }
 
 function getKnucklebonesContent() {
     return `
-        <div class="handheld-knucklebones">
-            <div class="handheld-title">🎲 KNUCKLEBONES 🎲</div>
-            
-            <div class="knucklebones-board">
-                <div class="knucklebones-player" data-player="nyx">
-                    <div class="player-label">Nyx</div>
-                    <div class="dice-grid">
-                        <div class="dice-column">
-                            <div class="dice-slot"></div>
-                            <div class="dice-slot"></div>
-                            <div class="dice-slot"></div>
-                        </div>
-                        <div class="dice-column">
-                            <div class="dice-slot"></div>
-                            <div class="dice-slot"></div>
-                            <div class="dice-slot"></div>
-                        </div>
-                        <div class="dice-column">
-                            <div class="dice-slot"></div>
-                            <div class="dice-slot"></div>
-                            <div class="dice-slot"></div>
-                        </div>
-                    </div>
-                    <div class="player-score">0</div>
-                </div>
-
-                <div class="knucklebones-divider"></div>
-
-                <div class="knucklebones-player" data-player="user">
-                    <div class="player-score">0</div>
-                    <div class="dice-grid">
-                        <div class="dice-column" data-col="0">
-                            <div class="dice-slot"></div>
-                            <div class="dice-slot"></div>
-                            <div class="dice-slot"></div>
-                        </div>
-                        <div class="dice-column" data-col="1">
-                            <div class="dice-slot"></div>
-                            <div class="dice-slot"></div>
-                            <div class="dice-slot"></div>
-                        </div>
-                        <div class="dice-column" data-col="2">
-                            <div class="dice-slot"></div>
-                            <div class="dice-slot"></div>
-                            <div class="dice-slot"></div>
-                        </div>
-                    </div>
-                    <div class="player-label">You</div>
-                </div>
+        <div class="handheld-sub-screen">
+            <div class="handheld-sub-title">🎲 Knucklebones</div>
+            <div class="handheld-sub-body">
+                <p class="screen-placeholder">Coming soon...</p>
             </div>
+            <button class="handheld-back-btn" data-screen="main">← Back</button>
+        </div>
+    `;
+}
 
-            <div class="knucklebones-current-die">
-                <div class="current-die-value">?</div>
-                <button class="roll-btn">Roll</button>
+function getRadioContent() {
+    return `
+        <div class="handheld-sub-screen">
+            <div class="handheld-sub-title">📻 Radio</div>
+            <div class="handheld-sub-body">
+                <p class="screen-placeholder">Tuning in...</p>
             </div>
+            <button class="handheld-back-btn" data-screen="main">← Back</button>
+        </div>
+    `;
+}
 
-            <div class="handheld-back-btn" data-screen="main">← Back</div>
+function getWeatherContent() {
+    return `
+        <div class="handheld-sub-screen">
+            <div class="handheld-sub-title">🌧 Weather</div>
+            <div class="handheld-sub-body">
+                <p class="screen-placeholder">Checking the skies...</p>
+            </div>
+            <button class="handheld-back-btn" data-screen="main">← Back</button>
+        </div>
+    `;
+}
+
+function getHoroscopeContent() {
+    return `
+        <div class="handheld-sub-screen">
+            <div class="handheld-sub-title">⭐ Horoscope</div>
+            <div class="handheld-sub-body">
+                <p class="screen-placeholder">Reading the stars...</p>
+            </div>
+            <button class="handheld-back-btn" data-screen="main">← Back</button>
         </div>
     `;
 }
 
 function getSettingsContent() {
     const disposition = settings.nyxDisposition ?? 50;
+    const showTama = settings.showNyxgotchi !== false;
 
     return `
-        <div class="handheld-settings">
-            <div class="handheld-title">⚙️ SETTINGS ⚙️</div>
-            
-            <div class="settings-group">
-                <label class="setting-label">Disposition</label>
-                <input type="range" 
-                       class="setting-range" 
-                       id="handheld-disposition" 
-                       min="0" max="100" 
-                       value="${disposition}">
-                <span class="setting-value">${disposition}</span>
-            </div>
-
-            <div class="settings-group">
-                <label class="setting-label">
-                    <input type="checkbox" 
-                           id="handheld-show-tama"
-                           ${settings.showNyxgotchi !== false ? 'checked' : ''}>
-                    Show Nyxgotchi
+        <div class="handheld-sub-screen">
+            <div class="handheld-sub-title">⚙ Settings</div>
+            <div class="handheld-sub-body">
+                <label class="setting-row">
+                    <span>Show Tama</span>
+                    <input type="checkbox" id="handheld-show-tama" ${showTama ? 'checked' : ''}>
+                </label>
+                <label class="setting-row">
+                    <span>Disposition</span>
+                    <input type="range" id="handheld-disposition" min="0" max="100" value="${disposition}">
+                    <span id="handheld-disp-value">${disposition}</span>
                 </label>
             </div>
-
-            <div class="handheld-back-btn" data-screen="main">← Back</div>
+            <button class="handheld-back-btn" data-screen="main">← Back</button>
         </div>
     `;
 }
@@ -162,14 +187,18 @@ function renderScreen(screenName) {
     currentScreen = screenName;
 
     switch (screenName) {
-        case 'knucklebones':
-            screenEl.innerHTML = getKnucklebonesContent();
-            break;
+        case 'chat':         screenEl.innerHTML = getChatContent(); break;
+        case 'status':       screenEl.innerHTML = getStatusContent(); break;
+        case 'knucklebones': screenEl.innerHTML = getKnucklebonesContent(); break;
+        case 'radio':        screenEl.innerHTML = getRadioContent(); break;
+        case 'weather':      screenEl.innerHTML = getWeatherContent(); break;
+        case 'horoscope':    screenEl.innerHTML = getHoroscopeContent(); break;
         case 'settings':
             screenEl.innerHTML = getSettingsContent();
             setupSettingsListeners();
             break;
         default:
+            selectedIndex = 0;
             screenEl.innerHTML = getMainScreenContent();
     }
 
@@ -177,7 +206,7 @@ function renderScreen(screenName) {
 }
 
 function setupScreenListeners() {
-    // Menu buttons
+    // Menu buttons (tap to navigate)
     document.querySelectorAll('.handheld-menu-btn[data-screen]').forEach(btn => {
         btn.addEventListener('click', () => {
             renderScreen(btn.dataset.screen);
@@ -191,28 +220,26 @@ function setupScreenListeners() {
         });
     });
 
-    // Poke action
+    // Poke action (legacy)
     document.querySelectorAll('[data-action="poke"]').forEach(btn => {
         btn.addEventListener('click', handlePoke);
     });
 }
 
 function setupSettingsListeners() {
-    // Disposition slider
     const dispSlider = document.getElementById('handheld-disposition');
     if (dispSlider) {
         dispSlider.addEventListener('input', (e) => {
             const value = parseInt(e.target.value);
-            e.target.nextElementSibling.textContent = value;
+            const valEl = document.getElementById('handheld-disp-value');
+            if (valEl) valEl.textContent = value;
             updateSetting('nyxDisposition', value);
             
-            // Update nyxgotchi mood
             const moodEl = document.getElementById('nyxgotchi-mood');
             if (moodEl) moodEl.textContent = getMoodText(value);
         });
     }
 
-    // Show tama toggle
     const showTama = document.getElementById('handheld-show-tama');
     if (showTama) {
         showTama.addEventListener('change', (e) => {
@@ -226,64 +253,98 @@ function setupSettingsListeners() {
 }
 
 // ============================================
+// D-PAD NAVIGATION
+// ============================================
+
+function updateSelection(newIndex) {
+    const items = document.querySelectorAll('.handheld-menu-btn[data-index]');
+    if (items.length === 0) return;
+
+    // Wrap around
+    if (newIndex < 0) newIndex = items.length - 1;
+    if (newIndex >= items.length) newIndex = 0;
+    selectedIndex = newIndex;
+
+    // Update visual selection
+    items.forEach((btn, i) => {
+        btn.classList.toggle('selected', i === selectedIndex);
+    });
+
+    // Scroll selected item into view
+    items[selectedIndex]?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+}
+
+function handleDpad(direction) {
+    if (currentScreen !== 'main') {
+        // In sub-screens, left = back
+        if (direction === 'left') {
+            renderScreen('main');
+        }
+        return;
+    }
+
+    switch (direction) {
+        case 'up':
+            updateSelection(selectedIndex - 1);
+            break;
+        case 'down':
+            updateSelection(selectedIndex + 1);
+            break;
+        case 'right':
+            // Right = enter selected screen (same as A)
+            handleAButton();
+            break;
+    }
+}
+
+function handleAButton() {
+    if (currentScreen === 'main') {
+        // Select highlighted menu item
+        const items = document.querySelectorAll('.handheld-menu-btn[data-index]');
+        const selected = items[selectedIndex];
+        if (selected?.dataset.screen) {
+            renderScreen(selected.dataset.screen);
+        }
+    } else {
+        // In sub-screens, A could confirm/interact
+        const actionBtn = document.querySelector('.roll-btn, .handheld-action-btn');
+        if (actionBtn) actionBtn.click();
+    }
+}
+
+function handleBButton() {
+    if (currentScreen === 'main') {
+        closeHandheld();
+    } else {
+        renderScreen('main');
+    }
+}
+
+// ============================================
 // POKE INTERACTION
 // ============================================
 
-const POKE_RESPONSES = {
-    annoyed: [
-        "What.",
-        "Stop that.",
-        "*hiss*",
-        "Do you have nothing better to do?",
-        "I'm busy."
-    ],
-    bored: [
-        "*yawn*",
-        "...yes?",
-        "Is something happening?",
-        "Wake me when it's interesting."
-    ],
-    neutral: [
-        "Yes?",
-        "I'm watching.",
-        "Go on.",
-        "Something on your mind?"
-    ],
-    amused: [
-        "Oh? Need something?",
-        "Checking on me?",
-        "How thoughtful.",
-        "I suppose I'll allow it."
-    ],
-    delighted: [
-        "Ah, you~",
-        "Miss me already?",
-        "How delightful.",
-        "Yes yes, I'm here."
-    ]
-};
-
 function handlePoke() {
-    const disposition = settings.nyxDisposition ?? 50;
-    const mood = getMoodText(disposition);
-    const responses = POKE_RESPONSES[mood] || POKE_RESPONSES.neutral;
-    const response = responses[Math.floor(Math.random() * responses.length)];
-
-    showSpeech(response);
-}
-
-function showSpeech(text, duration = 3000) {
     const speechEl = document.getElementById('handheld-speech');
     if (!speechEl) return;
 
+    const phrases = [
+        "Don't touch me.",
+        "What.",
+        "I was sleeping.",
+        "Do that again and I bite.",
+        "...fine. Hello.",
+        "*hiss*",
+        "You have my attention. Briefly.",
+        "The audacity.",
+        "I'll allow it. Once.",
+        "Acceptable.",
+        "Don't make it weird."
+    ];
+
+    const msg = phrases[Math.floor(Math.random() * phrases.length)];
     const textEl = speechEl.querySelector('.speech-text');
-    if (textEl) textEl.textContent = text;
-
-    speechEl.classList.add('visible');
-
-    setTimeout(() => {
-        speechEl.classList.remove('visible');
-    }, duration);
+    if (textEl) textEl.textContent = msg;
 }
 
 // ============================================
@@ -336,20 +397,21 @@ function getHandheldHTML() {
 
 /**
  * Toggle the handheld panel open/closed.
- * Called by Nyxgotchi tap.
+ * @param {object} [pendingMsg] - Optional message from indicator system
  */
-export function toggleHandheld() {
+export function toggleHandheld(pendingMsg = null) {
     if (isOpen) {
         closeHandheld();
     } else {
-        openHandheld();
+        openHandheld(pendingMsg);
     }
 }
 
 /**
  * Open the handheld panel
+ * @param {object} [pendingMsg] - Optional message to navigate to on open
  */
-export function openHandheld() {
+export function openHandheld(pendingMsg = null) {
     if (isOpen) return;
 
     // Add to DOM
@@ -370,10 +432,9 @@ export function openHandheld() {
         const topBar = document.getElementById('top-settings-holder');
         const topBarHeight = topBar ? topBar.offsetHeight : 60;
         
-        // Calculate size to fit screen
-        const availHeight = window.innerHeight - topBarHeight - 80; // leave room for input bar
+        const availHeight = window.innerHeight - topBarHeight - 80;
         const containerHeight = Math.min(390, availHeight);
-        const containerWidth = Math.round(containerHeight * (260 / 390)); // maintain aspect ratio
+        const containerWidth = Math.round(containerHeight * (260 / 390));
 
         container.style.cssText = `
             position: fixed !important;
@@ -403,29 +464,28 @@ export function openHandheld() {
         }
     });
 
-    // B button = back/close
-    const btnB = container.querySelector('.btn-b');
-    if (btnB) {
-        btnB.addEventListener('click', () => {
-            if (currentScreen === 'main') {
-                closeHandheld();
-            } else {
-                renderScreen('main');
-            }
+    // Wire D-pad buttons
+    container.querySelectorAll('.dpad-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            handleDpad(btn.dataset.dir);
         });
-    }
+    });
 
-    // A button = confirm/select
+    // Wire A/B buttons
     const btnA = container.querySelector('.btn-a');
-    if (btnA) {
-        btnA.addEventListener('click', () => {
-            const firstBtn = container.querySelector('.handheld-menu-btn, .roll-btn');
-            if (firstBtn) firstBtn.click();
-        });
-    }
+    if (btnA) btnA.addEventListener('click', handleAButton);
+
+    const btnB = container.querySelector('.btn-b');
+    if (btnB) btnB.addEventListener('click', handleBButton);
 
     // Setup screen listeners
     setupScreenListeners();
+
+    // If there's a pending message, navigate to that screen
+    if (pendingMsg?.screen) {
+        renderScreen(pendingMsg.screen);
+        console.log('[PG] Handheld opened to:', pendingMsg.screen);
+    }
 
     // Animate in
     requestAnimationFrame(() => {
@@ -447,13 +507,13 @@ export function closeHandheld() {
     if (container) container.classList.remove('visible');
     if (overlay) overlay.classList.remove('visible');
 
-    // Remove after animation
     setTimeout(() => {
         if (overlay) overlay.remove();
     }, 300);
 
     isOpen = false;
     currentScreen = 'main';
+    selectedIndex = 0;
     console.log('[PG] Handheld closed');
 }
 
@@ -462,14 +522,4 @@ export function closeHandheld() {
  */
 export function isHandheldOpen() {
     return isOpen;
-}
-
-/**
- * Update handheld theme
- */
-export function updateHandheldTheme() {
-    const container = document.getElementById('handheld-container');
-    if (container) {
-        container.setAttribute('data-mg-theme', settings.theme || 'guardian');
-    }
 }

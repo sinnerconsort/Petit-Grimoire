@@ -6,6 +6,7 @@
 import { ASSET_PATHS, getTheme, getNyxgotchiSize } from '../../core/config.js';
 import { settings, updateSetting } from '../../core/state.js';
 import { getSpriteAnimation, hasSpriteSupport, getMoodText } from './sprites.js';
+import { getIndicatorHTML, consumePendingMessage, hasPendingMessage } from './nyx-indicators.js';
 
 // ============================================
 // CONSTANTS
@@ -346,6 +347,7 @@ function getNyxgotchiHTML() {
 
     return `
         <div class="nyxgotchi" id="nyxgotchi" data-mg-theme="${theme}">
+            ${getIndicatorHTML()}
             <div class="nyxgotchi-shell" id="nyxgotchi-shell" style="
                 position: relative;
                 width: ${size.shell}px; 
@@ -477,7 +479,8 @@ export function createNyxgotchi() {
             const moved = Math.abs(e.clientX - tapX) + Math.abs(e.clientY - tapY);
             
             if (elapsed < 300 && moved < 10) {
-                import('./handheld.js').then(m => m.toggleHandheld()).catch(() => {});
+                const msg = consumePendingMessage();
+                import('./handheld.js').then(m => m.toggleHandheld(msg)).catch(() => {});
             }
         });
 
@@ -493,7 +496,8 @@ export function createNyxgotchi() {
             const moved = Math.abs(touch.clientX - tapX) + Math.abs(touch.clientY - tapY);
             
             if (elapsed < 300 && moved < 10) {
-                import('./handheld.js').then(m => m.toggleHandheld()).catch(() => {});
+                const msg = consumePendingMessage();
+                import('./handheld.js').then(m => m.toggleHandheld(msg)).catch(() => {});
             }
         }, { passive: true });
     }
