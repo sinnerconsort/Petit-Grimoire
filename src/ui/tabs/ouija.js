@@ -12,46 +12,24 @@ import { getTheme } from '../../core/config.js';
 let isConsulting = false;
 let currentAnswer = null;
 
-// Board and planchette paths per theme
-const THEME_ASSETS = {
-    guardian: {
-        board: 'ouija/boards/board_guardian.png',
-        planchette: 'ouija/planchettes/planchette_guardian.png'
-    },
-    umbra: {
-        board: 'ouija/boards/board_umbra.png',
-        planchette: 'ouija/planchettes/planchette_umbra.png'
-    },
-    apothecary: {
-        board: 'ouija/boards/board_apothecary.png',
-        planchette: 'ouija/planchettes/planchette_apothecary.png'
-    },
-    moonstone: {
-        board: 'ouija/boards/board_moonstone.png',
-        planchette: 'ouija/planchettes/planchette_moonstone.png'
-    },
-    phosphor: {
-        board: 'ouija/boards/board_phosphor.png',
-        planchette: 'ouija/planchettes/planchette_phosphor.png'
-    },
-    rosewood: {
-        board: 'ouija/boards/board_rosewood.png',
-        planchette: 'ouija/planchettes/planchette_rosewood.png'
-    },
-    celestial: {
-        board: 'ouija/boards/board_celestial.png',
-        planchette: 'ouija/planchettes/planchette_celestial.png'
-    }
-};
+// Base path for ouija assets (matches SillyTavern extension structure)
+const OUIJA_PATH = 'scripts/extensions/third-party/Petit-Grimoire/assets/ouija';
 
 /**
  * Get asset path for current theme
+ * @param {string} type - 'board' or 'planchette'
  */
 function getAssetPath(type) {
     const themeName = settings.theme || 'guardian';
-    const assets = THEME_ASSETS[themeName] || THEME_ASSETS.guardian;
-    // Adjust this base path to match your extension structure
-    return `assets/${assets[type]}`;
+    
+    if (type === 'board') {
+        return `${OUIJA_PATH}/boards/board_${themeName}.png`;
+    } else if (type === 'planchette') {
+        return `${OUIJA_PATH}/planchettes/planchette_${themeName}.png`;
+    }
+    
+    // Fallback
+    return `${OUIJA_PATH}/boards/board_guardian.png`;
 }
 
 /**
