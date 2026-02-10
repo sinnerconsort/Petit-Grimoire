@@ -11,6 +11,9 @@ import { settings, loadSettings, saveSettings, setTheme } from './src/core/state
 import { createFab, destroyFab, updateFabTheme, constrainFabToViewport } from './src/ui/fab.js';
 import { createGrimoire, destroyGrimoire, toggleGrimoire, updateGrimoireTheme } from './src/ui/grimoire.js';
 
+// Nyxgotchi
+import { createNyxgotchi, destroyNyxgotchi, updateShell, updateHandheldTheme } from './src/ui/nyxgotchi/nyx.js';
+
 // =============================================================================
 // UI LIFECYCLE
 // =============================================================================
@@ -27,6 +30,9 @@ function createUI() {
     // Create grimoire panel (hidden by default)
     createGrimoire();
     
+    // Create Nyxgotchi companion
+    createNyxgotchi();
+    
     console.log('[PG] UI created');
 }
 
@@ -36,6 +42,7 @@ function createUI() {
 function destroyUI() {
     destroyFab();
     destroyGrimoire();
+    destroyNyxgotchi();
 }
 
 /**
@@ -53,6 +60,8 @@ function rebuildUI() {
 function applyTheme() {
     updateFabTheme();
     updateGrimoireTheme();
+    updateShell();
+    updateHandheldTheme();
 }
 
 // =============================================================================
