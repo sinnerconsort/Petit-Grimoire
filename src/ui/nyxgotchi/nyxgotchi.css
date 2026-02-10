@@ -222,16 +222,21 @@
 
 /* ---- Overlay ---- */
 .handheld-overlay {
-    position: fixed;
-    inset: 0;
-    z-index: 2147483647;
-    background: rgba(0, 0, 0, 0.7);
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    z-index: 2147483647 !important;
+    background: rgba(0, 0, 0, 0.7) !important;
     backdrop-filter: blur(4px);
     
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 20px !important;
     
     opacity: 0;
     transition: opacity 0.3s ease;
@@ -243,20 +248,16 @@
 
 /* ---- Container ---- */
 .handheld-container {
-    position: relative;
-    width: 280px;
-    height: 420px;
-    max-height: 80vh;
-    max-width: 85vw;
-    overflow: hidden;
+    position: relative !important;
+    width: 260px;
+    height: 390px;
+    flex-shrink: 0;
     
-    transform: scale(0.8) translateY(20px);
     opacity: 0;
     transition: transform 0.3s ease, opacity 0.3s ease;
 }
 
 .handheld-container.visible {
-    transform: scale(1) translateY(0);
     opacity: 1;
 }
 
@@ -656,14 +657,9 @@
         height: 100px;
     }
 
-    /* Scale the whole gameboy down to fit mobile screens */
     .handheld-container {
-        width: 280px;
-        height: 420px;
-    }
-    
-    .handheld-container.visible {
-        transform: scale(0.65) translateY(0);
+        width: 220px;
+        height: 330px;
     }
 
     .handheld-screen-content {
@@ -678,8 +674,9 @@
         height: 80px;
     }
 
-    .handheld-container.visible {
-        transform: scale(0.55) translateY(0);
+    .handheld-container {
+        width: 190px;
+        height: 285px;
     }
 }
 
