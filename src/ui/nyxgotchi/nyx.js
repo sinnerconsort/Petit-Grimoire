@@ -36,3 +36,11 @@ export {
     hasSpriteSupport,
     getAvailableMoods
 } from './sprites.js';
+
+export {
+    showIndicator,
+    clearIndicator,
+    consumePendingMessage,
+    hasPendingMessage,
+    getCurrentIndicator
+} from './nyx-indicators.js';

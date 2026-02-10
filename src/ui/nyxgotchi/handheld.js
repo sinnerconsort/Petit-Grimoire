@@ -523,3 +523,14 @@ export function closeHandheld() {
 export function isHandheldOpen() {
     return isOpen;
 }
+
+/**
+ * Update handheld theme (called when theme changes)
+ */
+export function updateHandheldTheme() {
+    // If handheld is open, re-render with new theme
+    if (isOpen) {
+        closeHandheld();
+        openHandheld();
+    }
+}
