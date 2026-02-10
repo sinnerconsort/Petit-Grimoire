@@ -228,8 +228,8 @@ function createTabIcons(book, scale, offsetY) {
         iconImg.src = `${ASSET_PATHS.icons}/${tab.icon}`;
         iconImg.alt = tab.label;
         iconImg.style.cssText = `
-            width: 80%;
-            height: 80%;
+            width: 65%;
+            height: 65%;
             object-fit: contain;
             image-rendering: pixelated;
             pointer-events: none;
