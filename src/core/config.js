@@ -13,6 +13,7 @@ export const ASSET_PATHS = {
     grimoire: `${extensionFolderPath}/assets/grimoire`,
     shells: `${extensionFolderPath}/assets/shells`,
     sprites: `${extensionFolderPath}/assets/sprites`,
+    effects: `${extensionFolderPath}/assets/effects`,
     wizardCat: `${extensionFolderPath}/assets/sprites/wizard-cat`,
     icons: `${extensionFolderPath}/assets/sprites/tabs`
 };
