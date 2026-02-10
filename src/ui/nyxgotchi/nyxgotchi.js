@@ -5,28 +5,8 @@
 
 import { ASSET_PATHS, getTheme, getNyxgotchiSize } from '../../core/config.js';
 import { settings, updateSetting } from '../../core/state.js';
-import { getSpriteAnimation, hasSpriteSupport } from './sprites.js';
+import { getSpriteAnimation, hasSpriteSupport, getMoodText } from './sprites.js';
 import { getIndicatorHTML, consumePendingMessage, hasPendingMessage } from './nyx-indicators.js';
-
-// ============================================
-// MOOD HELPERS
-// ============================================
-
-/**
- * Get mood text from disposition value
- * @param {number} disposition - 0-100 value
- * @returns {string} Mood name
- */
-function getMoodText(disposition) {
-    if (disposition < 20) return 'annoyed';
-    if (disposition < 35) return 'bored';
-    if (disposition < 60) return 'neutral';
-    if (disposition < 80) return 'amused';
-    return 'delighted';
-}
-
-// Re-export getMoodText for external use
-export { getMoodText };
 
 // ============================================
 // CONSTANTS
@@ -78,6 +58,9 @@ const ASCII_SPRITES = {
     }
 };
 
+// Re-export getMoodText for external use
+export { getMoodText };
+
 // ============================================
 // HELPERS
 // ============================================
@@ -123,8 +106,8 @@ export function updateSpriteDisplay() {
             currentAnimData = anim;
             
             // Get actual sprite dimensions from animation data
-            const frameW = anim.fw;
-            const frameH = anim.fh;
+            const frameW = anim.frameWidth;
+            const frameH = anim.frameHeight;
             const numFrames = anim.frames;
             
             // Current frame (proper loop)
@@ -157,10 +140,9 @@ export function updateSpriteDisplay() {
             sprite.style.backgroundRepeat = 'no-repeat';
             sprite.style.imageRendering = 'pixelated';
             
-            // Offset for tall sprites (if defined)
-            const offsetY = anim.offsetY || 0;
-            if (offsetY) {
-                sprite.style.marginTop = Math.round(offsetY * scale) + 'px';
+            // Offset for tall sprites
+            if (anim.offsetY) {
+                sprite.style.marginTop = Math.round(anim.offsetY * scale) + 'px';
             } else {
                 sprite.style.marginTop = '0';
             }
@@ -383,7 +365,7 @@ function getNyxgotchiHTML() {
         left: 16%;
         top: 18%;
         width: 68%;
-        height: 58%;
+        height: 54%;
         background: linear-gradient(180deg, #0a1810 0%, #0d2818 50%, #0a1810 100%);
         border-radius: 6px;
         overflow: hidden;
