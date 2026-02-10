@@ -12,9 +12,8 @@ import { getIndicatorHTML, consumePendingMessage, hasPendingMessage } from './ny
 // CONSTANTS
 // ============================================
 
-// The sprite display size inside the tiny tama screen
-// This needs to be small enough to fit!
-const TAMA_SPRITE_SIZE = 28;
+// Display size for sprite inside the tama screen
+const TAMA_SPRITE_SIZE = 32;
 
 // ============================================
 // ANIMATION STATE
@@ -106,42 +105,44 @@ export function updateSpriteDisplay() {
         if (anim) {
             currentAnimData = anim;
             
-            // Get sprite sheet info
-            const frameW = anim.frameWidth || 32;
-            const frameH = anim.frameHeight || 32;
-            const numFrames = anim.frames || 1;
+            // Get actual sprite dimensions from animation data
+            const frameW = anim.frameWidth;
+            const frameH = anim.frameHeight;
+            const numFrames = anim.frames;
             
-            // Calculate current frame (loop properly)
+            // Current frame (proper loop)
             const frame = currentSpriteFrame % numFrames;
             
-            // Scale to fit the tiny tama screen
+            // Scale: fit the 48px sprite into our display size
             const scale = TAMA_SPRITE_SIZE / frameW;
             const displayW = Math.round(frameW * scale);
             const displayH = Math.round(frameH * scale);
             
-            // Total sheet width at display scale
-            const sheetDisplayW = numFrames * displayW;
+            // Sheet dimensions at display scale
+            const sheetW = numFrames * displayW;
             
-            // Frame offset
-            const frameOffset = frame * displayW;
+            // Frame position
+            const frameX = frame * displayW;
 
             sprite.textContent = '';
             sprite.classList.add('pixel-mode');
             
-            // Set size
+            // CRITICAL: Set explicit size and clip to single frame
             sprite.style.width = displayW + 'px';
             sprite.style.height = displayH + 'px';
+            sprite.style.minWidth = displayW + 'px';
+            sprite.style.maxWidth = displayW + 'px';
+            sprite.style.overflow = 'hidden';
             
-            // Set background
             sprite.style.backgroundImage = `url('${anim.src}')`;
-            sprite.style.backgroundSize = `${sheetDisplayW}px ${displayH}px`;
-            sprite.style.backgroundPosition = `-${frameOffset}px 0`;
+            sprite.style.backgroundSize = `${sheetW}px ${displayH}px`;
+            sprite.style.backgroundPosition = `-${frameX}px 0`;
             sprite.style.backgroundRepeat = 'no-repeat';
             sprite.style.imageRendering = 'pixelated';
             
-            // Handle tall sprites (shift up)
+            // Offset for tall sprites
             if (anim.offsetY) {
-                sprite.style.marginTop = (anim.offsetY * scale) + 'px';
+                sprite.style.marginTop = Math.round(anim.offsetY * scale) + 'px';
             } else {
                 sprite.style.marginTop = '0';
             }
@@ -356,6 +357,22 @@ function getNyxgotchiHTML() {
     const size = getCurrentSize();
     const themeData = getTheme(theme);
 
+    // Screen position - adjusted to fill the shell's screen area fully
+    // These percentages should match your shell PNG's transparent screen area
+    const screenStyle = `
+        position: absolute;
+        z-index: 1;
+        left: 16%;
+        top: 18%;
+        width: 68%;
+        height: 54%;
+        background: linear-gradient(180deg, #0a1810 0%, #0d2818 50%, #0a1810 100%);
+        border-radius: 6px;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+    `;
+
     return `
         <div class="nyxgotchi" id="nyxgotchi" data-mg-theme="${theme}">
             ${getIndicatorHTML()}
@@ -369,24 +386,13 @@ function getNyxgotchiHTML() {
             ">
                 
                 <!-- Screen content (behind glass) -->
-                <div class="nyxgotchi-screen" style="
-                    position: absolute;
-                    z-index: 1;
-                    left: 18%;
-                    top: 22%;
-                    width: 64%;
-                    height: 38%;
-                    background: linear-gradient(180deg, #0a1810 0%, #0d2818 50%, #0a1810 100%);
-                    border-radius: 6px;
-                    overflow: hidden;
-                    display: flex;
-                    flex-direction: column;
-                ">
-                    <!-- Backlight glow layer -->
-                    <div class="nyxgotchi-backlight" style="
+                <div class="nyxgotchi-screen" style="${screenStyle}">
+                    
+                    <!-- Backlight glow -->
+                    <div style="
                         position: absolute;
                         inset: 0;
-                        background: radial-gradient(ellipse at center, rgba(74, 222, 128, 0.15) 0%, transparent 70%);
+                        background: radial-gradient(ellipse at center, rgba(74, 222, 128, 0.12) 0%, transparent 70%);
                         pointer-events: none;
                         z-index: 0;
                     "></div>
@@ -397,7 +403,7 @@ function getNyxgotchiHTML() {
                         justify-content: center;
                         align-items: center;
                         gap: 3px;
-                        padding: 1px 4px;
+                        padding: 2px 4px;
                         font-size: 7px;
                         font-family: monospace;
                         color: #4ade80;
@@ -410,7 +416,7 @@ function getNyxgotchiHTML() {
                         <span id="nyxgotchi-disposition" style="font-size: 8px;">${disposition}</span>
                     </div>
 
-                    <!-- Sprite area - centered with backlight -->
+                    <!-- Sprite area -->
                     <div class="nyxgotchi-sprite-area" style="
                         flex: 1;
                         display: flex;
@@ -421,18 +427,18 @@ function getNyxgotchiHTML() {
                         z-index: 1;
                         min-height: 0;
                     ">
-                        <!-- Sprite glow (behind sprite) -->
-                        <div class="nyxgotchi-sprite-glow" style="
+                        <!-- Sprite glow behind -->
+                        <div style="
                             position: absolute;
-                            width: 32px;
-                            height: 32px;
-                            background: radial-gradient(circle, rgba(74, 222, 128, 0.3) 0%, transparent 70%);
+                            width: 36px;
+                            height: 36px;
+                            background: radial-gradient(circle, rgba(74, 222, 128, 0.25) 0%, transparent 70%);
                             border-radius: 50%;
-                            filter: blur(4px);
+                            filter: blur(3px);
                             pointer-events: none;
                         "></div>
                         
-                        <!-- The actual sprite -->
+                        <!-- Sprite -->
                         <div class="nyxgotchi-sprite" id="nyxgotchi-sprite" style="
                             position: relative;
                             font-family: monospace;
@@ -441,7 +447,7 @@ function getNyxgotchiHTML() {
                             white-space: pre;
                             color: #4ade80;
                             image-rendering: pixelated;
-                            filter: drop-shadow(0 0 2px rgba(74, 222, 128, 0.5));
+                            filter: drop-shadow(0 0 2px rgba(74, 222, 128, 0.6));
                         "></div>
                     </div>
 
@@ -451,7 +457,7 @@ function getNyxgotchiHTML() {
                         font-family: monospace;
                         color: #4ade80;
                         text-align: center;
-                        padding: 1px;
+                        padding: 2px;
                         background: rgba(0, 0, 0, 0.3);
                         text-transform: lowercase;
                         letter-spacing: 0.5px;
@@ -460,7 +466,7 @@ function getNyxgotchiHTML() {
                         z-index: 1;
                     ">${mood}</div>
                     
-                    <!-- Scanlines overlay -->
+                    <!-- Scanlines -->
                     <div style="
                         position: absolute;
                         inset: 0;
@@ -468,8 +474,8 @@ function getNyxgotchiHTML() {
                             0deg,
                             transparent,
                             transparent 1px,
-                            rgba(0, 0, 0, 0.1) 1px,
-                            rgba(0, 0, 0, 0.1) 2px
+                            rgba(0, 0, 0, 0.08) 1px,
+                            rgba(0, 0, 0, 0.08) 2px
                         );
                         pointer-events: none;
                         z-index: 2;
@@ -512,7 +518,6 @@ export function createNyxgotchi() {
         return;
     }
 
-    // Force visibility
     nyxgotchi.style.setProperty('position', 'fixed', 'important');
     nyxgotchi.style.setProperty('z-index', '2147483647', 'important');
     nyxgotchi.style.setProperty('display', 'flex', 'important');

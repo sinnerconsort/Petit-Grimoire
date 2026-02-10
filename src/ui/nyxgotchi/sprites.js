@@ -30,7 +30,7 @@ export function getMoodText(disposition) {
 
 /**
  * Base frame size for wizard cat sprites
- * All standard sprites are 32x32, tall ones are 32x64
+ * Confirmed: 32x32 per frame
  */
 const FRAME_SIZE = 32;
 
@@ -39,26 +39,26 @@ const FRAME_SIZE = 32;
 // ============================================
 
 /**
- * Wizard Cat sprite sheets - verified frame counts:
+ * Wizard Cat sprite sheets - 32x32 per frame
  * 
- *   IdleCatb.png     - 8 frames  (32x32 each)
- *   Idle2Catb.png    - 12 frames (32x32 each)  
- *   Sleeping.png     - 4 frames  (32x32 each)
- *   Sittingb.png     - 4 frames  (32x32 each)
- *   HurtCatb.png     - 8 frames  (32x32 each)
- *   RunCatb.png      - 8 frames  (32x32 each)
- *   FlyingCat.png    - 4 frames  (32x32 each)
- *   Attack.png       - 8 frames  (32x32 each)
- *   WizardAttack.png - 8 frames  (32x32 each)
- *   Jump.png         - 14 frames (32x64 each) TALL
- *   DieCatb.png      - 12 frames (32x32 each)
- *   Die2Catb.png     - 14 frames (32x64 each) TALL
+ *   IdleCatb.png     - 8 frames
+ *   Idle2Catb.png    - 12 frames  
+ *   Sleeping.png     - 4 frames
+ *   Sittingb.png     - 4 frames
+ *   HurtCatb.png     - 8 frames
+ *   RunCatb.png      - 8 frames
+ *   FlyingCat.png    - 4 frames
+ *   Attack.png       - 8 frames
+ *   WizardAttack.png - 8 frames
+ *   Jump.png         - 14 frames (32x64 tall)
+ *   DieCatb.png      - 12 frames
+ *   Die2Catb.png     - 14 frames (32x64 tall)
  */
 const FAMILIAR_SPRITES = {
     cat: {
         name: 'Nyx',
         animations: {
-            // === MOOD STATES (used by disposition system) ===
+            // === MOOD STATES ===
             neutral: {
                 src: `${ASSET_PATHS.wizardCat}/IdleCatb.png`,
                 frames: 8,
@@ -95,7 +95,7 @@ const FAMILIAR_SPRITES = {
                 speed: 150
             },
 
-            // === EXTRA ANIMATIONS (for special events) ===
+            // === EXTRA ANIMATIONS ===
             idle2: {
                 src: `${ASSET_PATHS.wizardCat}/Idle2Catb.png`,
                 frames: 12,
@@ -139,7 +139,7 @@ const FAMILIAR_SPRITES = {
                 speed: 80
             },
 
-            // === TALL SPRITES (double height, need offset) ===
+            // === TALL SPRITES (double height) ===
             jump: {
                 src: `${ASSET_PATHS.wizardCat}/Jump.png`,
                 frames: 14,
@@ -169,9 +169,6 @@ const FAMILIAR_SPRITES = {
 
 /**
  * Get sprite animation data for a familiar and mood.
- * @param {string} familiar - Form key (e.g., 'cat')
- * @param {string} mood - Mood string from getMoodText() or animation name
- * @returns {Object|null} { src, frames, frameWidth, frameHeight, speed, offsetY? }
  */
 export function getSpriteAnimation(familiar, mood) {
     const data = FAMILIAR_SPRITES[familiar];
@@ -191,9 +188,7 @@ export function getSpriteAnimation(familiar, mood) {
 }
 
 /**
- * Check if a familiar has sprite support (vs ASCII-only).
- * @param {string} familiar - Form key
- * @returns {boolean}
+ * Check if a familiar has sprite support.
  */
 export function hasSpriteSupport(familiar) {
     return !!(FAMILIAR_SPRITES[familiar]?.animations?.neutral);
@@ -201,8 +196,6 @@ export function hasSpriteSupport(familiar) {
 
 /**
  * Get all available animation names for a familiar.
- * @param {string} familiar - Form key
- * @returns {string[]}
  */
 export function getAvailableMoods(familiar) {
     const data = FAMILIAR_SPRITES[familiar];
@@ -212,7 +205,6 @@ export function getAvailableMoods(familiar) {
 
 /**
  * Get the base frame size
- * @returns {number}
  */
 export function getDefaultFrameSize() {
     return FRAME_SIZE;
