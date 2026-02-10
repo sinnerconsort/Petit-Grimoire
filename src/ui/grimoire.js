@@ -485,9 +485,9 @@ export function openGrimoire() {
         const offsetX = Math.floor(bookStartX * scale);
         const offsetY = Math.floor(bookStartY * scale);
         
-        // Get current theme for grimoire filter
+        // Get current theme for grimoire book
         const currentTheme = getTheme(settings.theme);
-        const grimoireFilter = currentTheme.grimoireFilter || 'none';
+        const grimoireBook = currentTheme.grimoireBook || 'Grimoire_WithTabs.png';
         
         spriteDiv.setAttribute('style', `
             position: absolute !important;
@@ -495,14 +495,13 @@ export function openGrimoire() {
             left: 0 !important;
             width: ${bookWidth}px !important;
             height: ${bookHeight}px !important;
-            background-image: url('${ASSET_PATHS.grimoire}/Grimoire_WithTabs.png') !important;
+            background-image: url('${ASSET_PATHS.grimoire}/${grimoireBook}') !important;
             background-size: ${scaledSpriteWidth}px ${scaledSpriteHeight}px !important;
             background-position: -${offsetX}px -${offsetY}px !important;
             background-repeat: no-repeat !important;
             image-rendering: pixelated !important;
             pointer-events: none !important;
             z-index: 0 !important;
-            filter: ${grimoireFilter} !important;
         `);
         
         // Create tab icons overlay
@@ -617,11 +616,12 @@ export function updateGrimoireTheme() {
     
     const theme = getTheme(settings.theme);
     
-    // Update sprite filter
+    // Update sprite to themed book
     const spriteDiv = document.getElementById('pg-book-sprite');
     if (spriteDiv) {
-        const grimoireFilter = theme.grimoireFilter || 'none';
-        spriteDiv.style.filter = grimoireFilter;
+        const grimoireBook = theme.grimoireBook || 'Grimoire_WithTabs.png';
+        spriteDiv.style.backgroundImage = `url('${ASSET_PATHS.grimoire}/${grimoireBook}')`;
+        spriteDiv.style.filter = 'none';
     }
     
     // Update scrollbar color
