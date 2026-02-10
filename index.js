@@ -1,8 +1,6 @@
 /**
  * Petit Grimoire - Main Entry Point
  * A Magical Girl Fortune-Telling Extension for SillyTavern
- * 
- * ⚠️ DIAGNOSTIC VERSION
  */
 
 // Core
@@ -17,54 +15,35 @@ import { createGrimoire, destroyGrimoire, toggleGrimoire, updateGrimoireTheme } 
 import { createNyxgotchi, destroyNyxgotchi, updateShell, updateHandheldTheme } from './src/ui/nyxgotchi/nyx.js';
 
 // =============================================================================
-// DEBUG
-// =============================================================================
-
-function debug(msg, type = 'info') {
-    console.log(`[PG] ${msg}`);
-    if (typeof toastr !== 'undefined') {
-        toastr[type]?.(msg, '✨ PG Debug', { timeOut: 4000 });
-    }
-}
-
-// =============================================================================
 // UI LIFECYCLE
 // =============================================================================
 
 /**
- * Create all UI elements - each wrapped in try/catch so one failure
- * doesn't prevent the others from being created
+ * Create all UI elements.
+ * Each component is wrapped in try/catch so one failure
+ * doesn't prevent the others from being created.
  */
 function createUI() {
     destroyUI();
     
-    // Create FAB
+    // Create FAB (toggles grimoire on click)
     try {
-        debug('Creating FAB...');
         createFab(toggleGrimoire);
-        debug('FAB OK', 'success');
     } catch (err) {
-        debug(`FAB FAILED: ${err.message}`, 'error');
         console.error('[PG] FAB creation failed:', err);
     }
     
-    // Create grimoire panel
+    // Create grimoire panel (hidden by default)
     try {
-        debug('Creating Grimoire...');
         createGrimoire();
-        debug('Grimoire OK', 'success');
     } catch (err) {
-        debug(`GRIMOIRE FAILED: ${err.message}`, 'error');
         console.error('[PG] Grimoire creation failed:', err);
     }
     
     // Create Nyxgotchi companion
     try {
-        debug('Creating Nyxgotchi...');
         createNyxgotchi();
-        // createNyxgotchi has its own debug messages
     } catch (err) {
-        debug(`NYXGOTCHI FAILED: ${err.message}`, 'error');
         console.error('[PG] Nyxgotchi creation failed:', err);
     }
     
@@ -151,10 +130,12 @@ function addSettingsUI() {
         const newTheme = $(this).val();
         setTheme(newTheme);
         
+        // Update description
         $(this).closest('.inline-drawer-content')
             .find('div:last-child')
             .text(getTheme(newTheme).desc);
         
+        // Rebuild UI with new theme
         if (settings.enabled) {
             rebuildUI();
         }
@@ -181,7 +162,7 @@ window.addEventListener('resize', () => {
 // =============================================================================
 
 jQuery(() => {
-    debug('Petit Grimoire starting...');
+    console.log('[PG] Petit Grimoire starting...');
     
     // Load saved settings
     loadSettings();
@@ -194,5 +175,5 @@ jQuery(() => {
         setTimeout(createUI, 300);
     }
     
-    debug('Initialized');
+    console.log('[PG] Initialized');
 });
