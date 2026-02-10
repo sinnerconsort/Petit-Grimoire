@@ -22,7 +22,7 @@ const CLOCK_FRAME_SIZE = 128;
 const CLOCK_FPS = 12;
 
 // DEBUG: Set to true to keep clock running continuously for positioning
-const DEBUG_CLOCK = true;
+const DEBUG_CLOCK = false;
 
 // Theme → clock color mapping
 const CLOCK_COLORS = {
