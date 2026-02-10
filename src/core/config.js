@@ -55,6 +55,33 @@ export const GRIMOIRE_SPRITES = {
 };
 
 /**
+ * Nyxgotchi size presets
+ * Each size defines shell dimensions
+ */
+export const NYXGOTCHI_SIZES = {
+    tiny: {
+        name: 'Tiny',
+        shell: 60,
+        sprite: 32
+    },
+    small: {
+        name: 'Small',
+        shell: 80,
+        sprite: 40
+    },
+    medium: {
+        name: 'Medium',
+        shell: 100,
+        sprite: 48
+    },
+    large: {
+        name: 'Large',
+        shell: 120,
+        sprite: 52
+    }
+};
+
+/**
  * Theme definitions
  * Each theme has colors, FAB icon, Nyxgotchi shell, and grimoire filter
  * 
@@ -227,6 +254,7 @@ export const DEFAULT_SETTINGS = {
     fancyFont: false,         // Use Gentry Society decorative font
     // Nyxgotchi settings
     showNyxgotchi: true,                      // Toggle visibility
+    nyxgotchiSize: 'medium',                  // Size preset: tiny, small, medium, large
     nyxgotchiPosition: { x: null, y: null },  // Saved drag position
     nyxDisposition: 50                        // 0-100, affects mood
 };
@@ -236,4 +264,11 @@ export const DEFAULT_SETTINGS = {
  */
 export function getTheme(themeName) {
     return THEMES[themeName] || THEMES.guardian;
+}
+
+/**
+ * Get Nyxgotchi size preset, with fallback to medium
+ */
+export function getNyxgotchiSize(sizeName) {
+    return NYXGOTCHI_SIZES[sizeName] || NYXGOTCHI_SIZES.medium;
 }
