@@ -15,8 +15,8 @@
 
 .nyxgotchi {
     position: fixed;
-    bottom: 100px;
-    right: 20px;
+    /* Position is set entirely by JS — do NOT set top/bottom/left/right here
+       as it conflicts with saved position restoration */
     z-index: 10000;
 
     cursor: grab;
@@ -643,11 +643,6 @@
    ============================================ */
 
 @media (max-width: 768px) {
-    .nyxgotchi {
-        bottom: 80px;
-        right: 10px;
-    }
-
     .nyxgotchi-shell {
         width: 100px;
         height: 100px;
