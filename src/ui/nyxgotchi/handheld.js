@@ -379,8 +379,8 @@ function getHandheldHTML() {
                     position: absolute;
                     left: 12%;
                     top: 60%;
-                    width: 87px;
-                    height: 87x;
+                    width: 92px;
+                    height: 92x;
                     z-index: 5;
                 ">
                     <img id="dpad-sprite" 
