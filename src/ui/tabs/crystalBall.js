@@ -18,7 +18,7 @@ const MAX_RECENT_VISIONS = 5;
 
 // Clock sprite config: 29 frames, 64x64 each, horizontal strip
 const CLOCK_FRAMES = 29;
-const CLOCK_FRAME_SIZE = 64;
+const CLOCK_FRAME_SIZE = 128;
 const CLOCK_FPS = 12;
 
 // Theme → clock color mapping
@@ -133,8 +133,8 @@ export function getContent() {
                 <!-- Clock animation (hidden until gaze, overlays the orb) -->
                 <div id="pg-crystal-clock" style="
                     position: absolute;
-                    width: 64px;
-                    height: 64px;
+                    width: 128px;
+                    height: 128px;
                     background-image: url('${getClockSprite(settings.theme)}');
                     background-size: ${CLOCK_FRAMES * CLOCK_FRAME_SIZE}px ${CLOCK_FRAME_SIZE}px;
                     background-position: 0 0;
