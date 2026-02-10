@@ -7,7 +7,7 @@ import { THEMES, getTheme, NYXGOTCHI_SIZES, getNyxgotchiSize } from '../../core/
 import { settings, updateSetting } from '../../core/state.js';
 import { destroyGrimoire, createGrimoire, openGrimoire, switchTab } from '../grimoire.js';
 import { updateFabTheme } from '../fab.js';
-import { toggleNyxgotchi, updateNyxgotchiSize, updateShell } from './nyx.js';
+import { toggleNyxgotchi, updateNyxgotchiSize, updateShell } from '../nyxgotchi/nyx.js';
 
 // Track initialization state
 let isInitialized = false;
