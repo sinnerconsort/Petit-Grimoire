@@ -4,6 +4,9 @@
  * This file only contains things that MUST be in CSS
  */
 
+/* Import Nyxgotchi styles */
+@import url('./ui/nyxgotchi/nyxgotchi.css');
+
 /* Prevent any global img rules from affecting our sprites */
 #pg-book-sprite {
     object-fit: fill !important;
