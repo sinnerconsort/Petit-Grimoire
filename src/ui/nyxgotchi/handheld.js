@@ -8,7 +8,7 @@
 
 import { ASSET_PATHS, getTheme } from '../core/config.js';
 import { settings, updateSetting } from '../core/state.js';
-import { getMoodText } from './nyxgotchi.js';
+import { getMoodText } from './sprites.js';
 
 // ============================================
 // STATE

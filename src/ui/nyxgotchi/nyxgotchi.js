@@ -8,8 +8,7 @@
 
 import { ASSET_PATHS, THEMES, getTheme } from '../core/config.js';
 import { settings, updateSetting, saveSettings } from '../core/state.js';
-import { getSpriteAnimation, hasSpriteSupport } from './sprites.js';
-import { openHandheld } from './handheld.js';
+import { getSpriteAnimation, hasSpriteSupport, getMoodText } from './sprites.js';
 
 // ============================================
 // CONSTANTS
@@ -72,16 +71,8 @@ const ASCII_SPRITES = {
 // MOOD HELPERS
 // ============================================
 
-/**
- * Get mood text from disposition value
- */
-export function getMoodText(disposition) {
-    if (disposition < 20) return 'annoyed';
-    if (disposition < 35) return 'bored';
-    if (disposition < 60) return 'neutral';
-    if (disposition < 80) return 'amused';
-    return 'delighted';
-}
+// Re-export getMoodText for external use
+export { getMoodText };
 
 /**
  * Get current disposition (with defaults)
@@ -415,7 +406,7 @@ export function createNyxgotchi() {
             
             // Quick tap with minimal movement = open handheld
             if (elapsed < 300 && moved < 10) {
-                openHandheld();
+                import('./handheld.js').then(m => m.openHandheld());
             }
         });
 
@@ -432,7 +423,7 @@ export function createNyxgotchi() {
             const moved = Math.abs(touch.clientX - tapX) + Math.abs(touch.clientY - tapY);
             
             if (elapsed < 300 && moved < 10) {
-                openHandheld();
+                import('./handheld.js').then(m => m.openHandheld());
             }
         }, { passive: true });
     }
