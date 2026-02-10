@@ -332,8 +332,20 @@ function getHandheldHTML() {
 }
 
 // ============================================
-// OPEN / CLOSE
+// OPEN / CLOSE / TOGGLE
 // ============================================
+
+/**
+ * Toggle the handheld panel open/closed.
+ * Called by Nyxgotchi tap.
+ */
+export function toggleHandheld() {
+    if (isOpen) {
+        closeHandheld();
+    } else {
+        openHandheld();
+    }
+}
 
 /**
  * Open the handheld panel
@@ -381,7 +393,6 @@ export function openHandheld() {
     const btnA = container.querySelector('.btn-a');
     if (btnA) {
         btnA.addEventListener('click', () => {
-            // Focus the first button in current screen
             const firstBtn = container.querySelector('.handheld-menu-btn, .roll-btn');
             if (firstBtn) firstBtn.click();
         });
