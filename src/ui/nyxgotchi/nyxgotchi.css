@@ -248,13 +248,15 @@
 
 /* ---- Container ---- */
 .handheld-container {
-    position: relative !important;
+    position: absolute !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
     width: 260px;
     height: 390px;
-    flex-shrink: 0;
     
     opacity: 0;
-    transition: transform 0.3s ease, opacity 0.3s ease;
+    transition: opacity 0.3s ease;
 }
 
 .handheld-container.visible {
