@@ -377,8 +377,8 @@ function getHandheldHTML() {
                 <!-- Animated D-Pad sprite -->
                 <div class="handheld-dpad" id="handheld-dpad" style="
                     position: absolute;
-                    left: 18%;
-                    top: 62%;
+                    left: 15%;
+                    top: 58%;
                     width: 72px;
                     height: 72px;
                     z-index: 5;
