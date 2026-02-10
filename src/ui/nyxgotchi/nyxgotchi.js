@@ -416,6 +416,14 @@ export function createNyxgotchi() {
         return;
     }
 
+    // Force visibility with !important (ST global CSS can override otherwise)
+    nyxgotchi.style.setProperty('position', 'fixed', 'important');
+    nyxgotchi.style.setProperty('z-index', '2147483647', 'important');
+    nyxgotchi.style.setProperty('display', 'flex', 'important');
+    nyxgotchi.style.setProperty('visibility', 'visible', 'important');
+    nyxgotchi.style.setProperty('opacity', '1', 'important');
+    nyxgotchi.style.setProperty('pointer-events', 'auto', 'important');
+
     // Apply position
     applyPosition(nyxgotchi);
 
@@ -468,7 +476,7 @@ export function createNyxgotchi() {
 
     // Hide if explicitly disabled (use strict check for false, not falsy)
     if (settings.showNyxgotchi === false) {
-        nyxgotchi.style.display = 'none';
+        nyxgotchi.style.setProperty('display', 'none', 'important');
     }
 
     console.log('[PG] Nyxgotchi created');
@@ -489,7 +497,11 @@ export function destroyNyxgotchi() {
 export function toggleNyxgotchi(show) {
     const nyxgotchi = document.getElementById('nyxgotchi');
     if (nyxgotchi) {
-        nyxgotchi.style.display = show ? 'block' : 'none';
+        if (show) {
+            nyxgotchi.style.setProperty('display', 'flex', 'important');
+        } else {
+            nyxgotchi.style.setProperty('display', 'none', 'important');
+        }
     }
     updateSetting('showNyxgotchi', show);
 }
