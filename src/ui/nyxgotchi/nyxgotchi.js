@@ -106,8 +106,8 @@ export function updateSpriteDisplay() {
             currentAnimData = anim;
             
             // Get actual sprite dimensions from animation data
-            const frameW = anim.frameWidth;
-            const frameH = anim.frameHeight;
+            const frameW = anim.fw;
+            const frameH = anim.fh;
             const numFrames = anim.frames;
             
             // Current frame (proper loop)
@@ -140,9 +140,10 @@ export function updateSpriteDisplay() {
             sprite.style.backgroundRepeat = 'no-repeat';
             sprite.style.imageRendering = 'pixelated';
             
-            // Offset for tall sprites
-            if (anim.offsetY) {
-                sprite.style.marginTop = Math.round(anim.offsetY * scale) + 'px';
+            // Offset for tall sprites (if defined)
+            const offsetY = anim.offsetY || 0;
+            if (offsetY) {
+                sprite.style.marginTop = Math.round(offsetY * scale) + 'px';
             } else {
                 sprite.style.marginTop = '0';
             }
