@@ -5,14 +5,16 @@
 
 import { ASSET_PATHS, getTheme, getNyxgotchiSize } from '../../core/config.js';
 import { settings, updateSetting } from '../../core/state.js';
-import { getSpriteAnimation, hasSpriteSupport, getMoodText, getDefaultFrameSize } from './sprites.js';
+import { getSpriteAnimation, hasSpriteSupport, getMoodText } from './sprites.js';
 import { getIndicatorHTML, consumePendingMessage, hasPendingMessage } from './nyx-indicators.js';
 
 // ============================================
 // CONSTANTS
 // ============================================
 
-const DEFAULT_SPRITE_SIZE = 48;
+// The sprite display size inside the tiny tama screen
+// This needs to be small enough to fit!
+const TAMA_SPRITE_SIZE = 28;
 
 // ============================================
 // ANIMATION STATE
@@ -98,43 +100,48 @@ export function updateSpriteDisplay() {
     if (!sprite) return;
 
     const mood = getCurrentMood();
-    const size = getCurrentSize();
-    const displaySize = size.sprite || DEFAULT_SPRITE_SIZE;
 
     if (usePixelSprites()) {
         const anim = getSpriteAnimation('cat', mood);
         if (anim) {
             currentAnimData = anim;
-            const frame = currentSpriteFrame % anim.frames;
             
-            // Get actual sprite dimensions
+            // Get sprite sheet info
             const frameW = anim.frameWidth || 32;
             const frameH = anim.frameHeight || 32;
+            const numFrames = anim.frames || 1;
             
-            // Calculate scale to fit display size (scale based on width)
-            const scale = displaySize / frameW;
+            // Calculate current frame (loop properly)
+            const frame = currentSpriteFrame % numFrames;
             
-            // Scaled dimensions
-            const scaledW = frameW * scale;
-            const scaledH = frameH * scale;
-            const sheetWidth = anim.frames * frameW * scale;
+            // Scale to fit the tiny tama screen
+            const scale = TAMA_SPRITE_SIZE / frameW;
+            const displayW = Math.round(frameW * scale);
+            const displayH = Math.round(frameH * scale);
             
-            // Handle offset for tall sprites
-            const offsetY = (anim.offsetY || 0) * scale;
+            // Total sheet width at display scale
+            const sheetDisplayW = numFrames * displayW;
+            
+            // Frame offset
+            const frameOffset = frame * displayW;
 
             sprite.textContent = '';
             sprite.classList.add('pixel-mode');
-            sprite.style.width = scaledW + 'px';
-            sprite.style.height = scaledH + 'px';
-            sprite.style.backgroundImage = `url(${anim.src})`;
-            sprite.style.backgroundSize = `${sheetWidth}px ${scaledH}px`;
-            sprite.style.backgroundPosition = `-${frame * scaledW}px 0`;
+            
+            // Set size
+            sprite.style.width = displayW + 'px';
+            sprite.style.height = displayH + 'px';
+            
+            // Set background
+            sprite.style.backgroundImage = `url('${anim.src}')`;
+            sprite.style.backgroundSize = `${sheetDisplayW}px ${displayH}px`;
+            sprite.style.backgroundPosition = `-${frameOffset}px 0`;
             sprite.style.backgroundRepeat = 'no-repeat';
             sprite.style.imageRendering = 'pixelated';
             
-            // Apply vertical offset for tall sprites
-            if (offsetY !== 0) {
-                sprite.style.marginTop = offsetY + 'px';
+            // Handle tall sprites (shift up)
+            if (anim.offsetY) {
+                sprite.style.marginTop = (anim.offsetY * scale) + 'px';
             } else {
                 sprite.style.marginTop = '0';
             }
@@ -153,6 +160,7 @@ export function updateSpriteDisplay() {
 
 export function startSpriteAnimation() {
     stopSpriteAnimation();
+    currentSpriteFrame = 0;
     updateSpriteDisplay();
 
     const speed = currentAnimData ? currentAnimData.speed : 600;
@@ -219,7 +227,6 @@ function onDragMove(e) {
     newX = Math.max(0, Math.min(newX, maxX));
     newY = Math.max(0, Math.min(newY, maxY));
 
-    // Use top/left exclusively, clear bottom/right
     el.style.left = newX + 'px';
     el.style.top = newY + 'px';
     el.style.right = 'auto';
@@ -236,7 +243,6 @@ function onDragEnd() {
     if (el) {
         el.classList.remove('dragging');
         const rect = el.getBoundingClientRect();
-        // Only save valid on-screen positions
         const x = Math.max(0, rect.left);
         const y = Math.max(0, rect.top);
         updateSetting('nyxgotchiPosition', { x, y });
@@ -257,24 +263,15 @@ function setupDrag(element) {
 // POSITION & SIZE
 // ============================================
 
-/**
- * Apply position to the Nyxgotchi element.
- * 
- * CRITICAL: Always clear ALL four directional properties before setting
- * new ones, because the CSS class sets bottom/right defaults which will
- * conflict with inline top/left values.
- */
 function applyPosition(element) {
     const pos = settings.nyxgotchiPosition;
     
-    // Always reset ALL directional props first to avoid CSS conflicts
     element.style.top = 'auto';
     element.style.bottom = 'auto';
     element.style.left = 'auto';
     element.style.right = 'auto';
     
     if (pos && typeof pos.x === 'number' && typeof pos.y === 'number') {
-        // Clamp to viewport — catches corrupt saved positions like y=-220
         const elSize = getCurrentSize().shell || 100;
         const maxX = window.innerWidth - elSize;
         const maxY = window.innerHeight - elSize;
@@ -285,7 +282,6 @@ function applyPosition(element) {
         element.style.left = safeX + 'px';
         element.style.top = safeY + 'px';
     } else {
-        // Default: bottom-right corner
         element.style.right = '20px';
         element.style.bottom = '80px';
     }
@@ -360,9 +356,6 @@ function getNyxgotchiHTML() {
     const size = getCurrentSize();
     const themeData = getTheme(theme);
 
-    // Fallback background color if shell image fails
-    const fallbackBg = themeData?.main || '#dc78aa';
-
     return `
         <div class="nyxgotchi" id="nyxgotchi" data-mg-theme="${theme}">
             ${getIndicatorHTML()}
@@ -380,59 +373,110 @@ function getNyxgotchiHTML() {
                     position: absolute;
                     z-index: 1;
                     left: 18%;
-                    top: 20%;
+                    top: 22%;
                     width: 64%;
-                    height: 40%;
-                    background: linear-gradient(135deg, #1a2a1a, #0d1a0d);
-                    border-radius: 8px;
+                    height: 38%;
+                    background: linear-gradient(180deg, #0a1810 0%, #0d2818 50%, #0a1810 100%);
+                    border-radius: 6px;
                     overflow: hidden;
                     display: flex;
                     flex-direction: column;
-                    box-shadow: inset 0 0 10px rgba(0, 255, 100, 0.1);
                 ">
+                    <!-- Backlight glow layer -->
+                    <div class="nyxgotchi-backlight" style="
+                        position: absolute;
+                        inset: 0;
+                        background: radial-gradient(ellipse at center, rgba(74, 222, 128, 0.15) 0%, transparent 70%);
+                        pointer-events: none;
+                        z-index: 0;
+                    "></div>
+                    
+                    <!-- Status bar -->
                     <div class="nyxgotchi-status" style="
                         display: flex;
                         justify-content: center;
                         align-items: center;
-                        padding: 2px 4px;
-                        font-size: 8px;
+                        gap: 3px;
+                        padding: 1px 4px;
+                        font-size: 7px;
                         font-family: monospace;
                         color: #4ade80;
-                        background: rgba(0, 0, 0, 0.2);
+                        background: rgba(0, 0, 0, 0.3);
+                        flex-shrink: 0;
+                        position: relative;
+                        z-index: 1;
                     ">
-                        <span class="nyxgotchi-heart" id="nyxgotchi-heart" style="color: #f472b6;">♥</span>
-                        <span id="nyxgotchi-disposition">${disposition}</span>
+                        <span class="nyxgotchi-heart" id="nyxgotchi-heart" style="color: #f472b6; font-size: 8px;">♥</span>
+                        <span id="nyxgotchi-disposition" style="font-size: 8px;">${disposition}</span>
                     </div>
 
+                    <!-- Sprite area - centered with backlight -->
                     <div class="nyxgotchi-sprite-area" style="
                         flex: 1;
                         display: flex;
                         justify-content: center;
                         align-items: center;
                         overflow: hidden;
+                        position: relative;
+                        z-index: 1;
+                        min-height: 0;
                     ">
+                        <!-- Sprite glow (behind sprite) -->
+                        <div class="nyxgotchi-sprite-glow" style="
+                            position: absolute;
+                            width: 32px;
+                            height: 32px;
+                            background: radial-gradient(circle, rgba(74, 222, 128, 0.3) 0%, transparent 70%);
+                            border-radius: 50%;
+                            filter: blur(4px);
+                            pointer-events: none;
+                        "></div>
+                        
+                        <!-- The actual sprite -->
                         <div class="nyxgotchi-sprite" id="nyxgotchi-sprite" style="
+                            position: relative;
                             font-family: monospace;
                             font-size: 5px;
                             line-height: 1;
                             white-space: pre;
                             color: #4ade80;
                             image-rendering: pixelated;
+                            filter: drop-shadow(0 0 2px rgba(74, 222, 128, 0.5));
                         "></div>
                     </div>
 
+                    <!-- Mood text -->
                     <div class="nyxgotchi-mood" id="nyxgotchi-mood" style="
-                        font-size: 7px;
+                        font-size: 6px;
                         font-family: monospace;
                         color: #4ade80;
                         text-align: center;
                         padding: 1px;
-                        background: rgba(0, 0, 0, 0.2);
+                        background: rgba(0, 0, 0, 0.3);
                         text-transform: lowercase;
+                        letter-spacing: 0.5px;
+                        flex-shrink: 0;
+                        position: relative;
+                        z-index: 1;
                     ">${mood}</div>
+                    
+                    <!-- Scanlines overlay -->
+                    <div style="
+                        position: absolute;
+                        inset: 0;
+                        background: repeating-linear-gradient(
+                            0deg,
+                            transparent,
+                            transparent 1px,
+                            rgba(0, 0, 0, 0.1) 1px,
+                            rgba(0, 0, 0, 0.1) 2px
+                        );
+                        pointer-events: none;
+                        z-index: 2;
+                    "></div>
                 </div>
 
-                <!-- Shell image (on top, transparent glass shows screen) -->
+                <!-- Shell image (on top) -->
                 <img class="nyxgotchi-shell-img"
                      src="${shellSrc}"
                      alt="Nyxgotchi"
@@ -442,7 +486,7 @@ function getNyxgotchiHTML() {
                         inset: 0;
                         width: 100%;
                         height: 100%;
-                        z-index: 2;
+                        z-index: 3;
                         image-rendering: pixelated;
                         pointer-events: none;
                         opacity: 1;
