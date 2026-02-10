@@ -224,7 +224,11 @@ export const DEFAULT_SETTINGS = {
     grimoireOffsetY: 0,       // Vertical offset in pixels (-200 to 200)
     grimoireLocked: false,    // Lock position toggle
     // Font settings
-    fancyFont: false          // Use Gentry Society decorative font
+    fancyFont: false,         // Use Gentry Society decorative font
+    // Nyxgotchi settings
+    showNyxgotchi: true,                      // Toggle visibility
+    nyxgotchiPosition: { x: null, y: null },  // Saved drag position
+    nyxDisposition: 50                        // 0-100, affects mood
 };
 
 /**
