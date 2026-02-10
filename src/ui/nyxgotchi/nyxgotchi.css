@@ -224,13 +224,14 @@
 .handheld-overlay {
     position: fixed;
     inset: 0;
-    z-index: 100000;
+    z-index: 2147483647;
     background: rgba(0, 0, 0, 0.7);
     backdrop-filter: blur(4px);
     
     display: flex;
     align-items: center;
     justify-content: center;
+    padding: 20px;
     
     opacity: 0;
     transition: opacity 0.3s ease;
@@ -245,6 +246,9 @@
     position: relative;
     width: 280px;
     height: 420px;
+    max-height: 80vh;
+    max-width: 85vw;
+    overflow: hidden;
     
     transform: scale(0.8) translateY(20px);
     opacity: 0;
@@ -266,6 +270,7 @@
     image-rendering: pixelated;
     image-rendering: crisp-edges;
     pointer-events: none;
+    object-fit: contain;
 }
 
 /* ---- Theme Filters for Game Boy Shell ---- */
@@ -388,17 +393,20 @@
 /* ---- Close Button ---- */
 .handheld-close {
     position: absolute;
-    top: -40px;
-    right: 0;
-    width: 32px;
-    height: 32px;
+    top: 4px;
+    right: 4px;
+    width: 28px;
+    height: 28px;
     border-radius: 50%;
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(0, 0, 0, 0.6);
     border: 1px solid rgba(255, 255, 255, 0.3);
     color: white;
-    font-size: 16px;
+    font-size: 14px;
     cursor: pointer;
     z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .handheld-close:hover {
@@ -651,6 +659,7 @@
     .handheld-container {
         width: 260px;
         height: 390px;
+        max-height: 75vh;
     }
 
     .handheld-screen-content {
@@ -663,6 +672,12 @@
     .nyxgotchi-shell {
         width: 80px;
         height: 80px;
+    }
+
+    .handheld-container {
+        width: 240px;
+        height: 360px;
+        max-height: 70vh;
     }
 }
 
