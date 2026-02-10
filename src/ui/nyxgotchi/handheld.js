@@ -6,8 +6,8 @@
  * Features a transparent screen area for dynamic content.
  */
 
-import { ASSET_PATHS, getTheme } from '../core/config.js';
-import { settings, updateSetting } from '../core/state.js';
+import { ASSET_PATHS, getTheme } from '../../core/config.js';
+import { settings, updateSetting } from '../../core/state.js';
 import { getMoodText } from './sprites.js';
 
 // ============================================

@@ -6,8 +6,8 @@
  * The cat sprite shows Nyx's mood based on disposition.
  */
 
-import { ASSET_PATHS, THEMES, getTheme } from '../core/config.js';
-import { settings, updateSetting, saveSettings } from '../core/state.js';
+import { ASSET_PATHS, THEMES, getTheme } from '../../core/config.js';
+import { settings, updateSetting, saveSettings } from '../../core/state.js';
 import { getSpriteAnimation, hasSpriteSupport, getMoodText } from './sprites.js';
 
 // ============================================
