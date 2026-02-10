@@ -1,11 +1,24 @@
 /**
  * Petit Grimoire — Nyxgotchi FAB
  * Tamagotchi-style floating companion widget
+ * 
+ * ⚠️ DIAGNOSTIC VERSION - toastr debug at every step
  */
 
 import { ASSET_PATHS, getTheme, getNyxgotchiSize } from '../../core/config.js';
 import { settings, updateSetting } from '../../core/state.js';
 import { getSpriteAnimation, hasSpriteSupport, getMoodText } from './sprites.js';
+
+// ============================================
+// DEBUG HELPER
+// ============================================
+
+function debug(msg, type = 'info') {
+    console.log(`[PG-NYX] ${msg}`);
+    if (typeof toastr !== 'undefined') {
+        toastr[type]?.(msg, '🐱 Nyx', { timeOut: 3000 });
+    }
+}
 
 // ============================================
 // CONSTANTS
@@ -233,8 +246,14 @@ function applyPosition(element) {
     const pos = settings.nyxgotchiPosition;
     
     if (pos && typeof pos.x === 'number' && typeof pos.y === 'number') {
-        element.style.left = pos.x + 'px';
-        element.style.top = pos.y + 'px';
+        // Clamp to viewport so it can't be off-screen
+        const maxX = window.innerWidth - 60;
+        const maxY = window.innerHeight - 60;
+        const safeX = Math.max(0, Math.min(pos.x, maxX));
+        const safeY = Math.max(0, Math.min(pos.y, maxY));
+        
+        element.style.left = safeX + 'px';
+        element.style.top = safeY + 'px';
         element.style.right = 'auto';
         element.style.bottom = 'auto';
     } else {
@@ -313,19 +332,21 @@ function getNyxgotchiHTML() {
     const theme = settings.theme || 'guardian';
     const size = getCurrentSize();
     const themeData = getTheme(theme);
-
-    // Fallback background color if shell image fails
     const fallbackBg = themeData?.main || '#dc78aa';
 
     return `
         <div class="nyxgotchi" id="nyxgotchi" data-mg-theme="${theme}">
             <div class="nyxgotchi-shell" id="nyxgotchi-shell" style="
+                position: relative;
                 width: ${size.shell}px; 
                 height: ${size.shell}px;
                 background: radial-gradient(ellipse at 30% 30%, ${fallbackBg}88, ${fallbackBg}44);
                 border-radius: 50% 50% 45% 45%;
                 border: 3px solid ${fallbackBg};
                 box-shadow: 0 4px 12px ${fallbackBg}66;
+                display: flex;
+                align-items: center;
+                justify-content: center;
             ">
                 
                 <!-- Screen content (behind glass) -->
@@ -411,73 +432,97 @@ function getNyxgotchiHTML() {
 // ============================================
 
 export function createNyxgotchi() {
-    destroyNyxgotchi();
+    try {
+        debug('1: destroy old');
+        destroyNyxgotchi();
 
-    document.body.insertAdjacentHTML('beforeend', getNyxgotchiHTML());
+        debug('2: gen HTML');
+        const html = getNyxgotchiHTML();
+        
+        debug('3: insert DOM');
+        document.body.insertAdjacentHTML('beforeend', html);
 
-    const nyxgotchi = document.getElementById('nyxgotchi');
-    if (!nyxgotchi) {
-        console.error('[PG] Failed to create Nyxgotchi');
-        return;
+        const nyxgotchi = document.getElementById('nyxgotchi');
+        if (!nyxgotchi) {
+            debug('FAIL: #nyxgotchi not found!', 'error');
+            return;
+        }
+
+        debug('4: force styles');
+        nyxgotchi.style.setProperty('position', 'fixed', 'important');
+        nyxgotchi.style.setProperty('z-index', '2147483647', 'important');
+        nyxgotchi.style.setProperty('display', 'flex', 'important');
+        nyxgotchi.style.setProperty('visibility', 'visible', 'important');
+        nyxgotchi.style.setProperty('opacity', '1', 'important');
+        nyxgotchi.style.setProperty('pointer-events', 'auto', 'important');
+
+        debug('5: position');
+        applyPosition(nyxgotchi);
+        
+        debug('6: drag');
+        setupDrag(nyxgotchi);
+
+        debug('7: tap handler');
+        const shell = document.getElementById('nyxgotchi-shell');
+        if (shell) {
+            let tapStart = 0;
+            let tapX = 0;
+            let tapY = 0;
+
+            shell.addEventListener('mousedown', (e) => {
+                tapStart = Date.now();
+                tapX = e.clientX;
+                tapY = e.clientY;
+            });
+
+            shell.addEventListener('mouseup', (e) => {
+                const elapsed = Date.now() - tapStart;
+                const moved = Math.abs(e.clientX - tapX) + Math.abs(e.clientY - tapY);
+                if (elapsed < 300 && moved < 10) {
+                    import('./handheld.js').then(m => m.openHandheld()).catch(() => {});
+                }
+            });
+
+            shell.addEventListener('touchstart', (e) => {
+                tapStart = Date.now();
+                tapX = e.touches[0].clientX;
+                tapY = e.touches[0].clientY;
+            }, { passive: true });
+
+            shell.addEventListener('touchend', (e) => {
+                const elapsed = Date.now() - tapStart;
+                const touch = e.changedTouches[0];
+                const moved = Math.abs(touch.clientX - tapX) + Math.abs(touch.clientY - tapY);
+                if (elapsed < 300 && moved < 10) {
+                    import('./handheld.js').then(m => m.openHandheld()).catch(() => {});
+                }
+            }, { passive: true });
+        }
+
+        debug('8: sprites');
+        startSpriteAnimation();
+
+        if (settings.showNyxgotchi === false) {
+            debug('HIDDEN: showNyxgotchi=false', 'warning');
+            nyxgotchi.style.setProperty('display', 'none', 'important');
+        }
+
+        // Final verification
+        const rect = nyxgotchi.getBoundingClientRect();
+        const cs = window.getComputedStyle(nyxgotchi);
+        debug(`OK! ${Math.round(rect.width)}x${Math.round(rect.height)} @ (${Math.round(rect.left)},${Math.round(rect.top)}) d:${cs.display}`, 'success');
+        
+        if (rect.width === 0 || rect.height === 0) {
+            debug('ZERO SIZE! Shell might be missing', 'error');
+        }
+        if (rect.right < 0 || rect.bottom < 0 || rect.left > window.innerWidth || rect.top > window.innerHeight) {
+            debug('OFF-SCREEN!', 'error');
+        }
+
+    } catch (err) {
+        debug(`CRASH: ${err.message}`, 'error');
+        console.error('[PG] Nyxgotchi crash:', err);
     }
-
-    // Force visibility with !important
-    nyxgotchi.style.setProperty('position', 'fixed', 'important');
-    nyxgotchi.style.setProperty('z-index', '2147483647', 'important');
-    nyxgotchi.style.setProperty('display', 'flex', 'important');
-    nyxgotchi.style.setProperty('visibility', 'visible', 'important');
-    nyxgotchi.style.setProperty('opacity', '1', 'important');
-    nyxgotchi.style.setProperty('pointer-events', 'auto', 'important');
-
-    applyPosition(nyxgotchi);
-    setupDrag(nyxgotchi);
-
-    // Shell tap → open handheld
-    const shell = document.getElementById('nyxgotchi-shell');
-    if (shell) {
-        let tapStart = 0;
-        let tapX = 0;
-        let tapY = 0;
-
-        shell.addEventListener('mousedown', (e) => {
-            tapStart = Date.now();
-            tapX = e.clientX;
-            tapY = e.clientY;
-        });
-
-        shell.addEventListener('mouseup', (e) => {
-            const elapsed = Date.now() - tapStart;
-            const moved = Math.abs(e.clientX - tapX) + Math.abs(e.clientY - tapY);
-            
-            if (elapsed < 300 && moved < 10) {
-                import('./handheld.js').then(m => m.openHandheld()).catch(() => {});
-            }
-        });
-
-        shell.addEventListener('touchstart', (e) => {
-            tapStart = Date.now();
-            tapX = e.touches[0].clientX;
-            tapY = e.touches[0].clientY;
-        }, { passive: true });
-
-        shell.addEventListener('touchend', (e) => {
-            const elapsed = Date.now() - tapStart;
-            const touch = e.changedTouches[0];
-            const moved = Math.abs(touch.clientX - tapX) + Math.abs(touch.clientY - tapY);
-            
-            if (elapsed < 300 && moved < 10) {
-                import('./handheld.js').then(m => m.openHandheld()).catch(() => {});
-            }
-        }, { passive: true });
-    }
-
-    startSpriteAnimation();
-
-    if (settings.showNyxgotchi === false) {
-        nyxgotchi.style.setProperty('display', 'none', 'important');
-    }
-
-    console.log('[PG] Nyxgotchi created');
 }
 
 export function destroyNyxgotchi() {
