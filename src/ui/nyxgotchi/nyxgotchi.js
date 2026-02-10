@@ -5,8 +5,28 @@
 
 import { ASSET_PATHS, getTheme, getNyxgotchiSize } from '../../core/config.js';
 import { settings, updateSetting } from '../../core/state.js';
-import { getSpriteAnimation, hasSpriteSupport, getMoodText } from './sprites.js';
+import { getSpriteAnimation, hasSpriteSupport } from './sprites.js';
 import { getIndicatorHTML, consumePendingMessage, hasPendingMessage } from './nyx-indicators.js';
+
+// ============================================
+// MOOD HELPERS
+// ============================================
+
+/**
+ * Get mood text from disposition value
+ * @param {number} disposition - 0-100 value
+ * @returns {string} Mood name
+ */
+function getMoodText(disposition) {
+    if (disposition < 20) return 'annoyed';
+    if (disposition < 35) return 'bored';
+    if (disposition < 60) return 'neutral';
+    if (disposition < 80) return 'amused';
+    return 'delighted';
+}
+
+// Re-export getMoodText for external use
+export { getMoodText };
 
 // ============================================
 // CONSTANTS
@@ -57,9 +77,6 @@ const ASCII_SPRITES = {
 じしˍ,)ノ✧`]
     }
 };
-
-// Re-export getMoodText for external use
-export { getMoodText };
 
 // ============================================
 // HELPERS

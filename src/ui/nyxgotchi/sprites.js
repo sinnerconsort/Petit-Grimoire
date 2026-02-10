@@ -8,24 +8,6 @@
  */
 
 // ============================================
-// MOOD HELPERS
-// ============================================
-
-/**
- * Get mood text from disposition value
- * @param {number} disposition - 0-100 value
- * @returns {string} Mood name
- */
-export function getMoodText(disposition) {
-    if (disposition < 20) return 'annoyed';
-    if (disposition < 35) return 'bored';
-    if (disposition < 60) return 'neutral';
-    if (disposition < 80) return 'amused';
-    return 'delighted';
-}
-
-
-// ============================================
 // EMBEDDED SPRITE DATA (base64 data URIs)
 // ============================================
 
