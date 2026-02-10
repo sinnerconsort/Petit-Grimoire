@@ -5,14 +5,14 @@
 
 import { ASSET_PATHS, getTheme, getNyxgotchiSize } from '../../core/config.js';
 import { settings, updateSetting } from '../../core/state.js';
-import { getSpriteAnimation, hasSpriteSupport, getMoodText } from './sprites.js';
+import { getSpriteAnimation, hasSpriteSupport, getMoodText, getDefaultFrameSize } from './sprites.js';
 import { getIndicatorHTML, consumePendingMessage, hasPendingMessage } from './nyx-indicators.js';
 
 // ============================================
 // CONSTANTS
 // ============================================
 
-const DEFAULT_SPRITE_SIZE = 52;
+const DEFAULT_SPRITE_SIZE = 48;
 
 // ============================================
 // ANIMATION STATE
@@ -99,30 +99,53 @@ export function updateSpriteDisplay() {
 
     const mood = getCurrentMood();
     const size = getCurrentSize();
-    const spriteSize = size.sprite || DEFAULT_SPRITE_SIZE;
+    const displaySize = size.sprite || DEFAULT_SPRITE_SIZE;
 
     if (usePixelSprites()) {
         const anim = getSpriteAnimation('cat', mood);
         if (anim) {
             currentAnimData = anim;
             const frame = currentSpriteFrame % anim.frames;
-            const sheetWidth = anim.frames * spriteSize;
+            
+            // Get actual sprite dimensions
+            const frameW = anim.frameWidth || 32;
+            const frameH = anim.frameHeight || 32;
+            
+            // Calculate scale to fit display size (scale based on width)
+            const scale = displaySize / frameW;
+            
+            // Scaled dimensions
+            const scaledW = frameW * scale;
+            const scaledH = frameH * scale;
+            const sheetWidth = anim.frames * frameW * scale;
+            
+            // Handle offset for tall sprites
+            const offsetY = (anim.offsetY || 0) * scale;
 
             sprite.textContent = '';
             sprite.classList.add('pixel-mode');
-            sprite.style.width = spriteSize + 'px';
-            sprite.style.height = spriteSize + 'px';
+            sprite.style.width = scaledW + 'px';
+            sprite.style.height = scaledH + 'px';
             sprite.style.backgroundImage = `url(${anim.src})`;
-            sprite.style.backgroundSize = `${sheetWidth}px ${spriteSize}px`;
-            sprite.style.backgroundPosition = `-${frame * spriteSize}px 0`;
+            sprite.style.backgroundSize = `${sheetWidth}px ${scaledH}px`;
+            sprite.style.backgroundPosition = `-${frame * scaledW}px 0`;
             sprite.style.backgroundRepeat = 'no-repeat';
             sprite.style.imageRendering = 'pixelated';
+            
+            // Apply vertical offset for tall sprites
+            if (offsetY !== 0) {
+                sprite.style.marginTop = offsetY + 'px';
+            } else {
+                sprite.style.marginTop = '0';
+            }
+            
             return;
         }
     }
     
     // ASCII fallback
     sprite.style.backgroundImage = '';
+    sprite.style.marginTop = '0';
     sprite.classList.remove('pixel-mode');
     sprite.textContent = getCurrentAsciiSprite();
     currentAnimData = null;
@@ -255,26 +278,21 @@ function applyPosition(element) {
         const elSize = getCurrentSize().shell || 100;
         const maxX = window.innerWidth - elSize;
         const maxY = window.innerHeight - elSize;
-        let safeX = Math.max(0, Math.min(pos.x, maxX));
-        let safeY = Math.max(0, Math.min(pos.y, maxY));
+        
+        const safeX = Math.max(0, Math.min(pos.x, maxX));
+        const safeY = Math.max(0, Math.min(pos.y, maxY));
         
         element.style.left = safeX + 'px';
         element.style.top = safeY + 'px';
-        
-        // If the saved position was out of bounds, fix it in settings too
-        if (pos.x !== safeX || pos.y !== safeY) {
-            console.log(`[PG] Fixed corrupt position (${pos.x},${pos.y}) → (${safeX},${safeY})`);
-            updateSetting('nyxgotchiPosition', { x: safeX, y: safeY });
-        }
     } else {
-        // Default: bottom-right (use top/left to avoid CSS bottom/right conflict)
-        element.style.left = (window.innerWidth - 140) + 'px';
-        element.style.top = (window.innerHeight - 220) + 'px';
+        // Default: bottom-right corner
+        element.style.right = '20px';
+        element.style.bottom = '80px';
     }
 }
 
 // ============================================
-// SHELL / THEME
+// SHELL THEME
 // ============================================
 
 function getShellPath() {
