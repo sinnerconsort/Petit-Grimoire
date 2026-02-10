@@ -16,10 +16,13 @@ let cooldownUntil = null;
 const COOLDOWN_MS = 60000; // 1 minute between gazes (adjust as needed)
 const MAX_RECENT_VISIONS = 5;
 
-// Clock sprite config: 29 frames, 64x64 each, horizontal strip
+// Clock sprite config: 29 frames, 128x128 each, horizontal strip
 const CLOCK_FRAMES = 29;
 const CLOCK_FRAME_SIZE = 128;
 const CLOCK_FPS = 12;
+
+// DEBUG: Set to true to keep clock running continuously for positioning
+const DEBUG_CLOCK = true;
 
 // Theme → clock color mapping
 const CLOCK_COLORS = {
@@ -135,6 +138,9 @@ export function getContent() {
                     position: absolute;
                     width: 128px;
                     height: 128px;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
                     background-image: url('${getClockSprite(settings.theme)}');
                     background-size: ${CLOCK_FRAMES * CLOCK_FRAME_SIZE}px ${CLOCK_FRAME_SIZE}px;
                     background-position: 0 0;
@@ -285,12 +291,39 @@ export function init() {
     if (cooldownUntil && Date.now() < cooldownUntil) {
         startCooldownTimer();
     }
+    
+    // DEBUG: Keep clock running continuously for positioning
+    if (DEBUG_CLOCK) {
+        startDebugClock();
+    }
+}
+
+let debugClockInterval = null;
+
+function startDebugClock() {
+    const clock = document.getElementById('pg-crystal-clock');
+    if (!clock) return;
+    
+    clock.style.opacity = '0.75';
+    let frame = 0;
+    debugClockInterval = setInterval(() => {
+        frame = (frame + 1) % CLOCK_FRAMES;
+        clock.style.backgroundPosition = `-${frame * CLOCK_FRAME_SIZE}px 0`;
+    }, 1000 / CLOCK_FPS);
+    
+    console.log('[Crystal Ball] DEBUG: Clock running continuously');
 }
 
 /**
  * Cleanup when leaving the tab
  */
 export function cleanup() {
+    // Stop debug clock if running
+    if (debugClockInterval) {
+        clearInterval(debugClockInterval);
+        debugClockInterval = null;
+    }
+    
     const gazeBtn = document.getElementById('pg-crystal-gaze');
     const resultClose = document.getElementById('pg-crystal-result-close');
     const overlay = document.getElementById('pg-crystal-overlay');
@@ -322,7 +355,7 @@ async function playRainbowGaze(orb) {
     let clockFrame = 0;
     let clockInterval = null;
     if (clock) {
-        clock.style.opacity = '0.5';
+        clock.style.opacity = '0.75';
         clockInterval = setInterval(() => {
             clockFrame = (clockFrame + 1) % CLOCK_FRAMES;
             clock.style.backgroundPosition = `-${clockFrame * CLOCK_FRAME_SIZE}px 0`;
