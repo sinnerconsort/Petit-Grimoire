@@ -17,6 +17,20 @@ const COOLDOWN_MS = 60000; // 1 minute between gazes (adjust as needed)
 const MAX_RECENT_VISIONS = 5;
 
 /**
+ * Get crystal ball sprite path for current theme
+ */
+function getCrystalSprite(themeName) {
+    return `${ASSET_PATHS.sprites}/crystal-balls/${themeName || 'guardian'}.png`;
+}
+
+/**
+ * Get rainbow sprite path (used during gazing animation)
+ */
+function getRainbowSprite() {
+    return `${ASSET_PATHS.sprites}/crystal-balls/rainbow.png`;
+}
+
+/**
  * Get the content HTML for the crystal ball tab
  */
 export function getContent() {
@@ -28,7 +42,7 @@ export function getContent() {
     const textLight = '#6a5040';
     
     // Get crystal ball sprite for current theme
-    const crystalSprite = `${ASSET_PATHS.sprites}/crystal-balls/${settings.theme}.png`;
+    const crystalSprite = getCrystalSprite(settings.theme);
     
     // Check cooldown
     const onCooldown = cooldownUntil && Date.now() < cooldownUntil;
@@ -89,7 +103,7 @@ export function getContent() {
                 align-items: center;
                 margin-bottom: 12px;
             ">
-                <div id="pg-crystal-orb" style="
+                <div id="pg-crystal-orb" data-theme-sprite="${crystalSprite}" style="
                     width: 64px;
                     height: 64px;
                     background-image: url('${crystalSprite}');
@@ -251,6 +265,29 @@ export function cleanup() {
 }
 
 /**
+ * Rainbow gazing animation.
+ * Rapidly cycles between the rainbow sprite and theme sprite
+ * with hue-rotate to create a prismatic flash effect.
+ */
+async function playRainbowGaze(orb) {
+    const themeSprite = orb.dataset.themeSprite || getCrystalSprite(settings.theme);
+    const rainbowSprite = getRainbowSprite();
+    
+    // Swap to rainbow sprite
+    orb.style.backgroundImage = `url('${rainbowSprite}')`;
+    orb.style.animation = 'pg-crystal-rainbow 0.4s linear infinite, pg-crystal-pulse 0.5s ease-in-out infinite';
+    orb.style.filter = 'brightness(1.4) saturate(1.8)';
+    
+    // Hold the rainbow effect for the gazing duration
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    
+    // Swap back to theme sprite
+    orb.style.backgroundImage = `url('${themeSprite}')`;
+    orb.style.animation = '';
+    orb.style.filter = '';
+}
+
+/**
  * Handle the gaze button click
  */
 async function handleGaze() {
@@ -262,19 +299,15 @@ async function handleGaze() {
     const orb = document.getElementById('pg-crystal-orb');
     const btn = document.getElementById('pg-crystal-gaze');
     
-    // Animate the orb (pulsing glow)
-    if (orb) {
-        orb.style.animation = 'pg-crystal-pulse 0.5s ease-in-out 3';
-        orb.style.filter = 'brightness(1.5) saturate(1.5)';
-    }
-    
     // Disable button during animation
     if (btn) {
         btn.disabled = true;
     }
     
-    // Wait for dramatic effect
-    await new Promise(resolve => setTimeout(resolve, 1500));
+    // Play the rainbow gazing animation
+    if (orb) {
+        await playRainbowGaze(orb);
+    }
     
     // Draw a fate
     const effect = drawCrystalBallEffect();
@@ -287,12 +320,6 @@ async function handleGaze() {
     
     // Show the result
     showResult(effect);
-    
-    // Reset orb
-    if (orb) {
-        orb.style.animation = '';
-        orb.style.filter = '';
-    }
     
     // Start cooldown
     cooldownUntil = Date.now() + COOLDOWN_MS;
@@ -456,15 +483,22 @@ function updateVisionsDisplay() {
     `).join('');
 }
 
-// Add CSS animation for the crystal pulse (inject once)
+// Add CSS animations (inject once)
 const styleId = 'pg-crystal-styles';
 if (!document.getElementById(styleId)) {
     const style = document.createElement('style');
     style.id = styleId;
     style.textContent = `
         @keyframes pg-crystal-pulse {
-            0%, 100% { transform: scale(1); filter: brightness(1); }
-            50% { transform: scale(1.1); filter: brightness(1.5) saturate(1.5); }
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.15); }
+        }
+        @keyframes pg-crystal-rainbow {
+            0% { filter: brightness(1.4) saturate(1.8) hue-rotate(0deg); }
+            25% { filter: brightness(1.6) saturate(2.0) hue-rotate(90deg); }
+            50% { filter: brightness(1.4) saturate(1.8) hue-rotate(180deg); }
+            75% { filter: brightness(1.6) saturate(2.0) hue-rotate(270deg); }
+            100% { filter: brightness(1.4) saturate(1.8) hue-rotate(360deg); }
         }
     `;
     document.head.appendChild(style);
