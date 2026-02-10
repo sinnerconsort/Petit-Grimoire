@@ -3,10 +3,11 @@
  * Configuration controls for the extension
  */
 
-import { THEMES, getTheme } from '../../core/config.js';
+import { THEMES, getTheme, NYXGOTCHI_SIZES, getNyxgotchiSize } from '../../core/config.js';
 import { settings, updateSetting } from '../../core/state.js';
 import { destroyGrimoire, createGrimoire, openGrimoire, switchTab } from '../grimoire.js';
-import { updateFabTheme } from '../fab.js';  // <-- ADD THIS IMPORT
+import { updateFabTheme } from '../fab.js';
+import { toggleNyxgotchi, updateNyxgotchiSize, updateShell } from './nyx.js';
 
 // Track initialization state
 let isInitialized = false;
@@ -21,11 +22,18 @@ export function getContent() {
         `<option value="${key}" ${key === settings.theme ? 'selected' : ''}>${t.name}</option>`
     ).join('');
     
+    const sizeOptions = Object.entries(NYXGOTCHI_SIZES).map(([key, s]) =>
+        `<option value="${key}" ${key === settings.nyxgotchiSize ? 'selected' : ''}>${s.name}</option>`
+    ).join('');
+    
     // Use darker colors for better readability on light parchment background
     const textDark = '#2a1810';
     const textMid = '#4a3020';
     const textLight = '#6a5040';
     const toggleOff = '#a08070';  // Darker off state for visibility
+    
+    // Check if Nyxgotchi is shown (default true if undefined)
+    const showNyxgotchi = settings.showNyxgotchi !== false;
     
     return `
         <h2 class="pg-page-title" style="color: ${textDark}; margin: 0 0 6px 0; font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 6px;">
@@ -176,6 +184,76 @@ export function getContent() {
                 Gothic pixel font with theme glow
             </span>
             
+            <!-- ═══════════════════════════════════════════ -->
+            <!-- NYXGOTCHI SECTION -->
+            <!-- ═══════════════════════════════════════════ -->
+            
+            <div style="border-top: 1px solid ${theme.main}40; margin-top: 4px; padding-top: 12px;">
+                <h3 style="color: ${textDark}; font-size: 11px; font-weight: 600; margin: 0 0 8px 0; display: flex; align-items: center; gap: 4px;">
+                    🐱 Nyxgotchi
+                </h3>
+                
+                <!-- Show Nyxgotchi Toggle -->
+                <div class="pg-setting-group" style="display: flex; align-items: center; gap: 8px; flex-shrink: 0; margin-bottom: 10px;">
+                    <label style="color: ${textDark}; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; flex: 1;">
+                        ✦ Show Companion
+                    </label>
+                    <label class="pg-toggle" style="
+                        position: relative;
+                        width: 36px;
+                        height: 20px;
+                        cursor: pointer;
+                        display: inline-block;
+                        flex-shrink: 0;
+                    ">
+                        <input type="checkbox" id="pg-nyxgotchi-toggle" 
+                            ${showNyxgotchi ? 'checked' : ''}
+                            style="opacity: 0; width: 0; height: 0; position: absolute;"
+                        />
+                        <span class="pg-toggle-slider" id="pg-nyxgotchi-slider" style="
+                            position: absolute;
+                            inset: 0;
+                            background: ${showNyxgotchi ? theme.main : toggleOff};
+                            border-radius: 20px;
+                            transition: background 0.3s;
+                        "></span>
+                        <span class="pg-toggle-knob" id="pg-nyxgotchi-knob" style="
+                            position: absolute;
+                            top: 2px;
+                            left: ${showNyxgotchi ? '18px' : '2px'};
+                            width: 16px;
+                            height: 16px;
+                            background: white;
+                            border-radius: 50%;
+                            transition: left 0.3s;
+                            box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+                        "></span>
+                    </label>
+                </div>
+                
+                <!-- Nyxgotchi Size -->
+                <div class="pg-setting-group" style="display: flex; flex-direction: column; gap: 4px;">
+                    <label style="color: ${textDark}; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">
+                        ✦ Size
+                    </label>
+                    <select id="pg-nyxgotchi-size" style="
+                        padding: 6px 8px;
+                        border-radius: 6px;
+                        border: 2px solid ${theme.main};
+                        background: rgba(255,255,255,0.5);
+                        color: ${textDark};
+                        font-size: 11px;
+                        cursor: pointer;
+                        outline: none;
+                    ">
+                        ${sizeOptions}
+                    </select>
+                    <span style="color: ${textLight}; font-size: 9px; font-style: italic;">
+                        ${getNyxgotchiSize(settings.nyxgotchiSize).shell}px shell
+                    </span>
+                </div>
+            </div>
+            
             <!-- Extension Info -->
             <div style="margin-top: auto; padding-top: 12px; border-top: 1px solid ${theme.main}40;">
                 <p style="color: ${textLight}; font-size: 9px; text-align: center; margin: 0;">
@@ -228,6 +306,18 @@ export function init() {
         fancyFontToggle.addEventListener('change', handleFancyFontChange);
     }
     
+    // Nyxgotchi visibility toggle
+    const nyxgotchiToggle = document.getElementById('pg-nyxgotchi-toggle');
+    if (nyxgotchiToggle) {
+        nyxgotchiToggle.addEventListener('change', handleNyxgotchiToggle);
+    }
+    
+    // Nyxgotchi size selector
+    const nyxgotchiSize = document.getElementById('pg-nyxgotchi-size');
+    if (nyxgotchiSize) {
+        nyxgotchiSize.addEventListener('change', handleNyxgotchiSizeChange);
+    }
+    
     isInitialized = true;
 }
 
@@ -250,7 +340,10 @@ function handleThemeChange(e) {
     updateSetting('theme', e.target.value);
     
     // Update FAB theme FIRST (before rebuilding grimoire)
-    updateFabTheme();  // <-- THIS WAS MISSING!
+    updateFabTheme();
+    
+    // Update Nyxgotchi shell
+    updateShell();
     
     // Rebuild grimoire UI to apply new theme fully
     destroyGrimoire();
@@ -312,6 +405,36 @@ function handleFancyFontChange(e) {
             panelElement.classList.remove('pg-fancy-font');
         }
     }
+}
+
+function handleNyxgotchiToggle(e) {
+    const isEnabled = e.target.checked;
+    const theme = getTheme(settings.theme);
+    const toggleOff = '#a08070';
+    
+    // Update visual state of toggle
+    const slider = document.getElementById('pg-nyxgotchi-slider');
+    const knob = document.getElementById('pg-nyxgotchi-knob');
+    if (slider) slider.style.background = isEnabled ? theme.main : toggleOff;
+    if (knob) knob.style.left = isEnabled ? '18px' : '2px';
+    
+    // Toggle Nyxgotchi visibility
+    toggleNyxgotchi(isEnabled);
+}
+
+function handleNyxgotchiSizeChange(e) {
+    const newSize = e.target.value;
+    updateSetting('nyxgotchiSize', newSize);
+    
+    // Update size hint text
+    const sizeHint = e.target.nextElementSibling;
+    if (sizeHint) {
+        const size = getNyxgotchiSize(newSize);
+        sizeHint.textContent = `${size.shell}px shell`;
+    }
+    
+    // Apply new size
+    updateNyxgotchiSize();
 }
 
 /**
