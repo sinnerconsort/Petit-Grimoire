@@ -365,7 +365,7 @@ function getNyxgotchiHTML() {
         left: 16%;
         top: 18%;
         width: 68%;
-        height: 54%;
+        height: 58%;
         background: linear-gradient(180deg, #0a1810 0%, #0d2818 50%, #0a1810 100%);
         border-radius: 6px;
         overflow: hidden;
