@@ -6,7 +6,7 @@
  * The cat sprite shows Nyx's mood based on disposition.
  */
 
-import { ASSET_PATHS, THEMES, getTheme } from '../../core/config.js';
+import { ASSET_PATHS, THEMES, getTheme, getNyxgotchiSize } from '../../core/config.js';
 import { settings, updateSetting, saveSettings } from '../../core/state.js';
 import { getSpriteAnimation, hasSpriteSupport, getMoodText } from './sprites.js';
 
@@ -14,7 +14,7 @@ import { getSpriteAnimation, hasSpriteSupport, getMoodText } from './sprites.js'
 // CONSTANTS
 // ============================================
 
-const SPRITE_SIZE = 52;  // Pixel sprite display size
+const DEFAULT_SPRITE_SIZE = 52;  // Fallback pixel sprite display size
 
 // ============================================
 // ANIMATION STATE
@@ -88,6 +88,13 @@ function getCurrentMood() {
     return getMoodText(getDisposition());
 }
 
+/**
+ * Get current size settings
+ */
+function getCurrentSize() {
+    return getNyxgotchiSize(settings.nyxgotchiSize);
+}
+
 // ============================================
 // SPRITE SYSTEM
 // ============================================
@@ -110,6 +117,8 @@ export function updateSpriteDisplay() {
     if (!sprite) return;
 
     const mood = getCurrentMood();
+    const size = getCurrentSize();
+    const spriteSize = size.sprite || DEFAULT_SPRITE_SIZE;
 
     if (usePixelSprites()) {
         const anim = getSpriteAnimation('cat', mood);
@@ -124,15 +133,15 @@ export function updateSpriteDisplay() {
 
         currentAnimData = anim;
         const frame = currentSpriteFrame % anim.frames;
-        const sheetWidth = anim.frames * SPRITE_SIZE;
+        const sheetWidth = anim.frames * spriteSize;
 
         sprite.textContent = '';
         sprite.classList.add('pixel-mode');
-        sprite.style.width = SPRITE_SIZE + 'px';
-        sprite.style.height = SPRITE_SIZE + 'px';
+        sprite.style.width = spriteSize + 'px';
+        sprite.style.height = spriteSize + 'px';
         sprite.style.backgroundImage = `url(${anim.src})`;
-        sprite.style.backgroundSize = `${sheetWidth}px ${SPRITE_SIZE}px`;
-        sprite.style.backgroundPosition = `-${frame * SPRITE_SIZE}px 0`;
+        sprite.style.backgroundSize = `${sheetWidth}px ${spriteSize}px`;
+        sprite.style.backgroundPosition = `-${frame * spriteSize}px 0`;
         sprite.style.backgroundRepeat = 'no-repeat';
         sprite.style.imageRendering = 'pixelated';
     } else {
@@ -257,7 +266,8 @@ function setupDrag(element) {
 function applyPosition(element) {
     const pos = settings.nyxgotchiPosition;
     
-    if (pos && pos.x !== null && pos.y !== null) {
+    // Only use saved position if both x and y are valid numbers
+    if (pos && typeof pos.x === 'number' && typeof pos.y === 'number') {
         element.style.left = pos.x + 'px';
         element.style.top = pos.y + 'px';
         element.style.right = 'auto';
@@ -268,6 +278,19 @@ function applyPosition(element) {
         element.style.bottom = '100px';
         element.style.left = 'auto';
         element.style.top = 'auto';
+    }
+}
+
+/**
+ * Apply size to Nyxgotchi shell
+ */
+function applySize(element) {
+    const size = getCurrentSize();
+    const shell = element.querySelector('.nyxgotchi-shell');
+    
+    if (shell) {
+        shell.style.width = size.shell + 'px';
+        shell.style.height = size.shell + 'px';
     }
 }
 
@@ -293,6 +316,17 @@ export function updateShell() {
     const nyxgotchi = document.getElementById('nyxgotchi');
     if (nyxgotchi) {
         nyxgotchi.setAttribute('data-mg-theme', settings.theme || 'guardian');
+    }
+}
+
+/**
+ * Update Nyxgotchi size
+ */
+export function updateNyxgotchiSize() {
+    const nyxgotchi = document.getElementById('nyxgotchi');
+    if (nyxgotchi) {
+        applySize(nyxgotchi);
+        updateSpriteDisplay();
     }
 }
 
@@ -330,10 +364,11 @@ function getNyxgotchiHTML() {
     const mood = getMoodText(disposition);
     const shellSrc = getShellPath();
     const theme = settings.theme || 'guardian';
+    const size = getCurrentSize();
 
     return `
         <div class="nyxgotchi" id="nyxgotchi" data-mg-theme="${theme}">
-            <div class="nyxgotchi-shell" id="nyxgotchi-shell">
+            <div class="nyxgotchi-shell" id="nyxgotchi-shell" style="width: ${size.shell}px; height: ${size.shell}px;">
                 
                 <!-- Screen content (behind glass) -->
                 <div class="nyxgotchi-screen">
@@ -431,8 +466,8 @@ export function createNyxgotchi() {
     // Start animation
     startSpriteAnimation();
 
-    // Hide if disabled
-    if (!settings.showNyxgotchi) {
+    // Hide if explicitly disabled (use strict check for false, not falsy)
+    if (settings.showNyxgotchi === false) {
         nyxgotchi.style.display = 'none';
     }
 

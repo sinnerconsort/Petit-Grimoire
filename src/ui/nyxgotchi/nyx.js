@@ -15,6 +15,7 @@ export {
     updateShell,
     updateSpriteDisplay,
     updateMoodDisplay,
+    updateNyxgotchiSize,
     setDisposition,
     adjustDisposition,
     getMoodText,
