@@ -325,9 +325,6 @@ function getHandheldHTML() {
                     <button class="action-btn btn-b">B</button>
                     <button class="action-btn btn-a">A</button>
                 </div>
-
-                <!-- Close button -->
-                <button class="handheld-close" id="handheld-close">✕</button>
             </div>
         </div>
     `;
@@ -397,12 +394,6 @@ export function openHandheld() {
             height: 420px !important;
             z-index: 2147483647 !important;
         `;
-    }
-
-    // Setup close handlers
-    const closeBtn = document.getElementById('handheld-close');
-    if (closeBtn) {
-        closeBtn.addEventListener('click', closeHandheld);
     }
 
     // Close on overlay click

@@ -350,10 +350,6 @@ function getNyxgotchiHTML() {
                 position: relative;
                 width: ${size.shell}px; 
                 height: ${size.shell}px;
-                background: radial-gradient(ellipse at 30% 30%, ${fallbackBg}88, ${fallbackBg}44);
-                border-radius: 50% 50% 45% 45%;
-                border: 3px solid ${fallbackBg};
-                box-shadow: 0 4px 12px ${fallbackBg}66;
                 display: flex;
                 align-items: center;
                 justify-content: center;
