@@ -292,6 +292,8 @@ function showSpeech(text, duration = 3000) {
 
 function getHandheldHTML() {
     const theme = settings.theme || 'guardian';
+    const themeData = getTheme(theme);
+    const gameboyImg = themeData.gameboyShell || 'gameboy_lid.png';
 
     return `
         <div class="handheld-overlay" id="handheld-overlay">
@@ -304,9 +306,9 @@ function getHandheldHTML() {
                     </div>
                 </div>
 
-                <!-- Game Boy shell (on top) -->
+                <!-- Game Boy shell (on top, themed per deck) -->
                 <img class="handheld-shell-img"
-                     src="${ASSET_PATHS.shells}/gameboy_lid.png"
+                     src="${ASSET_PATHS.shells}/${gameboyImg}"
                      alt=""
                      draggable="false" />
 

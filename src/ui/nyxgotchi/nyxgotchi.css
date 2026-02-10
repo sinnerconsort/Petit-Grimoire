@@ -210,9 +210,29 @@
     filter: drop-shadow(0 4px 12px rgba(227, 179, 95, 0.5));
 }
 
+[data-mg-theme="angel"] .nyxgotchi-shell {
+    filter: drop-shadow(0 4px 14px rgba(212, 168, 67, 0.5));
+    animation: angelGlow 3s ease-in-out infinite;
+}
+
+[data-mg-theme="demon"] .nyxgotchi-shell {
+    filter: drop-shadow(0 4px 14px rgba(224, 80, 48, 0.6));
+    animation: demonGlow 2s ease-in-out infinite;
+}
+
 @keyframes phosphorGlow {
     0%, 100% { filter: drop-shadow(0 4px 12px rgba(249, 144, 246, 0.5)); }
     50% { filter: drop-shadow(0 6px 20px rgba(249, 144, 246, 0.7)); }
+}
+
+@keyframes angelGlow {
+    0%, 100% { filter: drop-shadow(0 4px 14px rgba(212, 168, 67, 0.5)); }
+    50% { filter: drop-shadow(0 6px 18px rgba(245, 217, 138, 0.7)); }
+}
+
+@keyframes demonGlow {
+    0%, 100% { filter: drop-shadow(0 4px 14px rgba(224, 80, 48, 0.6)); }
+    50% { filter: drop-shadow(0 6px 20px rgba(255, 107, 53, 0.8)); }
 }
 
 
@@ -272,35 +292,8 @@
 }
 
 /* ---- Theme Filters for Game Boy Shell ---- */
-/* Base shell is blue, we hue-rotate to match themes */
-
-[data-mg-theme="guardian"] .handheld-shell-img {
-    filter: hue-rotate(280deg) saturate(1.2);  /* blue → pink */
-}
-
-[data-mg-theme="umbra"] .handheld-shell-img {
-    filter: hue-rotate(60deg) brightness(0.6) saturate(1.5);  /* blue → dark purple */
-}
-
-[data-mg-theme="apothecary"] .handheld-shell-img {
-    filter: hue-rotate(80deg) saturate(0.8) brightness(0.9);  /* blue → green */
-}
-
-[data-mg-theme="moonstone"] .handheld-shell-img {
-    filter: hue-rotate(20deg) saturate(0.5) brightness(1.1);  /* blue → lavender */
-}
-
-[data-mg-theme="phosphor"] .handheld-shell-img {
-    filter: hue-rotate(300deg) saturate(1.5) brightness(0.8);  /* blue → magenta */
-}
-
-[data-mg-theme="rosewood"] .handheld-shell-img {
-    filter: hue-rotate(260deg) saturate(0.6) brightness(1.1);  /* blue → pink/rose */
-}
-
-[data-mg-theme="celestial"] .handheld-shell-img {
-    filter: hue-rotate(40deg) saturate(0.3) brightness(0.5);  /* blue → dark navy */
-}
+/* Each theme now uses a pre-colored gameboy PNG (set in config.js) */
+/* No CSS filters needed — the JS loads the correct image per theme */
 
 /* ---- Screen Area ---- */
 .handheld-screen {
