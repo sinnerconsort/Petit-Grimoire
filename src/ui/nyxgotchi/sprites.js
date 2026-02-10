@@ -3,6 +3,20 @@
  * Maps familiar forms → animation data
  * 
  * Wizard Cat sprites from: assets/sprites/wizard-cat/
+ * 
+ * Frame counts verified against actual PNG dimensions:
+ *   IdleCatb.png     - 224x32  → 7 frames  (32x32)
+ *   Idle2Catb.png    - 448x32  → 14 frames (32x32)
+ *   Sleeping.png     - 96x32   → 3 frames  (32x32)
+ *   Sittingb.png     - 96x32   → 3 frames  (32x32)
+ *   HurtCatb.png     - 224x32  → 7 frames  (32x32)
+ *   RunCatb.png      - 224x32  → 7 frames  (32x32)
+ *   FlyingCat.png    - 96x32   → 3 frames  (32x32)
+ *   Attack.png       - 288x64  → 9 frames  (32x64 tall!)
+ *   WizardAttack.png - 224x32  → 7 frames  (32x32)
+ *   Jump.png         - 416x64  → 13 frames (32x64 tall!)
+ *   DieCatb.png      - 480x32  → 15 frames (32x32)
+ *   Die2Catb.png     - 448x32  → 14 frames (32x32, NOT tall)
  */
 
 import { ASSET_PATHS } from '../../core/config.js';
@@ -30,30 +44,17 @@ export function getMoodText(disposition) {
 
 /**
  * Base frame size for wizard cat sprites
- * Confirmed: 32x32 per frame
+ * All sheets are 32px wide per frame.
+ * Most are 32px tall; Attack and Jump are 64px tall.
  */
-const FRAME_SIZE = 32;
+const FRAME_W = 32;
+const FRAME_H = 32;
+const FRAME_H_TALL = 64;
 
 // ============================================
 // FAMILIAR SPRITE REGISTRY
 // ============================================
 
-/**
- * Wizard Cat sprite sheets - 32x32 per frame
- * 
- *   IdleCatb.png     - 8 frames
- *   Idle2Catb.png    - 12 frames  
- *   Sleeping.png     - 4 frames
- *   Sittingb.png     - 4 frames
- *   HurtCatb.png     - 8 frames
- *   RunCatb.png      - 8 frames
- *   FlyingCat.png    - 4 frames
- *   Attack.png       - 8 frames
- *   WizardAttack.png - 8 frames
- *   Jump.png         - 14 frames (32x64 tall)
- *   DieCatb.png      - 12 frames
- *   Die2Catb.png     - 14 frames (32x64 tall)
- */
 const FAMILIAR_SPRITES = {
     cat: {
         name: 'Nyx',
@@ -61,107 +62,109 @@ const FAMILIAR_SPRITES = {
             // === MOOD STATES ===
             neutral: {
                 src: `${ASSET_PATHS.wizardCat}/IdleCatb.png`,
-                frames: 8,
-                frameWidth: FRAME_SIZE,
-                frameHeight: FRAME_SIZE,
+                frames: 7,            // 224 / 32 = 7
+                frameWidth: FRAME_W,
+                frameHeight: FRAME_H,
                 speed: 400
             },
             bored: {
                 src: `${ASSET_PATHS.wizardCat}/Sleeping.png`,
-                frames: 4,
-                frameWidth: FRAME_SIZE,
-                frameHeight: FRAME_SIZE,
+                frames: 3,            // 96 / 32 = 3
+                frameWidth: FRAME_W,
+                frameHeight: FRAME_H,
                 speed: 700
             },
             annoyed: {
                 src: `${ASSET_PATHS.wizardCat}/HurtCatb.png`,
-                frames: 8,
-                frameWidth: FRAME_SIZE,
-                frameHeight: FRAME_SIZE,
+                frames: 7,            // 224 / 32 = 7
+                frameWidth: FRAME_W,
+                frameHeight: FRAME_H,
                 speed: 250
             },
             amused: {
                 src: `${ASSET_PATHS.wizardCat}/RunCatb.png`,
-                frames: 8,
-                frameWidth: FRAME_SIZE,
-                frameHeight: FRAME_SIZE,
+                frames: 7,            // 224 / 32 = 7
+                frameWidth: FRAME_W,
+                frameHeight: FRAME_H,
                 speed: 100
             },
             delighted: {
                 src: `${ASSET_PATHS.wizardCat}/FlyingCat.png`,
-                frames: 4,
-                frameWidth: FRAME_SIZE,
-                frameHeight: FRAME_SIZE,
+                frames: 3,            // 96 / 32 = 3
+                frameWidth: FRAME_W,
+                frameHeight: FRAME_H,
                 speed: 150
             },
 
             // === EXTRA ANIMATIONS ===
             idle2: {
                 src: `${ASSET_PATHS.wizardCat}/Idle2Catb.png`,
-                frames: 12,
-                frameWidth: FRAME_SIZE,
-                frameHeight: FRAME_SIZE,
+                frames: 14,           // 448 / 32 = 14
+                frameWidth: FRAME_W,
+                frameHeight: FRAME_H,
                 speed: 400
             },
             sitting: {
                 src: `${ASSET_PATHS.wizardCat}/Sittingb.png`,
-                frames: 4,
-                frameWidth: FRAME_SIZE,
-                frameHeight: FRAME_SIZE,
+                frames: 3,            // 96 / 32 = 3
+                frameWidth: FRAME_W,
+                frameHeight: FRAME_H,
                 speed: 500
             },
             flying: {
                 src: `${ASSET_PATHS.wizardCat}/FlyingCat.png`,
-                frames: 4,
-                frameWidth: FRAME_SIZE,
-                frameHeight: FRAME_SIZE,
+                frames: 3,            // 96 / 32 = 3
+                frameWidth: FRAME_W,
+                frameHeight: FRAME_H,
                 speed: 150
             },
             attack: {
                 src: `${ASSET_PATHS.wizardCat}/Attack.png`,
-                frames: 8,
-                frameWidth: FRAME_SIZE,
-                frameHeight: FRAME_SIZE,
-                speed: 80
+                frames: 9,            // 288 / 32 = 9
+                frameWidth: FRAME_W,
+                frameHeight: FRAME_H_TALL,  // 64px tall!
+                speed: 80,
+                offsetY: -FRAME_W / 2       // -16, shift up so feet stay grounded
             },
             wizardAttack: {
                 src: `${ASSET_PATHS.wizardCat}/WizardAttack.png`,
-                frames: 8,
-                frameWidth: FRAME_SIZE,
-                frameHeight: FRAME_SIZE,
+                frames: 7,            // 224 / 32 = 7
+                frameWidth: FRAME_W,
+                frameHeight: FRAME_H,
                 speed: 80
             },
             run: {
                 src: `${ASSET_PATHS.wizardCat}/RunCatb.png`,
-                frames: 8,
-                frameWidth: FRAME_SIZE,
-                frameHeight: FRAME_SIZE,
+                frames: 7,            // 224 / 32 = 7
+                frameWidth: FRAME_W,
+                frameHeight: FRAME_H,
                 speed: 80
             },
 
-            // === TALL SPRITES (double height) ===
+            // === TALL SPRITES ===
             jump: {
                 src: `${ASSET_PATHS.wizardCat}/Jump.png`,
-                frames: 14,
-                frameWidth: FRAME_SIZE,
-                frameHeight: FRAME_SIZE * 2,
+                frames: 13,           // 416 / 32 = 13
+                frameWidth: FRAME_W,
+                frameHeight: FRAME_H_TALL,  // 64px tall
                 speed: 70,
-                offsetY: -FRAME_SIZE / 2
+                offsetY: -FRAME_W / 2       // -16
             },
+
+            // === DEATH ANIMATIONS (both 32px tall) ===
             die: {
                 src: `${ASSET_PATHS.wizardCat}/DieCatb.png`,
-                frames: 12,
-                frameWidth: FRAME_SIZE,
-                frameHeight: FRAME_SIZE,
+                frames: 15,           // 480 / 32 = 15
+                frameWidth: FRAME_W,
+                frameHeight: FRAME_H,
                 speed: 120
             },
             die2: {
                 src: `${ASSET_PATHS.wizardCat}/Die2Catb.png`,
-                frames: 14,
-                frameWidth: FRAME_SIZE,
-                frameHeight: FRAME_SIZE * 2,
-                speed: 120,
-                offsetY: -FRAME_SIZE / 2
+                frames: 14,           // 448 / 32 = 14
+                frameWidth: FRAME_W,
+                frameHeight: FRAME_H, // 32px tall, NOT 64!
+                speed: 120
             }
         }
     }
@@ -180,8 +183,8 @@ export function getSpriteAnimation(familiar, mood) {
     return {
         src: anim.src,
         frames: anim.frames,
-        frameWidth: anim.frameWidth || FRAME_SIZE,
-        frameHeight: anim.frameHeight || FRAME_SIZE,
+        frameWidth: anim.frameWidth || FRAME_W,
+        frameHeight: anim.frameHeight || FRAME_H,
         speed: anim.speed || 400,
         offsetY: anim.offsetY || 0
     };
@@ -207,5 +210,5 @@ export function getAvailableMoods(familiar) {
  * Get the base frame size
  */
 export function getDefaultFrameSize() {
-    return FRAME_SIZE;
+    return FRAME_W;
 }
