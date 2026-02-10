@@ -3,84 +3,24 @@
  * Browse the Major Arcana, tap to see meanings
  * 
  * "The cards know. Nyx interprets."
+ * 
+ * Now using themed spritesheets instead of individual card images!
  */
 
 import { settings } from '../../core/state.js';
 import { getTheme } from '../../core/config.js';
-import { MAJOR_ARCANA, getCardImagePath } from '../../data/tarotCards.js';
+import { MAJOR_ARCANA } from '../../data/tarotCards.js';
+import { 
+    createCardElement,
+    getDisplayDimensions,
+    getTarotSheet,
+    getCardPosition,
+    injectFlipStyles
+} from '../../data/tarotSprites.js';
 
 // View state: 'gallery' or 'detail'
 let currentView = 'gallery';
 let selectedCard = null;
-
-/**
- * Theme-specific card filter settings
- * Original cards are gold/yellow (~50° on color wheel)
- * hue-rotate shifts FROM that starting point
- * 
- * Color wheel reference:
- *   0° = Red, 60° = Yellow, 120° = Green, 
- *   180° = Cyan, 240° = Blue, 300° = Magenta
- */
-const THEME_CARD_FILTER = {
-    guardian: { 
-        // Target: Purple (~280°) from gold (~50°) = +230°
-        hue: 230,
-        saturation: 1.1,
-        brightness: 1,
-    },
-    umbra: { 
-        // Target: Vivid dark purple, needs pop against purple book
-        hue: 200,
-        saturation: 1.4,
-        brightness: 0.8,
-    },
-    apothecary: { 
-        // Target: Warm brown/sepia - slight shift, darkened but not TOO dark
-        hue: -7,
-        saturation: 0.97,
-        brightness: 0.75,  // Was 0.56, now lighter
-    },
-    moonstone: { 
-        // Target: Sky blue (~200°) from gold (~50°) = +150°
-        hue: 150,
-        saturation: 0.8,
-        brightness: 1,
-    },
-    phosphor: { 
-        // Target: Cyan (~180°) from gold (~50°) = +130°
-        hue: 130,
-        saturation: 1.8,
-        brightness: 1,
-    },
-    rosewood: { 
-        // Target: Sage green - this one was working
-        hue: 36,
-        saturation: 0.47,
-        brightness: 1,
-    },
-    celestial: { 
-        // Keep original gold
-        hue: 0,
-        saturation: 1,
-        brightness: 1,
-    },
-};
-
-/**
- * Get the CSS filter string for current theme's cards
- */
-function getCardFilter() {
-    const themeName = settings.theme || 'guardian';
-    const config = THEME_CARD_FILTER[themeName] || THEME_CARD_FILTER.guardian;
-    
-    // Skip filter entirely for celestial (keep original gold)
-    if (themeName === 'celestial') {
-        return 'none';
-    }
-    
-    return `hue-rotate(${config.hue}deg) saturate(${config.saturation}) brightness(${config.brightness})`;
-}
 
 /**
  * Get the content HTML for the tarot tab
@@ -94,36 +34,15 @@ export function getContent() {
 }
 
 /**
- * Gallery view - grid of all cards
+ * Gallery view - grid of all cards using spritesheet
  */
 function getGalleryView() {
     const theme = getTheme(settings.theme);
-    const cardFilter = getCardFilter();
     const textDark = '#2a1810';
     const textMid = '#4a3020';
     const textLight = '#6a5040';
     
-    const galleryHTML = MAJOR_ARCANA.map(card => `
-        <div class="pg-tarot-card" data-card-id="${card.id}" style="
-            position: relative;
-            width: 46px;
-            height: 81px;
-            cursor: pointer;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-            border-radius: 3px;
-            overflow: hidden;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-        ">
-            <img src="${getCardImagePath(card, '2x')}" alt="${card.name}" style="
-                width: 100%;
-                height: 100%;
-                image-rendering: pixelated;
-                display: block;
-                filter: ${cardFilter};
-            ">
-        </div>
-    `).join('');
-    
+    // We'll create the cards via JS in init(), just set up the container
     return `
         <div style="flex: 1; min-height: 0; overflow: hidden; position: relative;">
             <div class="pg-tarot-scroll" style="
@@ -143,16 +62,14 @@ function getGalleryView() {
                     "The cards know. Nyx interprets."
                 </p>
                 
-                <!-- Card Gallery -->
+                <!-- Card Gallery - populated by init() -->
                 <div id="pg-tarot-gallery" style="
                     display: grid;
                     grid-template-columns: repeat(4, 46px);
                     gap: 8px;
                     justify-content: center;
                     margin-bottom: 16px;
-                ">
-                    ${galleryHTML}
-                </div>
+                "></div>
                 
                 <!-- Hint -->
                 <p style="color: ${textLight}; font-size: 9px; text-align: center; font-style: italic;">
@@ -164,15 +81,41 @@ function getGalleryView() {
 }
 
 /**
+ * Populate gallery with spritesheet cards
+ */
+function populateGallery() {
+    const gallery = document.getElementById('pg-tarot-gallery');
+    if (!gallery) return;
+    
+    // Clear existing
+    gallery.innerHTML = '';
+    
+    // Create cards using spritesheet
+    MAJOR_ARCANA.forEach(card => {
+        const cardEl = createCardElement(card.id, {
+            displayScale: 1,  // 1x scale = ~46x81 px (close to your original 46x81)
+            theme: settings.theme,
+        });
+        
+        // Add data attribute for click handling
+        cardEl.dataset.cardId = card.id;
+        
+        gallery.appendChild(cardEl);
+    });
+}
+
+/**
  * Detail view - single card with meanings
  */
 function getDetailView(card) {
     const theme = getTheme(settings.theme);
-    const cardFilter = getCardFilter();
     const textDark = '#2a1810';
     const textMid = '#4a3020';
-    const textLight = '#6a5040';
     const accentColor = theme.main || '#9b59b6';
+    
+    // Get dimensions for larger display (2.5x scale ≈ 115x202)
+    const dims = getDisplayDimensions(2.5);
+    const posX = getCardPosition(card.id, 2.5);
     
     return `
         <div style="flex: 1; min-height: 0; overflow: hidden; position: relative;">
@@ -200,18 +143,20 @@ function getDetailView(card) {
                     <span>Back to Deck</span>
                 </div>
                 
-                <!-- Card Image with Filter -->
+                <!-- Card Image using Spritesheet -->
                 <div style="text-align: center; margin-bottom: 10px;">
-                    <img src="${getCardImagePath(card, '5x')}" alt="${card.name}" style="
-                        width: 115px;
-                        height: 202px;
+                    <div id="pg-tarot-detail-card" style="
+                        width: ${dims.width}px;
+                        height: ${dims.height}px;
+                        background-image: url('${getTarotSheet()}');
+                        background-size: ${dims.bgWidth}px ${dims.height}px;
+                        background-position: ${posX}px 0;
+                        background-repeat: no-repeat;
                         image-rendering: pixelated;
-                        display: block;
-                        margin: 0 auto;
+                        display: inline-block;
                         border-radius: 4px;
                         box-shadow: 0 3px 10px rgba(0,0,0,0.3);
-                        filter: ${cardFilter};
-                    ">
+                    "></div>
                 </div>
                 
                 <!-- Card Name -->
@@ -309,7 +254,11 @@ function getDetailView(card) {
  * Initialize event listeners for the tarot tab
  */
 export function init() {
+    // Inject flip animation styles (for future spread feature)
+    injectFlipStyles();
+    
     if (currentView === 'gallery') {
+        populateGallery();
         initGalleryListeners();
     } else {
         initDetailListeners();
@@ -393,6 +342,7 @@ function goBackToGallery() {
     const page = document.querySelector('.pg-page');
     if (page) {
         page.innerHTML = getGalleryView();
+        populateGallery();
         initGalleryListeners();
     }
 }
@@ -401,7 +351,7 @@ function goBackToGallery() {
  * Add hover effects to cards
  */
 function addHoverEffects() {
-    const cards = document.querySelectorAll('.pg-tarot-card');
+    const cards = document.querySelectorAll('#pg-tarot-gallery .pg-tarot-card');
     
     cards.forEach(card => {
         card.addEventListener('mouseenter', () => {
