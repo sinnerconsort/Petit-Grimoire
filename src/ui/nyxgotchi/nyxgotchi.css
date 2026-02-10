@@ -1,0 +1,688 @@
+/* ============================================
+   PETIT GRIMOIRE — NYXGOTCHI & HANDHELD
+   
+   Nyxgotchi: Floating tamagotchi companion
+   Handheld: Game Boy popup panel
+   
+   Both use transparent PNG shells with content
+   rendered behind the glass areas.
+   ============================================ */
+
+
+/* ============================================
+   PART 1: NYXGOTCHI (Tamagotchi FAB)
+   ============================================ */
+
+.nyxgotchi {
+    position: fixed;
+    bottom: 100px;
+    right: 20px;
+    z-index: 10000;
+
+    cursor: grab;
+    touch-action: none;
+    user-select: none;
+    transition: transform 0.15s ease-out;
+}
+
+.nyxgotchi:active {
+    cursor: grabbing;
+}
+
+.nyxgotchi.dragging {
+    transition: none;
+}
+
+/* ---- Shell Container ---- */
+.nyxgotchi-shell {
+    position: relative;
+    width: 120px;
+    height: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.nyxgotchi-shell:active {
+    transform: scale(0.95);
+    transition: transform 0.1s ease;
+}
+
+/* ---- Shell Image (PNG overlay) ---- */
+.nyxgotchi-shell-img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 2;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+    pointer-events: none;
+}
+
+/* ---- Screen (Behind Glass) ---- */
+.nyxgotchi-screen {
+    position: absolute;
+    z-index: 1;
+    
+    /* Align with tamagotchi glass area */
+    left: 22%;
+    top: 24%;
+    width: 56%;
+    height: 30%;
+
+    background: linear-gradient(135deg, #1a2a1a, #0d1a0d);
+    border-radius: 4px;
+    overflow: hidden;
+
+    display: flex;
+    flex-direction: column;
+    
+    /* CRT effect */
+    box-shadow: inset 0 0 10px rgba(0, 255, 100, 0.1);
+}
+
+/* Scanlines */
+.nyxgotchi-screen::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0, 0, 0, 0.05) 2px,
+        rgba(0, 0, 0, 0.05) 4px
+    );
+    pointer-events: none;
+    z-index: 3;
+}
+
+/* ---- Status Bar ---- */
+.nyxgotchi-status {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 2px 4px;
+    font-size: 8px;
+    font-family: 'Courier New', monospace;
+    color: #4ade80;
+    background: rgba(0, 0, 0, 0.2);
+    flex-shrink: 0;
+}
+
+.nyxgotchi-status-item {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+}
+
+.nyxgotchi-heart {
+    color: #f472b6;
+    animation: heartPulse 1.5s ease-in-out infinite;
+}
+
+.nyxgotchi-heart.invested {
+    animation: heartPulse 0.6s ease-in-out infinite;
+}
+
+@keyframes heartPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.3); }
+}
+
+/* ---- Sprite Area ---- */
+.nyxgotchi-sprite-area {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    min-height: 0;
+}
+
+.nyxgotchi-sprite {
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+    
+    /* ASCII defaults */
+    font-family: monospace;
+    font-size: 4px;
+    line-height: 1;
+    white-space: pre;
+    color: #4ade80;
+    
+    animation: spriteIdle 2s ease-in-out infinite;
+}
+
+.nyxgotchi-sprite.pixel-mode {
+    font-size: 0;
+    color: transparent;
+    background-repeat: no-repeat;
+}
+
+@keyframes spriteIdle {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-2px); }
+}
+
+/* ---- Mood Text ---- */
+.nyxgotchi-mood {
+    font-size: 6px;
+    font-family: 'Courier New', monospace;
+    color: #4ade80;
+    text-align: center;
+    padding: 1px;
+    background: rgba(0, 0, 0, 0.2);
+    text-transform: lowercase;
+    letter-spacing: 0.5px;
+    flex-shrink: 0;
+}
+
+/* ---- Theme Glows ---- */
+[data-mg-theme="guardian"] .nyxgotchi-shell {
+    filter: drop-shadow(0 4px 12px rgba(220, 120, 170, 0.4));
+}
+
+[data-mg-theme="umbra"] .nyxgotchi-shell {
+    filter: drop-shadow(0 4px 12px rgba(148, 14, 143, 0.5));
+}
+
+[data-mg-theme="apothecary"] .nyxgotchi-shell {
+    filter: drop-shadow(0 4px 12px rgba(76, 107, 32, 0.4));
+}
+
+[data-mg-theme="moonstone"] .nyxgotchi-shell {
+    filter: drop-shadow(0 4px 12px rgba(214, 146, 255, 0.4));
+}
+
+[data-mg-theme="phosphor"] .nyxgotchi-shell {
+    filter: drop-shadow(0 4px 16px rgba(249, 144, 246, 0.5));
+    animation: phosphorGlow 2s ease-in-out infinite;
+}
+
+[data-mg-theme="rosewood"] .nyxgotchi-shell {
+    filter: drop-shadow(0 4px 12px rgba(228, 176, 188, 0.4));
+}
+
+[data-mg-theme="celestial"] .nyxgotchi-shell {
+    filter: drop-shadow(0 4px 12px rgba(227, 179, 95, 0.5));
+}
+
+@keyframes phosphorGlow {
+    0%, 100% { filter: drop-shadow(0 4px 12px rgba(249, 144, 246, 0.5)); }
+    50% { filter: drop-shadow(0 6px 20px rgba(249, 144, 246, 0.7)); }
+}
+
+
+/* ============================================
+   PART 2: HANDHELD (Game Boy Popup)
+   ============================================ */
+
+/* ---- Overlay ---- */
+.handheld-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 100000;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(4px);
+    
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.handheld-overlay.visible {
+    opacity: 1;
+}
+
+/* ---- Container ---- */
+.handheld-container {
+    position: relative;
+    width: 280px;
+    height: 420px;
+    
+    transform: scale(0.8) translateY(20px);
+    opacity: 0;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.handheld-container.visible {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+}
+
+/* ---- Shell Image ---- */
+.handheld-shell-img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 2;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+    pointer-events: none;
+}
+
+/* ---- Theme Filters for Game Boy Shell ---- */
+/* Base shell is blue, we hue-rotate to match themes */
+
+[data-mg-theme="guardian"] .handheld-shell-img {
+    filter: hue-rotate(280deg) saturate(1.2);  /* blue → pink */
+}
+
+[data-mg-theme="umbra"] .handheld-shell-img {
+    filter: hue-rotate(60deg) brightness(0.6) saturate(1.5);  /* blue → dark purple */
+}
+
+[data-mg-theme="apothecary"] .handheld-shell-img {
+    filter: hue-rotate(80deg) saturate(0.8) brightness(0.9);  /* blue → green */
+}
+
+[data-mg-theme="moonstone"] .handheld-shell-img {
+    filter: hue-rotate(20deg) saturate(0.5) brightness(1.1);  /* blue → lavender */
+}
+
+[data-mg-theme="phosphor"] .handheld-shell-img {
+    filter: hue-rotate(300deg) saturate(1.5) brightness(0.8);  /* blue → magenta */
+}
+
+[data-mg-theme="rosewood"] .handheld-shell-img {
+    filter: hue-rotate(260deg) saturate(0.6) brightness(1.1);  /* blue → pink/rose */
+}
+
+[data-mg-theme="celestial"] .handheld-shell-img {
+    filter: hue-rotate(40deg) saturate(0.3) brightness(0.5);  /* blue → dark navy */
+}
+
+/* ---- Screen Area ---- */
+.handheld-screen {
+    position: absolute;
+    z-index: 1;
+    
+    /* Align with Game Boy screen area */
+    /* Adjust these values based on your PNG */
+    left: 12%;
+    top: 8%;
+    width: 76%;
+    height: 38%;
+    
+    background: linear-gradient(135deg, #1a2a1a, #0d1a0d);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.handheld-screen-content {
+    width: 100%;
+    height: 100%;
+    padding: 8px;
+    overflow-y: auto;
+    
+    font-family: 'Courier New', monospace;
+    color: #4ade80;
+    font-size: 11px;
+}
+
+/* ---- D-Pad ---- */
+.handheld-dpad {
+    position: absolute;
+    left: 12%;
+    top: 52%;
+    width: 70px;
+    height: 70px;
+    z-index: 3;
+}
+
+.dpad-btn {
+    position: absolute;
+    width: 24px;
+    height: 24px;
+    background: transparent;
+    border: none;
+    color: transparent;
+    cursor: pointer;
+    font-size: 10px;
+}
+
+.dpad-btn:active {
+    transform: scale(0.9);
+}
+
+.dpad-up { top: 0; left: 50%; transform: translateX(-50%); }
+.dpad-down { bottom: 0; left: 50%; transform: translateX(-50%); }
+.dpad-left { left: 0; top: 50%; transform: translateY(-50%); }
+.dpad-right { right: 0; top: 50%; transform: translateY(-50%); }
+
+/* ---- A/B Buttons ---- */
+.handheld-buttons {
+    position: absolute;
+    right: 12%;
+    top: 54%;
+    display: flex;
+    gap: 8px;
+    z-index: 3;
+}
+
+.action-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: transparent;
+    border: none;
+    color: transparent;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.action-btn:active {
+    transform: scale(0.9);
+}
+
+.btn-b { transform: translateY(8px); }
+
+/* ---- Close Button ---- */
+.handheld-close {
+    position: absolute;
+    top: -40px;
+    right: 0;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    z-index: 10;
+}
+
+.handheld-close:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+
+/* ============================================
+   HANDHELD SCREEN CONTENT STYLES
+   ============================================ */
+
+.handheld-title {
+    text-align: center;
+    font-size: 14px;
+    font-weight: bold;
+    margin-bottom: 8px;
+    color: #86efac;
+}
+
+/* ---- Main Screen ---- */
+.handheld-main-screen {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.handheld-mood-display {
+    text-align: center;
+    margin-bottom: 8px;
+}
+
+.mood-label {
+    font-size: 9px;
+    opacity: 0.7;
+}
+
+.mood-value {
+    font-size: 16px;
+    text-transform: capitalize;
+    margin: 2px 0;
+}
+
+.mood-bar {
+    width: 100%;
+    height: 6px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 3px;
+    overflow: hidden;
+    margin-top: 4px;
+}
+
+.mood-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #ef4444, #f59e0b, #22c55e);
+    transition: width 0.3s ease;
+}
+
+.handheld-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex: 1;
+}
+
+.handheld-menu-btn {
+    padding: 8px 12px;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid #4ade80;
+    border-radius: 4px;
+    color: #4ade80;
+    font-family: inherit;
+    font-size: 11px;
+    cursor: pointer;
+    text-align: left;
+    transition: background 0.2s ease;
+}
+
+.handheld-menu-btn:hover {
+    background: rgba(74, 222, 128, 0.2);
+}
+
+.handheld-speech {
+    margin-top: auto;
+    padding: 6px;
+    background: rgba(0, 0, 0, 0.4);
+    border-radius: 4px;
+    min-height: 24px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.handheld-speech.visible {
+    opacity: 1;
+}
+
+.speech-text {
+    font-style: italic;
+    font-size: 10px;
+}
+
+/* ---- Knucklebones Screen ---- */
+.handheld-knucklebones {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.knucklebones-board {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.knucklebones-player {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+}
+
+.player-label {
+    font-size: 10px;
+    opacity: 0.8;
+}
+
+.player-score {
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.dice-grid {
+    display: flex;
+    gap: 4px;
+}
+
+.dice-column {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.dice-slot {
+    width: 20px;
+    height: 20px;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(74, 222, 128, 0.5);
+    border-radius: 3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+}
+
+.knucklebones-divider {
+    height: 1px;
+    background: rgba(74, 222, 128, 0.3);
+    margin: 4px 0;
+}
+
+.knucklebones-current-die {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 8px;
+}
+
+.current-die-value {
+    width: 32px;
+    height: 32px;
+    background: rgba(0, 0, 0, 0.4);
+    border: 2px solid #4ade80;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.roll-btn {
+    padding: 6px 16px;
+    background: #4ade80;
+    border: none;
+    border-radius: 4px;
+    color: #0d1a0d;
+    font-family: inherit;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.roll-btn:hover {
+    background: #86efac;
+}
+
+.handheld-back-btn {
+    padding: 6px;
+    text-align: center;
+    cursor: pointer;
+    opacity: 0.7;
+    font-size: 10px;
+}
+
+.handheld-back-btn:hover {
+    opacity: 1;
+}
+
+/* ---- Settings Screen ---- */
+.handheld-settings {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.settings-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.setting-label {
+    font-size: 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.setting-range {
+    width: 100%;
+    accent-color: #4ade80;
+}
+
+.setting-value {
+    font-size: 12px;
+    text-align: center;
+}
+
+
+/* ============================================
+   MOBILE RESPONSIVE
+   ============================================ */
+
+@media (max-width: 768px) {
+    .nyxgotchi {
+        bottom: 80px;
+        right: 10px;
+    }
+
+    .nyxgotchi-shell {
+        width: 100px;
+        height: 100px;
+    }
+
+    .handheld-container {
+        width: 260px;
+        height: 390px;
+    }
+
+    .handheld-screen-content {
+        font-size: 10px;
+        padding: 6px;
+    }
+}
+
+@media (max-width: 400px) {
+    .nyxgotchi-shell {
+        width: 80px;
+        height: 80px;
+    }
+}
+
+
+/* ============================================
+   REDUCED MOTION
+   ============================================ */
+
+@media (prefers-reduced-motion: reduce) {
+    .nyxgotchi-sprite,
+    .nyxgotchi-heart,
+    .nyxgotchi-shell,
+    .handheld-overlay,
+    .handheld-container {
+        animation: none !important;
+        transition: none !important;
+    }
+}
