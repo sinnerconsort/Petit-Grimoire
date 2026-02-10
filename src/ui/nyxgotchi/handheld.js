@@ -378,7 +378,7 @@ function getHandheldHTML() {
                 <div class="handheld-dpad" id="handheld-dpad" style="
                     position: absolute;
                     left: 10%;
-                    top: 54%;
+                    top: 56%;
                     width: 98px;
                     height: 98x;
                     z-index: 5;
